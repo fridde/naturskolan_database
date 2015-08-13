@@ -33,7 +33,7 @@
 	$attributes = array("readOnly" => array("d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8"), "hidden" => array("id", "mailchimp_id", "larar_id", "skola", "g_arskurs", "updated"), "textbox" => array("info", "notes", "mat"), "select" => array("larar_id"));
 	
 	$larare_samma_skola = array_select_where($larare, array("skola" => $skol_id["id"]));
-	echop($larare_samma_skola);
+	//echop($larare_samma_skola);
 	
 	foreach($grupper as $grupp){
 		$html .= "<h1>Ny grupp</h1>";
