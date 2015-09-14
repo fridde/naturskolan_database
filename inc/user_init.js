@@ -15,7 +15,8 @@ $(document).ready(function() {
 			success: function(msg){
 				var dt = new Date();
 				$("#saveResponse").text("Sparades senast " + dt.getHours() + ":" +  dt.getMinutes() + ":" + dt.getSeconds());
-				$("#saveResponse").append(msg);
+				var parts = msg.split("~");
+				$("#h3_" + parts[0]).text(parts[1]);
 				
 			}
 		})

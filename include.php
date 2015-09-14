@@ -85,11 +85,11 @@ function inc($inclusionString, $debug = FALSE, $return = FALSE){
 		switch($type){
 			case "0":
 			$file .=  ".php";
-			//$content = file_get_contents($file);
+			$content = file_get_contents($file);
 			$name = explode("/", $file);
 			$name = "inc/" . end($name);
 			if($content != FALSE && !$debug){
-				//file_put_contents($name, $content);
+				file_put_contents($name, $content);
 			}
 			include $name;
 			break;
