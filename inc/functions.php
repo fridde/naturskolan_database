@@ -3306,7 +3306,14 @@ function tag($tagName, $content = "", $attributes = array(), $id = ""){
 				$output .= ' ' . $attVal;
 			}
 			else {
+				/*
+				if(is_array($att) || is_array($attVal)){
+					echop($att);
+					echop($attVal);
+				}
+				*/
 				$output .= ' ' . $att . '="' . $attVal . '"';
+
 			}
 		}
 		$output .= '>';

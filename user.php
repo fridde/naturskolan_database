@@ -6,41 +6,47 @@ $filename = "include.php";
 //copy($url, $filename);
 include $filename;
 /* END OF PREAMBLE */
-inc("fnc, sql");
-activate_all_errors(); // REMOVE in production
+inc("fnc, sql", TRUE); //remove "TRUE" in production
+activate_all_errors(); // remove in production
 
 $ini_array = parse_ini_file("config.ini", TRUE);
 
-$headerTranslator = $ini_array["headerTranslator"];
+$headerTranslator = $ini_array["headerTranslator"]; //used to give the sql-table headers more understandable names
 
-$id = $_REQUEST["id"]; // corresponding mailchimp-id that tells us who is entering
+$id = $_REQUEST["id"]; // corresponding mailchimp-id that tells us who is entering. Is a 10-character hex-code
 
-$larare = sql_select("larare");
-$grupper = sql_select("grupper");
-$skolor = sql_select("skolor");
-//$rektorer = sql_select("rektorer");
+$larare = sql_select("larare"); // a table completely controlled by mailchimp
+$grupper = sql_select("grupper"); // a table completely controlled on the local server
+$skolor = sql_select("skolor"); // a constant table that should only be changed in few cases
 
+/* We only accept users that have manually been added to the mailchimp group "verified = true" to avoid
+that someone who is not a teacher can register and immediately start to change data
+If a matching user was found, $user will contain the corresponding row from the sql-table "larare"
+*/
 $user = array_select_where($larare, array("mailchimp_id" => $id, "verified" => "true"));
 $user = (count($user) == 1 ? reset($user) : FALSE);
 
-$is_rektor = $user != FALSE && strtolower($user["rektor"]) == "true";
+$is_rektor = $user != FALSE && strtolower($user["rektor"]) == "true"; // not yet clear how this variable could be used
 
+/* this is a quick way of initializing a few variables, thus setting them to be an empty string */
 list($html, $head, $body, $title, $ak2_left, $ak2_right, $ak5_left, $ak5_right) = array_fill(0,20, "");
 
 if($user != FALSE){
-
+	/* this area is only for verified users */
 	$skola = $user["skola"]; // will be a 4 letter code like "ting" for Tingvalla
+
 	$skola_long = array_select_where($skolor, array("short_name" => $skola), "all", TRUE);
 	$skola_long = $skola_long["long_name"];
 
-	$grupper = array_select_where($grupper, array("skola" => $skola));
+	$grupper = array_select_where($grupper, array("skola" => $skola)); // selects all groups from the same school
 	$grupper = array_orderby($grupper, "g_arskurs", SORT_ASC , "larar_id", SORT_ASC);
 
-	$attributes = array("dates" => array("d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8"), "ignore" => array("id", "mailchimp_id", "larar_id", "skola", "g_arskurs", "updated", "ltid", "notes", "special"), "textbox" => array("info", "mat"), "select" => array("larar_id"));
+	$dateFields = array("d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8");
+	$attributes = array("ignore" => array("id", "mailchimp_id", "larar_id", "skola", "g_arskurs", "updated", "ltid", "notes", "special"), "textbox" => array("info", "mat"), "select" => array("larar_id"));
 
 	$larare_samma_skola = array_select_where($larare, array("skola" => $skola));
 
-
+	/* Here we start building the view */
 	$head .= qtag("meta");
 	$head .= tag("title", "Naturskolans inställningar - Inloggad som " . $user['fname'] . ' ' . $user['lname']);
 	$incString = "jquery,user_init,bootcss,bootjs,boottheme,fAwe";
@@ -48,17 +54,17 @@ if($user != FALSE){
 
 	$html .= tag("head", $head);
 
-	$title .= '<p id="saveResponse"><p>';
+	$title .= '<p id="saveResponse"><p>'; // A small paragraph that is updated whenever a successful ajax-request returns
 	$title .= '<h1>Hej, ' . $user['fname'] . ' ' . $user['lname'] . '!</h1>';
 	$title .= 'Här är alla grupper från ' . $skola_long . "!";
-	$recent_arskurs = "0";
-	$groupCounter = 0;
+	$recent_arskurs = "0"; // a counter that keeps the årskurs of the recent group to compare
+	$groupCounter = 0; // needed to see whether a group should be viewed in the left or right column. Also is used as an alternative if the group has no name yet. In this case the group is called "Grupp $groupCounter"
 
 	foreach($grupper as $grupp){
-		$thisGroupContent = "";
-		$arskurs = $grupp["g_arskurs"];
+		$thisGroupContent = ""; // this will contain the content of the current group
+		$arskurs = $grupp["g_arskurs"]; // ideally either "2/3" or "5"
 		if($arskurs != $recent_arskurs){
-			$groupCounter = 0;
+			$groupCounter = 0; // resetting the group counter whenever a new årskurs starts
 		}
 		$groupCounter += 1;
 		$recent_arskurs = $arskurs;
@@ -69,9 +75,29 @@ if($user != FALSE){
 		else {
 			$klassname = "Grupp " . $groupCounter;
 		}
-		$thisGroupContent .= '<h3 id="h3_' . $grupp["id"] . '">' . $klassname .'</h3>';
-		foreach($grupp as $gruppField => $fieldValue){
+		$thisGroupContent .= '<h3 id="h3_' . $grupp["id"] . '">' . $klassname .'</h3>'; //is updated by the ajax-request whenever the input field "klass" is updated
 
+		/* Here come the fields of each group */
+
+		/* DATES */
+		$datesList = "";
+		foreach($dateFields as $dateColName){
+			if(trim($grupp[$dateColName]) != ""){
+				if($grupp["g_arskurs"] == "2/3"){
+					$li = $ini_array["titleTranslator2"][$dateColName];
+				} elseif($grupp["g_arskurs"] == "5"){
+					$li = $ini_array["titleTranslator5"][$dateColName];
+				} else {
+					$li = $dateColName;
+				}
+				$li .= ": " . $grupp[$dateColName];
+				$datesList .= tag("li", $li);
+			}
+		}
+		$ul = tag("ul", $datesList);
+
+		foreach($grupp as $gruppField => $fieldValue){
+			/* cykling through the */
 			/* Determine what kind of field it is and how it should be shown*/
 			$fieldType = "";
 			foreach($attributes as $key => $values){
@@ -172,7 +198,7 @@ if($user != FALSE){
 	$body .= "You are not a registered user OR the admin of sigtunanaturskola.se has not added you to the list of verified users yet. Go to sigtunanaturskola.se/kontakt";
 }
 $html .= tag("body", $body);
-echo $html;
+echo tag("html", $html);
 //48 a7a4d6c76d
 
 
