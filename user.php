@@ -42,6 +42,8 @@ if($user != FALSE){
 	$grupper = array_orderby($grupper, "g_arskurs", SORT_ASC , "larar_id", SORT_ASC);
 
 	$dateFields = array("d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8");
+	$textFields = array("klass" => "Gruppens namn", "elever" => "Antal elever", "mat" => "Matpreferenser/Allergier", "info" => "Annat man bör veta om klassen");
+	$textAreaFields = array("mat", "info");
 	$attributes = array("ignore" => array("id", "mailchimp_id", "larar_id", "skola", "g_arskurs", "updated", "ltid", "notes", "special"), "textbox" => array("info", "mat"), "select" => array("larar_id"));
 
 	$larare_samma_skola = array_select_where($larare, array("skola" => $skola));
@@ -79,6 +81,27 @@ if($user != FALSE){
 
 		/* Here come the fields of each group */
 
+		/* TEACHER SELECTOR*/
+		$select = "";
+		foreach($larare_samma_skola as $key => $row){
+			$selected = ($row["id"] == $grupp["larar_id"] ? "selected" : "");
+			$select .= tag("option", $row["fname"] . " " . $row["lname"], array("value" => $row["id"], $selected));
+		}
+		$thisGroupContent .= tag("select", $select, array("name" => $grupp["id"] . "%" . "larar_id"));
+
+
+		foreach($textFields as $colKey => $labelText){
+			$fieldId = $grupp["id"] . "%" . $colKey;
+			$thisGroupContent .= tag("label", $labelText, array("for" => $fieldId));
+
+			if(in_array($colKey, $textAreaFields)){
+				$tagName = "textarea";
+			} else {
+				$tagName = "input";
+			}
+			$thisGroupContent .= tag($tagName, $grupp[$colKey], array("name" => $fieldId, "id" => $fieldId));
+		}
+
 		/* DATES */
 		$datesList = "";
 		foreach($dateFields as $dateColName){
@@ -95,62 +118,9 @@ if($user != FALSE){
 			}
 		}
 		$ul = tag("ul", $datesList);
-
-		foreach($grupp as $gruppField => $fieldValue){
-			/* cykling through the */
-			/* Determine what kind of field it is and how it should be shown*/
-			$fieldType = "";
-			foreach($attributes as $key => $values){
-				if(in_array($gruppField, $values)){
-					$fieldType = $key;
-				}
-			}
-			$tag = "input";
-			$fieldAttributes = array("name" => $grupp["id"] . "%" . $gruppField,
-			"type" => "text", "value" => htmlspecialchars($fieldValue));
-			if($fieldType != "ignore"){
-
-				$content = "";
-				switch($fieldType){
-					case "dates":
-					$tag = "li";
-					if($grupp["g_arskurs"] == "2/3"){
-						$gruppField = $ini_array["titleTranslator2"][$gruppField];
-					} elseif($grupp["g_arskurs"] == "5"){
-						$gruppField = $ini_array["titleTranslator5"][$gruppField];
-					} else {
-						$gruppField = $gruppField;
-					}
-
-					$content = $gruppField . ": " . $fieldValue;
-					$gruppField = "";
-					break;
+		$thisGroupContent .= $ul;
 
 
-					case "textbox":
-					$tag = "textarea";
-					$content = htmlspecialchars($fieldValue);
-					break;
-
-					case "select":
-					$tag = "select";
-					foreach($larare_samma_skola as $key => $row){
-						$selected = ($row["id"] == $grupp["larar_id"] ? "selected" : "");
-						$content .= tag("option", $row["fname"] . " " . $row["lname"], array("value" => $row["id"], $selected));
-					}
-
-					break;
-
-					default:
-					break;
-
-				}
-				$gruppField = (isset($headerTranslator[$gruppField]) ? $headerTranslator[$gruppField] : $gruppField);
-
-				$thisGroupContent .= $gruppField;
-				$thisGroupContent .= tag($tag, $content , $fieldAttributes) . "<br>";
-			}
-		}
 		$left = $groupCounter % 2 == 1;
 		$is_ak5 = $arskurs == "5";
 
