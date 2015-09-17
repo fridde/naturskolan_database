@@ -89,7 +89,7 @@ if($user != FALSE){
 		}
 		$thisGroupContent .= tag("select", $select, array("name" => $grupp["id"] . "%" . "larar_id"));
 
-
+		/* all the textinputs*/
 		foreach($textFields as $colKey => $labelText){
 			$fieldId = $grupp["id"] . "%" . $colKey;
 			$thisGroupContent .= tag("label", $labelText, array("for" => $fieldId));
@@ -120,6 +120,7 @@ if($user != FALSE){
 		$ul = tag("ul", $datesList);
 		$thisGroupContent .= $ul;
 
+ 
 
 		$left = $groupCounter % 2 == 1;
 		$is_ak5 = $arskurs == "5";

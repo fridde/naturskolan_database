@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 16, 2015 at 04:13 PM
+-- Generation Time: Sep 17, 2015 at 11:56 PM
 -- Server version: 5.6.25
 -- PHP Version: 5.6.11
 
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `arbetsfordelning` (
   `dag` tinytext NOT NULL,
   `aktivitet` tinytext NOT NULL,
   `personal` tinytext NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `arbetsfordelning`
@@ -58,22 +58,30 @@ CREATE TABLE IF NOT EXISTS `grupper` (
   `info` text NOT NULL,
   `notes` text NOT NULL,
   `ltid` tinytext NOT NULL,
+  `d1` tinytext NOT NULL,
+  `d2` tinytext NOT NULL,
+  `d3` tinytext NOT NULL,
+  `d4` tinytext NOT NULL,
+  `d5` tinytext NOT NULL,
+  `d6` tinytext NOT NULL,
+  `d7` tinytext NOT NULL,
+  `d8` tinytext NOT NULL,
   `special` text NOT NULL,
   `g_arskurs` tinytext NOT NULL,
   `updated` tinytext NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `grupper`
 --
 
-INSERT INTO `grupper` (`id`, `larar_id`, `skola`, `klass`, `elever`, `mat`, `info`, `notes`, `ltid`, `special`, `g_arskurs`, `updated`) VALUES
-(2, '2', 'råbg', 'Grupp 1 av åk2', '18', '1 glutenintolerant  och 1 ej fläskkött', '', '', '', '', '2/3', '2015-08-18 16:05:48'),
-(11, '11', 'råbg', '2', '18', 'en icke griskött', '', '', '', '', '2/3', '2015-07-01 14:34:07'),
-(32, '32', 'stpe', 'Klass 2b', '27', 'Tre av eleverna är muslimer.', '', '', '', '', '2/3', '2015-08-18 16:05:29'),
-(47, '47', 'råbg', '4-5B', '22', 'Två allergiska mot laktos, en mot nötter, en mot gluten, en som bara äter vegetariskt (äter ägg och fisk) och en elev med väldigt speciella matbehov - äter inte "kladdig mat". Om vi får veta vad som serveras denna dag, så kan vi se om det kan vara något.', '', '', '', '', '5', '2015-08-25 21:12:59'),
-(48, '47', 'råbg', '4-5A', '22', 'En allergisk mot Gluten och äggvita, en mot bara gluten, en mot kiwi och en mot stenfrukter och nötter.', '', '', '', '', '5', '2015-08-25 21:14:07'),
-(96, '96', 'råbg', '4-5d', '23', 'En allergisk mot laktos, en mot nötter, en mot stenfrukter, äpplen och päron och en mot "exotiska frukter"', '', '', '', '', '5', '2015-08-25 21:23:41');
+INSERT INTO `grupper` (`id`, `larar_id`, `skola`, `klass`, `elever`, `mat`, `info`, `notes`, `ltid`, `d1`, `d2`, `d3`, `d4`, `d5`, `d6`, `d7`, `d8`, `special`, `g_arskurs`, `updated`) VALUES
+(2, '2', 'råbg', 'Grupp 1 av åk2', '18', '1 glutenintolerant  och 1 ej fläskkött', '', '', '', '', '', '', '', '2015-09-26', '2015-10-26', '2015-11-26', '2015-12-26', '', '2/3', '2015-08-18 16:05:48'),
+(11, '11', 'råbg', '2', '18', 'en icke griskött', '', '', '', '', '', '', '', '', '', '', '', '', '2/3', '2015-07-01 14:34:07'),
+(32, '32', 'stpe', 'Klass 2b', '27', 'Tre av eleverna är muslimer.', '', '', '', '', '', '', '', '', '', '', '', '', '2/3', '2015-08-18 16:05:29'),
+(47, '47', 'råbg', '4-5B', '22', 'Två allergiska mot laktos, en mot nötter, en mot gluten, en som bara äter vegetariskt (äter ägg och fisk) och en elev med väldigt speciella matbehov - äter inte "kladdig mat". Om vi får veta vad som serveras denna dag, så kan vi se om det kan vara något.', '', '', '', '', '', '', '', '', '', '', '', '', '5', '2015-08-25 21:12:59'),
+(48, '47', 'råbg', '4-5A', '22', 'En allergisk mot Gluten och äggvita, en mot bara gluten, en mot kiwi och en mot stenfrukter och nötter.', '', '', '', '', '', '', '', '', '', '', '', '', '5', '2015-08-25 21:14:07'),
+(96, '96', 'råbg', '4-5d', '23', 'En allergisk mot laktos, en mot nötter, en mot stenfrukter, äpplen och päron och en mot "exotiska frukter"', '', '', '', '', '', '', '', '', '', '', '', '', '5', '2015-08-25 21:23:41');
 
 -- --------------------------------------------------------
 
@@ -92,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `kalender` (
   `endtime` tinytext NOT NULL,
   `location` tinytext NOT NULL,
   `description` text NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=13965 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `kalender`
@@ -117,23 +125,24 @@ CREATE TABLE IF NOT EXISTS `larare` (
   `lname` tinytext NOT NULL,
   `skola` tinytext NOT NULL,
   `mobil` tinytext NOT NULL,
+  `notes` text NOT NULL,
   `verified` tinytext NOT NULL,
   `rektor` tinytext NOT NULL,
   `updated` tinytext NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=105 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Dumping data for table `larare`
 --
 
-INSERT INTO `larare` (`id`, `mailchimp_id`, `status`, `email`, `fname`, `lname`, `skola`, `mobil`, `verified`, `rektor`, `updated`) VALUES
-(2, 'fA3n3v7e', 'subscribed', 'Tom.Testsson@edu.sigtuna.se', 'Tom', 'Testsson', 'råbg', '070-123456', 'true', '', '2015-08-18 16:05:48'),
-(11, '8Pi4UGJy', 'archived', 'tanja.testsson@edu.sigtuna.se', 'Tanja', 'Testsson', 'råbg', '070-87654321', 'true', '', '2015-07-01 14:34:07'),
-(32, 'JYV519aw', 'subscribed', 'anna.testsson@edu.sigtuna.se', 'Anna', 'Testsson-Mockupsson', 'stpe', '070-111111', 'true', '', '2015-08-18 16:05:29'),
-(47, 'lCt4qY9K', 'subscribed', 'bjorn.testsson@edu.sigtuna.se', 'Björn', 'Testsson', 'råbg', '070-222222', 'true', '', '2015-08-25 21:12:59'),
-(48, '5D55o7Zr', 'subscribed', 'cecilia.testson@edu.sigtuna.se', 'Cecilia', 'Testsson', 'råbg', '070333333', 'true', '', '2015-08-25 21:14:07'),
-(96, 'oRI5a50n', 'subscribed', 'david.testson@edu.sigtuna.se', 'David', 'Testson', 'råbg', '070-444444', 'true', '', '2015-08-25 21:23:41'),
-(104, '28nc6Y1G', 'subscribed', 'erik.testson@edu.sigtuna.se', 'Erik', 'Testson', 'råbg', '070-555555', 'true', '', '');
+INSERT INTO `larare` (`id`, `mailchimp_id`, `status`, `email`, `fname`, `lname`, `skola`, `mobil`, `notes`, `verified`, `rektor`, `updated`) VALUES
+(2, 'fA3n3v7e', 'subscribed', 'Tom.Testsson@edu.sigtuna.se', 'Tom', 'Testsson', 'råbg', '070-123456', '', 'true', '', '2015-08-18 16:05:48'),
+(11, '8Pi4UGJy', 'archived', 'tanja.testsson@edu.sigtuna.se', 'Tanja', 'Testsson', 'råbg', '070-87654321', '', 'true', '', '2015-07-01 14:34:07'),
+(32, 'JYV519aw', 'subscribed', 'anna.testsson@edu.sigtuna.se', 'Anna', 'Testsson-Mockupsson', 'stpe', '070-111111', '', 'true', '', '2015-08-18 16:05:29'),
+(47, 'lCt4qY9K', 'subscribed', 'bjorn.testsson@edu.sigtuna.se', 'Björn', 'Testsson', 'råbg', '070-222222', '', 'true', '', '2015-08-25 21:12:59'),
+(48, '5D55o7Zr', 'subscribed', 'cecilia.testson@edu.sigtuna.se', 'Cecilia', 'Testsson', 'råbg', '070333333', '', 'true', '', '2015-08-25 21:14:07'),
+(96, 'oRI5a50n', 'subscribed', 'david.testson@edu.sigtuna.se', 'David', 'Testson', 'råbg', '070-444444', '', 'true', '', '2015-08-25 21:23:41'),
+(104, '28nc6Y1G', 'subscribed', 'erik.testson@edu.sigtuna.se', 'Erik', 'Testson', 'råbg', '070-555555', '', 'true', '', '');
 
 -- --------------------------------------------------------
 
@@ -144,47 +153,56 @@ INSERT INTO `larare` (`id`, `mailchimp_id`, `status`, `email`, `fname`, `lname`,
 DROP TABLE IF EXISTS `skolor`;
 CREATE TABLE IF NOT EXISTS `skolor` (
   `id` int(11) NOT NULL,
-  `short_name` tinytext COLLATE utf8mb4_unicode_ci NOT NULL,
   `long_name` tinytext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `ak2` tinytext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `ak5` tinytext COLLATE utf8mb4_unicode_ci NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `short_name` tinytext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `grupper_ak2` tinytext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `grupper_ak5` tinytext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `lat` tinytext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `lon` tinytext COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `skolor`
 --
 
-INSERT INTO `skolor` (`id`, `short_name`, `long_name`, `ak2`, `ak5`) VALUES
-(1, 'råbg', 'Råbergsskolan', '', ''),
-(2, 'skep', 'Skepptunaskolan', '', '');
+INSERT INTO `skolor` (`id`, `long_name`, `short_name`, `grupper_ak2`, `grupper_ak5`, `lat`, `lon`) VALUES
+(1, 'Bergius ', 'berg', '', '', '59.620758', '17.857049'),
+(2, 'Centralskolan ', 'cent', '', '', '59.623361', '17.854833'),
+(3, 'Eddaskolan ', 'edda', '', '', '59.61297', '17.826379'),
+(4, 'Ekillaskolan ', 'ekil', '', '', '59.625404', '17.846261'),
+(5, 'Josefinaskolan ', 'jose', '', '', '59.628129', '17.782695'),
+(6, 'Norrbackaskolan ', 'norr', '', '', '59.634418', '17.851555'),
+(7, 'Odensala skola ', 'oden', '', '', '59.665704', '17.845369'),
+(8, 'Råbergsskolan ', 'råbg', '', '', '59.579675', '17.890483'),
+(9, 'S:t Olofs skola ', 'olof', '', '', '59.621024', '17.724982'),
+(10, 'S:t Pers skola ', 'pers', '', '', '59.61553', '17.716579'),
+(11, 'S:ta Gertruds skola ', 'gert', '', '', '59.623818', '17.751047'),
+(12, 'Sagaskolan', 'saga', '', '', '59.619174', '17.829329'),
+(13, 'Sigtunaskolan Humanistiska Läroverket ', 'sshl', '', '', '59.615083', '17.709029'),
+(14, 'Skepptuna skola ', 'skep', '', '', '59.70681', '18.111307'),
+(15, 'Steningehöjdens skola ', 'shöj', '', '', '59.625468', '17.795426'),
+(16, 'Steningeskolan Orion och Galaxen ', 'sten', '', '', '59.612196', '17.811947'),
+(17, 'Sätunaskolan ', 'sätu', '', '', '59.631093', '17.85645'),
+(18, 'Tingvallaskolan ', 'ting', '', '', '59.626631', '17.828393'),
+(19, 'Valstaskolan ', 'vals', '', '', '59.61706', '17.828409'),
+(20, 'Väringaskolan ', 'väri', '', '', '59.622441', '17.725464'),
+(21, 'Grundsärskolan', 'gsär', '', '', '', '');
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `arbetsfordelning`
---
-ALTER TABLE `arbetsfordelning`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `grupper`
 --
 ALTER TABLE `grupper`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `kalender`
---
-ALTER TABLE `kalender`
-  ADD PRIMARY KEY (`id`);
+  ADD UNIQUE KEY `id` (`id`);
 
 --
 -- Indexes for table `larare`
 --
 ALTER TABLE `larare`
-  ADD PRIMARY KEY (`id`);
+  ADD UNIQUE KEY `id` (`id`);
 
 --
 -- Indexes for table `skolor`
@@ -197,30 +215,10 @@ ALTER TABLE `skolor`
 --
 
 --
--- AUTO_INCREMENT for table `arbetsfordelning`
---
-ALTER TABLE `arbetsfordelning`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=116;
---
--- AUTO_INCREMENT for table `grupper`
---
-ALTER TABLE `grupper`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=104;
---
--- AUTO_INCREMENT for table `kalender`
---
-ALTER TABLE `kalender`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=13965;
---
--- AUTO_INCREMENT for table `larare`
---
-ALTER TABLE `larare`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=105;
---
 -- AUTO_INCREMENT for table `skolor`
 --
 ALTER TABLE `skolor`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=22;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
