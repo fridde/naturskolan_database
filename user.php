@@ -6,7 +6,7 @@ $filename = "include.php";
 //copy($url, $filename);
 include $filename;
 /* END OF PREAMBLE */
-inc("fnc, sql", TRUE); //remove "TRUE" in production
+inc("fnc, sql", FALSE); //remove "TRUE" in production
 activate_all_errors(); // remove in production
 
 $ini_array = parse_ini_file("config.ini", TRUE);
@@ -51,14 +51,15 @@ if($user != FALSE){
 	/* Here we start building the view */
 	$head .= qtag("meta");
 	$head .= tag("title", "Naturskolans inställningar - Inloggad som " . $user['fname'] . ' ' . $user['lname']);
-	$incString = "jquery,user_init,bootcss,bootjs,boottheme,fAwe";
+	$incString = "jquery,user_init,bootcss,bootjs,boottheme,fAwe,css";
+	//$incString = "jquery,user_init,bootcss,bootjs,boottheme,fAwe"; // ONLY FOR DEBUG!
 	$head .= inc($incString, FALSE, TRUE);
 
 	$html .= tag("head", $head);
 
-	$title .= '<p id="saveResponse"><p>'; // A small paragraph that is updated whenever a successful ajax-request returns
 	$title .= '<h1>Hej, ' . $user['fname'] . ' ' . $user['lname'] . '!</h1>';
 	$title .= 'Här är alla grupper från ' . $skola_long . "!";
+	$title .= '<p id="saveResponse"><p>'; // A small paragraph that is updated whenever a successful ajax-request returns
 	$recent_arskurs = "0"; // a counter that keeps the årskurs of the recent group to compare
 	$groupCounter = 0; // needed to see whether a group should be viewed in the left or right column. Also is used as an alternative if the group has no name yet. In this case the group is called "Grupp $groupCounter"
 
@@ -77,29 +78,35 @@ if($user != FALSE){
 		else {
 			$klassname = "Grupp " . $groupCounter;
 		}
-		$thisGroupContent .= '<h3 id="h3_' . $grupp["id"] . '">' . $klassname .'</h3>'; //is updated by the ajax-request whenever the input field "klass" is updated
+		$groupTitleArray = array("id" => "h3_" . $grupp["id"], "class" => "groupTitle");
+		$thisGroupContent .= tag("h3", $klassname, $groupTitleArray); //is updated by the ajax-request whenever the input field "klass" is updated
 
 		/* Here come the fields of each group */
 
 		/* TEACHER SELECTOR*/
 		$select = "";
+		$selectorId = $grupp["id"] . "%" . "larar_id";
+		$thisGroupContent .= tag("label", "Medföljande lärare", array("for" => $selectorId));
 		foreach($larare_samma_skola as $key => $row){
 			$selected = ($row["id"] == $grupp["larar_id"] ? "selected" : "");
 			$select .= tag("option", $row["fname"] . " " . $row["lname"], array("value" => $row["id"], $selected));
 		}
-		$thisGroupContent .= tag("select", $select, array("name" => $grupp["id"] . "%" . "larar_id"));
+		$thisGroupContent .= tag("select", $select, array("name" => $selectorId));
 
 		/* all the textinputs*/
 		foreach($textFields as $colKey => $labelText){
 			$fieldId = $grupp["id"] . "%" . $colKey;
 			$thisGroupContent .= tag("label", $labelText, array("for" => $fieldId));
 
+			$atts =array("name" => $fieldId, "id" => $fieldId);
 			if(in_array($colKey, $textAreaFields)){
 				$tagName = "textarea";
+				$atts["rows"] = "4";
 			} else {
+				$atts["value"] = $grupp[$colKey];
 				$tagName = "input";
 			}
-			$thisGroupContent .= tag($tagName, $grupp[$colKey], array("name" => $fieldId, "id" => $fieldId));
+			$thisGroupContent .= tag($tagName, $grupp[$colKey], $atts);
 		}
 
 		/* DATES */
@@ -118,49 +125,63 @@ if($user != FALSE){
 			}
 		}
 		$ul = tag("ul", $datesList);
-		$thisGroupContent .= $ul;
+		$datesFieldSet =  "<legend>Datum</legend>" . $ul;
+		$thisGroupContent .= tag("fieldset", 	$datesFieldSet);
+		/* End of DATES */
 
- 
+		/* Compliance statement */
+		$is_checked = $grupp["checked"] == "yes";
+		$complianceId = $grupp["id"] . "%" . "checked";
+		$compliance = qtag("checkbox", $complianceId, "yes", $is_checked);
+		$complianceText = "Uppgifterna för denna klass är någorlunda korrekta och datumen är antecknade i medföljande lärares kalender.";
+		$complianceFieldSet = "<legend>Bekräftelse</legend>" . $compliance . $complianceText;
+		$thisGroupContent .= tag("fieldset", $complianceFieldSet);
 
+		/* FINAL finish of the Group-part */
+		$thisGroup = tag("div", $thisGroupContent, "group");
+
+		/* Deciding where the groups content should go */
 		$left = $groupCounter % 2 == 1;
 		$is_ak5 = $arskurs == "5";
 
 		if($left && !$is_ak5){
-			$ak2_left .= $thisGroupContent;
+			$ak2_left .= $thisGroup;
 		}
 		if($left && $is_ak5){
-			$ak5_left .= $thisGroupContent;
+			$ak5_left .= $thisGroup;
 		}
 		if(!$left && !$is_ak5){
-			$ak2_right .= $thisGroupContent;
+			$ak2_right .= $thisGroup;
 		}
 		if(!$left && $is_ak5){
-			$ak5_right .= $thisGroupContent;
+			$ak5_right .= $thisGroup;
 		}
-
-
 	}
+
+	/* Creating the final view */
+	$instructionText = file_get_contents("inc/instructions.html");
+	$instructionColumn = tag("div", $instructionText, "col-md-4");
 	$arskursViewArray = array();
 	if($ak2_left != ""){
-		$ak2 = "<h2>Årskurs 2/3</h2>";
+		$ak2_pretext = "<h2>Årskurs 2/3</h2>";
 
-		$col_left = tag("div", $ak2_left, "col-md-6");
-		$col_right = tag("div", $ak2_right, "col-md-6");
-		$row = tag("div", $col_left . $col_right , "row");
-		$ak2 = tag("div", $ak2 . $row, "container");
+		$col_left = tag("div", $ak2_left, "col-md-4");
+		$col_right = tag("div", $ak2_right, "col-md-4");
+		$row = tag("div", $instructionColumn . $col_left . $col_right , "row");
+		$ak2 = tag("div", $ak2_pretext . $row, "container");
 		$arskursViewArray["Årskurs 2/3"] = $ak2;
 	}
 	if($ak5_left != ""){
-		$ak5 = "<h2>Årskurs 5</h2>";
+		$ak5_pretext = "<h2>Årskurs 5</h2>";
 
-		$col_left = tag("div", $ak5_left, "col-md-6");
-		$col_right = tag("div", $ak5_right, "col-md-6");
-		$row = tag("div", $col_left . $col_right , "row");
-		$ak5 = tag("div", $ak5 . $row, "container");
+		$col_left = tag("div", $ak5_left, "col-md-4");
+		$col_right = tag("div", $ak5_right, "col-md-4");
+		/* Here we put the row together */
+		$row = tag("div", $instructionColumn . $col_left . $col_right , "row");
+		$ak5 = tag("div", $ak5_pretext . $row, "container");
 		$arskursViewArray["Årskurs 5"] = $ak5;
-
 	}
-	$tabs = qtag("tabs", "", $arskursViewArray);
+	$tabs = qtag("tabs", "", $arskursViewArray) ;
 	//$col_1 = tag("div", $tabs, "col-md-12");
 	//$container = tag("div", $col_1, "row");
 	$body .= tag("div", $title . $tabs, "container");

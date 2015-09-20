@@ -3306,14 +3306,7 @@ function tag($tagName, $content = "", $attributes = array(), $id = ""){
 				$output .= ' ' . $attVal;
 			}
 			else {
-				/*
-				if(is_array($att) || is_array($attVal)){
-					echop($att);
-					echop($attVal);
-				}
-				*/
 				$output .= ' ' . $att . '="' . $attVal . '"';
-
 			}
 		}
 		$output .= '>';
@@ -3437,6 +3430,7 @@ function qtag(){
 		$tagName = "div";
 		$content = $tabOutput["content"];
 		$atts = $tabOutput["attributes"];
+		break;
 
 		default:
 		if($pseudoTag == ""){

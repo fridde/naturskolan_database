@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 17, 2015 at 11:56 PM
+-- Generation Time: Sep 20, 2015 at 08:20 PM
 -- Server version: 5.6.25
 -- PHP Version: 5.6.11
 
@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS `grupper` (
   `d8` tinytext NOT NULL,
   `special` text NOT NULL,
   `g_arskurs` tinytext NOT NULL,
+  `checked` tinytext NOT NULL,
   `updated` tinytext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -75,13 +76,13 @@ CREATE TABLE IF NOT EXISTS `grupper` (
 -- Dumping data for table `grupper`
 --
 
-INSERT INTO `grupper` (`id`, `larar_id`, `skola`, `klass`, `elever`, `mat`, `info`, `notes`, `ltid`, `d1`, `d2`, `d3`, `d4`, `d5`, `d6`, `d7`, `d8`, `special`, `g_arskurs`, `updated`) VALUES
-(2, '2', 'råbg', 'Grupp 1 av åk2', '18', '1 glutenintolerant  och 1 ej fläskkött', '', '', '', '', '', '', '', '2015-09-26', '2015-10-26', '2015-11-26', '2015-12-26', '', '2/3', '2015-08-18 16:05:48'),
-(11, '11', 'råbg', '2', '18', 'en icke griskött', '', '', '', '', '', '', '', '', '', '', '', '', '2/3', '2015-07-01 14:34:07'),
-(32, '32', 'stpe', 'Klass 2b', '27', 'Tre av eleverna är muslimer.', '', '', '', '', '', '', '', '', '', '', '', '', '2/3', '2015-08-18 16:05:29'),
-(47, '47', 'råbg', '4-5B', '22', 'Två allergiska mot laktos, en mot nötter, en mot gluten, en som bara äter vegetariskt (äter ägg och fisk) och en elev med väldigt speciella matbehov - äter inte "kladdig mat". Om vi får veta vad som serveras denna dag, så kan vi se om det kan vara något.', '', '', '', '', '', '', '', '', '', '', '', '', '5', '2015-08-25 21:12:59'),
-(48, '47', 'råbg', '4-5A', '22', 'En allergisk mot Gluten och äggvita, en mot bara gluten, en mot kiwi och en mot stenfrukter och nötter.', '', '', '', '', '', '', '', '', '', '', '', '', '5', '2015-08-25 21:14:07'),
-(96, '96', 'råbg', '4-5d', '23', 'En allergisk mot laktos, en mot nötter, en mot stenfrukter, äpplen och päron och en mot "exotiska frukter"', '', '', '', '', '', '', '', '', '', '', '', '', '5', '2015-08-25 21:23:41');
+INSERT INTO `grupper` (`id`, `larar_id`, `skola`, `klass`, `elever`, `mat`, `info`, `notes`, `ltid`, `d1`, `d2`, `d3`, `d4`, `d5`, `d6`, `d7`, `d8`, `special`, `g_arskurs`, `checked`, `updated`) VALUES
+(2, '2', 'råbg', 'Grupp 1 av åk2', '22', '1 glutenintolerant  och 1 ej fläskköt', '', '', '', '', '', '', '', '2015-09-26', '2015-10-26', '2015-11-26', '2015-12-26', '', '2/3', 'yes', '2015-08-18 16:05:48'),
+(11, '47', 'råbg', 'Grupp 2', '20', 'en icke griskött', 'Leker helst vid fina sandstränder. ', '', '', '2015-07-03', '2015-07-04', '2015-09-26', '2015-10-11', '', '', '', '', '', '2/3', 'yes', '2015-07-01 14:34:07'),
+(32, '32', 'stpe', 'Klass 2b', '27', 'Tre av eleverna är muslimer.', '', '', '', '', '', '', '', '', '', '', '', '', '2/3', '', '2015-08-18 16:05:29'),
+(47, '47', 'råbg', '4-5B', '22', 'Två allergiska mot laktos, en mot nötter, en mot gluten, en som bara äter vegetariskt (äter ägg och fisk) och en elev med väldigt speciella matbehov - äter inte "kladdig mat". Om vi får veta vad som serveras denna dag, så kan vi se om det kan vara något.', 'Tre elever är rädda för träd.', '', '', '2015-10-07', '2015-10-24', '2015-11-03', '2015-11-27', '', '', '', '', '', '5', '', '2015-08-25 21:12:59'),
+(48, '47', 'råbg', '4-5A', '22', 'En allergisk mot Gluten och äggvita, en mot bara gluten, en mot kiwi och en mot stenfrukter och nötter.', 'Vi brukar inte ta raster. Så ta inga raster!', '', '', '', '', '', '', '2015-12-10', '2015-12-16', '2015-12-22', '2015-12-25', '', '5', '', '2015-08-25 21:14:07'),
+(96, '96', 'råbg', '4-5d', '23', 'En allergisk mot laktos, en mot nötter, en mot stenfrukter, äpplen och päron och en mot "exotiska frukter"', '', '', '', '2015-10-16', '2015-10-24', '2015-10-30', '2015-11-12', '', '', '', '', '', '5', '', '2015-08-25 21:23:41');
 
 -- --------------------------------------------------------
 
@@ -139,7 +140,7 @@ INSERT INTO `larare` (`id`, `mailchimp_id`, `status`, `email`, `fname`, `lname`,
 (2, 'fA3n3v7e', 'subscribed', 'Tom.Testsson@edu.sigtuna.se', 'Tom', 'Testsson', 'råbg', '070-123456', '', 'true', '', '2015-08-18 16:05:48'),
 (11, '8Pi4UGJy', 'archived', 'tanja.testsson@edu.sigtuna.se', 'Tanja', 'Testsson', 'råbg', '070-87654321', '', 'true', '', '2015-07-01 14:34:07'),
 (32, 'JYV519aw', 'subscribed', 'anna.testsson@edu.sigtuna.se', 'Anna', 'Testsson-Mockupsson', 'stpe', '070-111111', '', 'true', '', '2015-08-18 16:05:29'),
-(47, 'lCt4qY9K', 'subscribed', 'bjorn.testsson@edu.sigtuna.se', 'Björn', 'Testsson', 'råbg', '070-222222', '', 'true', '', '2015-08-25 21:12:59'),
+(47, 'lCt4qY9K', 'subscribed', 'tim.vikarie@edu.sigtuna.se', 'Tim', 'Vikarie', 'råbg', '070-222222', '', 'true', '', '2015-08-25 21:12:59'),
 (48, '5D55o7Zr', 'subscribed', 'cecilia.testson@edu.sigtuna.se', 'Cecilia', 'Testsson', 'råbg', '070333333', '', 'true', '', '2015-08-25 21:14:07'),
 (96, 'oRI5a50n', 'subscribed', 'david.testson@edu.sigtuna.se', 'David', 'Testson', 'råbg', '070-444444', '', 'true', '', '2015-08-25 21:23:41'),
 (104, '28nc6Y1G', 'subscribed', 'erik.testson@edu.sigtuna.se', 'Erik', 'Testson', 'råbg', '070-555555', '', 'true', '', '');
