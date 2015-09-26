@@ -27,11 +27,12 @@ function check_double_dates($groupTable){
   return $errorArray;
 }
 
-function check_group_too_large($groupTable, $maxSize = 30){
+function check_group_size($groupTable, $minSize = 4, $maxSize = 30){
   $errorArray = array();
 
   foreach($groupTable as $group){
-    if($group["elever"] > $maxSize){
+    $nr = $group["elever"];
+    if($nr < $minSize ||  $nr > $maxSize){
       $errorArray[] = $group;
     }
   }
@@ -95,9 +96,10 @@ function check_number_groups_per_school($groupTable, $schoolTable){
     }
     $is_2 = $counter["2/3"];
     $should_2 = $school["grupper_ak2"];
+    $should_2 = (trim($should_2) == "" ? 0 :  $should_2);
     $is_5 = $counter["5"];
     $should_5 = $school["grupper_ak5"];
-
+    $should_5 = (trim($should_5) == "" ? 0 :  $should_5);
 
     if($is_2 != $should_2){
       $errorArray[$school_long_name]["2/3"] = array("is" => $is_2, "should" => $should_2);
@@ -124,7 +126,7 @@ function check_group_is_checked($groupTable, $teacherTable){
     }
 
     if($group["checked"] != "yes"){
-      $errorArray[] = array("grupp" => $group, "lärare" => $teacher);
+      $errorArray[] = array("grupp" => $group, "lärare" => $matchingTeacher);
     }
   }
 
