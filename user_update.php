@@ -11,6 +11,7 @@
 
 	$name = $_REQUEST["name"]; // will contain a string with the group-id and the column value, splitted by "%", e.g. "35%klass"
 	$value = $_REQUEST["value"]; // will contain the new value
+  $userId = $_REQUEST["user"];
 
 	$id_and_column = explode("%", $name);
 	$id = $id_and_column[0];
@@ -21,7 +22,15 @@
 
 	$row = array($column => $value);
   sql_update_row($id, "grupper", $row, "id");
-	if($column == "klass"){
+
+  $updateRow = array();
+  $updateRow["timestamp"] = date("c"); // UNIX timestamp
+  $updateRow["user"] = $userId;
+  $updateRow["group_id"] = $id;
+  $updateRow["table_column"] = $column;
+  sql_insert_rows("updates", $updateRow);
+
+  if($column == "klass"){
 		echo($id . "~" . $value);
 	}
 

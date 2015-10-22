@@ -60,6 +60,7 @@ if($user != FALSE){
 	$title .= '<h1>Hej, ' . $user['fname'] . ' ' . $user['lname'] . '!</h1>';
 	$title .= 'Här är alla grupper från ' . $skola_long . "!";
 	$title .= '<p id="saveResponse"><p>'; // A small paragraph that is updated whenever a successful ajax-request returns
+	$title .= tag("p", $id , array("id" => "user", "hidden"));
 	$recent_arskurs = "0"; // a counter that keeps the årskurs of the recent group to compare
 	$groupCounter = 0; // needed to see whether a group should be viewed in the left or right column. Also is used as an alternative if the group has no name yet. In this case the group is called "Grupp $groupCounter"
 

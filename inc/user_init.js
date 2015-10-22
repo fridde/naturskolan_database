@@ -9,6 +9,7 @@ $(document).ready(function() {
     var thisValue = $(this).val();
     var thisName = $(this).attr("name");
     var tagName = $(this).prop("tagName");
+    var userId = $("#user").text();
 
     var dt = new Date();
     var nowInMilliseconds = Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate(), dt.getHours(), dt.getMinutes(), dt.getSeconds());
@@ -23,7 +24,8 @@ $(document).ready(function() {
     if (!tooSoon) {
       var data = {
         name: thisName,
-        value: thisValue
+        value: thisValue,
+        user: userId
       };
 
 
