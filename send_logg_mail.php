@@ -1,6 +1,6 @@
 <?php
   ob_start();
-  require("create_check_logg.php");
+  require("check_logg.php");
   $message = ob_get_clean();
 
   $to = "akobllue@sharklasers.com";

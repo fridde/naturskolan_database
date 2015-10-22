@@ -44,37 +44,5 @@ $(document).ready(function() {
     }
   });
 
-  /*
-
-
-	var userUpdate = function(callerObject, callerFunction) {
-		alert(callerObject);
-		var thisValue = callerObject.val();
-		var thisName = callerObject.attr("name");
-
-		var data = {
-			name: thisName,
-			value: thisValue
-		};
-
-
-		$.ajax({
-			data: data,
-			type: 'POST',
-			url: 'user_update.php',
-			success: function(msg) {
-				var dt = new Date();
-				$("#saveResponse").text("Uppgifterna sparades senast kl " + dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds());
-				$("#saveResponse").css('font-style', 'italic');
-				var parts = msg.split("~");
-				$("#h3_" + parts[0]).text(parts[1]);
-			}
-		});
-
-	}
-
-	$("input, textarea, select").on("change", userUpdate($(this), "bla"));
-
-	*/
 
 });

@@ -1,5 +1,9 @@
 <?php
-	/* PREAMBLE */
+    /* This file is called by ajax requests, most often from user.php.
+    It updates a group row or user row and returns the group id and the value
+    seperated by "~" IF (and only if) the groupname was updated */
+
+   /* PREAMBLE */
     $url = "https://raw.githubusercontent.com/fridde/friddes_php_functions/master/include.php";
     $filename = "include.php";
     //copy($url, $filename);

@@ -1,5 +1,5 @@
 <?php
-
+/* this page will provide the view for a certain user identified by its mailchimp-id.  */
 /* PREAMBLE */
 $url = "https://raw.githubusercontent.com/fridde/friddes_php_functions/master/include.php";
 $filename = "include.php";
@@ -23,7 +23,7 @@ $skolor = sql_select("skolor"); // a constant table that should only be changed 
 that someone who is not a teacher can register and immediately start to change data
 If a matching user was found, $user will contain the corresponding row from the sql-table "larare"
 */
-$user = array_select_where($larare, array("mailchimp_id" => $id, "verified" => "true"));
+$user = array_select_where($larare, array("mailchimp_id" => $id, "verified" => "true", "status" => "active"));
 $user = (count($user) == 1 ? reset($user) : FALSE);
 
 $is_rektor = $user != FALSE && strtolower($user["rektor"]) == "true"; // not yet clear how this variable could be used
@@ -46,7 +46,7 @@ if($user != FALSE){
 	$textAreaFields = array("mat", "info");
 	$attributes = array("ignore" => array("id", "mailchimp_id", "larar_id", "skola", "g_arskurs", "updated", "ltid", "notes", "special"), "textbox" => array("info", "mat"), "select" => array("larar_id"));
 
-	$larare_samma_skola = array_select_where($larare, array("skola" => $skola));
+	$larare_samma_skola = array_select_where($larare, array("skola" => $skola, "status" => "active"));
 
 	/* Here we start building the view */
 	$head .= qtag("meta");

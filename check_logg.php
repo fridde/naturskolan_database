@@ -8,6 +8,9 @@ include $filename;
 /* END OF PREAMBLE */
 inc("fnc,sql,test");
 
+$req_translator = array("t" => "type");
+extract(extract_request($req_translator));
+
 $ini_array = parse_ini_file("config.ini", TRUE);
 $dayArray = array_keys($ini_array["titleTranslator2"]);
 
@@ -17,7 +20,12 @@ $schoolTable = sql_select("skolor");
 $schoolTable = col_to_index($schoolTable, "short_name");
 
 $logg = array();
-$eol = PHP_EOL;
+if($type == "text"){
+  $eol = PHP_EOL;
+} else {
+  $eol = "<br>";
+}
+
 $cross = "++++++++++";
 
 $logg[] = $cross ;
