@@ -1,5 +1,9 @@
 <?php
 
+/* TODO: More testcases
+- Check if all dates are within this or next year
+ */
+
 /* PREAMBLE */
 $url = "https://raw.githubusercontent.com/fridde/friddes_php_functions/master/include.php";
 $filename = "include.php";

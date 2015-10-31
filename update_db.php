@@ -12,6 +12,8 @@ $ini_array = parse_ini_file("config.ini", TRUE);
 inc("fnc, sql, cal");
 
 $type = $_REQUEST["type"];
+$skolor = sql_select("skolor");
+$skolor = col_to_index($skolor, "long_name");
 
 if (in_array($type, array("subscribe", "unsubscribe", "profile", "upemail"))){
 
@@ -79,6 +81,10 @@ if (in_array($type, array("subscribe", "unsubscribe", "profile", "upemail"))){
         $user[$header] = $v;
       }
     }
+    /* ensures that the school name is given as a 4 letter code */
+    $user_skola = $user["skola"];
+    $closest_match = find_most_similar($user_skola, array_keys($skolor));
+    $user["skola"] = $skolor[$closest_match]["short_name"];
 
     $existingUser = sql_select($tableName, array("email" => $user["email"]));
 

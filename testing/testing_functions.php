@@ -1,5 +1,9 @@
 <?php
 
+/* TODO: More testcases
+- Check if all dates are within this or next year
+ */
+
 /* Will check whether any class is coming to two different locations at the same date
 Returns an array with bad groups
 */
