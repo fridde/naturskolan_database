@@ -11,16 +11,23 @@ include $filename;
 $ini_array = parse_ini_file("config.ini", TRUE);
 inc("fnc, sql, cal");
 
-$type = $_REQUEST["type"];
+if(isset($_REQUEST["postdata"])){
+  parse_str($_REQUEST["postdata"]);
+} else {
+  $variables = array("type", "fired_at", "data");
+  foreach($variables as $var){
+    if(isset($_REQUEST[$var])){
+      $$var = $_REQUEST[$var];
+    }
+  }
+}
+
 $skolor = sql_select("skolor");
 $skolor = col_to_index($skolor, "long_name");
 
 if (in_array($type, array("subscribe", "unsubscribe", "profile", "upemail"))){
 
   $tableName = "larare";
-  $fired_at = $_REQUEST["fired_at"];
-
-  $data = $_REQUEST["data"];
   $headers = sql_get_headers($tableName);
 
   $user = array();
@@ -31,8 +38,23 @@ if (in_array($type, array("subscribe", "unsubscribe", "profile", "upemail"))){
     $user = sql_select($tableName, array("email" => $old_email));
     $user = reset($user);
     $user["status"] = "archived";
-    $insertArray = array("larar_id" => $user["id"], "alt_mc_id" => "mailchimp_id");
-    sql_insert_rows("alias_login", $insertArray);
+    $old_larar_id = $user["id"];
+    $newUser = sql_select($tableName, array("email" => $data["new_email"]));
+    if(count($newUser) == 1){
+      $newUser = reset($newUser);
+      $new_larar_id = $newUser["id"];
+    } else {
+      /* We have a problem. The "email update" arrived BEFORE the new entry had arrived */
+      $new_larar_id = sql_get_highest_id($tableName) + 1 ; // we expect the next entry
+    }
+
+    $matchande_grupper = sql_select("grupper", array("larar_id" => $old_larar_id));
+    foreach($matchande_grupper as $grupp){
+      sql_update_row($grupp["id"], "grupper", array("larar_id" => $new_larar_id));
+    }
+
+    //$insertArray = array("larar_id" => $user["id"], "alt_mc_id" => "mailchimp_id");
+    //sql_insert_rows("alias_login", $insertArray);
   }
   else {
     /* will cycle through all headers of the sql-table "larare" */

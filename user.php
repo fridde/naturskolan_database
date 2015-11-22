@@ -6,7 +6,7 @@ $filename = "include.php";
 //copy($url, $filename);
 include $filename;
 /* END OF PREAMBLE */
-inc("fnc, sql", FALSE); //remove "TRUE" in production
+inc("fnc, sql"); //remove "TRUE" in production
 activate_all_errors(); // remove in production
 
 $ini_array = parse_ini_file("config.ini", TRUE);
