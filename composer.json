@@ -1,0 +1,19 @@
+{
+    "name": "fridde/naturskolans_databas",
+    "description": "A database system for Sigtuna Naturskola",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "fridde",
+            "email": "f@hehl.se"
+        }
+    ],
+    "require": {
+        "drewm/mailchimp-api": "^2.1",
+        "pear/config_lite": "dev-master"
+    },
+	"autoload": {
+        "psr-4": { "Fridde\\": "src/" }
+	},
+	"minimum-stability": "dev"
+}

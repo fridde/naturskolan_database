@@ -2,4 +2,6 @@ aventyr_kalender.ics
 config.ini
 logg.txt
 test.php
+vendor/
+docs/
 .htaccess
