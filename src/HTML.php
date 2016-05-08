@@ -2,7 +2,8 @@
 	
 	namespace Fridde;
 	
-	class HTML extends \DOMDocument{
+	class HTML extends \DOMDocument
+	{
 		
 		private $html;
 		public $title;
@@ -198,7 +199,7 @@
 		*/ 
 		public function add()
 		{
-			$def = ["node" => null, "tag" => null, "content" => "", "atts" => array(), "first" => false];
+			$def = ["node" => $this->body, "tag" => null, "content" => "", "atts" => array(), "first" => false];
 			extract($this->prepareForExtraction($def, func_get_args()));
 			
 			$element_array = $this->create($tag, $content, $atts, true);
@@ -466,7 +467,7 @@
 			
 			$file_name = false;
 			$content = "";
-			$node = (!$node ? $this->head : $node);
+			$node = (!$node) ? $this->head : $node;
 			
 			if($is_local){
 				$file_name = $includables["css_local"][$arg0];

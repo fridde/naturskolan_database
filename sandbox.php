@@ -1,19 +1,38 @@
 <?php
-	
 	// to enable debugging in plugin DBGp, add "?XDEBUG_SESSION_START=test" to your url
 	
+	if(isset($_REQUEST["info"])){
+		phpinfo();
+		exit();
+	}
 	include("autoload.php");
-	inc("auto");
 	activateDebug();
-
-	
+	inc("vendor");
+	updateAllFromRepo();
+	use \Fridde\Utility as U;
+	use \Fridde\SMS as SMS;
 	use \Fridde\NSDB_MailChimp as M;
+	
+	$test = (isset($_REQUEST["type"])) ? strtolower($_REQUEST["type"]) : "" ;
+	
+	switch($test){
+		case "":
+		break;
+		
+		default:
+	
+	}
+	/*include("autoload.php");
+	inc("vendor");
+	activateDebug();
+	
+	
 	
 	$M = new M();
 
 	//print_r2([[1,2,3],[4,5,6 => [7,8,9]]]);
 	//echo print_r2($M->getMembers());
-	$interests = $M->updateInterests();
+	//$interests = $M->updateInterests();
 	
 	
 	/*

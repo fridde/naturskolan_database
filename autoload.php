@@ -3,6 +3,7 @@
 	function activateDebug()
 	{
 		updateAllFromRepo();
+		$GLOBALS["debug"] = true;
 		error_reporting(E_ALL);
 		ini_set('display_errors', '1');
 		function print_r2($var){
@@ -19,6 +20,7 @@
 		*
 		* @return [type] [name] [description]
 	*/ 
+	
 	function updateAllFromRepo()
 	{
 		if(is_readable("config.ini") && is_readable("includables.ini")){
@@ -27,13 +29,14 @@
 			$repo_files = $repo_files["repo_files"];
 			
 			if(isset($config_array["autoload"]["update"]) && trim($config_array["autoload"]["update"]) != ""){
-				$files_to_update = array_walk(explode(",", $config_array["autoload"]["update"]), "trim");
+				$files_to_update = explode(",", $config_array["autoload"]["update"]);
+				array_walk($files_to_update, "trim");
 				
 				foreach($files_to_update as $file_shortcut){
-					$file_variables = array_map("trim", explode(",", $repo_files[$file_shortcut]));
-				update_file_from_repo($file_variables[3], $file_variables[0], $file_variables[1], $file_variables[2]);
+					$file_variables = explode(",", $repo_files[$file_shortcut]);
+					$file_variables = array_map("trim", $file_variables);
+					updateFileFromRepo($file_variables[3], $file_variables[0], $file_variables[1], $file_variables[2]);
 				}
-				
 			}
 		}
 	}
@@ -46,7 +49,8 @@
 		* @param [Type] $[Name] [Argument description]
 		*
 		* @return [type] [name] [description]
-	*/ 
+	*/
+	
 	function inc($inclusionString, $return = FALSE){
 		$inclusionArray = array_map("trim", explode(",", $inclusionString));
 		$includables = getIncludables();
@@ -70,7 +74,7 @@
 							$repo_parts = array_map("trim", explode(",", $path));
 							$path = pathinfo($repo_parts[3], PATHINFO_FILENAME) . ".php";
 							if(!is_readable($path)){
-								update_file_from_repo($repo_parts[3], $repo_parts[0], $repo_parts[1], $repo_parts[2]);
+								updateFileFromRepo($repo_parts[3], $repo_parts[0], $repo_parts[1], $repo_parts[2]);
 							}
 							include($path);
 						}
@@ -93,7 +97,7 @@
 		}
 	}
 	
-	function update_file_from_repo($file, $user, $repo, $folder = "src"){
+	function updateFileFromRepo($file, $user, $repo, $folder = "src"){
 		
 		$local_file_name = "";
 		$url = "https://raw.githubusercontent.com/";
@@ -101,6 +105,9 @@
 		if($folder != ""){
 			$url .= $folder . "/";
 			$local_file_name .= $folder . "/";
+			if (!file_exists($folder)) {
+				mkdir($folder, 0777, true);
+			}
 		}
 		$url .= $file;
 		$local_file_name .= $file;
@@ -133,8 +140,9 @@
 		* @param [Type] $[Name] [Argument description]
 		*
 		* @return [type] [name] [description]
-	*/ 
-	function is_younger_than($time, $age, $unit = "s"){
+	*/
+	
+	function isYoungerThan($time, $age, $unit = "s"){
 		
 		$conversion_factors = array("s" => 1, "min" => 60, "h" => 3600, "d" => 86400);
 		

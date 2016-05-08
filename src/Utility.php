@@ -2,7 +2,8 @@
 	
 	namespace Fridde;
 	
-	class Utility{
+	class Utility
+	{
 		
 		/**
 			* SUMMARY OF redirect
@@ -14,7 +15,7 @@
 			* @return TYPE NAME DESCRIPTION
 		*/
 		
-		public static $ini_file = "testfile.ini";
+		public $ini_file = "testfile.ini";
 		
 		public static function redirect($to)
 		{
@@ -88,11 +89,15 @@
 			*
 			* @return [type] [name] [description]
 		*/ 
-		public static function print_r2($val)
+		public static function print_r2($val, $return = false)
 		{
-			echo '<pre>';
-			var_export($val);
-			echo  '</pre>';
+			if($return){
+				$r = var_export($val, true);
+				return $r;
+			}
+			else {
+				echo '<pre>' . var_export($val, true) . '</pre>';
+			}
 		}
 		
 		
@@ -274,7 +279,7 @@
 			*
 			* @return TYPE NAME DESCRIPTION
 		*/
-		public static function writeIniFile()
+		function writeIniFile()
 		{
 			// $array, $file, $i = 0
 			$args = func_get_args();
@@ -285,8 +290,7 @@
 			$str = "";
 			foreach($array as $k => $v){
 				if(is_array($v)){
-					$str .= PHP_EOL;
-					$str .= str_repeat(" ",$i*2)."[$k]" . PHP_EOL; 
+					$str .= str_repeat(" ",$i*2)."[$k]" . str_repeat(PHP_EOL, 2); 
 					$str .= self::writeIniFile($v, "", $i+1);
 				}
 				else {
@@ -344,26 +348,37 @@
 			* @return TYPE NAME DESCRIPTION
 		*/
 		
-		public static function logg($data, $infoText = "", $filename = "logg.txt", $calling_function = __FUNCTION__)
+		public static function logg($data, $infoText = "", $filename = "toolbox.log")
 		{
+			$debug_info = array_reverse(debug_backtrace());
+			$chainFunctions = function($p,$n){
+				$class = (isset($n["class"]) ? "(". $n["class"] . ")" : "");
+				$p.='->' . $class . $n['function'] . ":" . $n["line"];
+				return $p;
+			};
+			$calling_functions = ltrim(array_reduce($debug_info, $chainFunctions), "->");
+			$file = pathinfo(reset($debug_info)["file"], PATHINFO_BASENAME);
 			
-			$string = "\n--------------------------------\n";
-			$string .= date("Y-m-d H:i:s") . "\n";
-			$string .= "####" . $infoText;
+			$string = "\n\n####\n--------------------------------\n";
+			$string .= date("Y-m-d H:i:s");
+			$string .= ($infoText != "") ? "\n" . $infoText : "" ;
 			$string .= "\n--------------------------------\n";
 			
 			if (is_string($data)) {
 				$string .= $data;
-				} elseif (is_array($data)) {
-				$string .= print_r($data, TRUE);
-				} else {
-				$string .= var_export($data, TRUE);
+			} 
+			else if (is_array($data)) {
+				$string .= print_r($data, true);
+			} 
+			else {
+				$string .= var_export($data, true);
 			}
 			$string .= "\n----------------------------\n";
+			$string .= "Calling stack: " . $calling_functions . "\n"; 
+			$string .= $file . " produced this log entry";
 			
-			echo $calling_function . "<br>";
-			echo $string;
-			//file_put_contents($filename, $string, FILE_APPEND);
+			file_put_contents($filename, $string, FILE_APPEND);
+			
 		}
 		/**
 			* SUMMARY OF activate_all_errors
@@ -453,26 +468,26 @@
 			*
 			* DESCRIPTION
 			*
-			* @param array $translation_array
+			* @param array translation_array, prefix
 			* 
 			*
 			* @return TYPE NAME DESCRIPTION
 		*/
 		public static function extractRequest()
 		{	
-			// translation_array, prefix
+			// arguments: translation_array, prefix
 			$args = func_get_args();
-			if($args[0] === true) {
-				$translation_array = array_keys($_REQUEST);
+			if(count($args) == 0 || is_null($args[0])) {
+				$translation_array = array_keys($_REQUEST); // i.e. all elements of $_REQUEST are put into the global scope. Use with caution!
 			}
 			else {
 				$translation_array = $args[0];
 			}
 			
-			$p = (isset($args[1]) ? $args[1] : "");
+			$p = (isset($args[1])) ? $args[1] : ""; // prefix
 			$dont_translate = array_filter($translation_array, "is_numeric" , ARRAY_FILTER_USE_KEY);
 			array_walk($dont_translate, function($v, $k, $p){$GLOBALS["$p$v"] = $_REQUEST[$v];}, $p);
 			$translate = array_diff_assoc($translation_array, $dont_translate);
 			array_walk($translate, function($v, $k, $p){$GLOBALS["$p$v"] = $_REQUEST[$k];}, $p);
 		}
-	}																	
+	}																						

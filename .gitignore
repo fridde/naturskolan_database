@@ -1,6 +1,7 @@
 aventyr_kalender.ics
 config.ini
 logg.txt
+composer.lock
 test.php
 testfile.ini
 sandbox.ini
@@ -9,3 +10,4 @@ docs/
 .htaccess
 *.backup
 .log
+test_*
