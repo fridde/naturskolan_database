@@ -19,8 +19,10 @@
 	switch($type){
 		case "naturskolan":
 		$N = new \Fridde\Naturskolan(); 
-		$result = $N->get("visits", ["id", "in", ["2", "3"]]);
-		
+		//$result = $N->get("visits", ["id", "in", ["2", "3"]]);
+		//$N->update("event", ["name" => "Hans", "Date" => "2016-7-09"], 5);
+		$N->delete("event", 6);
+		$result = $N->get("events");
 		//echo var_export($N->test("getStandardColumn", "school"));
 		//$result = $N->getGroup(["isActive" => "false"], false);
 		print_r2($result);

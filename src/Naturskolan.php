@@ -10,7 +10,7 @@
 		public $SQL;
 		public $allowed_methods = ["create", "get", "update", "delete"];
 		public $allowed_object_types = ["user", "school", "group", "visit", "message", "topic", "event", "busstrip", "password", "location"];
-		public $unusual_plurals = ["mars" => "marses"]; //e.g. ["pony" => "ponies"]
+		public $unusual_plurals = []; //e.g. ["pony" => "ponies"]
 		public $standardColumns = ["school" => "ShortName"];
 		//
 		
@@ -34,36 +34,30 @@
 			$this->checkMethod($method);
 			$return = array();
 			$return["c"] = $this->SQL;
-			$return["get_first_only"] = $this->isSingleObject($object_type);
-			$return["criteria"] = $this->standardizeCriteria($criteria);
 			
+			if(in_array($method, ["get", "update", "delete"])){
+				$return["criteria"] = $this->standardizeCriteria($criteria, $object_type);
+			}
+			if(in_array($method, ["update", "create"])){
+				$return["object"] = (is_null($object)) ? [] : $object ;
+			}
+			if(in_array($method, ["get"])){
+				$return["get_first_only"] = $this->isSingleObject($object_type);
+			}
 			return $return;
 		}
 		
 		public function create($object_type, $object)
 		{
-			
+			extract($this->prepareMethod($object_type, "create", [], $object));
+			$c->insert($object);
 		}
 		
-		public function get($object_type, $criteria)
+		public function get($object_type, $criteria = [])
 		{
-			if(!is_array($criteria)){
-				$criteria = [$this->getStandardColumn($object_type), $criteria];
-			}
 			extract($this->prepareMethod($object_type, "get", $criteria));
 			$c->select();
-			foreach($criteria as $criterium){
-				if (count($criterium) == 2){
-					$c->query->where($criterium[0], $criterium[1]);
-				}
-				elseif (count($criterium) == 3){
-					$c->query->where($criterium[0], $criterium[1], $criterium[2]);
-				}
-				else {
-					throw new \Exception("The array [". join("][", $criterium) . "]is not a valid argument for a where-query");
-				}
-				
-			}
+			$this->applyWhere($c, $criteria);
 			$c->query->execute();
 			$result = $c->fetch();
 			if ($get_first_only){
@@ -74,11 +68,44 @@
 		
 		public function update($object_type, $object, $criteria)
 		{
+			extract($this->prepareMethod($object_type, "update", $criteria, $object));
+			$c->update();
+			$this->applyWhere($c, $criteria);
+			$this->applySet($c, $object);
+			$c->query->execute();
 			
 		}
 		public function delete($object_type, $criteria)
 		{
+			extract($this->prepareMethod($object_type, "delete", $criteria));
+			$c->delete();
+			$this->applyWhere($c, $criteria);
+			$c->query->execute();
+		}
+		
+		private function applyWhere($connection, $criteria){
+			if(count($criteria) > 0){
+				foreach($criteria as $criterium){
+					if (count($criterium) == 2){
+						$connection->query->where($criterium[0], $criterium[1]);
+					}
+					elseif (count($criterium) == 3){
+						$connection->query->where($criterium[0], $criterium[1], $criterium[2]);
+					}
+					else {
+						throw new \Exception("The array [". join("][", $criterium) . "]is not a valid argument for a where-query");
+					}
+				}
+			}
+		}
+		
+		private function applySet($connection, $object){
 			
+			if(count($object) > 0){
+				foreach($object as $column => $value){
+					$connection->query->set($column, $value);
+				}
+			}
 		}
 		
 		private function isSingleObject($object_type)
@@ -118,10 +145,15 @@
 			return $column;
 		}
 		
-		private function standardizeCriteria($criteria)
+		private function standardizeCriteria($criteria, $object_type)
 		{
-			$first_element = reset($criteria);
-			$criteria = (is_array($first_element)) ? $criteria : [$criteria] ;
+			if(!is_array($criteria)){
+				$criteria = [[$this->getStandardColumn($object_type), $criteria]];
+			}
+			elseif(count($criteria) > 0){
+				$first_element = reset($criteria);
+				$criteria = (is_array($first_element)) ? $criteria : [$criteria] ;
+			}
 			return $criteria;
 		}
 		
@@ -151,78 +183,61 @@
 		}
 		
 		
-		
-		public function getUser($criteria, $get_first = true, $method = "id")
-		{
+		/*
+			public function getUser($criteria, $get_first = true, $method = "id")
+			{
 			switch($method){
-				
-				case "":
-				break;
-				
-				default:
-				$user = $this->apply("user", "get", [$method => $criteria]);
-				
+			
+			case "":
+			break;
+			
+			default:
+			$user = $this->apply("user", "get", [$method => $criteria]);
+			
 			}
 			if ($get_first !== false){
-				$user = $this->SQL->getFirst($user, $get_first);
+			$user = $this->SQL->getFirst($user, $get_first);
 			}
 			return $user; 
-		}
-		
-		public function getSchool($criteria, $get_first = true, $method = "ShortName")
-		{
+			}
+			
+			public function getSchool($criteria, $get_first = true, $method = "ShortName")
+			{
 			switch($method){
-				case "user_id":
-				$user_school = $this->getUser($criteria, "School");
-				$school = $this->getSchool($user_school, false);
-				break;
-				
-				default:
-				$school = $this->apply("school", "get", [$method => $criteria]);
+			case "user_id":
+			$user_school = $this->getUser($criteria, "School");
+			$school = $this->getSchool($user_school, false);
+			break;
+			
+			default:
+			$school = $this->apply("school", "get", [$method => $criteria]);
 			}
 			if ($get_first !== false){
-				$school = $this->SQL->getFirst($school, $get_first);
+			$school = $this->SQL->getFirst($school, $get_first);
 			}
 			return $school;
-		}
-		
-		public function getGroup($criteria, $get_first = true, $method = "id")
-		{
+			}
+			
+			public function getGroup($criteria, $get_first = true, $method = "id")
+			{
 			switch($method){
-				case "school_id":
-				$group = $this->getGroup($criteria, false, "School");
-				break;
-				
-				default:
-				$group = $this->apply("group", "get", [$method => $criteria]);
+			case "school_id":
+			$group = $this->getGroup($criteria, false, "School");
+			break;
+			
+			default:
+			$group = $this->apply("group", "get", [$method => $criteria]);
 			}
 			if ($get_first !== false){
-				$group = $this->SQL->getFirst($group, $get_first);
+			$group = $this->SQL->getFirst($group, $get_first);
 			}
 			return $group;
-		}
-		
-		public function test($function, $arg)
-		{
+			}
+			
+			public function test($function, $arg)
+			{
 			return $this->$function($arg);
-		}
-		
-		/* get_school(user_id)
-			get_groups(school_id)
-			get_users(school_id)
-			get_visits(group_id)
-			get_group_data(group_id)
-			get_recent_message(user_id)
-			
-			create_user
-			get_user
-			update_user
-			delete_user
-			
-			crud: user, skola, grupp, möte, tema, kalender-evenemang, busstur, meddelande
-			
-			
-			
-		*/	
+			}	
+		*/
 	}
 	
