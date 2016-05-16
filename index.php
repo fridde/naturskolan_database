@@ -12,7 +12,10 @@
 	
 	$H = new H("Sigtuna Naturskolas databas");
 	$H->add($H->body, "h1", "Vår databas");
-	
+	//$H->addBsModal($H->body, )
+	$user = "1234"; //TODO: check cookie, if not set or not valid, open modal
+	// school = get_school(user)
+	// groups = get_groups(school)
 	
 	$H->render();
 	/* 

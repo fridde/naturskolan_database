@@ -13,9 +13,6 @@
 		function __construct ()
 		{
 			$args = func_get_args();
-			if(isset($args[0])){
-				$this->table_name = $args[0];
-			}
 			$this->setConfiguration();
 			$slice = new \PHPixie\Slice();
 			parent::__construct($slice->arrayData($this->configuration));
@@ -39,11 +36,17 @@
 			$conn_string = "mysql:host=" . $det["db_host"] . ";dbname=" . $det["db_name"];
 			$config = ["default" => ['driver' => 'pdo', 'connection' => $conn_string,
 			'user' => $det["db_username"], 'password' => $det["db_password"]]];
-			if(!isset($this->table_name)){
-				$this->table_name = $det["default_table"];
-			}
+			$this->setTable($det["default_table"]);
 			$this->configuration = $config;
 		}
+		
+		public function setTable($table)
+		{
+			$this->table_name = $table;
+		}
+		
+		
+		
 		
 		public function select()
 		{
@@ -196,13 +199,16 @@
 		}
 		
 		/**
-		* [Summary].
-		*
-		* [Description]
-		
-		* @param array $data The input data. Each row MUST be given as an associative array, i.e. $data = [["id" => "2", "name" => "Adam"],["name" => "Eve"]]
-		*
-		* @return [type] [name] [description]
+			* [Summary].
+			*
+			
+			* [Description]
+			
+			
+			* @param array $data The input data. Each row MUST be given as an associative array, i.e. $data = [["id" => "2", "name" => "Adam"],["name" => "Eve"]]
+			*
+			
+			* @return [type] [name] [description]
 		*/ 
 		public function updateOrInsert($data, $id_column = "id")
 		{
@@ -237,4 +243,38 @@
 				$this->insert($insert_array);
 			}
 		}
+		
+		/**
+			* [Summary].
+			*
+			* [Description]
+			*
+			* @param [Type] $[Name] [Argument description]
+			*
+			* @return [type] [name] [description]
+		*/
+		public function getFirst($result, $columns = true)
+		{
+			$first = reset($result);
+			if(count($result) == 0){
+				$values = array();
+			}
+			elseif($columns === true){
+				$values = $first;
+			}
+			elseif($columns === false){
+				$values = $result;
+			}
+			elseif(is_string($columns)){
+				$values = $first[$columns];
+			}
+			elseif(is_array($columns)){
+				$values = array_intersect_key($first, array_flip($columns));
+			}
+			else {
+				throw new \Exception("The parameter $columns was given in an invalid form");
+			}
+			return $values;
+		}
+		
 	}																																																																															

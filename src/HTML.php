@@ -156,7 +156,7 @@
 				$first_att = reset($atts);
 				if(is_array($first_att)){
 					if(isset($first_att[0])){
-						$old_class = (isset($atts["class"]) ? $atts["class"] . " " : "");
+						$old_class = (isset($atts["class"])) ? $atts["class"] . " " : "";
 						$atts["class"] = $old_class . $first_att[0];
 					}
 					if(isset($first_att[1])){
@@ -199,7 +199,7 @@
 		*/ 
 		public function add()
 		{
-			$def = ["node" => $this->body, "tag" => null, "content" => "", "atts" => array(), "first" => false];
+			$def = ["node" => null, "tag" => null, "content" => "", "atts" => array(), "first" => false];
 			extract($this->prepareForExtraction($def, func_get_args()));
 			
 			$element_array = $this->create($tag, $content, $atts, true);
@@ -467,7 +467,7 @@
 			
 			$file_name = false;
 			$content = "";
-			$node = (!$node) ? $this->head : $node;
+			$node = (!$node ? $this->head : $node);
 			
 			if($is_local){
 				$file_name = $includables["css_local"][$arg0];
@@ -864,5 +864,67 @@
 			array_unshift($return_array, $tab_id_prefix);
 			
 			return $return_array;
+		}
+		
+		/**
+			* [Summary].
+			*
+			* [Description]
+			
+			* @param [Type] $[Name] [Argument description]
+			*
+			* @return [type] [name] [description]
+		*/
+		public function addBsModal()
+		{
+			
+			/*
+				modal
+				--dialog
+				----content
+				------header 
+				--------close-button
+				--------title
+				------body
+				------footer
+				--------close-button
+				--------save-button
+			*/
+			$def = ["node" => null, "options" => array(), "atts" => array()];
+			extract($this->prepareForExtraction($def, func_get_args()));
+			$possible_options = ["title" => "", "id" => "login_modal", "button_texts" => ["Close", "Save changes"]];
+			$options = array_merge($possible_options, $options);
+			
+			$modal = $this->add($node, "div", "", [["modal fade", $options["id"]], "tabindex" => "-1", "role" => "dialog", "aria-hidden" => "true"]);
+			$dialog = $this->add($modal, "div", "", [["modal-dialog"], "role" => "document"]);
+			$content = $this->add($dialog, "div", "", [["modal-content"]]);
+			$header = $this->add($content, "div", "", [["modal-header"]]);
+			$body = $this->add($content, "div", "", [["modal-body"]]);
+			$footer = $this->add($content, "div", "", [["modal-footer"]]);
+			
+			$close_button = $this->add($header, "button", "", [["close"], "data-dismiss" => "modal", "aria-label" => "Close"]);
+			$this->add($close_button, "span", "&times;", ["aria-hidden" => "true"]);
+			$this->add($header, "h4", $options["title"], [["modal-title"]]);
+			
+			$this->add($footer, "button", $options["button_texts"][0], [["btn btn-secondary"], "data-dismiss" => "modal"]);
+			$this->add($footer, "button", $options["button_texts"][1], [["btn btn-primary", $options["id"]. "_submit"]]);
+			
+			return ["modal" => $modal, "header" => $header, "body" => $body, "footer" => $footer];
+		}
+		
+		public static function partition($array, $columns = 2, $horizontal = true)
+		{
+			if($horizontal){
+				$partition = array();
+				$i = 0;
+				foreach($array as $key => $value){
+					$partition[$i % $columns][$key] = $value;
+					$i++;
+				}
+			}
+			else {
+				$partition = array_chunk($array, ceil(count($array)/$columns), true);
+			}
+			return $partition;
 		}
 	}
