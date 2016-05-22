@@ -148,6 +148,9 @@
 				if(!is_numeric($key)){
 					$atts["id"] = $key;
 				}
+				if(trim($tag) == ""){
+					throw new \Exception("The tag name can't be empty!");
+				}
 				$element = $this->createElement($tag, $content);
 				
 				/* this part is to enable a short-hand notation where the first element of $atts (attribute array) is 
@@ -308,6 +311,18 @@
 			}
 			$button = $this->add($node, "button", $content, $atts);
 			return $button;
+		}
+		
+		public function addDiv()
+		{
+			$def = ["node" => null, "class" => "", "atts" => array()];
+			extract($this->prepareForExtraction($def, func_get_args()));
+			
+			$atts["class"] = (isset($atts["class"])) ? $atts["class"] : $class;
+			
+			$div = $this->add($node, "div", "", $atts);
+			
+			return $div;
 		}
 		
 		/**
@@ -822,9 +837,10 @@
 			*
 			* DESCRIPTION
 			*
-			* @param TYPE ($tab_args) ARGDESCRIPTION
+			* @param Node $node The node to attach the tabs to.
+			* @param array $tab_array The array of tabs given in the format [id_1 => tab_title_1, id_2 => tab_title_2, ...] 
 			*
-			* @return TYPE NAME DESCRIPTION
+			* @return array $node_array An array containing of the created id-prefix (to ensure uniqueness) and the tab-nodes in the format [first_id => first_node, second_id => second_node]
 		*/
 		
 		public function addBsTabs()
@@ -847,7 +863,6 @@
 			foreach($tab_array as $tab_id_suffix => $tab_title){
 				$div_class = "tab-pane fade";
 				$li_class = "";
-				$tab_id_suffix = (is_numeric($tab_id_suffix) ? $i + 1 : $tab_id_suffix);
 				$id = $tab_id_prefix . $tab_id_suffix ;
 				$title = $tab_title;
 				if($i == 0){

@@ -9,7 +9,7 @@
 	{
 		public $SQL;
 		public $allowed_methods = ["create", "get", "update", "delete"];
-		public $allowed_object_types = ["user", "school", "group", "visit", "message", "topic", "event", "busstrip", "password", "location"];
+		public $allowed_object_types = ["user", "school", "group", "visit", "message", "topic", "event", "busstrip", "password", "location", "session"];
 		public $unusual_plurals = []; //e.g. ["pony" => "ponies"]
 		public $standardColumns = ["school" => "ShortName"];
 		//
@@ -53,13 +53,21 @@
 			$c->insert($object);
 		}
 		
-		public function get($object_type, $criteria = [])
+		public function get($object_type, $criteria = [], $field = null)
 		{
+			$object_and_field = explode("/", $object_type);
+			if(count($object_and_field) == 2){
+				$object_type = $object_and_field[0];
+				$field = $object_and_field[1];
+			}
 			extract($this->prepareMethod($object_type, "get", $criteria));
 			$c->select();
 			$this->applyWhere($c, $criteria);
 			$c->query->execute();
 			$result = $c->fetch();
+			if(isset($field)){
+				$result = array_map(function($i) use ($field){return $i[$field];}, $result);
+			}
 			if ($get_first_only){
 				$result = reset($result);
 			}
@@ -75,6 +83,7 @@
 			$c->query->execute();
 			
 		}
+		
 		public function delete($object_type, $criteria)
 		{
 			extract($this->prepareMethod($object_type, "delete", $criteria));
@@ -182,62 +191,28 @@
 			}
 		}
 		
+		public function createPassword($school, $length = 4)
+		{
+			$alpha = range('a', 'z');
+			$password = $school . "_";
+			foreach (range(1,$length) as $i){
+				$password .= $alpha[mt_rand(0, count($alpha) - 1)];
+			}
+			return $password;
+		}
 		
-		/*
-			public function getUser($criteria, $get_first = true, $method = "id")
-			{
-			switch($method){
+		public function createHash()
+		{
+			$hash_string = password_hash(microtime(), PASSWORD_DEFAULT);
+			$hash_array = explode("$", $hash_string);
+			$hash = implode("", array_slice($hash_array, 3));
 			
-			case "":
-			break;
-			
-			default:
-			$user = $this->apply("user", "get", [$method => $criteria]);
-			
-			}
-			if ($get_first !== false){
-			$user = $this->SQL->getFirst($user, $get_first);
-			}
-			return $user; 
-			}
-			
-			public function getSchool($criteria, $get_first = true, $method = "ShortName")
-			{
-			switch($method){
-			case "user_id":
-			$user_school = $this->getUser($criteria, "School");
-			$school = $this->getSchool($user_school, false);
-			break;
-			
-			default:
-			$school = $this->apply("school", "get", [$method => $criteria]);
-			}
-			if ($get_first !== false){
-			$school = $this->SQL->getFirst($school, $get_first);
-			}
-			return $school;
-			}
-			
-			public function getGroup($criteria, $get_first = true, $method = "id")
-			{
-			switch($method){
-			case "school_id":
-			$group = $this->getGroup($criteria, false, "School");
-			break;
-			
-			default:
-			$group = $this->apply("group", "get", [$method => $criteria]);
-			}
-			if ($get_first !== false){
-			$group = $this->SQL->getFirst($group, $get_first);
-			}
-			return $group;
-			}
-			
-			public function test($function, $arg)
-			{
+			return $hash;
+		}
+		
+		public function test($function, $arg)
+		{
 			return $this->$function($arg);
-			}	
-		*/
+		}
 	}
 	

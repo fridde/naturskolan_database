@@ -348,7 +348,7 @@
 			* @return TYPE NAME DESCRIPTION
 		*/
 		
-		public static function logg($data, $infoText = "", $filename = "toolbox.log")
+		public static function logg($data, $infoText = "", $file_name = "logg.txt")
 		{
 			$debug_info = array_reverse(debug_backtrace());
 			$chainFunctions = function($p,$n){
@@ -377,7 +377,7 @@
 			$string .= "Calling stack: " . $calling_functions . "\n"; 
 			$string .= $file . " produced this log entry";
 			
-			file_put_contents($filename, $string, FILE_APPEND);
+			file_put_contents($file_name, $string, FILE_APPEND);
 			
 		}
 		/**
@@ -490,4 +490,4 @@
 			$translate = array_diff_assoc($translation_array, $dont_translate);
 			array_walk($translate, function($v, $k, $p){$GLOBALS["$p$v"] = $_REQUEST[$k];}, $p);
 		}
-	}																						
+	}																							

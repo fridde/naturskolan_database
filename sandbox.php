@@ -14,11 +14,13 @@
 	use \Fridde\SMS as SMS;
 	use \Fridde\NSDB_MailChimp as M;
 	
+	$N = new \Fridde\Naturskolan();
+	
 	$type = (isset($_REQUEST["type"])) ? strtolower($_REQUEST["type"]) : "" ;
 	
 	switch($type){
 		case "naturskolan":
-		$N = new \Fridde\Naturskolan(); 
+		 
 		//$result = $N->get("visits", ["id", "in", ["2", "3"]]);
 		//$N->update("event", ["name" => "Hans", "Date" => "2016-7-09"], 5);
 		$N->delete("event", 6);
@@ -32,6 +34,27 @@
 		case "alphabet":
 			$alpha = range('a', 'z');
 			array_walk($alpha, function($a){echo $a."<br>";});
+		break;
+		
+		case "password":
+			$password = "ekil_isgy";
+			$school = $N->get("password/School", ["Password", $password]);
+			var_export($school);
+			
+			/* 
+			$schools = $N->get("schools/ShortName", );
+			$pw_array = [["id", "School", "Password"],[]];
+			foreach($schools as $school){
+				$pw = $N->createPassword($school);
+				$pw_array[1][] = ["", $school, $pw];
+			}
+			//print_r2($pw_array);
+			//$N->create("password", $pw_array);
+			*/
+		break;
+		
+		case "update":
+		updateAllFromRepo();
 		break;
 		
 		default:
