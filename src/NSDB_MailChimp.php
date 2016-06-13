@@ -117,6 +117,7 @@
 			else {
 				$member_array = $this->get("lists/$this->list_id/members", $args);
 			}
+			$member_array = $member_array["members"];
 			if(count($member_array) == 1){
 				$member_array = $member_array[0];
 			}
@@ -132,41 +133,21 @@
 			*
 			* @return [type] [name] [description]
 		*/ 
-		public function addMember()
+		public function addMember($member)
 		{
 			$path = "/lists/$this->list_id/members";
-			$member = [];
+			
+			// email_address, fname, lname, mobile
+			
+			$member["status"] = "subscribed";
 			$merge_fields = [];
 			$interests = [];
-		}
-		/**
-			* [Summary].
-			*
-			* [Description]
 			
-			* @param [Type] $[Name] [Argument description]
-			*
-			* @return [type] [name] [description]
-		*/
-		public function updateInterests()
-		{
-			$delimiter = "::";
-			$ini_file = parse_ini_file($this->ini_file, true);
-			$old_interests = $ini_file[$this->interest_index];
-			$new_interests = $this->getInterests();
-			$update_array = array();
-			foreach($new_interests as $interest_id => $interest_array){
-				$sql_name = str_repeat("?", 10);
-				if(isset($old_interests[$interest_id])){
-					$old_interest = explode($delimiter,$old_interests[$interest_id]);
-					$sql_name = array_pop($old_interest);
-				}
-				$interest_array["sql_name"] = $sql_name;
-				$update_array[$interest_id] = implode($delimiter, $interest_array);
-			}
-			$ini_file[$this->interest_index] = $update_array;
-			\Fridde\Utility::writeIniFile($ini_file);
-		} 
+			$result = $this->post($path, $member);
+			//return 
+		}
+
+
 		
 		/**
 			* [Summary].
@@ -177,22 +158,19 @@
 			*
 			* @return [type] [name] [description]
 		*/
-		public function getInterests()
+		public function getCategoriesAndInterests()
 		{
-			$return_array = array();
-			$interests = array();
 			$cat_url = "lists/$this->list_id/interest-categories";
-			$interest_categories = $this->get($cat_url);
-			foreach($interest_categories["categories"] as $key => $category){
-				$cat_id = $category["id"];
-				$cat_title = $category["title"];
-				$interests = $this->get($cat_url. "/$cat_id/interests");
-				foreach($interests["interests"] as $interest){
-					$interest_id = $interest["id"];
-					$interest_name = $interest["name"];
-					$return_array[$interest_id] = ["cat_id" => $cat_id, "cat_title" => $cat_title, "interest_name" => $interest_name];
-				}
-			}
-			return $return_array;
+			$c = $this->get($cat_url);
+			$categories = array_map(function($v){return ["id" => $v["id"], "title" => $v["title"]];}, $c["categories"]);
+			$include_interests = function($v) use($cat_url){
+				$i = $this->get($cat_url . "/" . $v['id'] . "/interests");
+				$v["interests"] = array_map(function($vv){return ["id" => $vv["id"], "name" => $vv["name"]];}, $i["interests"]); 
+				return $v;
+			};
+			
+			$categories_with_interests = array_map($include_interests, $categories);
+			
+			return $categories_with_interests;
 		}
-	}																															
+	}																																			

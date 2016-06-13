@@ -1,5 +1,5 @@
 <?php
-	
+	//// to test this, use http://localhost/naturskolan_database/index.php?XDEBUG_SESSION_START=test&trial=01
 	include("autoload.php");
 	//activateDebug();
 	inc("vendor");
@@ -8,12 +8,15 @@
 	use \Fridde\SQL as SQL;
 	use \Fridde\NSDB_MailChimp as M;
 	use \Fridde\ArrayTools as A;
+	use Carbon\Carbon as C;
 	
 	$N = new \Fridde\Naturskolan();
 	
 	$H = new H("Sigtuna Naturskolas databas");
-	$H->addJs(["jquery", "jqueryUI", "bs", "natskol"]);
-	$H->addCss(["jqueryUI", "bs"]);
+	$H->addJs(["jquery", "jqueryUI", "bs", "moment", "natskol"]);
+	$H->addCss(["jqueryUI", "bs", "css/naturskolan.css"]);
+	
+	U::extractRequest(["view"]);
 	
 	$logged_in_as = "anonymous";
 	if(isset($_COOKIE["Hash"])){
@@ -22,204 +25,96 @@
 			$logged_in_as = $school;
 		}
 	}
+	$nav_links = ["LEFT" => ["Grupper" => "index.php?view=grupper", "Lärare" => "index.php?view=larare"], "RIGHT" => ["Logga ut" => "update.php?updateType=deleteCookie"]];
+	$navbar = $H->addBsNav($nav_links);
+	
+	
 	if($logged_in_as == "anonymous"){
 		$modal_window = $H->addBsModal($H->body, ["title" => "Ange ditt lösenord", "button_texts" => ["Glömt lösenord?", "Logga in"]]);
 		$H->addInput($modal_window["body"], "password", "text", ["placeholder" => "Lösenord"]);
 	}
 	else {
 		$school_name_long = $N->get("school/LongName", ["ShortName", $logged_in_as]);
-		$groups = $N->get("groups", ["School", $logged_in_as]);
-		$grades = array_unique(array_map(function($i){return $i["Grade"];}, $groups));
-		sort($grades);
 		$H->add($H->body, "h1", "Du är inloggad som ". $school_name_long);
-		$grade_translator = ["2" => "Årskurs 2+3", "5" => "Årskurs 5","fbk16" => "FBK 1-6","fbk79" => "FBK 7-9"];
-		$tab_array = array_intersect_key($grade_translator, array_flip($grades));
-		$container = $H->addDiv($H->body, "container");
+		$H->add($H->body, "p", "", [["save-time"]]);
+		
+		$groups = $N->get("groups", ["School", $logged_in_as]);
+		$users = $N->get("users", ["School", $logged_in_as]);
+		
+		$container = $H->addDiv($H->body, "container-fluid");
 		$row = $H->addDiv($container, "row");
-		//$columns[0] = 
-		$tabs = $H->addBsTabs($H->body, $tab_array);
-		$prefix = array_shift($tabs);
-		foreach($grades as $grade){
-			$groups_current_grade = array_filter($groups, function($v) use ($grade){return $v["Grade"] == $grade;});
-			foreach($groups_current_grade as $current_group){
+		$row_parts[0] = $H->addDiv($row, "col-md-3");
+		$row_parts[1] = $H->addDiv($row, "col-md-6"); // the center column
+		$row_parts[2] = $H->addDiv($row, "col-md-3");
+		
+		
+		if($view == "larare"){
+			$ops["ignore"] = ["id", "Mailchimp", "School", "Password", "IsRektor"];
+			$ops["table"] = "users";
+			$table = $H->addEditableTable($row_parts[1], $users, $ops, []);
+			$button_div = $H->addDiv($row_parts[1]);
+			$button = $H->add($button_div, "button", "Lägg till lärare", ["id" => "add-row-btn"]);
+		}
+		elseif($view == "grupper"){
+			$grades = array_unique(array_map(function($i){return $i["Grade"];}, $groups));
+			sort($grades);
+			
+			$grade_translator = ["2" => "Årskurs 2+3", "5" => "Årskurs 5","fbk16" => "FBK 1-6","fbk79" => "FBK 7-9"];
+			$tab_array = array_intersect_key($grade_translator, array_flip($grades));
+			$tabs = $H->addBsTabs($row_parts[1], $tab_array);
+			$prefix = array_shift($tabs);
+			foreach($grades as $grade){
+				$current_tab = $tabs[$prefix . $grade];
+				$tab_row = $H->addDiv($current_tab, "row");
+				$two_cols = [$H->addDiv($tab_row, "col-md-6"), $H->addDiv($tab_row, "col-md-6")];
+				$groups_current_grade = array_filter($groups, function($v) use ($grade){return $v["Grade"] == $grade;});
+				$group_columns = $H->partition($groups_current_grade, 2, false);
+				$topics = $N->get("topics", ["Grade", $grade]);
+				$topic_titles = array_combine(array_column($topics, "id"), array_column($topics, "ShortName"));
+				foreach($group_columns as $col_key => $col){
+					foreach($col as $single_group){
+						$s = $single_group;
+						$teachers = array();
+						foreach($users as $user){
+							$name = $user["FirstName"] . " " . $user["LastName"];
+							$id = $user["id"];
+							$atts = ($id == $s["User"]) ? ["selected"] : [] ;
+							$teachers[] = [$name, $id, $atts];
+						}
+						$single_group_div = $H->add($two_cols[$col_key] , "div", "", [["group"], "data-group-id" => $s["id"]]);
+						$H->add($single_group_div, "h1", $s["Name"], [["", "name_" . $s["id"]]]);
+						$H->addSelect($single_group_div, ["User", "Ansvarig lärare"], $teachers, [["editable"]]);
+						$H->addInput($single_group_div, ["NumberStudents", "Antal elever"], "text", [["editable form-control"], "placeholder" => "Antal elever", "value" => $s["NumberStudents"]]);
+						$H->addTextarea($single_group_div, $s["Food"] , ["Food", "Specialkost"], 4, 50, [["editable form-control"], "placeholder" => "Specialkost"]);
+						$H->addTextarea($single_group_div, $s["Info"], ["Info", "Bra att veta om klassen"], 4, 50, [["editable form-control"], "placeholder" => "Information om gruppen"]);
+						
+						$two_weeks_ago = C::now()->subDays(14)->toDateString();
+						$visits = $N->get("visits", [["Group", $s["id"]],["Date", ">", $two_weeks_ago]]);
+						if(count($visits) > 0){
+							array_multisort(array_column($visits, "Date"), $visits);
+							$visitString = function($v) use ($topic_titles){
+								$string = $topic_titles[$v["Topic"]] . ": " . $v["Date"];
+								return $string;
+							};
+							$visits_list = array_map($visitString, $visits);
+							
+							$ul = $H->addList($single_group_div, $visits_list);
+						}
+						else {
+							$H->add($single_group_div, "p", "För närvarande är inga besök inbokade");
+						}
+						
+					}
+				}
+				
 				
 			}
-			
 		}
-		
-		
-		//standard view
 	}
 	
 	$H->render();
 	
-	/*	 this is a quick way of initializing a few variables, thus setting them to be an empty string */
-	/*	list($html, $head, $body, $title, $ak2_left, $ak2_right, $ak5_left, $ak5_right) = array_fill(0,20, "");
-		/*	
-		/*	if($user != FALSE){
-	/*		/* this area is only for verified users */
-	/*		$skola = $user["skola"]; // will be a 4 letter code like "ting" for Tingvalla
-		/*	
-		/*		$skola_long = array_select_where($skolor, array("short_name" => $skola), "all", TRUE);
-		/*		$skola_long = $skola_long["long_name"];
-		/*	
-		/*		$grupper = array_select_where($grupper, array("skola" => $skola)); // selects all groups from the same school
-		/*		$grupper = array_orderby($grupper, "g_arskurs", SORT_ASC , "larar_id", SORT_ASC);
-		/*	
-		/*		$dateFields = array("d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8");
-		/*		$textFields = array("klass" => "Gruppens namn", "elever" => "Antal elever", "mat" => "Matpreferenser/Allergier", "info" => "Annat man bör veta om klassen");
-		/*		$textAreaFields = array("mat", "info");
-		/*		$attributes = array("ignore" => array("id", "mailchimp_id", "larar_id", "skola", "g_arskurs", "updated", "ltid", "notes", "special"), "textbox" => array("info", "mat"), "select" => array("larar_id"));
-		/*	
-		/*		$larare_samma_skola = array_select_where($larare, array("skola" => $skola, "status" => "active"));
-		/*	
-	/*		/* Here we start building the view */
-	/*		$head .= qtag("meta");
-		/*		$head .= tag("title", "Naturskolans inställningar - Inloggad som " . $user['fname'] . ' ' . $user['lname']);
-		/*		$incString = "jquery,user_init,bootcss,bootjs,boottheme,fAwe,css";
-		/*		//$incString = "jquery,user_init,bootcss,bootjs,boottheme,fAwe"; // ONLY FOR DEBUG!
-		/*		$head .= inc($incString, FALSE, TRUE);
-		/*	
-		/*		$html .= tag("head", $head);
-		/*	
-		/*		$title .= '<h1>Hej, ' . $user['fname'] . ' ' . $user['lname'] . '!</h1>';
-		/*		$title .= 'Här är alla grupper från ' . $skola_long . "!";
-		/*		$title .= '<p id="saveResponse"><p>'; // A small paragraph that is updated whenever a successful ajax-request returns
-		/*		$title .= tag("p", $id , array("id" => "user", "hidden"));
-		/*		$recent_arskurs = "0"; // a counter that keeps the årskurs of the recent group to compare
-		/*		$groupCounter = 0; // needed to see whether a group should be viewed in the left or right column. Also is used as an alternative if the group has no name yet. In this case the group is called "Grupp $groupCounter"
-		/*	
-		/*		foreach($grupper as $grupp){
-		/*			$thisGroupContent = ""; // this will contain the content of the current group
-		/*			$arskurs = $grupp["g_arskurs"]; // ideally either "2/3" or "5"
-		/*			if($arskurs != $recent_arskurs){
-		/*				$groupCounter = 0; // resetting the group counter whenever a new årskurs starts
-		/*			}
-		/*			$groupCounter += 1;
-		/*			$recent_arskurs = $arskurs;
-		/*	
-		/*			if(trim($grupp["klass"]) != ""){
-		/*				$klassname = $grupp["klass"];
-		/*			}
-		/*			else {
-		/*				$klassname = "Grupp " . $groupCounter;
-		/*			}
-		/*			$groupTitleArray = array("id" => "h3_" . $grupp["id"], "class" => "groupTitle");
-		/*			$thisGroupContent .= tag("h3", $klassname, $groupTitleArray); //is updated by the ajax-request whenever the input field "klass" is updated
-		/*	
-	/*			/* Here come the fields of each group */
-	/*	
-	/*			/* TEACHER SELECTOR*/
-	/*			$select = "";
-		/*			$selectorId = $grupp["id"] . "%" . "larar_id";
-		/*			$thisGroupContent .= tag("label", "Medföljande lärare", array("for" => $selectorId));
-		/*			foreach($larare_samma_skola as $key => $row){
-		/*				$selected = ($row["id"] == $grupp["larar_id"] ? "selected" : "");
-		/*				$select .= tag("option", $row["fname"] . " " . $row["lname"], array("value" => $row["id"], $selected));
-		/*			}
-		/*			$thisGroupContent .= tag("select", $select, array("name" => $selectorId));
-		/*	
-	/*			/* all the textinputs*/
-	/*			foreach($textFields as $colKey => $labelText){
-		/*				$fieldId = $grupp["id"] . "%" . $colKey;
-		/*				$thisGroupContent .= tag("label", $labelText, array("for" => $fieldId));
-		/*	
-		/*				$atts =array("name" => $fieldId, "id" => $fieldId);
-		/*				if(in_array($colKey, $textAreaFields)){
-		/*					$tagName = "textarea";
-		/*					$atts["rows"] = "4";
-		/*				} else {
-		/*					$atts["value"] = $grupp[$colKey];
-		/*					$tagName = "input";
-		/*				}
-		/*				$thisGroupContent .= tag($tagName, $grupp[$colKey], $atts);
-		/*			}
-		/*	
-	/*			/* DATES */
-	/*			$datesList = "";
-		/*			foreach($dateFields as $dateColName){
-		/*				if(trim($grupp[$dateColName]) != ""){
-		/*					if($grupp["g_arskurs"] == "2/3"){
-		/*						$li = $ini_array["titleTranslator2"][$dateColName];
-		/*					} elseif($grupp["g_arskurs"] == "5"){
-		/*						$li = $ini_array["titleTranslator5"][$dateColName];
-		/*					} else {
-		/*						$li = $dateColName;
-		/*					}
-		/*					$li .= ": " . $grupp[$dateColName];
-		/*					$datesList .= tag("li", $li);
-		/*				}
-		/*			}
-		/*			$ul = tag("ul", $datesList);
-		/*			$datesFieldSet =  "<legend>Datum</legend>" . $ul;
-		/*			$thisGroupContent .= tag("fieldset", 	$datesFieldSet);
-	/*			/* End of DATES */
-	/*	
-	/*			/* Compliance statement */
-	/*			$is_checked = $grupp["checked"] == "yes";
-		/*			$complianceId = $grupp["id"] . "%" . "checked";
-		/*			$compliance = qtag("checkbox", $complianceId, "yes", $is_checked);
-		/*			$complianceText = "Uppgifterna för denna klass är någorlunda korrekta och datumen är antecknade i medföljande lärares kalender.";
-		/*			$complianceFieldSet = "<legend>Bekräftelse</legend>" . $compliance . $complianceText;
-		/*			$thisGroupContent .= tag("fieldset", $complianceFieldSet);
-		/*	
-	/*			/* FINAL finish of the Group-part */
-	/*			$thisGroup = tag("div", $thisGroupContent, "group");
-		/*	
-	/*			/* Deciding where the groups content should go */
-	/*			$left = $groupCounter % 2 == 1;
-		/*			$is_ak5 = $arskurs == "5";
-		/*	
-		/*			if($left && !$is_ak5){
-		/*				$ak2_left .= $thisGroup;
-		/*			}
-		/*			if($left && $is_ak5){
-		/*				$ak5_left .= $thisGroup;
-		/*			}
-		/*			if(!$left && !$is_ak5){
-		/*				$ak2_right .= $thisGroup;
-		/*			}
-		/*			if(!$left && $is_ak5){
-		/*				$ak5_right .= $thisGroup;
-		/*			}
-		/*		}
-		/*	
-	/*		/* Creating the final view */
-	/*		$instructionText = file_get_contents("inc/instructions.html");
-		/*		$instructionColumn = tag("div", $instructionText, "col-md-4");
-		/*		$arskursViewArray = array();
-		/*		if($ak2_left != ""){
-		/*			$ak2_pretext = "<h2>Årskurs 2/3</h2>";
-		/*	
-		/*			$col_left = tag("div", $ak2_left, "col-md-4");
-		/*			$col_right = tag("div", $ak2_right, "col-md-4");
-		/*			$row = tag("div", $instructionColumn . $col_left . $col_right , "row");
-		/*			$ak2 = tag("div", $ak2_pretext . $row, "container");
-		/*			$arskursViewArray["Årskurs 2/3"] = $ak2;
-		/*		}
-		/*		if($ak5_left != ""){
-		/*			$ak5_pretext = "<h2>Årskurs 5</h2>";
-		/*	
-		/*			$col_left = tag("div", $ak5_left, "col-md-4");
-		/*			$col_right = tag("div", $ak5_right, "col-md-4");
-	/*			/* Here we put the row together */
-	/*			$row = tag("div", $instructionColumn . $col_left . $col_right , "row");
-		/*			$ak5 = tag("div", $ak5_pretext . $row, "container");
-		/*			$arskursViewArray["Årskurs 5"] = $ak5;
-		/*		}
-		/*		$tabs = qtag("tabs", "", $arskursViewArray) ;
-		/*		//$col_1 = tag("div", $tabs, "col-md-12");
-		/*		//$container = tag("div", $col_1, "row");
-		/*		$body .= tag("div", $title . $tabs, "container");
-		/*	
-		/*	} else {
-		/*		$body .= "You are not a registered user OR the admin of sigtunanaturskola.se 
-		/*		has not added you to the list of verified users yet. Go to sigtunanaturskola.se/kontakt";
-		/*	}
-		/*	$html .= tag("body", $body);
-		/*	echo tag("html", $html);
-		/*	
-		/*	
+
 		/*	
 		/*	
 		/*		
@@ -271,39 +166,4 @@
 		/*				break;
 		/*			}
 		/*			
-		/*			$tableContent = sql_select($tableName, $criteria ,$headers);
-		/*			$tableContent = array_change_col_names($tableContent, $headerTranslation);
-		/*			
-		/*			foreach($tableContent as $rowIndex => $row) {
-		/*				if(isset($row["email"])){
-		/*					$mail = $row["email"];
-		/*					if (strpos($mail,'alias') !== false) {
-		/*						$mail = "[har flera grupper, se annan rad]";
-		/*					} else {
-		/*						$mail = strtolower(blur_mail($mail));
-		/*					}
-		/*					$tableContent[$rowIndex]["email"] = $mail;
-		/*				}
-		/*			}
-		/*		} 
-		/*		list($html, $head, $body) = array_fill(0,20,""); 
-		/*		
-		/*		$head .= qtag("meta");
-		/*		$incString = "jquery,DTjQ,DTTT,DTfH,DTin,jqueryUIcss,DTcss,DTfHcss,DTTTcss,css";
-		/*		$head .= inc($incString, FALSE, TRUE);
-		/*		$html .= tag("head", $head);
-		/*		
-		/*		if($code != FALSE){
-		/*			$body .= create_htmltable_from_array($tableContent);
-		/*			if($download){
-		/*				array_to_csv_download($tableContent, "export.csv", "\t");
-		/*			}
-		/*		}
-		/*		else {
-		/*			$body .=  "You don't have the rights to see this page. Ask an admin for the right link!";
-		/*		}
-		/*		
-		/*		$html .= $body;
-		/*		
-		/*		echo $html;
-	/*		*/
+*/

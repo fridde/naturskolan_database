@@ -4,6 +4,7 @@
 	use \Fridde\SQL;
 	use \Fridde\NSDB_Mailchimp as MC;
 	use \Fridde\Mailer;
+	use \Fridde\Utility as U;
 	
 	class Naturskolan
 	{
@@ -50,7 +51,7 @@
 		public function create($object_type, $object)
 		{
 			extract($this->prepareMethod($object_type, "create", [], $object));
-			$c->insert($object);
+			return $c->insert($object);
 		}
 		
 		public function get($object_type, $criteria = [], $field = null)
@@ -66,7 +67,7 @@
 			$c->query->execute();
 			$result = $c->fetch();
 			if(isset($field)){
-				$result = array_map(function($i) use ($field){return $i[$field];}, $result);
+				$result = array_combine(array_column($result, "id"), array_column($result, $field));
 			}
 			if ($get_first_only){
 				$result = reset($result);
@@ -208,6 +209,83 @@
 			$hash = implode("", array_slice($hash_array, 3));
 			
 			return $hash;
+		}
+		
+		public function orderSchools(){
+			
+		}
+		
+		/**
+			* [Summary].
+			*
+			* [Description]
+			*
+			* @param array $unformatted_array multi-array where every row comprises one row from a certain table. Each row should at least contain "id", and the needed columns
+			*
+			* @return array $return_array contains array of formatted strings using the id as keys
+		*/
+		public function format($unformatted_array, $type = "")
+		{
+			$format = function($v, $k) use ($type){
+				switch($type){
+					
+					case "user":
+					$r =  $v["FirstName"] . " " . $v["LastName"] . ", " . strtoupper($v["School"]);
+					break;
+					
+					case "group":
+					$r = ($v["Name"] == "") ? $v["Grade"] . "." .$v["id"] : $v["Name"];
+					$r .= ", " . strtoupper($v["School"]);
+					break;
+					
+					case "topic":
+					$r = $v["Grade"] . "." . $v["VisitOrder"] . " " . $v["ShortName"];
+					break;
+					
+					case "colleague":
+					$r = strtoupper(substr($v["FirstName"], 0, 1) . substr($v["LastName"], 0, 1));
+					break;
+					
+					case "school":
+					$r = $v["Name"];
+					break;
+					
+					case "location":
+					$r = $v["Name"];
+					break;
+					
+					default: 
+					$r = $v;
+					$v = ["id" => $k];
+				}
+				return [$r, $v["id"]]; 
+			};
+			$formatted_array = array_map($format, $unformatted_array, array_keys($unformatted_array));
+			
+			return $formatted_array;
+		}
+		
+		public function getStandardValues($table_name, $old_id = null)
+		{
+			
+			switch($table_name){
+				case "users":
+				$school = $this->get("user/School", ["id", $old_id]);
+				$r = ["School" => $school, "IsRektor" => 0];
+				break;
+				
+				case "":
+				break;
+				
+				case "":
+				break;
+				
+				default:
+				$r = [];
+				
+			}
+			return $r;
+			
 		}
 		
 		public function test($function, $arg)

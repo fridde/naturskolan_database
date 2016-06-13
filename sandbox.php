@@ -57,19 +57,22 @@
 		updateAllFromRepo();
 		break;
 		
+		case "mailchimp":
+		$M = new M();
+		print_r2($M->getMembers());
+		//echo serialize($M->getCategoriesAndInterests());
+		////$result = $M->get('lists/1ff7412fc8/members', $args);
+		// $result = $M->get('lists/1ff7412fc8/interest-categories/8548b28556/interests', $args);
+		//$result = $M->get('lists/1ff7412fc8/interest-categories/', $args);
+		
+		break;
+		
 		default:
 		echo 'The type _' . $type . '_ was not found in the switch case.';
 		
 	}
-	/*include("autoload.php");
-		inc("vendor");
-		activateDebug();
+	
 		
-		
-		
-		$M = new M();
-		
-		//print_r2([[1,2,3],[4,5,6 => [7,8,9]]]);
 	//echo print_r2($M->getMembers());
 	//$interests = $M->updateInterests();
 	
