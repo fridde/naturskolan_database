@@ -5,18 +5,47 @@
 		
 		private $api_key;
 		private $list_id;
+		private $translator;
 		private $max_count;
 		//the key in the config file that contains the id's, names and categories of the interest groups
 		public $interest_index = "mailchimp_interests"; 
-		public $ini_file = "config.ini";
+		public $settings_file = "settings.toml";
 		
-		public function __construct($api_key = null, $list_id = null)
+		public function __construct()
 		{
-			$this->setApiKey($api_key);
+			$this->setConfiguration();
 			parent::__construct($this->api_key);
-			$this->setListId($list_id);
 			$this->setMaxCount();
 		}
+		
+		public function setConfiguration()
+		{
+			$this->api_key = $GLOBALS["settings"]["mailchimp"]["api_key"] ?? false;
+			$this->list_id = $GLOBALS["settings"]["mailchimp"]["list_ids"]["larare"] ?? false;
+			
+			if(!($this->api_key && $this->list_id)){
+				$file_name = $this->settings_file;
+				$toml_class = "Yosymfony\Toml\Toml";
+				if(is_readable($file_name)){
+					if(class_exists($toml_class)){
+						$parseFunction = $toml_class . "::Parse";
+						$settings = $parseFunction($file_name);
+					}
+					else {
+						throw new \Exception("Tried to parse a toml-configuration file without a parser class defined.");
+					}
+				}
+				else {
+					throw new \Exception("File <" . $file_name . "> not readable or doesn't exist.");
+				}
+				$this->api_key = $settings["mailchimp"]["api_key"] ?? false;
+				$this->list_id = $settings["mailchimp"]["lists"]["larare"]["id"] ?? false;
+			} 
+			else {
+				throw new \Exception("settings.toml and/or the mailchimp_api_key couldn't be found");
+			}
+		}
+		
 		
 		/**
 			* [Summary].
@@ -27,23 +56,10 @@
 			*
 			* @return [type] [name] [description]
 		*/ 
-		public function setApiKey($api_key = null)
+		public function setApiKey($api_key)
 		{
-			if(isset($api_key)){
-				$this->api_key = $api_key;
-			}
-			else if(isset($GLOBALS["ini_array"]["security"]["mailchimp_api_key"])) {
-				$this->api_key = $GLOBALS["ini_array"]["security"]["mailchimp_api_key"];
-			}
-			else {
-				$ini_array = parse_ini_file("config.ini", true);
-				if($ini_array != false && isset($ini_array["security"]["mailchimp_api_key"])){
-					$this->api_key = $ini_array["security"]["mailchimp_api_key"];
-				}
-				else {
-					throw new \Exception("config.ini and/or the mailchimp_api_key couldn't be found");
-				}
-			}
+			$this->api_key = $api_key;
+			
 		}
 		/**
 			* [Summary].
@@ -63,9 +79,9 @@
 				$this->list_id = $GLOBALS["ini_array"]["mailchimp_list_ids"]["larare"];
 			}
 			else {
-				$ini_array = parse_ini_file("config.ini", true);
-				if($ini_array != false && isset($ini_array["mailchimp_list_ids"]["larare"])){
-					$this->list_id = $ini_array["mailchimp_list_ids"]["larare"];
+				$settings = parse_settings_file("config.ini", true);
+				if($settings != false && isset($settings["mailchimp_list_ids"]["larare"])){
+					$this->list_id = $settings["mailchimp_list_ids"]["larare"];
 				}
 				else {
 					throw new \Exception("config.ini and/or the list_id for \'larare\' couldn't be found");
@@ -136,18 +152,21 @@
 		public function addMember($member)
 		{
 			$path = "/lists/$this->list_id/members";
-			
-			// email_address, fname, lname, mobile
-			
-			$member["status"] = "subscribed";
+			$new_member = ["status" => "subscribed"];
+			// email_address, fname, lname
+			foreach($member as $sql_column => $value){
+				if(isset($settings["mailchimp_translator"][$sql_column])){
+					$translation = explode(":", $settings["mailchimp_translator"][$sql_column]);
+				}
+			}
 			$merge_fields = [];
 			$interests = [];
 			
 			$result = $this->post($path, $member);
 			//return 
 		}
-
-
+		
+		
 		
 		/**
 			* [Summary].
@@ -160,8 +179,11 @@
 		*/
 		public function getCategoriesAndInterests()
 		{
-			$cat_url = "lists/$this->list_id/interest-categories";
+			$cat_url = "lists/" . $this->list_id . "/interest-categories";
 			$c = $this->get($cat_url);
+			if($c === false){
+				exit("The API-request returned an error. Check the Mailchimp-API for errors.");
+			}
 			$categories = array_map(function($v){return ["id" => $v["id"], "title" => $v["title"]];}, $c["categories"]);
 			$include_interests = function($v) use($cat_url){
 				$i = $this->get($cat_url . "/" . $v['id'] . "/interests");
@@ -173,4 +195,4 @@
 			
 			return $categories_with_interests;
 		}
-	}																																			
+	}																																																							

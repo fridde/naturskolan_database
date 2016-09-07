@@ -4,24 +4,23 @@
 		råbg_lcni
 	*/
 	
-	
 	include("autoload.php");
 	activateDebug();
-	inc("vendor");
 	//updateAllFromRepo();
 	use \Fridde\Utility as U;
-	U::logg($_REQUEST);
-	
 	$SQL = new \Fridde\SQL();
 	$N = new \Fridde\Naturskolan();
 	
 	$updateType = "";
 	U::extractRequest();
-	//U::logg($_REQUEST); //remove in production
+	$row = $values ?? [];
+	$rowId = $values["id"] ?? false;
+	$table = $table ?? false;
+	$oldId = $oldId ?? false;
+	
 	$return = ["status" => "error"];
 	$lastChange = date("c");
 	$tables_with_last_change = ["groups", "users"];
-	
 	
 	switch($updateType){
 		case "password":
@@ -35,9 +34,10 @@
 		case "setCookie":
 		$hash = $N->createHash();
 		$expiration_date = date("c", strtotime('+ 90 days'));
-		$N->create("session", ["Hash" => $hash, "School" => $school, "ExpirationDate" => $expiration_date]);
+		$table = "sessions";
+		// What is the row below supposed to do?
+		$values = ["Hash" => $hash, "School" => $school, "ExpirationDate" => $expiration_date];
 		$return["hash"] = $hash;
-		$return["status"] = "success";
 		break;
 		
 		case "deleteCookie":
@@ -45,36 +45,41 @@
 		U::redirect("index.php?view=grupper");
 		break;
 		
+		case "updateGroupName":
+			$return["groupId"] = $rowId;
+			$return["newName"] = $values["Name"];
+		break;
+		
 		case "sort":
 		
 		break;
 		
-		case "group":
-		$N->update("group", [$column => $value, "LastChange" => $lastChange], ["id", $groupId]);
-		$return["status"] = "success";
-		$return["LastChange"] = $lastChange;
+		case "deleteRow":
 		break;
 		
-		case "row":
-		$new_prefix = "new_";
-		if(strpos($rowId, $new_prefix) === 0){
-			$old_id = substr($rowId, strlen($new_prefix));
-			$standard_values = $N->getStandardValues($table, $old_id);
-			$newId = $N->create($table, [$column => $value] + $standard_values);
-			$return["newId"] = $newId;
+		default:
+		if($oldId){
+			$values = $values + $N->getStandardValues($table, $oldId);
+			$return["oldId"] = $oldId;
+		}
+	}
+	
+	if($table){
+		if($rowId && $updateType == "deleteRow"){
+			$N->delete($table, ["id", $rowId]);
 			$return["oldId"] = $rowId;
 		}
-		else {
-			$update_values = [$column => $value];
+		elseif($rowId){
 			if(in_array($table, $tables_with_last_change)){
-				$update_values["LastChange"] = $lastChange;
+				$values["LastChange"] = $lastChange;
 			}
-			$N->update($table, $update_values, ["id", $rowId]);
+			$N->update($table, $values, ["id", $rowId]);
 		}
-		$return["status"] = "success";
+		else {
+			$return["newId"] = $N->create($table, $values);
+		}
 		$return["LastChange"] = $lastChange;
-		break;
-		
+		$return["status"] = "success";
 	}
 	echo json_encode($return);
 	

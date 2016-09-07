@@ -70,10 +70,19 @@
 		
 		public function getIncludables(){
 			
-			$includables = false;
-			$file_name = "includables.ini";
+			$file_name = "includables.toml";
+			$toml_class = "Yosymfony\Toml\Toml";
 			if(is_readable($file_name)){
-				$includables = parse_ini_file($file_name, true);
+				if(class_exists($toml_class)){
+					$parseFunction = $toml_class . "::Parse";
+					$includables = $parseFunction($file_name);
+				}
+				else {
+					throw new \Exception("Tried to parse a toml-configuration file without a parser class defined.");
+				}
+			}
+			else {
+				throw new \Exception("File <" . $file_name . "> not readable or doesn't exist.");
 			}
 			return $includables;
 		}
@@ -118,7 +127,7 @@
 			* @param Node $node The node to attach this element to
 			* @param string $tag The tag to use for the element OR an array of elements each in turn build as id => [tag, content, attributes]
 			* @param string $content The content for the element.
-			* @param array $attributes The attributes given as "attribute_name" => "attribute_value" OR just as "attribute_name" if the attribute doesn't need a value, e.g. "hidden"
+			* @param array $attributes The attributes given as "attribute_name" => "attribute_value" OR just as "attribute_name" if the attribute doesn't need a value, e.g. "hidden". If the first element of $attributes is in itself an array, it will be interpreted as ["class"] or ["class", "id"], depending on the number of elements
 			*
 			* @return [type] [name] [description]
 		*/ 
@@ -143,12 +152,12 @@
 			$return_array = array();
 			foreach($element_array as $key => $element_parts){
 				
-				$tag = (isset($element_parts["tag"]) ? $element_parts["tag"] : $element_parts[0]);
-				$content = (isset($element_parts[1]) ? $element_parts[1] : "");
-				$content = (isset($element_parts["content"]) ? $element_parts["content"] : $content);  // a value with a key takes precedence over a value that is in the right order
-				$content = (in_array($tag, self::EMPTY_ELEMENTS) ? "" : $content); // if the tag belongs to the list of void/empty elements, the content is ignored
-				$atts = (isset($element_parts[2]) ? $element_parts[2] : array());
-				$atts = (isset($element_parts["atts"]) ? $element_parts["atts"] : $atts);
+				$tag = $element_parts["tag"] ?? $element_parts[0];
+				$content = $element_parts[1] ?? "";
+				$content = $element_parts["content"] ?? $content;  // a value with a key takes precedence over a value that is in the right order
+				$content = in_array($tag, self::EMPTY_ELEMENTS) ? "" : $content; // if the tag belongs to the list of void/empty elements, the content is ignored
+				$atts = $element_parts[2] ?? [];
+				$atts = $element_parts["atts"] ?? $atts;
 				
 				if(!is_numeric($key)){
 					$atts["id"] = $key;
@@ -319,6 +328,7 @@
 			return $button;
 		}
 		
+		
 		public function addDiv()
 		{
 			$def = ["node" => null, "class" => "", "atts" => array()];
@@ -377,6 +387,36 @@
 			}
 			return $list_elements;
 		}
+		/**
+			* [Summary].
+			*
+			* [Description]
+			*
+			* @param [Type] $[Name] [Argument description]
+			[["atts" => [], "text" => "Food", "children" => [], "value" => ""], [], []]
+			*
+			* @return [type] [name] [description]
+		*/
+		public function addNestedList($node, $list, $atts = [], $with_input = false)
+		{
+			$ul = $this->add($node, "ul", "", $atts);
+			foreach($list as $element){
+				$text = $element["text"];
+				$local_atts = $element["atts"] ?? [];
+				$element_id = $local_atts["data-id"] ?? false;
+				$paranthesis = $element_id ? "($element_id) " : "";
+				$li = $this->add($ul, "li", $paranthesis . $element["text"], $local_atts);
+				
+				$children = $element["children"] ?? [];
+				if(count($children) > 0){
+					$this->addNestedList($li, $children, $local_atts, $with_input);
+				}
+				elseif($with_input) {
+					$this->add($li, "input", "", ["value" => $element["value"]]);
+				}
+			}
+		}
+		
 		/**
 			* [Summary].
 			*
@@ -458,6 +498,58 @@
 			return $input;
 		} 
 		/**
+			* Implements a slider defined in jQuery UI.
+			*
+			* This function has to be implemented with the corresponding Javascript code
+			*
+			* @param [Type] $ [Argument description]
+			*
+			* @return [type] [name] [description]
+		*/
+		public function addSlider()
+		{
+			$options = ["initial_value" => 0, "min_max" => [0, 50], "layout" => "below", "column" => null, "row_id" => null, "label" => null];
+			$def = ["node" => null, "atts" => [], "options" => $options];			
+			extract($this->prepareForExtraction($def, func_get_args()));
+			
+			$atts["class"] = "input-slider";
+			$atts["data-min"] = $options["min_max"][0];
+			$atts["data-max"] = $options["min_max"][1];
+			$atts["value"] = $options["initial_value"];
+			
+			if(isset($options["column"])){
+				$atts["data-column"] = $options["column"];
+				if(isset($options["row_id"])){
+					$slider_id = $options["column"] . "_" . $options["row_id"];  // standard case for a table-updater-slider
+				}
+				elseif(isset($atts["id"])){
+					$slider_id = $atts["id"];  // if the id is given via the attributes passed to this function
+				}
+				elseif(isset($atts[0][1])){
+					$slider_id = $atts[0][1]; // if the attribute-id is passed via shortform ["class", "id"]
+				}
+			}
+			$slider_id = $slider_id ?? rand(0,999); // last backup if everything else fails
+			$atts["id"] = $slider_id;
+			
+			$slider_counter_id = "slider_counter_" . $slider_id;
+			$atts["data-slider-counter-id"] = $slider_counter_id; 			
+			// the slider_counter_id will be used later to ensure that the counter is updated by JS			
+			
+			if(isset($options["label"])){
+				$this->add($node, "label", $options["label"], ["for" => $slider_id]);
+			}
+			$this->add($node, "div", "", $atts);
+			/* Adding the label that changes if the slider is changed. 
+			The switch case is to ensure that more layouts can be added later.	*/
+			switch($options["layout"]){
+				case "below":
+				$this->add($node, "div", $options["initial_value"], [["slider-value", $slider_counter_id]]);
+				break;
+			}
+		}
+		
+		/**
 			* [Summary].
 			*
 			* [Description]
@@ -468,49 +560,39 @@
 		*/ 
 		public function addSelect()
 		{
-			$def = ["node" => null, "name" => null, "select_options" => array() , "selected" => null, "atts" => array()];
+			$def = ["node" => null, "label_and_name" => null, "select_options" => [] , "atts" => []];
 			extract($this->prepareForExtraction($def, func_get_args()));
-			if(is_array($name) && count($name) == 2){
-				$label = $name[1];
-				$name = $name[0];
-				if(isset($atts["id"])){ //id already exists
-					$id = $atts["id"];
-				}
-				elseif(isset($atts[0][1])){ //id is given via shorthand notation $atts = [["class", "id"], "att1" => "value1", ...]
-					$id = $atts[0][1];
-				}
-				else { // we have to create an id
-					$id = $name . "_" . rand(0,999);
-				}
+			if(is_array($label_and_name)){
+				$name = $label_and_name[0];
+				$label = $label_and_name[1] ?? $name;
+				$id = $name . "_" . rand(0,999);
+				$id = $atts[0][1] ?? $id;
+				$id = $atts["id"] ?? $id;
 				$this->add($node, "label", $label, ["for" => $id]);
+				$atts["id"] = $id;
+			}
+			else {
+				$name = $label_and_name;
 			}
 			
 			$atts["name"] = $name;
+			$atts["data-column"] = $name;
+			
 			$select = $this->add($node, "select", "", $atts);
-			/* Here we check if the $select_options are given as ["option_value_1", "option_value_2", ...]
-			or [["option_value_1", "option_text_1"], ["option_value_2", "option_text_2"], ...]			
+			/* options for the select can be given as ["option_value_1", "option_value_2", ...]
+				OR [["option_text_1", "option_value_1"], ["option_text_2", "option_value_2"], ...]
+				OR [["option_text_1", "option_value_1", [option attributes 1]], ["option_text_2", "option_value_2", [option attributes 2]], ...]
 			*/
-			if(count(array_filter($select_options, "is_array")) != count($select_options)){ // i.e. not all elements are arrays
-				$select_options = array_map(function($v){return [$v];}, $select_options);
-			}
+			$select_options = array_map(function($v){return (array) $v;}, $select_options); // ensuring that all elements are arrays
+			
 			$select_array = array();
 			foreach($select_options as $option){
-				
 				// given as [option_text, option_value, atts]. If option_value is an empty string, it is assumed to be equal option_text
 				$option_text = $option[0];
-				$option_value = (isset($option[1]) &&  $option[1] !== "") ? $option[1] : $option_text;
-				$option_atts = (isset($option[2])) ? $option[2] : ["value" => $option_value, "data-column" => $option_value];
-				
-				$is_selected = false;
-				if($option_value == $selected){
-					$is_selected = true;
-				}
-				elseif(is_null($selected) && array_search($option_value, $select_options) === 0){ // default: first element is selected
-					$is_selected = true;
-				}
-				if($is_selected){
-					$option_atts[] = "selected";
-				}
+				$option_value = $option[1] ?? $option_text;
+				$option_atts = $option[2] ?? [];
+				// will add the value if and only if the value was not specified via the second or third parameter yet
+				$option_atts = $option_atts + ["value" => $option_value]; 
 				
 				$select_array[] = $this->add($select, "option", $option_text, $option_atts);
 			}
@@ -1086,7 +1168,7 @@
 		*/
 		public function addEditableTable()
 		{
-			$def_options = ["ignore" => [], "data_types" => [], "select_options" => [], "table" => "undefined_table", "header" => null];
+			$def_options = ["ignore" => [], "data_types" => [], "select_options" => [], "table" => "undefined_table", "header" => [], "extra_columns" => null];
 			$def = ["node" => null, "array" => [], "options" => $def_options, "atts" => []];
 			extract($this->prepareForExtraction($def, func_get_args()));
 			
@@ -1102,16 +1184,30 @@
 			$thead_row = $this->add($thead, "tr");
 			$tbody = $this->add($table, "tbody");
 			
-			if(!(isset($header_row) && is_array($header_row))){
-				if(count($array) > 0){
-					$first_row = reset($array);
-					$header_row = array_combine(array_keys($first_row), array_keys($first_row));
-				}
-				else {
-					exit("This table is empty");
-				}
+			/* special columns are columns prepended or appended to the table. 
+				They may contain buttons or extra information. Since we can not rely 
+			on the table having no column called "left" or "right", we'll append a random number to be sure */			
+			$rand = rand(0,9999);
+			$special_columns["left_" . $rand] = $options["extra_columns"]["left"] ?? null;
+			$special_columns["right_" . $rand] = $options["extra_columns"]["right"] ?? null;
+			
+			// if the header row is not given, we'll use the keys of the first row as labels
+			if(count($header_row) == 0 && count($array) > 0){ 
+				$first_row = reset($array);
+				$header_row = array_combine(array_keys($first_row), array_keys($first_row));
 			}
 			
+			foreach($special_columns as $id => $col_type){
+				if(!is_null($col_type)){
+					if(substr($id,0,4) == "left"){
+						$header_row = [$id => ""] + $header_row;
+					}
+					else{
+						$header_row = $header_row + [$id => ""];
+					}
+				}
+			}			
+			// if the column names are in the ignore-array, we'll skip them
 			foreach($header_row as $sql_column_name => $display_name){
 				if(in_array($sql_column_name, $ignore)){
 					unset($header_row[$sql_column_name]);
@@ -1120,17 +1216,23 @@
 					$this->add($thead_row, "th", $display_name);
 				}
 			}
-			foreach($array as $row){
+			foreach($array as $row){ //cycles through all rows
 				$tr = $this->add($tbody, "tr", "", ["data-id" => $row["id"]]);
-				foreach($header_row as $sql_column_name => $display_name){
-					$column = $sql_column_name;
-					$cell = $row[$sql_column_name];
-					
-					$atts = ["data-column" => $column, "value" => $cell];
-					
-					
-					$td = $this->add($tr, "td");
-					$data_type = (isset($data_types[$column])) ? $data_types[$column] : "text";
+				foreach($header_row as $column => $display_name){ //cycles through all columns
+					$special_column_types = $special_columns[$column] ?? false;
+					if($special_column_types){
+						$data_type = "special_column";
+						$td = $this->add($tr, "td", "", [["special-column"]]);
+					}
+					else {
+						$cell = $row[$column];						
+						$data_type = $data_types[$column] ?? "text";  // default data type is text						
+						$atts = ["data-column" => $column]; // these are the attributes for the field to insert into the table cell
+						if(!in_array($data_type, ["select"])){
+							$atts["value"] = $cell;
+						}
+						$td = $this->add($tr, "td");
+					}
 					
 					switch($data_type){
 						case "date":
@@ -1143,37 +1245,25 @@
 						break;
 						
 						case "select":
-						if(isset($select_options[$column])){
-							$s_options = $select_options[$column];
-						}
-						else {
-							$s_options = array_unique(array_column($array, $column));
-						}
-						$this->addSelect($td, $column, $s_options, $cell);
+						$s_options = $select_options[$column] ?? array_unique(array_column($array, $column));
+						$this->addSelect($td, $column, $s_options, $atts);
 						break;
 						
 						case "checkbox":
-						if(isset($select_options[$column])){
-							$s_options = $select_options[$column];
-						}
-						else {
-							$s_options = array_unique(array_column($array, $column));
-						}
+						$s_options = $select_options[$column] ?? array_unique(array_column($array, $column));
+						
 						$this->addCheckboxes($td, $column, $s_options, explode(",", $cell));
 						break;
 						
 						case "slider":
-						$atts["class"] = "input-slider";
-						$atts["data-min"] = 0;
-						$atts["data-max"] = 50;
 						if(isset($select_options[$column])){
-							$atts["data-min"] = $select_options[$column][0];
-							$atts["data-max"] = $select_options[$column][1];
+							$slider_options["min_max"] = $select_options[$column];
 						}
-						$slider_id = "slider_" . $column . "_" . $row["id"];
-						$atts["data-slider-id"] = $slider_id;
-						$this->add($td, "div", "", $atts);
-						$this->add($td, "div", $cell, [["slider-value", $slider_id]]);
+						$slider_options["column"] = $column;
+						$slider_options["row_id"] = $row["id"];
+						$slider_options["initial_value"] = $cell;
+						
+						$this->addSlider($td, [], $slider_options);
 						break;
 						
 						case "showOnly":
@@ -1187,11 +1277,31 @@
 						case "text":
 						$this->addInput($td, $column, "text", $atts);
 						break;
+						
+						case "special_column":
+						$this->addSpecialCell($td, $special_column_types);
+						break;
 					}
 				}
 			}
 			
 			
+		}
+		
+		public function addSpecialCell($node, $special_column_types)
+		{
+			foreach($special_column_types as $c_type){
+				switch($c_type)
+				{
+					case "checkbox":
+					$this->add($node, "input", "", [["batch"], "type" => "checkbox"]);
+					break;
+					
+					case "delete":
+					$this->add($node, "button", "Delete me", [["delete-btn"]]);
+					break;
+				}
+			}
 		}
 		
 		
@@ -1219,4 +1329,5 @@
 				return [];
 			}
 		}
-	}																																																	
+		
+	}																																																																																											
