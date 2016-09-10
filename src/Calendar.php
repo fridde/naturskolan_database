@@ -5,8 +5,8 @@ namespace Fridde;
 class Calendar
 {
     public function update_calendar_db()
-{
-  $settings = json_decode(file_get_contents('settings.json'), true);
+    {
+        $settings = json_decode(file_get_contents('settings.json'), true);
         $heldagsArray = array('2/3' => $settings['dagar2']['hel'], '5' => $settings['dagar5']['hel']);
         $lektionsArray = array('2/3' => $settings['dagar2']['lektion'], '5' => $settings['dagar5']['lektion']);
         $titleTranslator = array('2/3' => $settings['titleTranslator2'], '5' => $settings['titleTranslator5']);
@@ -21,7 +21,7 @@ class Calendar
 
         $insertArray = array();
 
-                foreach ($groupTable as $group) {
+        foreach ($groupTable as $group) {
             $arskurs = $group['g_arskurs'];
 
             $heldagar = $heldagsArray[$arskurs];
@@ -46,28 +46,28 @@ class Calendar
                     $isLektion = in_array($columnName, $lektioner);
                     $isHeldag = in_array($columnName, $heldagar);
 
-                        /* creating a new event */
-                        $eR = array(); // eR = eventRow
-                        /* adding all parameters */
+                    /* creating a new event */
+                    $eR = array(); // eR = eventRow
+                    /* adding all parameters */
 
-                        /* ___dates___ */
-                        if ($isLektion) {
-                            $startdateArray = explode('kl', $cell);
-                            $eR['startdate'] = trim($startdateArray[0]);
-                            $enddateArray = explode('kl', $cell);
-                            $eR['enddate'] = trim($enddateArray[0]);
-                        } else {
-                            $eR['startdate'] = $cell;
-                            $eR['enddate'] = $cell;
-                        }
+                    /* ___dates___ */
+                    if ($isLektion) {
+                        $startdateArray = explode('kl', $cell);
+                        $eR['startdate'] = trim($startdateArray[0]);
+                        $enddateArray = explode('kl', $cell);
+                        $eR['enddate'] = trim($enddateArray[0]);
+                    } else {
+                        $eR['startdate'] = $cell;
+                        $eR['enddate'] = $cell;
+                    }
 
-                        /* ___title___ */
-                        $eR['title'] = $titleTranslator[$arskurs][$columnName].' med '.$skola['long_name'].' ('
-                        .$larare['fname'].' '.substr($larare['lname'], 0, 1).')';
+                    /* ___title___ */
+                    $eR['title'] = $titleTranslator[$arskurs][$columnName].' med '.$skola['long_name'].' ('
+                    .$larare['fname'].' '.substr($larare['lname'], 0, 1).')';
 
-                        /* ___starttime + endtime___ */
-                        /* given in UTC */
-                        $startime = '0000';
+                    /* ___starttime + endtime___ */
+                    /* given in UTC */
+                    $startime = '0000';
                     $endtime = '2359';
                     if ($isHeldag) {
                         $starttime = '0815';
@@ -75,7 +75,7 @@ class Calendar
                         $endtime = '1330';
                         if (strtolower($whichWeekday) == 'tue') {
                             //$endtime = "1315"; // bussbolagets krav
-                                //uncomment if needed again!
+                            //uncomment if needed again!
                         }
                     }
                     if ($isLektion) {
@@ -93,10 +93,10 @@ class Calendar
                     }
                     $eR['starttime'] = $starttime;
                     $eR['endtime'] = $endtime;
-                        /* ___location ___ */
-                        $eR['location'] = $locationTranslator[$arskurs][$columnName];
-                        /* ___ description ___ */
-                        $description = array();
+                    /* ___location ___ */
+                    $eR['location'] = $locationTranslator[$arskurs][$columnName];
+                    /* ___ description ___ */
+                    $description = array();
                     $description[] = 'Tid: '.$starttime.'-'.$endtime;
                     $description[] = 'Lärare: '.$larare['fname'].' '.$larare['lname'];
                     $description[] = 'Årskurs: '.$group['g_arskurs'];
@@ -114,8 +114,8 @@ class Calendar
                         $description[] = 'Interna anteckningar: '.$notes;
                     }
                     $eR['description'] = implode('\n', $description);
-                        /* final inclusion in the big Array*/
-                        $insertArray[] = $eR;
+                    /* final inclusion in the big Array*/
+                    $insertArray[] = $eR;
                 }
             }
         }
@@ -126,9 +126,9 @@ class Calendar
     public function convert_database_to_ics($sqlTable)
     {
         $timediff = -100; // due to one hour forward in STHLM
-            $calendar_array = sql_select($sqlTable);
+        $calendar_array = sql_select($sqlTable);
         $iSA = array(); // iSA = icsStringArray
-            $iSA[] = 'BEGIN:VCALENDAR';
+        $iSA[] = 'BEGIN:VCALENDAR';
         $iSA[] = 'X-WR-CALNAME:SigtunaNaturskola Schema';
         $iSA[] = 'VERSION:2.0';
         $iSA[] = 'PRODID:-//SigtunaNaturskola//EN';
@@ -150,13 +150,13 @@ class Calendar
             $iSA[] = 'LOCATION:'.escapeString($eventRow['location']);
             $iSA[] = 'DESCRIPTION:'.escapeString($eventRow['description']);
             $iSA[] = 'SUMMARY:'.escapeString($titlePrefix.$eventRow['title']);
-                //$eventRow["starttime"] = $eventRow["starttime"] + $timediff;
-                // $eventRow["endtime"] = $eventRow["endtime"] + $timediff;
-                $startdateString = $eventRow['startdate'].' '.substr($eventRow['starttime'], 0, 2).':'.
-                substr($eventRow['starttime'], 2, 2).':00';
+            //$eventRow["starttime"] = $eventRow["starttime"] + $timediff;
+            // $eventRow["endtime"] = $eventRow["endtime"] + $timediff;
+            $startdateString = $eventRow['startdate'].' '.substr($eventRow['starttime'], 0, 2).':'.
+            substr($eventRow['starttime'], 2, 2).':00';
             $startdate = strtotime($startdateString);
             $enddateString = $eventRow['enddate'].' '.substr($eventRow['endtime'], 0, 2).':'.
-                substr($eventRow['endtime'], 2, 2).':00';
+            substr($eventRow['endtime'], 2, 2).':00';
             $enddate = strtotime($enddateString);
             $iSA[] = 'DTSTART;TZID=Europe/Stockholm:'.dateToCal($startdate);
             $iSA[] = 'DTEND;TZID=Europe/Stockholm:'.dateToCal($enddate);

@@ -19,30 +19,23 @@ array_multisort(array_column($unordered_tasks, "ExecuteAt"), $unordered_tasks);
 $now = C::now();
 
 $tasks = [];
-array_walk($unordered_tasks, function($v) use (&$tasks){
+array_walk($unordered_tasks, function ($v) use (&$tasks) {
 	$execute_at = C::parse($task["ExecuteAt"]);
 	// check if we have passed "ExecuteAt"
-	if($now->gt($execute_at)){
+	if ($now->gt($execute_at)) {
 		$tasks[$v["Type"]][] = $v;
 	}
 });
 
 $finished_tasks = [];
-foreach($tasks as $type => $task_group){
-	if($type == "cal_rebuild"){
-		// TODO: implement rebuild_calendar().
-		// if number of tasks in task_group <= 1, schedule rebuild in 24h
+foreach ($tasks as $task_type => $task_group) {
+	$success = $N->executeTask($task_type, $task_group);
+	if($success){
 		$finished_tasks = array_merge($finished_tasks, array_column($task_group, "id"));
-	} elseif ($type == "mail") {
-		//TODO: implement compile_mail($task_group)
-	} elseif($type == "sms"){
-		//TODO: implement send_sms($task_group)
-	} elseif($type == "check_status"){
-		// TODO: checkStatus-function
-	} else {
-		//TODO: logg $type as unknown
 	}
 }
+
+
 
 /*
 Cron jobs

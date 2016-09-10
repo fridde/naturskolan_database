@@ -1,10 +1,10 @@
 <?php
-	
+
 	namespace Fridde;
-	
+
 	class Utility
 	{
-		
+
 		/**
 			* SUMMARY OF redirect
 			*
@@ -14,9 +14,9 @@
 			*
 			* @return TYPE NAME DESCRIPTION
 		*/
-		
+
 		public $ini_file = "testfile.ini";
-		
+
 		public static function redirect($to)
 		{
 			@session_write_close();
@@ -43,7 +43,7 @@
 		{
 			$fileArray = array();
 			$handle = opendir($dir);
-			
+
 			while (false !== ($entry = readdir($handle))) {
 				if (!in_array($entry, array(
 				".",
@@ -54,10 +54,10 @@
 			}
 			closedir($handle);
 			sort($fileArray);
-			
+
 			return $fileArray;
 		}
-		
+
 		/**
 			* Returns the current url of the page.
 			*
@@ -75,7 +75,7 @@
 			}
 			$pageURL .= "://" . $_SERVER["SERVER_NAME"];
 			if ($_SERVER["SERVER_PORT"] != "80") {
-				$pageURL .= ":" . $_SERVER["SERVER_PORT"]; 
+				$pageURL .= ":" . $_SERVER["SERVER_PORT"];
 			}
 			$pageURL .= $_SERVER["REQUEST_URI"];
 			return $pageURL;
@@ -84,11 +84,11 @@
 			* [Summary].
 			*
 			* [Description]
-			
+
 			* @param [Type] $[Name] [Argument description]
 			*
 			* @return [type] [name] [description]
-		*/ 
+		*/
 		public static function print_r2($val, $return = false)
 		{
 			if($return){
@@ -99,8 +99,8 @@
 				echo '<pre>' . var_export($val, true) . '</pre>';
 			}
 		}
-		
-		
+
+
 		/**
 			* SUMMARY OF csvstring_to_array
 			*
@@ -112,7 +112,7 @@
 		*/
 		public static function csvstring_to_array($string, $separatorChar = ',', $enclosureChar = '"', $newlineChar = "\n")
 		{
-			
+
 			$array = array();
 			$size = strlen($string);
 			$columnIndex = 0;
@@ -120,13 +120,13 @@
 			$fieldValue = "";
 			$isEnclosured = false;
 			for ($i = 0; $i < $size; $i++) {
-				
+
 				$char = $string{$i};
 				$addChar = "";
-				
+
 				if ($isEnclosured) {
 					if ($char == $enclosureChar) {
-						
+
 						if ($i + 1 < $size && $string{$i + 1} == $enclosureChar) {
 							// escaped char
 							$addChar = $char;
@@ -146,11 +146,11 @@
 						$isEnclosured = true;
 					}
 					else {
-						
+
 						if ($char == $separatorChar) {
 							$array[$rowIndex][$columnIndex] = $fieldValue;
 							$fieldValue = "";
-							
+
 							$columnIndex++;
 						}
 						elseif ($char == $newlineChar) {
@@ -166,15 +166,15 @@
 				}
 				if ($addChar != "") {
 					$fieldValue .= $addChar;
-					
+
 				}
 			}
-			
+
 			if ($fieldValue) {// save last field
-				
+
 				$array[$rowIndex][$columnIndex] = $fieldValue;
 			}
-			
+
 			return $array;
 		}
 		/**
@@ -188,7 +188,7 @@
 		*/
 		public static function remove_whitelines($array)
 		{
-			
+
 			foreach ($array as $key => $row) {
 				if (strlen(trim(implode($row))) == 0) {
 					$array[$key] = NULL;
@@ -208,22 +208,22 @@
 		*/
 		public static function dateRange($first, $last, $step = "+1 day", $format = "Y-m-d", $addLast = TRUE)
 		{
-			
+
 			$step = date_interval_create_from_date_string($step);
-			
+
 			$dates = array();
 			$current = date_create_from_format($format, $first);
 			$last = date_create_from_format($format, $last);
-			
+
 			while ($current <= $last) {
 				$dates[] = $current -> format($format);
 				$current = date_add($current, $step);
 			}
-			
+
 			if ($addLast && end($dates) != $last) {
 				$dates[] = $last -> format($format);
 			}
-			
+
 			return $dates;
 		}
 		/**
@@ -237,7 +237,7 @@
 		*/
 		public static function filter_dates($dates, $constantDate, $after = TRUE)
 		{
-			
+
 			$returnDates = array();
 			foreach ($dates as $dateToCheck) {
 				$dateIsAfter = strtotime($dateToCheck) > strtotime($constantDate);
@@ -245,7 +245,7 @@
 					$returnDates[] = $dateToCheck;
 				}
 			}
-			
+
 			return $returnDates;
 		}
 		/**
@@ -259,54 +259,20 @@
 		*/
 		public static function create_download($source, $filename = "export.csv")
 		{
-			
+
 			$textFromFile = file_get_contents($source);
 			$f = fopen('php://memory', 'w');
 			fwrite($f, $textFromFile);
 			fseek($f, 0);
-			
+
 			header('Content-Type: text/plain');
 			header('Content-Disposition: attachment; filename="' . $filename . '"');
 			// make php send the generated csv lines to the browser
 			fpassthru($f);
 		}
-		/**
-			* SUMMARY OF write_to_config
-			*
-			* DESCRIPTION
-			*
-			* @param TYPE ($configArray) ARGDESCRIPTION
-			*
-			* @return TYPE NAME DESCRIPTION
-		*/
-		function writeIniFile()
-		{
-			// $array, $file, $i = 0
-			$args = func_get_args();
-			$array = $args[0];
-			$file = (isset($args[1]) ? $args[1] : self::$ini_file);
-			$i = (isset($args[2]) ? $args[2] : 0);
-			
-			$str = "";
-			foreach($array as $k => $v){
-				if(is_array($v)){
-					$str .= str_repeat(" ",$i*2)."[$k]" . str_repeat(PHP_EOL, 2); 
-					$str .= self::writeIniFile($v, "", $i+1);
-				}
-				else {
-					$str .= str_repeat(" ", $i*2). "$k = $v" . PHP_EOL; 
-				}
-			}
-			if($file)
-			{
-				return file_put_contents($file, $str);
-			}
-			else {
-				return $str;
-			}
-		}
-		
-		
+
+
+
 		/**
 			* SUMMARY OF find_most_similar
 			*
@@ -318,7 +284,7 @@
 		*/
 		public static function find_most_similar($needle, $haystack, $alwaysFindSomething = TRUE)
 		{
-			
+
 			if ($alwaysFindSomething) {
 				$bestWord = reset($haystack);
 				similar_text($needle, $bestWord, $bestPercentage);
@@ -327,10 +293,10 @@
 				$bestWord = "";
 				$bestPercentage = 0;
 			}
-			
+
 			foreach ($haystack as $key => $value) {
 				similar_text($needle, $value, $thisPercentage);
-				
+
 				if ($thisPercentage > $bestPercentage) {
 					$bestWord = $value;
 					$bestPercentage = $thisPercentage;
@@ -347,7 +313,7 @@
 			*
 			* @return TYPE NAME DESCRIPTION
 		*/
-		
+
 		public static function logg($data, $infoText = "", $file_name = "logg.txt")
 		{
 			$debug_info = array_reverse(debug_backtrace());
@@ -358,27 +324,27 @@
 			};
 			$calling_functions = ltrim(array_reduce($debug_info, $chainFunctions), "->");
 			$file = pathinfo(reset($debug_info)["file"], PATHINFO_BASENAME);
-			
+
 			$string = "\n\n####\n--------------------------------\n";
 			$string .= date("Y-m-d H:i:s");
 			$string .= ($infoText != "") ? "\n" . $infoText : "" ;
 			$string .= "\n--------------------------------\n";
-			
+
 			if (is_string($data)) {
 				$string .= $data;
-			} 
+			}
 			else if (is_array($data)) {
 				$string .= print_r($data, true);
-			} 
+			}
 			else {
 				$string .= var_export($data, true);
 			}
 			$string .= "\n----------------------------\n";
-			$string .= "Calling stack: " . $calling_functions . "\n"; 
+			$string .= "Calling stack: " . $calling_functions . "\n";
 			$string .= $file . " produced this log entry";
-			
+
 			file_put_contents($file_name, $string, FILE_APPEND);
-			
+
 		}
 		/**
 			* SUMMARY OF activate_all_errors
@@ -403,13 +369,13 @@
 			*
 			* @return TYPE NAME DESCRIPTION
 		*/
-		
+
 		public static function DMStoDEC($deg,$min,$sec)
 		{
-			
+
 			// Converts DMS ( Degrees / minutes / seconds )
 			// to decimal format longitude / latitude
-			
+
 			return $deg+((($min*60)+($sec))/3600);
 		}
 		/**
@@ -421,29 +387,29 @@
 			*
 			* @return TYPE NAME DESCRIPTION
 		*/
-		
+
 		public static function DECtoDMS($dec)
 		{
-			
+
 			// Converts decimal longitude / latitude to DMS
 			// ( Degrees / minutes / seconds )
-			
+
 			// This is the piece of code which may appear to
 			// be inefficient, but to avoid issues with floating
 			// point math we extract the integer part and the float
 			// part by using a string function.
-			
+
 			$vars = explode(".",$dec);
 			$deg = $vars[0];
 			$tempma = "0.".$vars[1];
-			
+
 			$tempma = $tempma * 3600;
 			$min = floor($tempma / 60);
 			$sec = $tempma - ($min*60);
-			
+
 			return array("deg"=>$deg,"min"=>$min,"sec"=>$sec);
 		}
-		
+
 		/**
 			* SUMMARY OF generateRandomString
 			*
@@ -468,13 +434,13 @@
 			*
 			* DESCRIPTION
 			*
-			* @param array @translation_array 
-			* @param string $prefix 
-			* 
+			* @param array @translation_array
+			* @param string $prefix
+			*
 			* @return void
 		*/
 		public static function extractRequest()
-		{	
+		{
 			// arguments: translation_array, prefix
 			$args = func_get_args();
 			if(count($args) == 0 || is_null($args[0])) {
@@ -483,18 +449,18 @@
 			else {
 				$translation_array = $args[0];
 			}
-			
+
 			$p = $args[1] ?? ""; // prefix
-			
+
 			$dont_translate = array_filter($translation_array, "is_numeric" , ARRAY_FILTER_USE_KEY);
 
 			$translate = array_diff_assoc($translation_array, $dont_translate);
-			
+
 			array_walk($dont_translate, function($v, $k, $p){$GLOBALS["$p$v"] = $_REQUEST[$v] ?? null;}, $p);
 			array_walk($translate, function($v, $k, $p){$GLOBALS["$p$v"] = $_REQUEST[$k] ?? null;}, $p);
 		}
-		
-		public static function buildTreefromSettingsTable(&$rows, $parentId = 0, $type = "plain") 
+
+		public static function buildTreefromSettingsTable(&$rows, $parentId = 0, $type = "plain")
         {
             $branch = [];
             $is_plain = $type == "plain";
@@ -519,12 +485,12 @@
 			}
             return $branch;
 		}
-		
+
         public static function settingsTableToJsonFile($settings_array, $file = "settings.json")
         {
             $json_string = json_encode(self::buildTreefromSettingsTable($settings_array), JSON_PRETTY_PRINT);
             $success = file_put_contents($file, $json_string);
             return $success;
 		}
-		
-	}																								
+
+	}

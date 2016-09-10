@@ -10,7 +10,7 @@ class Naturskolan
 {
 	public $SQL;
 	public $allowed_methods = ["create", "get", "update", "delete"];
-	public $allowed_object_types = ["busstrip", "cronjob", "event", "group", "location",
+	public $allowed_object_types = ["busstrip", "event", "group", "location",
 	"password", "school", "sentmessage", "session", "task", "topic", "user", "visit"];
 	public $unusual_plurals = []; //e.g. ["pony" => "ponies"]
 	public $standardColumns = ["school" => "Name"];
@@ -291,50 +291,57 @@ class Naturskolan
 
 	}
 
-/**
- * Wrapper for the different regular tasks that are queued and executed
- * within Naturskolan Database
- * @return [boolean] $success
- */
-public function executeTask($task_type, $list = []){
-	$success = false;
+	public function addTask($taskType, $options = [])
+	{
+		$user = $options["user"] ?? "admin";
+		$min_delay = $options["min_delay"] ?? 3; //in hours
+		$max_delay = $options["max_delay"] ?? 24; // in hours
+		$parameters = $options["parameters"] ?? [];
 
-	switch($task_type){
-		case "":
-		$success = ;
-		break;
-
-		case "":
-		$success = ;
-		break;
-
-		case "":
-		$success = ;
-		break;
-
-		case "":
-		$success = ;
-		break;
-
- 		/*
-		if ($type == "cal_rebuild") {
-			// TODO: implement rebuild_calendar().
-			// if number of tasks in task_group <= 1, schedule rebuild in 24h
-
-		} elseif ($type == "mail") {
-			//TODO: implement compile_mail($task_group)
-		} elseif ($type == "sms") {
-			//TODO: implement send_sms($task_group)
-		} elseif ($type == "check_status") {
-			// TODO: checkStatus-function
-		} else {
-			//TODO: logg $type as unknown
-		}
- 		 */
+		$existing_tasks = $this->get("tasks");
 
 	}
 
-	return $success;
-}
+
+	/**
+	* Wrapper for the different regular tasks that are queued and executed
+	* within Naturskolan Database
+	* @return [boolean] $success
+	*/
+	public function executeTask($task_type, $list = [])
+	{
+		$success = false;
+
+		switch($task_type){
+			case "cal_rebuild":
+			// TODO: implement rebuild_calendar().
+			// if number of tasks in task_group <= 1, schedule rebuild in 24h
+			// $success = ;
+			break;
+
+			case "mail":
+			//TODO: implement compile_mail($task_group)
+			//		$success = ;
+			break;
+
+			case "sms":
+			//TODO: implement send_sms($task_group)
+			//	$success = ;
+			break;
+
+			case "check_status":
+			// TODO: checkStatus-function
+			// 		$success = ;
+			break;
+
+			case "delete_user":
+			break;
+
+			default:
+			//TODO: logg $type as unknown
+		}
+
+		return $success;
+	}
 
 }
