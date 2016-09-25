@@ -106,8 +106,15 @@ class Naturskolan
 		return $c->query->execute();
 	}
 
-	private function applyWhere($connection, $criteria){
-		if(count($criteria) > 0){
+	/**
+	* [applyWhere description]
+	* @param  [type] $connection [description]
+	* @param  [type] $criteria   [description]
+	* @return [type]             [description]
+	*/
+	private function applyWhere($connection, $criteria = []){
+
+		if(count(array_filter($criteria, "is_array")) == count($criteria)){
 			foreach($criteria as $criterium){
 				if (count($criterium) == 2){
 					$connection->query->where($criterium[0], $criterium[1]);
@@ -116,9 +123,14 @@ class Naturskolan
 					$connection->query->where($criterium[0], $criterium[1], $criterium[2]);
 				}
 				else {
-					throw new \Exception("The array [". join("][", $criterium) . "]is not a valid argument for a where-query");
+					$error = true;
 				}
 			}
+		} else {
+			$error = true;
+		}
+		if(isset($error) && $error){
+			throw new \Exception("No valid argument for where-query given. Given argument: " . var_export($criteria, true));
 		}
 	}
 
@@ -290,39 +302,6 @@ class Naturskolan
 
 		}
 		return $r;
-
-	}
-
-/**
- * [addTask description]
- * @param [type] $task_type [description]
- * @param [type] $options   [description]
- */
-	public function addTask($task_type, $options = [])
-	{
-		$user = $options["user"] ?? "admin";
-		$min_delay = $options["min_delay"] ?? 3; //in hours
-		$max_delay = $options["max_delay"] ?? 24; // in hours
-		$parameters = $options["parameters"] ?? [];
-
-		$existing_tasks = $this->get("tasks");
-		$matching_tasks = U::filterFor($existing_tasks, ["Type", $task_type]);
-
-
-	}
-
-
-	public function fillSchedule()
-	{
-		$tasks = $this->get("tasks", ["Status" => "waiting"]);
-		array_walk($tasks, function(&$v){
-			$v["ExecuteAt"] = new C($v["ExecuteAt"]);
-		});
-
-		if(count($matched_tasks) <= 1){
-			$tomorrow = $now->addDay()->toIso8601String();
-			$this->addTask("rebuild_calendar");
-		}
 	}
 
 	/**
