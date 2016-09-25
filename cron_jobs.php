@@ -4,24 +4,34 @@ require __DIR__ . '/vendor/autoload.php';
 
 use \Fridde\Essentials;
 use \Fridde\Utility as U;
-//use \Fridde\SQL as SQL;
-use Carbon\Carbon as C;
+use \Carbon\Carbon as C;
+use \Fridde\Task as T;
 
 Essentials::getSettings();
 Essentials::activateDebug();
 
 $N = new \Fridde\Naturskolan();
-$M = new \Fridde\NSDB_MailChimp();
+//$M = new \Fridde\NSDB_MailChimp();
 
 $cron_jobs = $SETTINGS["cronjobs"];
-$tasks = $N->get("tasks");
+$task_table = $N->get("tasks");
+
+$task_status = array_column($task_table, "Value", "Name");
+
+
+$slot_counter = $task_status["slot_counter"];
+
+foreach($cron_jobs["intervals"] as $task_type => $interval){
+	if(($slot_counter - $cron_jobs["delay"]) % $interval == 0){
+		$task = new T($task_type, $task_status);
+		$task->execute();
+		$changed_task_status = $task->getStatus();
+	}
+
+}
+
 $now = C::now();
 
-$waiting_tasks = array_filter($tasks, function($v) use ($now){
-	$execute_at = C::parse($v["ExecuteAt"]);
-	return $now->gt($execute_at);
-});
-$task_types = array_unique(array_column($waiting_tasks, "Type"));
 $finished_tasks = [];
 foreach ($task_types as $task_type) {
 	$matching_tasks = U::filterFor($waiting_tasks, ["Type", $task_type]);
@@ -31,6 +41,15 @@ foreach ($task_types as $task_type) {
 	}
 }
 $N->update("tasks", ["Status" => "done", "Timestamp" => $now->toIso8601String()], ["id", "in", $finished_tasks]);
+
+$slot_counter += 1;
+//reset once every week
+$is_first_day_of_week = $now->dayOfWeek() == 0;
+$counter_has_gone_one_day = $slot_counter * $cron_jobs["slot_duration"] > 24 * 60; // 24h/day * 60min/h
+if($is_first_day_of_week && $counter_has_gone_one_day){
+	$slot_counter = 0;
+}
+//TODO: update slot_counter in sql-table
 
 // if to few rebuild_calendar processes, fill in up to 10 days
 
