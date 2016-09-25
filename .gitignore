@@ -6,6 +6,9 @@ sandbox.php
 vendor/
 docs/
 tests/
+old_files/
+sigtunanaturskola.se/
+temp/
 .htaccess
 *.backup
 .log

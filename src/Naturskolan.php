@@ -2,6 +2,8 @@
 namespace Fridde;
 
 use \Fridde\SQL;
+use \Fridde\Calendar;
+use \Carbon\Carbon as C;
 use \Fridde\NSDB_Mailchimp as MC;
 use \Fridde\Mailer;
 use \Fridde\Utility as U;
@@ -10,7 +12,7 @@ class Naturskolan
 {
 	public $SQL;
 	public $allowed_methods = ["create", "get", "update", "delete"];
-	public $allowed_object_types = ["busstrip", "event", "group", "location",
+	public $allowed_object_types = ["busstrip", "event", "group", "location", "log",
 	"password", "school", "sentmessage", "session", "task", "topic", "user", "visit"];
 	public $unusual_plurals = []; //e.g. ["pony" => "ponies"]
 	public $standardColumns = ["school" => "Name"];
@@ -291,7 +293,12 @@ class Naturskolan
 
 	}
 
-	public function addTask($taskType, $options = [])
+/**
+ * [addTask description]
+ * @param [type] $task_type [description]
+ * @param [type] $options   [description]
+ */
+	public function addTask($task_type, $options = [])
 	{
 		$user = $options["user"] ?? "admin";
 		$min_delay = $options["min_delay"] ?? 3; //in hours
@@ -299,24 +306,49 @@ class Naturskolan
 		$parameters = $options["parameters"] ?? [];
 
 		$existing_tasks = $this->get("tasks");
+		$matching_tasks = U::filterFor($existing_tasks, ["Type", $task_type]);
+
 
 	}
 
+
+	public function fillSchedule()
+	{
+		$tasks = $this->get("tasks", ["Status" => "waiting"]);
+		array_walk($tasks, function(&$v){
+			$v["ExecuteAt"] = new C($v["ExecuteAt"]);
+		});
+
+		if(count($matched_tasks) <= 1){
+			$tomorrow = $now->addDay()->toIso8601String();
+			$this->addTask("rebuild_calendar");
+		}
+	}
 
 	/**
 	* Wrapper for the different regular tasks that are queued and executed
 	* within Naturskolan Database
 	* @return [boolean] $success
 	*/
-	public function executeTask($task_type, $list = [])
+	public function executeTask($task_type, $matched_tasks = [])
 	{
 		$success = false;
+		$now = C::now();
 
 		switch($task_type){
-			case "cal_rebuild":
-			// TODO: implement rebuild_calendar().
-			// if number of tasks in task_group <= 1, schedule rebuild in 24h
-			// $success = ;
+			case "rebuild_calendar":
+			$tables = [];
+			$table_names = ["events", "groups", "locations", "schools", "topics", "users", "visits"];
+			foreach($table_names as $name){
+				$tables[$name] = $this->get($name);
+			}
+			$cal = new Calendar($tables);
+			$success = $cal->save();
+
+
+			break;
+
+			case "fill_schedule":
 			break;
 
 			case "mail":

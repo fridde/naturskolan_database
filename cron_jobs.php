@@ -1,40 +1,38 @@
 <?php
 //// to test this, use http://localhost/naturskolan_database/cron_jobs.php?XDEBUG_SESSION_START=test&trial=01
-include("autoload.php");
-activateDebug();
+require __DIR__ . '/vendor/autoload.php';
 
+use \Fridde\Essentials;
 use \Fridde\Utility as U;
-use \Fridde\SQL as SQL;
-//use \Fridde\ArrayTools as A;
+//use \Fridde\SQL as SQL;
 use Carbon\Carbon as C;
+
+Essentials::getSettings();
+Essentials::activateDebug();
 
 $N = new \Fridde\Naturskolan();
 $M = new \Fridde\NSDB_MailChimp();
 
-$SETTINGS = getSettings();
-
 $cron_jobs = $SETTINGS["cronjobs"];
-$unordered_tasks = $N->get("tasks", ["status" => "waiting"]);
-array_multisort(array_column($unordered_tasks, "ExecuteAt"), $unordered_tasks);
+$tasks = $N->get("tasks");
 $now = C::now();
 
-$tasks = [];
-array_walk($unordered_tasks, function ($v) use (&$tasks) {
-	$execute_at = C::parse($task["ExecuteAt"]);
-	// check if we have passed "ExecuteAt"
-	if ($now->gt($execute_at)) {
-		$tasks[$v["Type"]][] = $v;
-	}
+$waiting_tasks = array_filter($tasks, function($v) use ($now){
+	$execute_at = C::parse($v["ExecuteAt"]);
+	return $now->gt($execute_at);
 });
-
+$task_types = array_unique(array_column($waiting_tasks, "Type"));
 $finished_tasks = [];
-foreach ($tasks as $task_type => $task_group) {
-	$success = $N->executeTask($task_type, $task_group);
+foreach ($task_types as $task_type) {
+	$matching_tasks = U::filterFor($waiting_tasks, ["Type", $task_type]);
+	$success = $N->executeTask($task_type, $matching_tasks);
 	if($success){
-		$finished_tasks = array_merge($finished_tasks, array_column($task_group, "id"));
+		$finished_tasks = array_merge($finished_tasks, array_column($matching_tasks, "id"));
 	}
 }
+$N->update("tasks", ["Status" => "done", "Timestamp" => $now->toIso8601String()], ["id", "in", $finished_tasks]);
 
+// if to few rebuild_calendar processes, fill in up to 10 days
 
 
 /*

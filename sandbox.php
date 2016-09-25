@@ -2,19 +2,20 @@
 // to enable debugging in plugin DBGp, add "?XDEBUG_SESSION_START=test" to your url
 // to test this, use http://localhost/naturskolan_database/sandbox.php?XDEBUG_SESSION_START=test&type=naturskolan&trial=01
 // and exchange the type-parameter for whatever you specified in the switch-case
-if (isset($_REQUEST["info"])) {
-    phpinfo();
-    exit();
-}
-include("autoload.php");
+
+require __DIR__ . '/vendor/autoload.php';
 include("temp/test_arrays.php");
-activateDebug();
-//updateAllFromRepo();
+
+use \Fridde\Essentials;
 use \Fridde\Utility as U;
-use Carbon\Carbon as C;
+use \Carbon\Carbon as C;
 use \Fridde\SMS as SMS;
 use \Fridde\NSDB_MailChimp as M;
 use \Fridde\HTML as H;
+use \Fridde\Calendar as Cal;
+
+Essentials::getSettings();
+Essentials::activateDebug();
 
 $N = new \Fridde\Naturskolan();
 
@@ -24,7 +25,7 @@ switch ($type) {
     case "naturskolan":
     $N->delete("event", 6);
     $result = $N->get("events");
-    print_r2($result);
+    Essentials::prePrint($result);
     break;
 
     case "alphabet":
@@ -32,10 +33,20 @@ switch ($type) {
     array_walk($alpha, function ($a) {echo $a."<br>";});
     break;
 
+    case "calendar":
+    $N->executeTask("rebuild_calendar");
+    break;
+
     case "password":
     $password = "ekil_isgy";
     $school = $N->get("password/School", ["Password", $password]);
     var_export($school);
+    break;
+
+    case "filterfor":
+    include("temp/example_arrays.php");
+    $filtered = U::filterFor($ex_j, ["id", range(0,4), "in"]);
+    print_r($filtered);
     break;
 
     case "carbon":
