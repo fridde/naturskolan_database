@@ -20,7 +20,8 @@
         "fridde/arraytools": "dev-master",
         "eluceo/ical": "^0.11.0",
         "monolog/monolog": "^1.21",
-        "fridde/essentials": "dev-master"
+        "fridde/essentials": "dev-master",
+        "fridde/slacker": "dev-master"
     },
 	"autoload": {
         "psr-4": { "Fridde\\": "src/" }
