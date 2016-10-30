@@ -1,5 +1,6 @@
 <?php
 	/* This page can be called with the parameter "resource" and the corresponding sql-table
+	TODO: Make this more API-friendly 
 	*/
 
 	// test this page with localhost/naturskolan_database/edit.php?resource=groups&XDEBUG_SESSION_START=test&trial=01
