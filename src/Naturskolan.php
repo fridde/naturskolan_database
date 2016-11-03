@@ -1,21 +1,20 @@
 <?php
 namespace Fridde;
 
-use \Fridde\SQL;
-use \Fridde\Calendar;
+use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U};
+use \Yosymfony\Toml\Toml;
 use \Carbon\Carbon as C;
-use \Fridde\NSDB_Mailchimp as MC;
-use \Fridde\Mailer;
-use \Fridde\Utility as U;
 
 class Naturskolan
 {
 	public $SQL;
 	public $allowed_methods = ["create", "get", "update", "delete"];
-	public $allowed_object_types = ["busstrip", "event", "group", "location", "log",
+	public $allowed_object_types = ["busstrip", "event", "field_history", "group", "location", "log",
 	"password", "school", "sentmessage", "session", "task", "topic", "user", "visit"];
-	public $unusual_plurals = []; //e.g. ["pony" => "ponies"]
-	public $standardColumns = ["school" => "Name"];
+	//e.g. ["mars" => "mars"] Should contain irregular combinations, where the singular ends on "s"
+	public $unusual_plurals = [];
+	public $standard_columns = ["school" => "Name"];
+	private $text_path = "texts";
 
 	function __construct ()
 	{
@@ -150,12 +149,7 @@ class Naturskolan
 		$is_singular = isset($this->unusual_plurals[$object_type]);
 		$ends_on_s = substr($object_type, -1) == "s";
 
-		if (($ends_on_s && !$is_singular) || $is_plural){
-			return false;
-		}
-		else {
-			return true;
-		}
+		return ! (($ends_on_s && !$is_singular) || $is_plural);
 	}
 
 	private function singularizeObject($object_type)
@@ -165,15 +159,20 @@ class Naturskolan
 		}
 		else {
 			$unusal_singulars = array_flip($this->unusual_plurals);
-			$return = (isset($unusal_singulars[$object_type])) ? $unusal_singulars[$object_type] :  substr($object_type, 0, -1);
-			return $return;
+			if(isset($unusal_singulars[$object_type])){
+				return $unusal_singulars[$object_type];
+			} elseif(substr($object_type, -3) == "ies") {
+				return substr($object_type, 0, -3) . "y";
+			} else {
+				return substr($object_type, 0, -1);
+			}
 		}
 	}
 
 	private function getStandardColumn($object_type)
 	{
 		$object_type = $this->singularizeObject($object_type);
-		$column = $this->standardColumns[$object_type] ?? "id";
+		$column = $this->standard_columns[$object_type] ?? "id";
 
 		return $column;
 	}
@@ -287,6 +286,12 @@ class Naturskolan
 		return $formatted_array;
 	}
 
+/**
+ * [getStandardValues description]
+ * @param  [type] $table_name [description]
+ * @param  [type] $old_id     [description]
+ * @return [type]             [description]
+ */
 	public function getStandardValues($table_name, $old_id = null)
 	{
 
@@ -302,6 +307,28 @@ class Naturskolan
 
 		}
 		return $r;
+	}
+
+
+/**
+ * [getText description]
+ * @param  [type] $index     [description]
+ * @param  [type] $variables [description]
+ * @return [type]            [description]
+ */
+	public function getText($index, $variables = [])
+	{
+		$file_name = array_shift($index) . '.toml';
+		$path = $this->text_path . "/" . $file_name;
+		$toml_array = Toml::Parse($path);
+		$text = U::resolvePath($toml_array, $path);
+		if(! is_string($text)){
+			throw new \Exception("The path given couldn't be resolved to a valid string. The path: " . var_dump($index));
+		}
+		$pattern = array_map(function($k){return '/%%' . $k . '%%/';}, array_keys($variables));
+		$text = preg_replace($pattern, array_values($variables), $text);
+
+		return $text;
 	}
 
 }

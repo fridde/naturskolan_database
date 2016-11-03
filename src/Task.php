@@ -10,6 +10,7 @@ class Task extends Naturskolan
     public $admin_mail = [];
     private $task_to_function_map = [
         "calendar_rebuild" => "rebuildCalendar",
+        "backup" => "backup",
         "mailchimp_sync" => "syncMailchimp",
         "visit_confirmation_mail" => "sendVisitConfirmationMail",
         "visit_confirmation_sms" => "sendVisitConfirmationSMS",
@@ -51,6 +52,11 @@ class Task extends Naturskolan
         }
     }
 
+    private function backupDatabase()
+    {
+
+    }
+
     private function syncMailchimp()
     {
     }
@@ -82,15 +88,15 @@ class Task extends Naturskolan
             $text .= $user["Mobil"] . ", " . $user["Mail"];
             break;
 
-            case ""
+
         }
         $this->admin_mail[$type][] = $text;
     }
 
     private function sendAdminSummaryMail()
     {
-        foreach($admin_mail as $type => $rows){
-            $pre_text = "";
+        foreach($this->admin_mail as $type => $rows){
+            $pre_text = $this->getText("admin_mail/headers/" . $type);
 
         }
     }
@@ -122,8 +128,10 @@ class Task extends Naturskolan
             $group_visits
         }
 
+
+
      /*
-      ###
+
       any field_history where (Table == "groups" && (Column in(["Food", "Students"])
         group = select_where(group[id] == field_history[row_id])
         group_visits = select_where(visit[group] == group[id] && visit[date] >= now)
@@ -133,7 +141,10 @@ class Task extends Naturskolan
           add to mail(group, column, value, next_visit_date)
         delete field_history
 
+    ---------------------------------------------------------------
       ### bus not in sync
+
+      ### food not in sync
 
       ### less than 60days to last booked visit
       if(diff(max visit[date], now) < 60 days))
@@ -161,8 +172,8 @@ class Task extends Naturskolan
         if (user[created] more than 1 week ago && (user[mobil] == "" || user[mail] == "") && diff(now, latest_reminder_date) > 4 days)
            add to mail(user name)
 
+    ###
 
-      send_mail(admin, admin_mail)
       */
     }
 

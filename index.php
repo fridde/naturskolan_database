@@ -2,16 +2,17 @@
 	//// to test this, use http://localhost/naturskolan_database/index.php?XDEBUG_SESSION_START=test&trial=01
 	require __DIR__ . '/vendor/autoload.php';
 
-	use \Fridde\Essentials;
-	use \Fridde\Utility as U;
-	use \Fridde\HTML as H;
-	use \Fridde\SQL as SQL;
-	use \Fridde\NSDB_MailChimp as M;
-	use \Fridde\ArrayTools as A;
+	use \Fridde\{Essentials, Utility as U, HTML as H, SQL};
 	use Carbon\Carbon as C;
+	use Tracy\Debugger;
+
+	define("__APP_ROOT__", dirname(__FILE__));
 
 	Essentials::getSettings();
 	Essentials::activateDebug();
+
+
+	//Debugger::fireLog(["me" => "you"]);
 
 	$N = new \Fridde\Naturskolan();
 
