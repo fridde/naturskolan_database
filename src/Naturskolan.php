@@ -1,334 +1,329 @@
 <?php
 namespace Fridde;
 
-use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U};
-use \Yosymfony\Toml\Toml;
-use \Carbon\Carbon as C;
+use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
+	HTML as H};
+	use \Yosymfony\Toml\Toml;
+	use \Carbon\Carbon as C;
 
-class Naturskolan
-{
-	public $SQL;
-	public $allowed_methods = ["create", "get", "update", "delete"];
-	public $allowed_object_types = ["busstrip", "event", "field_history", "group", "location", "log",
-	"password", "school", "sentmessage", "session", "task", "topic", "user", "visit"];
-	//e.g. ["mars" => "mars"] Should contain irregular combinations, where the singular ends on "s"
-	public $unusual_plurals = [];
-	public $standard_columns = ["school" => "Name"];
-	private $text_path = "texts";
-
-	function __construct ()
+	class Naturskolan
 	{
-		$this->SQL = new SQL;
-	}
+		public $SQL;
+		public $_NOW_;
+	    public $_NOW_UNIX_;
+		public $tables = [];
+		public $allowed_methods = ["create", "get", "update", "delete"];
+		public $table_names = ["busstrips", "events", "field_history", "groups", "locations", "log",
+		"passwords", "schools", "sentmessages", "sessions", "tasks", "topics", "users", "visits"];
+		public $standard_columns = ["school" => "Name"];
+		private $text_path = "texts";
 
-	/**
-	* Wrapper for CRUD-queries.
-	*
-	* [Description]
-	*
-	* @param [Type] $[Name] [Argument description]
-	*
-	* @return Array $return Contains "c": The SQL-object
-	* "criteria": the standardized criteria for the queries (not for "create")
-	* "object": the object to insert (or an empty array)
-	* "get_first_only": boolean that tells if the word was singular
-	*/
-	private function prepareMethod($object_type, $method, $criteria = array(), $object = null){
-
-		$this->setTable($object_type);
-		$this->checkMethod($method);
-		$return = array();
-		$return["c"] = $this->SQL;
-
-		if(in_array($method, ["get", "update", "delete"])){
-			$return["criteria"] = $this->standardizeCriteria($criteria, $object_type);
+		function __construct ()
+		{
+			$this->SQL = new SQL;
+			$this->tables = array_fill_keys($table_names, null);
+			$this->_NOW_ =  C::now();
+	        $this->_NOW_UNIX_ = time();
 		}
-		if(in_array($method, ["update", "create"])){
-			$return["object"] = $object ?? [] ;
-		}
-		if(in_array($method, ["get"])){
-			$return["get_first_only"] = $this->isSingleObject($object_type);
-		}
-		return $return;
-	}
 
-	public function create($object_type, $object)
-	{
-		extract($this->prepareMethod($object_type, "create", [], $object));
-		return $c->insert($object);
-	}
-
-	/**
-	* [get description]
-	* @param  [type] $object_type [description]
-	* @param  [type] $criteria    [description]
-	* @param  [type] $field       In case you just want to fetch a single field
-	* from the table. The id-column will follow anyway.
-	* @return [type]              [description]
-	*/
-	public function get($object_type, $criteria = [], $field = null)
-	{
-		$object_and_field = explode("/", $object_type);
-		if(count($object_and_field) == 2){
-			$object_type = $object_and_field[0];
-			$field = $object_and_field[1];
-		}
-		extract($this->prepareMethod($object_type, "get", $criteria));
-		$c->select();
-		$this->applyWhere($c, $criteria);
-		$c->query->execute();
-		$result = $c->fetch();
-		if(isset($field)){
-			$result = array_combine(array_column($result, "id"), array_column($result, $field));
-		}
-		if ($get_first_only){
-			$result = reset($result);
-		}
-		return $result;
-	}
-
-	public function update($object_type, $object, $criteria)
-	{
-		extract($this->prepareMethod($object_type, "update", $criteria, $object));
-		$c->update();
-		$this->applyWhere($c, $criteria);
-		$this->applySet($c, $object);
-		return $c->query->execute();
-
-	}
-
-	public function delete($object_type, $criteria)
-	{
-		extract($this->prepareMethod($object_type, "delete", $criteria));
-		$c->delete();
-		$this->applyWhere($c, $criteria);
-		return $c->query->execute();
-	}
-
-	/**
-	* [applyWhere description]
-	* @param  [type] $connection [description]
-	* @param  [type] $criteria   [description]
-	* @return [type]             [description]
-	*/
-	private function applyWhere($connection, $criteria = []){
-
-		if(count(array_filter($criteria, "is_array")) == count($criteria)){
-			foreach($criteria as $criterium){
-				if (count($criterium) == 2){
-					$connection->query->where($criterium[0], $criterium[1]);
-				}
-				elseif (count($criterium) == 3){
-					$connection->query->where($criterium[0], $criterium[1], $criterium[2]);
-				}
-				else {
-					$error = true;
-				}
-			}
-		} else {
-			$error = true;
-		}
-		if(isset($error) && $error){
-			throw new \Exception("No valid argument for where-query given. Given argument: " . var_export($criteria, true));
-		}
-	}
-
-	private function applySet($connection, $object){
-
-		if(count($object) > 0){
-			foreach($object as $column => $value){
-				$connection->query->set($column, $value);
-			}
-		}
-	}
-
-	private function isSingleObject($object_type)
-	{
-		$object_type = strtolower(trim($object_type));
-		$is_plural = in_array($object_type, $this->unusual_plurals);
-		$is_singular = isset($this->unusual_plurals[$object_type]);
-		$ends_on_s = substr($object_type, -1) == "s";
-
-		return ! (($ends_on_s && !$is_singular) || $is_plural);
-	}
-
-	private function singularizeObject($object_type)
-	{
-		if($this->isSingleObject($object_type)){
-			return $object_type;
-		}
-		else {
-			$unusal_singulars = array_flip($this->unusual_plurals);
-			if(isset($unusal_singulars[$object_type])){
-				return $unusal_singulars[$object_type];
-			} elseif(substr($object_type, -3) == "ies") {
-				return substr($object_type, 0, -3) . "y";
-			} else {
-				return substr($object_type, 0, -1);
-			}
-		}
-	}
-
-	private function getStandardColumn($object_type)
-	{
-		$object_type = $this->singularizeObject($object_type);
-		$column = $this->standard_columns[$object_type] ?? "id";
-
-		return $column;
-	}
-
-	private function standardizeCriteria($criteria, $object_type)
-	{
-		if(!is_array($criteria)){
-			$criteria = [[$this->getStandardColumn($object_type), $criteria]];
-		} elseif(count($criteria) > 0){
-			$first_element = reset($criteria);
-			$criteria = (is_array($first_element)) ? $criteria : [$criteria] ;
-		}
-		return $criteria;
-	}
-
-	private function setTable($object_type, $direct = false)
-	{
-		/* for objects that are not stored in a table named "plural(object)", e.g. object "event" is NOT stored in a table "events"
-		the naming rule is given in $unusual_tables as $object_name => $table_name
+		/**
+		* Wrapper for CRUD-queries.
+		*
+		* [Description]
+		*
+		* @param [Type] $[Name] [Argument description]
+		*
+		* @return Array $return Contains "c": The SQL-object
+		* "criteria": the standardized criteria for the queries (not for "create")
+		* "object": the object to insert (or an empty array)
 		*/
-		if($direct){
-			$table = $object_type;
-		}
-		else {
-			$object_type = $this->singularizeObject($object_type);
-			if (!in_array($object_type, $this->allowed_object_types)){
-				throw new \Exception("'" . $object_type . "' is not an allowed object type");
+		private function prepareMethod($table_name, $method, $criteria = array(), $object = null){
+
+			$this->setTable($table_name);
+			$this->checkMethod($method);
+			$return["c"] = $this->SQL;
+
+			if(in_array($method, ["get", "update", "delete"])){
+				$return["criteria"] = $this->standardizeCriteria($criteria, $table_name);
 			}
-			$table = (isset($this->unusual_plurals[$object_type])) ? $this->unusual_plurals[$object_type] : $object_type . "s" ;
+			if(in_array($method, ["update", "create"])){
+				$return["object"] = $object ?? [] ;
+			}
+			return $return;
 		}
-		$this->SQL->setTable($table);
-	}
 
-	private function checkMethod($method)
-	{
-		if (!in_array($method, $this->allowed_methods)){
-			throw new \Exception("'" . $method . "' is not an allowed function to use");
+		public function create($table_name, $object)
+		{
+			extract($this->prepareMethod($table_name, "create", [], $object));
+			return $c->insert($object);
 		}
-	}
 
-	public function createPassword($school, $length = 4)
-	{
-		$alpha = range('a', 'z');
-		$password = $school . "_";
-		foreach (range(1,$length) as $i){
-			$password .= $alpha[mt_rand(0, count($alpha) - 1)];
+		/**
+		* [get description]
+		* @param  [type] $table_name [description]
+		* @param  [type] $criteria    [description]
+		* @param  [type] $field       In case you just want to fetch a single field
+		* from the table. The id-column will follow anyway.
+		* @return [type]              [description]
+		*/
+		public function get($table_name, $criteria = [], $field = null)
+		{
+			$table_and_field = explode("/", $table_name);
+			if(count($table_and_field) == 2){
+				list($table_name, $field) = $table_and_field;
+			}
+			extract($this->prepareMethod($table_name, "get", $criteria));
+			$c->select();
+			$this->applyWhere($c, $criteria);
+			$c->query->execute();
+			$result = $c->fetch();
+			if(isset($field)){
+				$id = $this->getStandardColumn($table_name);
+				$result = array_combine(array_column($result, $id), array_column($result, $field));
+			}
+			return $result;
 		}
-		return $password;
-	}
 
-	public function createHash()
-	{
-		$hash_string = password_hash(microtime(), PASSWORD_DEFAULT);
-		$hash_array = explode("$", $hash_string);
-		$hash = implode("", array_slice($hash_array, 3));
+		/**
+		 * [getOne description]
+		 * @param  [type] $table_with_field [description]
+		 * @param  [type] $criteria         [description]
+		 * @param  [type] $field            [description]
+		 * @return [type]                   [description]
+		 */
+		public function getOne($table_with_field, $criteria = [], $field = null){
 
-		return $hash;
-	}
+			if(!is_array($criteria)){
+				$table_name = reset(explode('/', $table_with_field));
+				$criteria = [[$this->getStandardColumn($table_name), $criteria]];
+			}
+			$result = $this->get($table_with_field, $criteria, $field);
+			if(count($result) !== 1){
+				trigger_error('The query "' . var_dump($criteria) . '" from the table '
+				. reset(explode('/', $table_with_field)) . ' should have given a single
+				result, but gave ' . count($result));
+			}
+			return reset($result);
+		}
 
-	public function orderSchools(){
+		public function update($table_name, $object, $criteria)
+		{
+			extract($this->prepareMethod($table_name, "update", $criteria, $object));
+			$c->update();
+			$this->applyWhere($c, $criteria);
+			$this->applySet($c, $object);
+			return $c->query->execute();
 
-	}
+		}
 
-	/**
-	* [Summary].
-	*
-	* [Description]
-	*
-	* @param array $unformatted_array multi-array where every row comprises one row from a certain table. Each row should at least contain "id", and the needed columns
-	*
-	* @return array $return_array contains array of formatted strings using the id as keys
-	*/
-	public function format($unformatted_array, $type = "")
-	{
-		$format = function($v, $k) use ($type){
-			switch($type){
+		public function delete($table_name, $criteria)
+		{
+			extract($this->prepareMethod($table_name, "delete", $criteria));
+			$c->delete();
+			$this->applyWhere($c, $criteria);
+			return $c->query->execute();
+		}
 
-				case "user":
-				$r =  $v["FirstName"] . " " . $v["LastName"] . ", " . strtoupper($v["School"]);
+		/**
+		* [applyWhere description]
+		* @param  [type] $connection [description]
+		* @param  [type] $criteria   [description]
+		* @return [type]             [description]
+		*/
+		private function applyWhere($connection, $criteria = []){
+
+			if(count(array_filter($criteria, "is_array")) == count($criteria)){
+				foreach($criteria as $criterium){
+					if (count($criterium) == 2){
+						$connection->query->where($criterium[0], $criterium[1]);
+					}
+					elseif (count($criterium) == 3){
+						$connection->query->where($criterium[0], $criterium[1], $criterium[2]);
+					}
+					else {
+						$error = true;
+					}
+				}
+			} else {
+				$error = true;
+			}
+			if(isset($error) && $error){
+				throw new \Exception("No valid argument for where-query given. Given argument: " . var_export($criteria, true));
+			}
+		}
+
+		private function applySet($connection, $object){
+
+			if(count($object) > 0){
+				foreach($object as $column => $value){
+					$connection->query->set($column, $value);
+				}
+			}
+		}
+
+
+		private function getStandardColumn($table_name)
+		{
+			return $this->standard_columns[$table_name] ?? "id";
+
+		}
+
+		private function standardizeCriteria($criteria)
+		{
+			if(! U::arrayIsMulti($criteria)){
+				return [$criteria];
+			}
+			return $criteria;
+		}
+
+
+		private function setTable($table_name)
+		{
+			$this->SQL->setTable($table_name);
+		}
+
+		public function getTable($table_name = "", $force_sql_request = false)
+		{
+			if(is_null($table_name)){
+				return $this->getAllTables();
+			}
+			if($force_sql_request || is_null($this->tables[$table_name])){
+				$this->tables[$table_name] = $this->get($table_name);
+			}
+			return $this->tables[$table_name];
+		}
+
+		public function getAllTables($force_sql_request = false)
+		{
+			foreach($this->tables as $table_name => &$table_rows){
+				$table_rows = $this->getTable($table_name, $force_sql_request);
+			}
+			return $this->tables;
+		}
+
+		private function checkMethod($method)
+		{
+			if (!in_array($method, $this->allowed_methods)){
+				throw new \Exception("'" . $method . "' is not an allowed function to use");
+			}
+		}
+
+		public function createPassword($school, $length = 4)
+		{
+			$alpha = range('a', 'z');
+			$password = $school . "_";
+			foreach (range(1,$length) as $i){
+				$password .= $alpha[mt_rand(0, count($alpha) - 1)];
+			}
+			return $password;
+		}
+
+		public function createHash()
+		{
+			$hash_string = password_hash(microtime(), PASSWORD_DEFAULT);
+			$hash_array = explode("$", $hash_string);
+			$hash = implode("", array_slice($hash_array, 3));
+
+			return $hash;
+		}
+
+		public function orderSchools(){
+
+		}
+
+		/**
+		* [Summary].
+		*
+		* [Description]
+		*
+		* @param array $unformatted_array multi-array where every row comprises one row from a certain table. Each row should at least contain "id", and the needed columns
+		*
+		* @return array $return_array contains array of formatted strings using the id as keys
+		*/
+		public function format($unformatted_array, $type = "")
+		{
+			$format = function($v, $k) use ($type){
+				switch($type){
+
+					case "user":
+					$r =  $v["FirstName"] . " " . $v["LastName"] . ", " . strtoupper($v["School"]);
+					break;
+
+					case "group":
+					$r = ($v["Name"] == "") ? $v["Grade"] . "." .$v["id"] : $v["Name"];
+					$r .= ", " . strtoupper($v["School"]);
+					break;
+
+					case "topic":
+					$r = $v["Grade"] . "." . $v["VisitOrder"] . " " . $v["ShortName"];
+					break;
+
+					case "colleague":
+					$r = strtoupper(substr($v["FirstName"], 0, 1) . substr($v["LastName"], 0, 1));
+					break;
+
+					case "school":
+					$r = $v["Name"];
+					break;
+
+					case "location":
+					$r = $v["Name"];
+					break;
+
+					default:
+					$r = $v;
+					$v = ["id" => $k];
+				}
+				return [$r, $v["id"]];
+			};
+			$formatted_array = array_map($format, $unformatted_array, array_keys($unformatted_array));
+
+			return $formatted_array;
+		}
+
+		/**
+		* [getStandardValues description]
+		* @param  [type] $table_name [description]
+		* @param  [type] $old_id     [description]
+		* @return [type]             [description]
+		*/
+		public function getStandardValues($table_name, $old_id = null)
+		{
+
+			switch($table_name){
+				case "users":
+				$school = $this->get("user/School", ["id", $old_id]);
+				$r = ["School" => $school, "Status" => 1, "DateAdded" => date("c")];
 				break;
 
-				case "group":
-				$r = ($v["Name"] == "") ? $v["Grade"] . "." .$v["id"] : $v["Name"];
-				$r .= ", " . strtoupper($v["School"]);
-				break;
-
-				case "topic":
-				$r = $v["Grade"] . "." . $v["VisitOrder"] . " " . $v["ShortName"];
-				break;
-
-				case "colleague":
-				$r = strtoupper(substr($v["FirstName"], 0, 1) . substr($v["LastName"], 0, 1));
-				break;
-
-				case "school":
-				$r = $v["Name"];
-				break;
-
-				case "location":
-				$r = $v["Name"];
-				break;
 
 				default:
-				$r = $v;
-				$v = ["id" => $k];
+				$r = [];
+
 			}
-			return [$r, $v["id"]];
-		};
-		$formatted_array = array_map($format, $unformatted_array, array_keys($unformatted_array));
-
-		return $formatted_array;
-	}
-
-/**
- * [getStandardValues description]
- * @param  [type] $table_name [description]
- * @param  [type] $old_id     [description]
- * @return [type]             [description]
- */
-	public function getStandardValues($table_name, $old_id = null)
-	{
-
-		switch($table_name){
-			case "users":
-			$school = $this->get("user/School", ["id", $old_id]);
-			$r = ["School" => $school, "Status" => 1, "DateAdded" => date("c")];
-			break;
-
-
-			default:
-			$r = [];
-
+			return $r;
 		}
-		return $r;
-	}
 
 
-/**
- * [getText description]
- * @param  [type] $index     [description]
- * @param  [type] $variables [description]
- * @return [type]            [description]
- */
-	public function getText($index, $variables = [])
-	{
-		$file_name = array_shift($index) . '.toml';
-		$path = $this->text_path . "/" . $file_name;
-		$toml_array = Toml::Parse($path);
-		$text = U::resolvePath($toml_array, $path);
-		if(! is_string($text)){
-			throw new \Exception("The path given couldn't be resolved to a valid string. The path: " . var_dump($index));
+		/**
+		* [getText description]
+		* @param  [type] $index     [description]
+		* @param  [type] $variables [description]
+		* @return [type]            [description]
+		*/
+		public function getText($index, $variables = [])
+		{
+			$file_name = array_shift($index) . '.toml';
+			$path = $this->text_path . "/" . $file_name;
+			$toml_array = Toml::Parse($path);
+			$text = U::resolvePath($toml_array, $path);
+			if(! is_string($text)){
+				throw new \Exception("The path given couldn't be resolved to a valid string. The path: " . var_dump($index));
+			}
+			$pattern = array_map(function($k){return '/%%' . $k . '%%/';}, array_keys($variables));
+			$text = preg_replace($pattern, array_values($variables), $text);
+
+			return $text;
 		}
-		$pattern = array_map(function($k){return '/%%' . $k . '%%/';}, array_keys($variables));
-		$text = preg_replace($pattern, array_values($variables), $text);
 
-		return $text;
 	}
-
-}
