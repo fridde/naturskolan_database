@@ -13,19 +13,16 @@
 
 	$D = new D;
 
-	if(!isset($_REQUEST["direction"])){
-		echo "Error: direction parameter not set.";
-		exit();
-	}
+	$direction = $_REQUEST["direction"] ?? "export";
 
-	if($_REQUEST["direction"] == "export"){
+	if($direction == "export"){
 		$D->export();
 		echo "Database exported!";
 	}
-	else if($_REQUEST["direction"] == "import"){
+	else if($direction == "import"){
 		$D->import();
 		echo "Database imported!";
 	}
 	else {
-		echo $_REQUEST["direction"] . " is not a valid value for \"direction\"";
+		echo $direction . ' is not a valid value for "direction"';
 	}

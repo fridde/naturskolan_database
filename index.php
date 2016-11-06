@@ -6,11 +6,8 @@
 	use Carbon\Carbon as C;
 	use Tracy\Debugger;
 
-	define("__APP_ROOT__", dirname(__FILE__));
-
 	Essentials::getSettings();
 	Essentials::activateDebug();
-
 
 	//Debugger::fireLog(["me" => "you"]);
 

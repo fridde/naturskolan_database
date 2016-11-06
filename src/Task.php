@@ -70,16 +70,16 @@ class Task extends Naturskolan
     * @param [type] $type [description]
     * @param [type] $info [description]
     */
-    private function addToAdminMail($type, $info = []){
-        $tables = $this->getAllTables();
+    private function addToAdminMail($error_type, $info = []){
+        $tables = $this->getTable(["topics", "groups", "schools", "users"]);
         $row = "";
 
-        switch($type){
+        switch($error_type){
             case "visit_not_confirmed":
-            $topic = U::filterFor($tables["topics"], ["id", $info["Topic"]]);
-            $group = U::filterFor($tables["groups"], ["id", $info["Group"]]);
-            $school = U::filterFor($tables["schools"], ["id", $group["School"]]);
-            $user = U::filterFor($tables["users"], ["id", $group["User"]]);
+            $topic = U::getById($TOPICS, $info["Topic"]);
+            $group = U::getById($GROUPS, $info["Group"]);
+            $school = U::getById($SCHOOLS, $group["School"]);
+            $user = U::getById($USERS, $group["User"]);
 
             $row .= $info["Date"] .  ": ";
             $row .= $topic["ShortName"] . " med ";
@@ -90,16 +90,21 @@ class Task extends Naturskolan
             break;
 
             case "food_changed":
-
-            break;
-
             case "student_nr_changed":
+            $group = $info["group"];  // This is already a group object
+            $row .= "ÅK " . $group->get("Grade") . ", ";
+            $row .= "Grupp " . $group->get("Name") . " från " . $group->getSchool("Name");
+            $row .= ", möter oss härnast " .  $group->getNextVisit() . " : ";
+            $row .= $error_type == "food_changed" ? "Matpreferenserna " : "Antal elever ";
+            $row .= 'ändrades från "' . $info["old"] . '" till "' . $info["new"] . '"';
             break;
 
             case "soon_last_visit":
             break;
 
             case "user_profile_incomplete":
+            $user = $info["user"];  // as an object!
+            // TODO: continue this part!
             break;
 
             case "group_leader_not_teacher":
@@ -145,10 +150,13 @@ class Task extends Naturskolan
     {
         $settings = $SETTINGS["admin_summary"];
 
-        $visits = $this->getTable("visits");
 
-        // visit not confirmed
-        foreach($tables["visits"] as $visit_row){
+        extract($this->getTable(["history", "changes", "users", "messages", "visits"]));
+
+        // #######################
+        // ### visit not confirmed
+        // #######################
+        foreach($VISITS as $visit_row){
             $visit = new Visit($visit_row);
             $too_close = $visit->daysLeft() <= $settings["no_confirmation_warning"];
             if($too_close && ! $visit->isConfirmed()){
@@ -156,34 +164,49 @@ class Task extends Naturskolan
             }
         }
 
-        // food or number of students changed
+        // #######################
+        // ### food or number of students changed
+        // // #######################
         $criteria[] = ["Table_name", "groups"];
         $criteria[] = ["Column_name", "in", ["Food", "Students"]];
+        $error_type_map = ["Food" => "food_changed", "Students" => "student_nr_changed"];
 
-        $field_history = U::filterFor($tables["field_history"], $criteria);
-        foreach($field_history as $hist_field){
-            $group = new Group($hist_field["Row_id"]);
+        $CHANGES = U::filterFor($CHANGES, $criteria);
+        foreach($CHANGES as $change){
+            $group = new Group($change["Row_id"]);
             $next_visit = $group->getNextVisit();
             if($next_visit !== false && $next_visit->daysLeft() <= $settings["important_info_changed"]){
-                $type = $hist_field["Column_name"] == "Food" ? "food_changed" : "student_nr_changed";
-                //$this->addToAdminMail($type [, $info])
-                //TODO: implement "get group information"
+                $col_name = $change["Column_name"];
+                $val = $change["Value"];
+                $error_type = $error_type_map[$col_name];
+                $info = ["old" => $val, "new" => $group->getInfo($col_name)];
+                $info["group"] = $group;
+                $info["next_visit"] = $next_visit["Date"];
+                $this->addToAdminMail($error_type, $info);
             }
-
         }
 
+        // #######################
+        // ### user profile incomplete
+        // // #######################
+        foreach($USERS as $user_row){
+            $user = new User($user_row);
+            $immune = $user->daysSinceAdded() <= $settings["immunity_time"];
+            $too_frequent = $user->daysSinceLastMessage("reminder") < $settings["annoyance_interval"];
+            if( ! ($immune || $too_frequent) &&  ! ($user->has("Mobil") && $user->has("Mail"))){
+                $info = ["user" => $user];
+                $this->addToAdminMail("user_profile_incomplete", $info);
+            }
+        }
 
 
         /*
 
-        any field_history where (Table == "groups" && (Column in(["Food", "Students"])
-        group = select_where(group[id] == field_history[row_id])
-        group_visits = select_where(visit[group] == group[id] && visit[date] >= now)
-        next_visit_date = min(group_visits[date])
-        column = field_history[Column]
-        if(field_history[value] != group[column] && diff(next_visit_date, now) < 2 weeks)
-        add to mail(group, column, value, next_visit_date)
-        delete field_history
+*/
+
+
+
+        /*
 
         ---------------------------------------------------------------
         ### bus not in sync
@@ -207,24 +230,13 @@ class Task extends Naturskolan
         group_leader = select_where(group[user] == user[id])
         if(group_leader[type] == "admin")
         add to mail(group, user)
-
-
-        ### user profile incomplete
-        any user
-        reminder_messages = select_where(message[to] == user[id] && message[type] == "reminder")
-        latest_reminder_date = max(reminder_messages[date])
-        if (user[created] more than 1 week ago && (user[mobil] == "" || user[mail] == "") && diff(now, latest_reminder_date) > 4 days)
-        add to mail(user name)
-
-        ###
-
         */
     }
 
     private function sendChangedGroupLeaderMail()
     {
         /*
-        any field_history where (Table == "groups" && Column == "User")
+        any changes where (Table == "groups" && Column == "User")
         group = select_where(group[user] == value)
         if(group[user] != value)
         send_mail(group[user], group)
@@ -234,7 +246,7 @@ class Task extends Naturskolan
     private function changedVisitDateMail()
     {
         /*
-        any field_history where (Table == "visits" && Column == "Date")
+        any changes where (Table == "visits" && Column == "Date")
         visit = select_where(visit[Date] == value)
         if(visit[Date] != value)
         send_mail(...

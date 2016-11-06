@@ -10,12 +10,11 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 	{
 		public $SQL;
 		public $_NOW_;
-	    public $_NOW_UNIX_;
+		public $_NOW_UNIX_;
 		public $tables = [];
 		public $allowed_methods = ["create", "get", "update", "delete"];
-		public $table_names = ["busstrips", "events", "field_history", "groups", "locations", "log",
-		"passwords", "schools", "sentmessages", "sessions", "tasks", "topics", "users", "visits"];
-		public $standard_columns = ["school" => "Name"];
+		public $table_names = ["busstrips", "events", "changes", "groups", "locations", "log",
+		"passwords", "schools", "messages", "sessions", "tasks", "topics", "users", "visits"];
 		private $text_path = "texts";
 
 		function __construct ()
@@ -23,7 +22,7 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			$this->SQL = new SQL;
 			$this->tables = array_fill_keys($table_names, null);
 			$this->_NOW_ =  C::now();
-	        $this->_NOW_UNIX_ = time();
+			$this->_NOW_UNIX_ = time();
 		}
 
 		/**
@@ -78,24 +77,23 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			$c->query->execute();
 			$result = $c->fetch();
 			if(isset($field)){
-				$id = $this->getStandardColumn($table_name);
-				$result = array_combine(array_column($result, $id), array_column($result, $field));
+				$result = array_combine(array_column($result, "id"), array_column($result, $field));
 			}
 			return $result;
 		}
 
 		/**
-		 * [getOne description]
-		 * @param  [type] $table_with_field [description]
-		 * @param  [type] $criteria         [description]
-		 * @param  [type] $field            [description]
-		 * @return [type]                   [description]
-		 */
+		* [getOne description]
+		* @param  [type] $table_with_field [description]
+		* @param  [type] $criteria         [description]
+		* @param  [type] $field            [description]
+		* @return [type]                   [description]
+		*/
 		public function getOne($table_with_field, $criteria = [], $field = null){
 
 			if(!is_array($criteria)){
 				$table_name = reset(explode('/', $table_with_field));
-				$criteria = [[$this->getStandardColumn($table_name), $criteria]];
+				$criteria = [["id", $criteria]];
 			}
 			$result = $this->get($table_with_field, $criteria, $field);
 			if(count($result) !== 1){
@@ -162,12 +160,6 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 		}
 
 
-		private function getStandardColumn($table_name)
-		{
-			return $this->standard_columns[$table_name] ?? "id";
-
-		}
-
 		private function standardizeCriteria($criteria)
 		{
 			if(! U::arrayIsMulti($criteria)){
@@ -182,15 +174,25 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			$this->SQL->setTable($table_name);
 		}
 
-		public function getTable($table_name = "", $force_sql_request = false)
+		public function getTable($tables = null, $force_sql_request = false)
 		{
-			if(is_null($table_name)){
+			if(is_null($tables)){
 				return $this->getAllTables();
 			}
-			if($force_sql_request || is_null($this->tables[$table_name])){
-				$this->tables[$table_name] = $this->get($table_name);
+			$tables = (array) $tables;
+
+			$return = [];
+			foreach($tables as $table_name){
+				if($force_sql_request || is_null($this->tables[$table_name])){
+					$this->tables[$table_name] = $this->get($table_name);
+				}
+				$return[strtoupper($table_name)] = $this->tables[$table_name];
 			}
-			return $this->tables[$table_name];
+			if(count($return) === 1){
+				return reset($return);
+			} else {
+				return $return;
+			}
 		}
 
 		public function getAllTables($force_sql_request = false)
@@ -198,7 +200,7 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			foreach($this->tables as $table_name => &$table_rows){
 				$table_rows = $this->getTable($table_name, $force_sql_request);
 			}
-			return $this->tables;
+			return array_change_key_case($this->tables, CASE_UPPER);
 		}
 
 		private function checkMethod($method)

@@ -1,30 +1,15 @@
 <?php
 namespace Fridde;
 
-class Visit extends Naturskolan
+class Visit extends Entity
 {
-    public $information;
-    public $id;
     public $date;
     public $confirmed;
 
-    function __construct ($information = null)
+    function __construct ()
     {
-        if(is_array($information)){
-            $this->information = $information;
-            $this->id = $information["id"];
-        }
-        else {
-            $this->id = $information;
-        }
-    }
-
-    private function setInformation()
-    {
-        if(!isset($this->information)){
-            $visits = $this->getTable("visits");
-            $this->information = U::filterFor($visits, ["id", $this->id]);
-        }
+        parent::__construct(func_get_arg(0));
+        $this->$corresponding_table = "visits";
     }
 
     private function setDate()
