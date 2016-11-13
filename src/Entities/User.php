@@ -1,16 +1,16 @@
 <?php
-namespace Fridde;
+namespace Fridde\Entities;
 
 class User extends Entity
 {
     public $messages;
     public $added;
 
-    function __construct ($information = null)
+    public function getCompleteName()
     {
-        parent::__construct(func_get_arg(0));
-        $this->$corresponding_table = "users";
-    }    
+        $this->setInformation();
+        return $this->get("FirstName") . " " . $this->get("LastName");
+    }
 
     private function setMessages()
     {
@@ -55,7 +55,7 @@ class User extends Entity
     public function getDateAdded()
     {
         $this->setInformation();
-        $this->added = $this->added ?? new C($this->information["DateAdded"]);
+        $this->added = $this->added ?? new C($this->get("DateAdded"));
         return $this->added;
     }
 

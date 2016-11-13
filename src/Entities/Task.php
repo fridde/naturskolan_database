@@ -1,7 +1,7 @@
 <?php
-namespace Fridde;
+namespace Fridde\Entities;
 
-class Task extends Naturskolan
+class Task extends Entity
 {
     public $type;
     public $result = false;
@@ -71,22 +71,22 @@ class Task extends Naturskolan
     * @param [type] $info [description]
     */
     private function addToAdminMail($error_type, $info = []){
-        $tables = $this->getTable(["topics", "groups", "schools", "users"]);
         $row = "";
 
         switch($error_type){
             case "visit_not_confirmed":
-            $topic = U::getById($TOPICS, $info["Topic"]);
-            $group = U::getById($GROUPS, $info["Group"]);
-            $school = U::getById($SCHOOLS, $group["School"]);
-            $user = U::getById($USERS, $group["User"]);
+            $visit = $info["visit"]; //as object
+            $topic = $visit->getAsObject("Topic");
+            $group = $visit->getAsObject("Group");
+            $school = $group->getAsObject("School");
+            $user = $group->getAsObject("User");
 
-            $row .= $info["Date"] .  ": ";
-            $row .= $topic["ShortName"] . " med ";
-            $row .= $group["Name"] . " från ";
-            $row .= $school["Name"] . " Lärare: ";
-            $row .= $user["FirstName"] . " " . $user["LastName"] . ", ";
-            $row .= $user["Mobil"] . ", " . $user["Mail"];
+            $row .= $visit->get("Date") .  ": ";
+            $row .= $topic->get("ShortName") . " med ";
+            $row .= $group->get("Name") . " från ";
+            $row .= $school->get("Name") . ". Lärare: ";
+            $row .= $user->getCompleteName() . ", ";
+            $row .= $user->get("Mobil") . ", " . $user->get("Mail");
             break;
 
             case "food_changed":
@@ -100,11 +100,21 @@ class Task extends Naturskolan
             break;
 
             case "soon_last_visit":
+            $last_visit = $info["last_visit"];
+            $row .= "Snart är sista planerade mötet med eleverna. Börja planera nästa termin!";
+            $row .= " Sista möte: " . $last_visit->get("Date");
             break;
 
             case "user_profile_incomplete":
             $user = $info["user"];  // as an object!
-            // TODO: continue this part!
+            $school = $user->get("School");
+            $mob_nr = $user->get("Mobil");
+            $mail = $user->get("Mail");
+
+            $row .= $user->getCompleteName() . " från ";
+            $row .= $school->get("Name") . " saknar kontaktuppgifter. ";
+            $row .= "Mobil: " . (empty($mob_nr) ? "???" : $mob_nr) . ", ";
+            $row .= "Mejl: " .  (empty($mail) ? "???" : $mail) . ".";
             break;
 
             case "group_leader_not_teacher":
@@ -117,6 +127,10 @@ class Task extends Naturskolan
             break;
 
             case "wrong_group_count":
+            //$info = ["school" => $school, "expected" => $expected, "active" => $active];
+            extract($info);
+            $row .= $school->get("Name") . " har fel antal grupper. Det finns $active grupper, ";
+            $row .= " men det borde vara $expected";
             break;
             /*
             case "":
@@ -125,20 +139,27 @@ class Task extends Naturskolan
 
         }
         $this->admin_mail[$type][] = $row;
+        $this->sendAdminSummaryMail();
     }
 
     private function sendAdminSummaryMail()
     {
-        if(count($this->admin_mail) == 0){
+
+        if(empty($this->admin_mail)){
             return true;
         }
-        $M = new Mailer();
+        $settings = $SETTINGS["admin_summary"];
+        $params["to"] = $settings["admin_adress"];
+        $params["from"] = $settings["admin_adress"];
+        $params["subject"] = $this->getText("admin_mail/defaults/subject");
+        $M = new Mailer($params);
+
         foreach($this->admin_mail as $type => $rows){
             $pre_text = $this->getText("admin_mail/headers/" . $type);
+            $M->addHeader($pre_text);
             foreach ($rows as $row){
-
+                $M->addRow($row);
             }
-
         }
     }
 
@@ -151,7 +172,8 @@ class Task extends Naturskolan
         $settings = $SETTINGS["admin_summary"];
 
 
-        extract($this->getTable(["history", "changes", "users", "messages", "visits"]));
+        extract($this->getTable(["history", "changes", "users", "messages",
+        "visits", "schools"]));
 
         // #######################
         // ### visit not confirmed
@@ -159,8 +181,10 @@ class Task extends Naturskolan
         foreach($VISITS as $visit_row){
             $visit = new Visit($visit_row);
             $too_close = $visit->daysLeft() <= $settings["no_confirmation_warning"];
+
             if($too_close && ! $visit->isConfirmed()){
-                $this->addToAdminMail("visit_not_confirmed", $visit);
+                $info = ["visit" => $visit];
+                $this->addToAdminMail("visit_not_confirmed", $info);
             }
         }
 
@@ -199,31 +223,45 @@ class Task extends Naturskolan
             }
         }
 
+        // #######################
+        // ### less than 60days to last booked visit
+        // // #######################
+        $visits = U::orderBy($VISITS, "Date", "datestring");
+        $last_visit = new Visit(array_pop($visits));
+        if($last_visit->daysLeft() <= $settings["soon_last_visit"]){
+            $info = ["last_visit" => $last_visit];
+            $this->addToAdminMail("soon_last_visit", $info);
+        }
+
+        // #######################
+        // ### wrong amount of groups
+        // // #######################
+        foreach($SCHOOLS as $school_row){
+            $school = new School($school_row);
+            $expected = $school->countExpectedGroups();
+            $active = $school->countActiveGroups();
+            if($expected !== $active){
+                $info = ["school" => $school, "expected" => $expected, "active" => $active];
+                $this->addToAdminMail("wrong_group_count", $info);
+            }
+        }
 
         /*
-
-*/
-
-
-
-        /*
-
-        ---------------------------------------------------------------
-        ### bus not in sync
-
-        ### food not in sync
-
-        ### less than 60days to last booked visit
-        if(diff(max visit[date], now) < 60 days))
-        add to mail(diff)
-
-        ### wrong amount of groups
         any school
         any arskurs
         count_is = count_where(group[arskurs] == arskurs)
         count_should = school[arskurs]
         if(count_is != count_should)
         add to mail(count_is, count_should, school, arskurs)
+
+        /*
+
+
+
+        ---------------------------------------------------------------
+        ### bus not in sync
+
+        ### food not in sync
 
         ###group leader is not teacher
         any group

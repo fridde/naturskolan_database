@@ -1,16 +1,10 @@
 <?php
-namespace Fridde;
+namespace Fridde\Entities;
 
 class Visit extends Entity
 {
     public $date;
     public $confirmed;
-
-    function __construct ()
-    {
-        parent::__construct(func_get_arg(0));
-        $this->$corresponding_table = "visits";
-    }
 
     private function setDate()
     {

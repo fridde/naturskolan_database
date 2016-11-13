@@ -319,12 +319,13 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			$path = $this->text_path . "/" . $file_name;
 			$toml_array = Toml::Parse($path);
 			$text = U::resolvePath($toml_array, $path);
-			if(! is_string($text)){
-				throw new \Exception("The path given couldn't be resolved to a valid string. The path: " . var_dump($index));
+			if($text !== false){
+				if(! is_string($text)){
+					throw new \Exception("The path given couldn't be resolved to a valid string. The path: " . var_dump($index));
+				}
+				$pattern = array_map(function($k){return '/%%' . $k . '%%/';}, array_keys($variables));
+				$text = preg_replace($pattern, array_values($variables), $text);
 			}
-			$pattern = array_map(function($k){return '/%%' . $k . '%%/';}, array_keys($variables));
-			$text = preg_replace($pattern, array_values($variables), $text);
-
 			return $text;
 		}
 

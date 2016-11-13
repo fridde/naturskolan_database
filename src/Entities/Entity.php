@@ -1,7 +1,7 @@
 <?php
-namespace Fridde;
+namespace Fridde\Entities;
 
-class Entity extends Naturskolan
+class Entity extends Fridde\Naturskolan
 {
     public $information;
     public $id;
@@ -16,6 +16,7 @@ class Entity extends Naturskolan
         else {
             $this->id = $information;
         }
+        $this->corresponding_table = strtolower(get_class($this));
     }
 
     public function get($key)
@@ -30,6 +31,16 @@ class Entity extends Naturskolan
         return $this->information;
     }
 
+    public function getAsObject($key){
+        if(class_exists($key)){
+            $foreign_id = $this->get($key);
+            return new $key($foreign_id);
+        } else {
+            throw new Exception("The key $key can't be converted to an object since the class is not defined");
+        }
+
+    }
+
     public function has($index)
     {
         $this->setInformation();
@@ -41,6 +52,11 @@ class Entity extends Naturskolan
         if(!isset($this->information)){
             $this->information = U::getById($this->getTable($this->corresponding_table), $this->id);
         }
+    }
+
+    private function getAll()
+    {
+        return $this->getTable($this->corresponding_table);
     }
 
 }

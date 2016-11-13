@@ -1,17 +1,11 @@
 <?php
-namespace Fridde;
+namespace Fridde\Entities;
 
 class Group extends Entity
 {
     public $visits;
     public $future_visits;
     public $school;
-
-    function __construct ()
-    {
-        parent::__construct(func_get_arg(0));
-        $this->$corresponding_table = "groups";
-    }
 
     private function setVisits($renew = false)
     {

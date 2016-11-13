@@ -1,5 +1,8 @@
-[pre_text]
-    
+[defaults]
+    subject = "Daglig sammanfattning av Sigtunanaturskolans databas"
+    pre_text = ""
+
+
 
 [headers]
     visit_not_confirmed = "Dessa besök har inte bekräftats av läraren. Kontakta omedelbart!"

@@ -3,6 +3,8 @@ logg.txt
 composer.lock
 test.php
 sandbox.php
+backup/*
+*.backup
 vendor/
 docs/
 tests/
@@ -10,9 +12,7 @@ old_files/
 sigtunanaturskola.se/
 temp/
 .htaccess
-*.backup
 .log
 test_*
 settings.toml
-settings.sql
 .ftpconfig
