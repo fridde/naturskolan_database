@@ -1,11 +1,17 @@
 <?php
 namespace Fridde\Entities;
 
+use \Carbon\Carbon as C;
+use \Fridde\{Calendar, Utility as U, Mailer};
+
 class Task extends Entity
 {
     public $type;
-    public $result = false;
-    public $admin_mail = [];
+    public $task_table;
+    public $result;
+    // an array containing a valid set of update-parameters to give to batchUpdate()
+    public $updates;
+    public $admin_mail;
     private $task_to_function_map = [
         "calendar_rebuild" => "rebuildCalendar",
         "backup" => "backup",
@@ -18,33 +24,61 @@ class Task extends Entity
         "table_cleanup" => "cleanSQLDatabase"
     ];
 
-    function __construct ($type)
+    function __construct ($task_type)
     {
+        parent::__construct();
         $this->type = $task_type;
     }
 
     public function execute()
     {
         $function_name = $this->task_to_function_map[$this->type];
-        $this->$function_name;
-        return $this->result;
+        $this->$function_name();
+        $this->result = $this->result ?? false;
+        $this->updates = $this->updates ?? null;
+
+        return ["result" => $this->result, "updates" => $this->updates];
+    }
+
+    private function setTaskTable()
+    {
+        $task_table = $this->getTable("tasks");
+        foreach($task_table as $task_row){
+            $this->task_table[$task_row["Name"]] = $task_row["Value"];
+        }
+    }
+
+    public function getStatus()
+    {
+        return $this->result ?? false;
+    }
+
+    public function getUpdates()
+    {
+        return $this->updates ?? [];
+    }
+
+    public function addToUpdates($name, $value)
+    {
+        $new["Value"] = $value;
+        $new["Timestamp"] = $this->getTimestamp();
+        $crit = ["Name", $name];
+        $this->updates[] = [$new, $crit];
     }
 
     private function rebuildCalendar()
     {
-        $last_rebuild = $this->status_array["calendar.last_rebuild"];
+        $this->setTaskTable();
+        $last_rebuild = $this->task_table["calendar.last_rebuild"];
         $last_rebuild = new C($last_rebuild);
-        $now = C::now();
-        $is_dirty = $this->status_array["calendar.status"] == "dirty";
-        $too_old = $now->diffInHours($last_rebuild) >= 24;
+        $is_dirty = $this->task_table["calendar.status"] == "dirty";
+        $too_old = $this->_NOW_->diffInHours($last_rebuild) >= 24;
         if($is_dirty || $too_old){
-            $table_names = ["events", "groups", "locations", "schools", "topics", "users", "visits"];
-            foreach($table_names as $name){
-                $tables[$name] = $this->get($name);
-            }
-            $cal = new Calendar($tables);
+            $cal = new Calendar();
             $cal->save();
-            $this->result = ["calendar.status" => "clean", "calendar.last_rebuild" => $now->toIso8601String()];
+            $this->result = true;
+            $this->addToUpdates("calendar.status", "clean");
+            $this->addToUpdates("calendar.last_rebuild", $this->getTimestamp());
         }
     }
 
@@ -65,90 +99,15 @@ class Task extends Entity
     {
     }
 
-    /**
-    * [addToAdminMail description]
-    * @param [type] $type [description]
-    * @param [type] $info [description]
-    */
-    private function addToAdminMail($error_type, $info = []){
-        $row = "";
-
-        switch($error_type){
-            case "visit_not_confirmed":
-            $visit = $info["visit"]; //as object
-            $topic = $visit->getAsObject("Topic");
-            $group = $visit->getAsObject("Group");
-            $school = $group->getAsObject("School");
-            $user = $group->getAsObject("User");
-
-            $row .= $visit->get("Date") .  ": ";
-            $row .= $topic->get("ShortName") . " med ";
-            $row .= $group->get("Name") . " från ";
-            $row .= $school->get("Name") . ". Lärare: ";
-            $row .= $user->getCompleteName() . ", ";
-            $row .= $user->get("Mobil") . ", " . $user->get("Mail");
-            break;
-
-            case "food_changed":
-            case "student_nr_changed":
-            $group = $info["group"];  // This is already a group object
-            $row .= "ÅK " . $group->get("Grade") . ", ";
-            $row .= "Grupp " . $group->get("Name") . " från " . $group->getSchool("Name");
-            $row .= ", möter oss härnast " .  $group->getNextVisit() . " : ";
-            $row .= $error_type == "food_changed" ? "Matpreferenserna " : "Antal elever ";
-            $row .= 'ändrades från "' . $info["old"] . '" till "' . $info["new"] . '"';
-            break;
-
-            case "soon_last_visit":
-            $last_visit = $info["last_visit"];
-            $row .= "Snart är sista planerade mötet med eleverna. Börja planera nästa termin!";
-            $row .= " Sista möte: " . $last_visit->get("Date");
-            break;
-
-            case "user_profile_incomplete":
-            $user = $info["user"];  // as an object!
-            $school = $user->get("School");
-            $mob_nr = $user->get("Mobil");
-            $mail = $user->get("Mail");
-
-            $row .= $user->getCompleteName() . " från ";
-            $row .= $school->get("Name") . " saknar kontaktuppgifter. ";
-            $row .= "Mobil: " . (empty($mob_nr) ? "???" : $mob_nr) . ", ";
-            $row .= "Mejl: " .  (empty($mail) ? "???" : $mail) . ".";
-            break;
-
-            case "group_leader_not_teacher":
-            break;
-
-            case "bus_schedule_outdated":
-            break;
-
-            case "food_order_outdated":
-            break;
-
-            case "wrong_group_count":
-            //$info = ["school" => $school, "expected" => $expected, "active" => $active];
-            extract($info);
-            $row .= $school->get("Name") . " har fel antal grupper. Det finns $active grupper, ";
-            $row .= " men det borde vara $expected";
-            break;
-            /*
-            case "":
-            break;
-            */
-
-        }
-        $this->admin_mail[$type][] = $row;
-        $this->sendAdminSummaryMail();
-    }
-
     private function sendAdminSummaryMail()
     {
+
+        $this->compileAdminSummaryMail();
 
         if(empty($this->admin_mail)){
             return true;
         }
-        $settings = $SETTINGS["admin_summary"];
+        $settings = $GLOBALS["SETTINGS"]["admin_summary"];
         $params["to"] = $settings["admin_adress"];
         $params["from"] = $settings["admin_adress"];
         $params["subject"] = $this->getText("admin_mail/defaults/subject");
@@ -161,6 +120,8 @@ class Task extends Entity
                 $M->addRow($row);
             }
         }
+        bdump($this->admin_mail);
+        //TODO: Finish the creation of this mail and send it
     }
 
     /**
@@ -169,10 +130,9 @@ class Task extends Entity
     */
     private function compileAdminSummaryMail()
     {
-        $settings = $SETTINGS["admin_summary"];
+        $settings = $GLOBALS["SETTINGS"]["admin_summary"];
 
-
-        extract($this->getTable(["history", "changes", "users", "messages",
+        extract($this->getTable(["changes", "users", "messages",
         "visits", "schools"]));
 
         // #######################
@@ -271,8 +231,87 @@ class Task extends Entity
         */
     }
 
+    /**
+    * [addToAdminMail description]
+    * @param [type] $type [description]
+    * @param [type] $info [description]
+    */
+    private function addToAdminMail($error_type, $info = []){
+        $row = "";
+
+        switch($error_type){
+            case "visit_not_confirmed":
+            $visit = $info["visit"]; //as object
+            $topic = $visit->getAsObject("Topic");
+            $group = $visit->getAsObject("Group");
+            $school = $group->getAsObject("School");
+            $user = $group->getAsObject("User");
+
+            $row .= $visit->pick("Date") .  ": ";
+            $row .= $topic->pick("ShortName") . " med ";
+            $row .= $group->pick("Name") . " från ";
+            $row .= $school->pick("Name") . ". Lärare: ";
+            $row .= $user->getCompleteName() . ", ";
+            $row .= $user->pick("Mobil") . ", " . $user->pick("Mail");
+            break;
+
+            case "food_changed":
+            case "student_nr_changed":
+            $group = $info["group"];  // This is already a group object
+            $row .= "ÅK " . $group->pick("Grade") . ", ";
+            $row .= "Grupp " . $group->pick("Name") . " från " . $group->getSchool("Name");
+            $row .= ", möter oss härnast " .  $group->getNextVisit() . " : ";
+            $row .= $error_type == "food_changed" ? "Matpreferenserna " : "Antal elever ";
+            $row .= 'ändrades från "' . $info["old"] . '" till "' . $info["new"] . '"';
+            break;
+
+            case "soon_last_visit":
+            $last_visit = $info["last_visit"];
+            $row .= "Snart är sista planerade mötet med eleverna. Börja planera nästa termin!";
+            $row .= " Sista möte: " . $last_visit->pick("Date");
+            break;
+
+            case "user_profile_incomplete":
+            $user = $info["user"];  // as an object!
+            $school = $user->pick("School");
+            $mob_nr = $user->pick("Mobil");
+            $mail = $user->pick("Mail");
+
+            $row .= $user->getCompleteName() . " från ";
+            $row .= $school->pick("Name") . " saknar kontaktuppgifter. ";
+            $row .= "Mobil: " . (empty($mob_nr) ? "???" : $mob_nr) . ", ";
+            $row .= "Mejl: " .  (empty($mail) ? "???" : $mail) . ".";
+            break;
+
+            case "group_leader_not_teacher":
+            break;
+
+            case "bus_schedule_outdated":
+            break;
+
+            case "food_order_outdated":
+            break;
+
+            case "wrong_group_count":
+            //$info = ["school" => $school, "expected" => $expected, "active" => $active];
+            extract($info);
+            $row .= $school->pick("Name") . " har fel antal grupper. Det finns $active grupper, ";
+            $row .= " men det borde vara $expected";
+            break;
+            /*
+            case "":
+            break;
+            */
+
+        }
+        $this->admin_mail = $this->admin_mail ?? [];
+        $this->admin_mail[$error_type][] = $row;
+    }
+
     private function sendChangedGroupLeaderMail()
     {
+
+
         /*
         any changes where (Table == "groups" && Column == "User")
         group = select_where(group[user] == value)

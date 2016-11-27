@@ -1,6 +1,8 @@
 <?php
 namespace Fridde\Entities;
 
+use \Fridde\{Utility as U};
+
 class School extends Entity
 {
     public $grade_column_map = ["2" => "GroupsAk2", "5" => "GroupsAk5", "fbk" => "GroupsFbk"];
@@ -13,14 +15,20 @@ class School extends Entity
     public function getVisitOrder()
     {
         $this->setInformation();
-        return $this->get("VisitOrder");
+        return $this->pick("VisitOrder");
     }
 
     public function getName()
     {
         $this->setInformation();
-        return $this->get("Name");
+        return $this->pick("Name");
 
+    }
+
+    public function getUsers()
+    {
+        $this->setInformation();
+        return U::filterFor($this->getTable("users"), ["School", $this->id]);
     }
 
     public function countActiveGroups($grade = null)
@@ -47,7 +55,7 @@ class School extends Entity
          $group_count = 0;
          foreach($grades as $grade){
              $col_name = $this->grade_column_map[$grade];
-             $group_count += $this->get($col_name);
+             $group_count += $this->pick($col_name);
          }
          return $group_count;
     }

@@ -3,21 +3,23 @@
 namespace Fridde;
 
 use \Fridde\Utility as U;
+use \Fridde\Entities\{School, Visit};
 use \Eluceo\iCal\Component\Calendar as Cal;
 use \Eluceo\iCal\Component\Event;
+use Fridde\Naturskolan;
 
 
 class Calendar
 {
     public $settings;
-    public $tables;
+    private $N;
     public $formatted_array;
     public $file_name = "aventyr_kalender.ics";
 
-    function __construct ($tables = [])
+    function __construct ()
     {
         $this->setConfiguration();
-        $this->tables = $tables;
+        //$this->N = new Naturskolan;
     }
 
 
@@ -31,30 +33,29 @@ class Calendar
     }
 
     public function rebuild(){
-        extract($this->tables);
+
         $cal_settings = $this->settings["calendar"];
-        $coll = U::filterFor($users, ["School", "natu"]);
+        $naturskolan = new School("natu");
+        $coll = $naturskolan->getUsers();
         $colleagues = array_combine(array_column($coll, "id"),  array_column($coll, "FirstName"));
-        array_walk($colleagues, function(&$v) use ($cal_settings){
-            $v = $cal_settings["colleagues"][$v] ?? $v;
-        });
+        $visits = $naturskolan->getTable("visits");
 
         $cal = [];
 
-        foreach($visits as $visit){
+        foreach($visits as $visit_row){
+            $visit = new Visit($visit_row);
 
-            $group = U::filterFor($groups, ["id", $visit["Group"]]);
-            $topic = U::filterFor($topics, ["id", $visit["Topic"]]);
-            $school = U::filterFor($schools, ["id", $group["School"]]);
-            $teacher = U::filterFor($users, ["id", $group["User"]]);
-            $location = U::filterFor($locations, ["id", $topic["Location"]]);
-            $is_lektion = trim($topic["IsLektion"]) == "true";
+            $group = $visit->getAsObject("Group");
+            $topic = $visit->getAsObject("Topic");
+            $school = $group->getAsObject("School");
+            $teacher = $group->getAsObject("User");
+            $location = $topic->getAsObject("Location");
+            $is_lektion = $topic->isLektion();
 
-            $date = $visit["Date"];
-            if(trim($visit["Time"]) != "" || $is_lektion){
-
+            $date = $visit->pick("Date");
+            if($visit->has("Time") && $is_lektion){
                 $dur = $cal_settings["lektion_duration"];
-                $start_date_time = new \DateTime($date . " " . $visit["Time"]);
+                $start_date_time = new \DateTime($date . " " . $visit->pick("Time"));
                 $end_date_time = clone($start_date_time);
                 $end_date_time->modify("+ " . $dur);
             } else {
@@ -71,39 +72,33 @@ class Calendar
             $row["whole_day"] = "false";
 
             $title = "";
-            $colleague_ids = array_map("trim", explode(",", $visit["Colleague"]));
-            if(count($colleague_ids) > 0 && $colleague_ids[0] != ""){
-                array_walk($colleague_ids, function(&$v) use ($colleagues) {
-                    $v = $colleagues[$v] ?? "Not a colleague from Naturskolan!";
-                });
-                $title .= "[" . implode('+', $colleague_ids) . "]";
+            $colleagues = $visit->getColleagues();
+            if(!empty($colleagues)){
+                $acronyms = array_map(function($u){return $u->getShortName();}, $colleagues);
+                $title .= "[" . implode('+', $acronyms) . "]";
             }
 
-            $grades_labels = ["2" => "åk 2/3", "5" => "åk 5", "fbk16" => "FBK F-6", "fbk79" => "FBK 7-9"];
-            $title .= $topic["ShortName"] . " med ";
-            $title .= $grades_labels[$group["Grade"]] . " från ";
-            $title .= $school["Name"] . " ";
-            $title .= "(" . $group["Name"] . ", " . $teacher["FirstName"] . " ";
-            $title .= substr($teacher["LastName"], 0, 1) . ")";
+            $title .= $topic->pick("ShortName") . " med ";
+            $title .= $group->getGradeLabel() . " från ";
+            $title .= $school->pick("Name") . " ";
+            $title .= "(" . $group->pick("Name") . ", " . $teacher->getShortName() . ")";
             //temadag med åk från skola (klass, lärare)
             $row["title"] = $title;
-            $row["location"] = $location["Name"];
+            $row["location"] = $location->pick("Name");
 
             $description = [];
             $description[] = 'Tid: '.$start_date_time->format('H:i') . '-'.$end_date_time->format('H:i');
-            $description[] = 'Lärare: '.$teacher['FirstName'].' '.$teacher['LastName'];
-            $description[] = 'Årskurs: '.$grades_labels[$group["Grade"]];
-            $description[] = 'Mobil: '.$teacher['Mobil'];
-            $description[] = 'Mejl: '.$teacher['Mail'];
-            $description[] = 'Klass ' . $group['Name'] . ' med '. $group['NumberStudents'] . ' elever';
-            $description[] = 'Matpreferenser: ' . $group['Food'];
-            $info = trim($group["Info"]);
-            if($info != ""){
-                $description[] = 'Annat: ' . $info;
+            $description[] = 'Lärare: '.$teacher->getCompleteName();
+            $description[] = 'Årskurs: '. $group->getGradeLabel();
+            $description[] = 'Mobil: '.$teacher->pick('Mobil');
+            $description[] = 'Mejl: '.$teacher->pick('Mail');
+            $description[] = 'Klass ' . $group->pick('Name') . ' med '. $group->pick('NumberStudents') . ' elever';
+            $description[] = 'Matpreferenser: ' . $group->pick('Food');
+            if($group->has("Info")){
+                $description[] = 'Annat: ' . $group->pick("Info");
             }
-            $notes = trim($group["Notes"]);
-            if($notes != ""){
-                $description[] = 'Interna anteckningar: ' . $notes;
+            if($group->has("Notes")){
+                $description[] = 'Interna anteckningar: ' . $group->pick("Notes");
             }
             $row["description"] = $description;
 

@@ -4,7 +4,6 @@
 // and exchange the type-parameter for whatever you specified in the switch-case
 
 require __DIR__ . '/vendor/autoload.php';
-include("temp/test_arrays.php");
 
 use \Fridde\Essentials;
 use \Fridde\Utility as U;
@@ -15,11 +14,11 @@ use \Fridde\HTML as H;
 use \Fridde\Calendar as Cal;
 
 Essentials::getSettings();
-Essentials::activateDebug();
+//Essentials::activateDebug();
 
 $N = new \Fridde\Naturskolan();
 
-$type = (isset($_REQUEST["type"])) ? strtolower($_REQUEST["type"]) : "" ;
+$type = $_REQUEST["type"] ?? "" ;
 
 switch ($type) {
     case "naturskolan":
@@ -46,6 +45,9 @@ switch ($type) {
     var_dump($now->gt($execute_at));
     break;
 
+    case "version":
+    echo phpinfo();
+    break;
 
     case "mailchimp":
     $M = new M();

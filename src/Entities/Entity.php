@@ -1,14 +1,18 @@
 <?php
 namespace Fridde\Entities;
 
-class Entity extends Fridde\Naturskolan
+use \Fridde\{Utility as U};
+
+abstract class Entity extends \Fridde\Naturskolan
 {
     public $information;
     public $id;
     public $corresponding_table;
+    public $updates = [];
 
     function __construct ($information = null)
     {
+        parent::__construct();
         if(is_array($information)){
             $this->information = $information;
             $this->id = $information["id"];
@@ -16,10 +20,18 @@ class Entity extends Fridde\Naturskolan
         else {
             $this->id = $information;
         }
-        $this->corresponding_table = strtolower(get_class($this));
+        $class_array = explode('\\', get_called_class());
+        $class_name = array_pop($class_array);
+        $this->corresponding_table = strtolower($class_name) . "s";
     }
 
-    public function get($key)
+    /**
+     * Gets the corresponding value given by the column name
+     * @param  string $key A key available in the the information-array corresponding
+     * to a column in the table of the entity
+     * @return string    The value
+     */
+    public function pick($key)
     {
         $this->setInformation();
         return $this->information[$key] ?? false;
@@ -32,11 +44,13 @@ class Entity extends Fridde\Naturskolan
     }
 
     public function getAsObject($key){
-        if(class_exists($key)){
-            $foreign_id = $this->get($key);
-            return new $key($foreign_id);
+
+        $full_class_name = __NAMESPACE__ . "\\" . $key;
+        if(class_exists($full_class_name)){
+            $foreign_id = $this->pick($key);
+            return new $full_class_name($foreign_id);
         } else {
-            throw new Exception("The key $key can't be converted to an object since the class is not defined");
+            throw new \Exception("The key $full_class_name can't be converted to an object since the class is not defined");
         }
 
     }
@@ -47,7 +61,7 @@ class Entity extends Fridde\Naturskolan
         return trim($this->information[$index]) != "";
     }
 
-    private function setInformation()
+    public function setInformation()
     {
         if(!isset($this->information)){
             $this->information = U::getById($this->getTable($this->corresponding_table), $this->id);
@@ -57,6 +71,17 @@ class Entity extends Fridde\Naturskolan
     private function getAll()
     {
         return $this->getTable($this->corresponding_table);
+    }
+
+    public function set($key, $value = null)
+    {
+        $this->information[$key] = $value;
+        $this->updates[$key] = $value;
+    }
+
+    public function getUpdateArray()
+    {
+        return [[$this->updates],["id", $this->id]];
     }
 
 }

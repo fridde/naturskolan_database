@@ -6,6 +6,9 @@ class Group extends Entity
     public $visits;
     public $future_visits;
     public $school;
+    public $grade_labels = ["2" => "åk 2/3", "5" => "åk 5", "fbk16" => "FBK F-6", "fbk79" => "FBK 7-9"];
+    const INACTIVE = 0;
+    const ACTIVE = 1; 
 
     private function setVisits($renew = false)
     {
@@ -33,6 +36,12 @@ class Group extends Entity
     {
         $this->information = $this->information ??  U::getById($this->getTable("groups"), $this->id);
         return $this->information[$key] ?? $this->information;
+    }
+
+    public function getGradeLabel()
+    {
+        $this->setInformation();
+        return $this->grade_labels[$this->pick("Grade")];
     }
 
     public function getNextVisit()

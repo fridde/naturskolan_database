@@ -3,16 +3,15 @@ namespace Fridde;
 
 use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 	HTML as H};
-	use \Yosymfony\Toml\Toml;
-	use \Carbon\Carbon as C;
+use \Yosymfony\Toml\Toml;
+use \Carbon\Carbon as C;
 
 	class Naturskolan
 	{
 		public $SQL;
 		public $_NOW_;
 		public $_NOW_UNIX_;
-		public $tables = [];
-		public $allowed_methods = ["create", "get", "update", "delete"];
+		public $tables;
 		public $table_names = ["busstrips", "events", "changes", "groups", "locations", "log",
 		"passwords", "schools", "messages", "sessions", "tasks", "topics", "users", "visits"];
 		private $text_path = "texts";
@@ -20,7 +19,7 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 		function __construct ()
 		{
 			$this->SQL = new SQL;
-			$this->tables = array_fill_keys($table_names, null);
+			$this->tables = array_fill_keys($this->table_names, null);
 			$this->_NOW_ =  C::now();
 			$this->_NOW_UNIX_ = time();
 		}
@@ -39,7 +38,6 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 		private function prepareMethod($table_name, $method, $criteria = array(), $object = null){
 
 			$this->setTable($table_name);
-			$this->checkMethod($method);
 			$return["c"] = $this->SQL;
 
 			if(in_array($method, ["get", "update", "delete"])){
@@ -104,6 +102,33 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			return reset($result);
 		}
 
+		/**
+		* [batchUpdate description]
+		* @param  [type] $table_name            [description]
+		* @param  [type] $objects_with_criteria A multi-dimensional array,
+		* where each array contains one or two arrays. The first array is the object with the new values,
+		* the other (optional) array contains the criterium or criteria.
+		* @return array $return_array 			An array containing the return values of each update-execution
+		*/
+		public function batchUpdate($table_name, $objects_with_criteria)
+		{
+			$return_array = [];
+			foreach($objects_with_criteria as $owc){
+				$object = array_shift($owc);
+				$criteria = array_shift($owc) ?? [];
+				$return_array[] = $this->update($table_name, $object, $criteria);
+			}
+			return $return_array;
+		}
+
+		/**
+		* Takes an array containing column names as keys and the new values as
+		* @param  [type] $table_name [description]
+		* @param  array $object     Array of values to change. The structure should be ["column name" => "new value", ...]
+		* Non-changing elements can be emitted
+		* @param  [type] $criteria   [description]
+		* @return [type]             [description]
+		*/
 		public function update($table_name, $object, $criteria)
 		{
 			extract($this->prepareMethod($table_name, "update", $criteria, $object));
@@ -111,7 +136,6 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			$this->applyWhere($c, $criteria);
 			$this->applySet($c, $object);
 			return $c->query->execute();
-
 		}
 
 		public function delete($table_name, $criteria)
@@ -130,23 +154,21 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 		*/
 		private function applyWhere($connection, $criteria = []){
 
-			if(count(array_filter($criteria, "is_array")) == count($criteria)){
+			if( ! U::onlyArrays($criteria)){
+				throw new \Exception("You can't mix arrays with non-arrays when using an array of criteria");
+			}
+
+			if(!empty($criteria)){
 				foreach($criteria as $criterium){
 					if (count($criterium) == 2){
 						$connection->query->where($criterium[0], $criterium[1]);
 					}
 					elseif (count($criterium) == 3){
 						$connection->query->where($criterium[0], $criterium[1], $criterium[2]);
-					}
-					else {
-						$error = true;
+					} else {
+						throw new \Exception("One of the criteria has the wrong amount of arguments. Criterium: " . var_dump($criterium));
 					}
 				}
-			} else {
-				$error = true;
-			}
-			if(isset($error) && $error){
-				throw new \Exception("No valid argument for where-query given. Given argument: " . var_export($criteria, true));
 			}
 		}
 
@@ -162,7 +184,7 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 
 		private function standardizeCriteria($criteria)
 		{
-			if(! U::arrayIsMulti($criteria)){
+			if(! empty($criteria) && ! U::arrayIsMulti($criteria)){
 				return [$criteria];
 			}
 			return $criteria;
@@ -203,13 +225,6 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			return array_change_key_case($this->tables, CASE_UPPER);
 		}
 
-		private function checkMethod($method)
-		{
-			if (!in_array($method, $this->allowed_methods)){
-				throw new \Exception("'" . $method . "' is not an allowed function to use");
-			}
-		}
-
 		public function createPassword($school, $length = 4)
 		{
 			$alpha = range('a', 'z');
@@ -229,9 +244,6 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			return $hash;
 		}
 
-		public function orderSchools(){
-
-		}
 
 		/**
 		* [Summary].
@@ -283,6 +295,11 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 			return $formatted_array;
 		}
 
+		public function getTimestamp()
+		{
+			return $this->_NOW_->toAtomString();
+		}
+
 		/**
 		* [getStandardValues description]
 		* @param  [type] $table_name [description]
@@ -315,13 +332,15 @@ use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 		*/
 		public function getText($index, $variables = [])
 		{
+			$index = explode("/", $index);
 			$file_name = array_shift($index) . '.toml';
 			$path = $this->text_path . "/" . $file_name;
+
 			$toml_array = Toml::Parse($path);
-			$text = U::resolvePath($toml_array, $path);
+			$text = U::resolvePath($toml_array, $index);
 			if($text !== false){
 				if(! is_string($text)){
-					throw new \Exception("The path given couldn't be resolved to a valid string. The path: " . var_dump($index));
+					throw new \Exception("The path given couldn't be resolved to a valid string. The path: " . var_export($index, true));
 				}
 				$pattern = array_map(function($k){return '/%%' . $k . '%%/';}, array_keys($variables));
 				$text = preg_replace($pattern, array_values($variables), $text);
