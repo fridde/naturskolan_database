@@ -8,7 +8,7 @@ use \Carbon\Carbon as C;
 
 	class Naturskolan
 	{
-		public $SQL;
+		public $conn;
 		public $_NOW_;
 		public $_NOW_UNIX_;
 		public $tables;
@@ -18,67 +18,15 @@ use \Carbon\Carbon as C;
 
 		function __construct ()
 		{
-			$this->SQL = new SQL;
+			$this->conn = new SQL;
 			$this->tables = array_fill_keys($this->table_names, null);
 			$this->_NOW_ =  C::now();
 			$this->_NOW_UNIX_ = time();
 		}
 
-		/**
-		* Wrapper for CRUD-queries.
-		*
-		* [Description]
-		*
-		* @param [Type] $[Name] [Argument description]
-		*
-		* @return Array $return Contains "c": The SQL-object
-		* "criteria": the standardized criteria for the queries (not for "create")
-		* "object": the object to insert (or an empty array)
-		*/
-		private function prepareMethod($table_name, $method, $criteria = array(), $object = null){
 
-			$this->setTable($table_name);
-			$return["c"] = $this->SQL;
 
-			if(in_array($method, ["get", "update", "delete"])){
-				$return["criteria"] = $this->standardizeCriteria($criteria, $table_name);
-			}
-			if(in_array($method, ["update", "create"])){
-				$return["object"] = $object ?? [] ;
-			}
-			return $return;
-		}
 
-		public function create($table_name, $object)
-		{
-			extract($this->prepareMethod($table_name, "create", [], $object));
-			return $c->insert($object);
-		}
-
-		/**
-		* [get description]
-		* @param  [type] $table_name [description]
-		* @param  [type] $criteria    [description]
-		* @param  [type] $field       In case you just want to fetch a single field
-		* from the table. The id-column will follow anyway.
-		* @return [type]              [description]
-		*/
-		public function get($table_name, $criteria = [], $field = null)
-		{
-			$table_and_field = explode("/", $table_name);
-			if(count($table_and_field) == 2){
-				list($table_name, $field) = $table_and_field;
-			}
-			extract($this->prepareMethod($table_name, "get", $criteria));
-			$c->select();
-			$this->applyWhere($c, $criteria);
-			$c->query->execute();
-			$result = $c->fetch();
-			if(isset($field)){
-				$result = array_combine(array_column($result, "id"), array_column($result, $field));
-			}
-			return $result;
-		}
 
 		/**
 		* [getOne description]
@@ -131,69 +79,19 @@ use \Carbon\Carbon as C;
 		*/
 		public function update($table_name, $object, $criteria)
 		{
-			extract($this->prepareMethod($table_name, "update", $criteria, $object));
-			$c->update();
-			$this->applyWhere($c, $criteria);
-			$this->applySet($c, $object);
-			return $c->query->execute();
+			$this->conn->setTable($table_name);
+			$this->conn->update();
+			$this->conn->multiWhere($criteria);
+			$this->conn->multiSet($object);
+			return $this->conn->query->execute();
 		}
 
 		public function delete($table_name, $criteria)
 		{
-			extract($this->prepareMethod($table_name, "delete", $criteria));
-			$c->delete();
-			$this->applyWhere($c, $criteria);
-			return $c->query->execute();
-		}
-
-		/**
-		* [applyWhere description]
-		* @param  [type] $connection [description]
-		* @param  [type] $criteria   [description]
-		* @return [type]             [description]
-		*/
-		private function applyWhere($connection, $criteria = []){
-
-			if( ! U::onlyArrays($criteria)){
-				throw new \Exception("You can't mix arrays with non-arrays when using an array of criteria");
-			}
-
-			if(!empty($criteria)){
-				foreach($criteria as $criterium){
-					if (count($criterium) == 2){
-						$connection->query->where($criterium[0], $criterium[1]);
-					}
-					elseif (count($criterium) == 3){
-						$connection->query->where($criterium[0], $criterium[1], $criterium[2]);
-					} else {
-						throw new \Exception("One of the criteria has the wrong amount of arguments. Criterium: " . var_dump($criterium));
-					}
-				}
-			}
-		}
-
-		private function applySet($connection, $object){
-
-			if(count($object) > 0){
-				foreach($object as $column => $value){
-					$connection->query->set($column, $value);
-				}
-			}
-		}
-
-
-		private function standardizeCriteria($criteria)
-		{
-			if(! empty($criteria) && ! U::arrayIsMulti($criteria)){
-				return [$criteria];
-			}
-			return $criteria;
-		}
-
-
-		private function setTable($table_name)
-		{
-			$this->SQL->setTable($table_name);
+			$this->conn->setTable($table_name);
+			$this->conn->delete();
+			$this->conn->multiWhere($criteria);
+			return $this->conn->query->execute();
 		}
 
 		public function getTable($tables = null, $force_sql_request = false)
@@ -206,7 +104,7 @@ use \Carbon\Carbon as C;
 			$return = [];
 			foreach($tables as $table_name){
 				if($force_sql_request || is_null($this->tables[$table_name])){
-					$this->tables[$table_name] = $this->get($table_name);
+					$this->tables[$table_name] = $this->conn->get($table_name);
 				}
 				$return[strtoupper($table_name)] = $this->tables[$table_name];
 			}

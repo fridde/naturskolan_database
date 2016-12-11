@@ -1,14 +1,42 @@
 <?php
-namespace Fridde\Entities;
+namespace Fridde;
 
-class Group extends Entity
+/**
+* @Entity @Table(name="groups")
+*/
+class Group
 {
+    /** @Id @Column(type="integer") @GeneratedValue    */
+    protected $id;
+    /** @Column(type="string") */
+    protected $Name;
+    /** @ManyToOne(targetEntity="User", inversedBy="getGroups")     **/
+    protected $User;
+    /** @ManyToOne(targetEntity="School", inversedBy="getGroups")     **/
+    protected $School;
+    /** @Column(type="string") */
+    protected $Grade;
+    /** @Column(type="integer") */
+    protected $NumberStudents;
+    /** @Column(type="string") */
+    protected $Food;
+    /** @Column(type="string") */
+    protected $Info;
+    /** @Column(type="string") */
+    protected $Notes;
+    /** @Column(type="integer") */
+    protected $Status;
+    /** @Column(type="datetime") */
+    protected $LastChange;
+
+
+
     public $visits;
     public $future_visits;
     public $school;
     public $grade_labels = ["2" => "åk 2/3", "5" => "åk 5", "fbk16" => "FBK F-6", "fbk79" => "FBK 7-9"];
     const INACTIVE = 0;
-    const ACTIVE = 1; 
+    const ACTIVE = 1;
 
     private function setVisits($renew = false)
     {
@@ -23,7 +51,7 @@ class Group extends Entity
     {
         $this->setInformation();
         $this->school = $this->school ?? U::getById($this->getTable("schools"),
-            $this->information["School"]);
+        $this->information["School"]);
     }
 
     public function getSchool($key = null)

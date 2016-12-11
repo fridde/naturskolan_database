@@ -1,10 +1,29 @@
 <?php
-namespace Fridde\Entities;
+namespace Fridde;
 
 use \Fridde\{Utility as U};
 
-class School extends Entity
+/**
+* @Entity @Table(name="schools")
+*/
+class School
 {
+    /** @Id @Column(type="string") */
+    protected $id;
+    /** @Column(type="string") */
+    protected $Name;
+    /** @Column(type="integer") */
+    protected $GroupsAk2;
+    /** @Column(type="integer") */
+    protected $GroupsAk5;
+    /** @Column(type="integer") */
+    protected $GroupsFbk;
+    /** @Column(type="string") */
+    protected $Coordinates;
+    /** @Column(type="integer") */
+    protected $VisitOrder;
+    
+
     public $grade_column_map = ["2" => "GroupsAk2", "5" => "GroupsAk5", "fbk" => "GroupsFbk"];
 
     public function getAllGrades()
@@ -48,16 +67,16 @@ class School extends Entity
 
     public function countExpectedGroups($grade = null)
     {
-         $this->setInformation();
-         $grades = $grade ?? $this->getAllGrades();
-         $grades = (array) $grades;
+        $this->setInformation();
+        $grades = $grade ?? $this->getAllGrades();
+        $grades = (array) $grades;
 
-         $group_count = 0;
-         foreach($grades as $grade){
-             $col_name = $this->grade_column_map[$grade];
-             $group_count += $this->pick($col_name);
-         }
-         return $group_count;
+        $group_count = 0;
+        foreach($grades as $grade){
+            $col_name = $this->grade_column_map[$grade];
+            $group_count += $this->pick($col_name);
+        }
+        return $group_count;
     }
 
 

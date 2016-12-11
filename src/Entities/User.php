@@ -1,15 +1,41 @@
 <?php
-namespace Fridde\Entities;
+namespace Fridde;
 
 use \Fridde\{Utility as U};
 use \Carbon\Carbon as C;
 
-class User extends Entity
+/**
+* @Entity @Table(name="users")
+*/
+class User
 {
+    /** @Id @Column(type="integer") @GeneratedValue    */
+    protected $id;
+    /** @Column(type="string") */
+    protected $FirstName;
+    /** @Column(type="string")       */
+    protected $LastName;
+    /** @Column(type="string")       */
+    protected $Mobil;
+    /** @Column(type="string")       */
+    protected $Mail;
+    /** @ManyToOne(targetEntity="School", inversedBy="getUsers")     **/
+    protected $School;
+    /** @Column(type="integer")       */
+    protected $Role;
+    /** @Column(type="string")       */
+    protected $Acronym;
+    /** @Column(type="integer")      */
+    protected $Status;
+    /** @Column(type="datetime")  */
+    protected $LastChange;
+    /** @Column(type="string")  */
+    protected $DateAdded;
+
     public $messages;
     public $added;
     public $roleMapper = [0 => "teacher", 1 => "rektor", 2 => "administrator",
-                        3 => "stakeholder"];
+    3 => "stakeholder"];
 
     public function getCompleteName()
     {

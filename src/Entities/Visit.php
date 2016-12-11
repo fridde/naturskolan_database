@@ -1,10 +1,26 @@
 <?php
-namespace Fridde\Entities;
+namespace Fridde;
 
-class Visit extends Entity
+/**
+* @Entity @Table(name="visits")
+*/
+class Visit
 {
-    public $date;
-    public $confirmed;
+    /** @Id @Column(type="integer") @GeneratedValue    */
+    protected $id;
+    /** @ManyToOne(targetEntity="Group", inversedBy="getVisits")     **/
+    protected $Group;
+    /** @Column(type="string") */
+    protected $Date;	
+
+    protected $Topic;
+
+    protected $Colleague;
+
+    protected $Confirmed;
+    /** @Column(type="string") */
+    protected $Time;
+
 
     private function setDate()
     {

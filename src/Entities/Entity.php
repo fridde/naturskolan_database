@@ -1,10 +1,11 @@
 <?php
 namespace Fridde\Entities;
 
-use \Fridde\{Utility as U};
+use \Fridde\{Utility as U, Naturskolan};
 
 abstract class Entity extends \Fridde\Naturskolan
 {
+    public $N;
     public $information;
     public $id;
     public $corresponding_table;
@@ -12,7 +13,7 @@ abstract class Entity extends \Fridde\Naturskolan
 
     function __construct ($information = null)
     {
-        parent::__construct();
+        $this->N = new Naturskolan;
         if(is_array($information)){
             $this->information = $information;
             $this->id = $information["id"];

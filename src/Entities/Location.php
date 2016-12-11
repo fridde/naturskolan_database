@@ -1,7 +1,16 @@
 <?php
-namespace Fridde\Entities;
+namespace Fridde;
 
-class Location extends Entity
+/**
+* @Entity @Table(name="locations")
+*/
+class Location
 {
+    /** @Id @Column(type="integer") @GeneratedValue    */
+    protected $id;
+    /** @Column(type="string") */
+    protected $Name;
+    /** @Column(type="string") */	 	
+    protected $Coordinates;
 
 }
