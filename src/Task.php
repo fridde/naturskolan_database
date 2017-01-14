@@ -1,16 +1,15 @@
 <?php
-namespace Fridde\Entities;
+namespace Fridde;
 
 use \Carbon\Carbon as C;
-use \Fridde\{Calendar, Utility as U, Mailer};
+use \Fridde\{ORM, Calendar, Utility as U, Mailer};
 
-class Task extends Entity
+class Task
 {
+    public $N;
     public $type;
     public $task_table;
     public $result;
-    // an array containing a valid set of update-parameters to give to batchUpdate()
-    public $updates;
     public $admin_mail;
     private $task_to_function_map = [
         "calendar_rebuild" => "rebuildCalendar",
@@ -24,61 +23,27 @@ class Task extends Entity
         "table_cleanup" => "cleanSQLDatabase"
     ];
 
-    function __construct ($task_type)
+    public function __construct ($task_type = null)
     {
-        parent::__construct();
-        $this->type = $task_type;
+        $this->type = $task_type ?? null;
+        $this->N = new Naturskolan();
     }
 
     public function execute()
     {
         $function_name = $this->task_to_function_map[$this->type];
         $this->$function_name();
-        $this->result = $this->result ?? false;
-        $this->updates = $this->updates ?? null;
-
-        return ["result" => $this->result, "updates" => $this->updates];
-    }
-
-    private function setTaskTable()
-    {
-        $task_table = $this->getTable("tasks");
-        foreach($task_table as $task_row){
-            $this->task_table[$task_row["Name"]] = $task_row["Value"];
-        }
-    }
-
-    public function getStatus()
-    {
-        return $this->result ?? false;
-    }
-
-    public function getUpdates()
-    {
-        return $this->updates ?? [];
-    }
-
-    public function addToUpdates($name, $value)
-    {
-        $new["Value"] = $value;
-        $new["Timestamp"] = $this->getTimestamp();
-        $crit = ["Name", $name];
-        $this->updates[] = [$new, $crit];
     }
 
     private function rebuildCalendar()
     {
-        $this->setTaskTable();
-        $last_rebuild = $this->task_table["calendar.last_rebuild"];
-        $last_rebuild = new C($last_rebuild);
-        $is_dirty = $this->task_table["calendar.status"] == "dirty";
+        $last_rebuild = $this->N->getLastRebuild();
+        $is_dirty = $this->N->calendarIsDirty();
         $too_old = $this->_NOW_->diffInHours($last_rebuild) >= 24;
         if($is_dirty || $too_old){
             $cal = new Calendar();
             $cal->save();
-            $this->result = true;
-            $this->addToUpdates("calendar.status", "clean");
-            $this->addToUpdates("calendar.last_rebuild", $this->getTimestamp());
+            $this->N->setCalendarToClean();
         }
     }
 
@@ -132,40 +97,38 @@ class Task extends Entity
     {
         $settings = $GLOBALS["SETTINGS"]["admin_summary"];
 
-        extract($this->getTable(["changes", "users", "messages",
-        "visits", "schools"]));
 
         // #######################
         // ### visit not confirmed
         // #######################
-        foreach($VISITS as $visit_row){
-            $visit = new Visit($visit_row);
-            $too_close = $visit->daysLeft() <= $settings["no_confirmation_warning"];
-
-            if($too_close && ! $visit->isConfirmed()){
-                $info = ["visit" => $visit];
-                $this->addToAdminMail("visit_not_confirmed", $info);
-            }
-        }
+        $deadline = Carbon::now()->addDays($settings["no_confirmation_warning"]);
+        $visits = $this->N->ORM->getRepository("Visit")->findFutureVisits($deadline);
+        $unconfirmed_visits = $visits->filter(function($visit){
+            return ! $visit->isConfirmed();
+        });
+        $this->addToAdminMail("visit_not_confirmed", $unconfirmed_visits);
 
         // #######################
         // ### food or number of students changed
         // // #######################
-        $criteria[] = ["Table_name", "groups"];
-        $criteria[] = ["Column_name", "in", ["Food", "Students"]];
         $error_type_map = ["Food" => "food_changed", "Students" => "student_nr_changed"];
 
-        $CHANGES = U::filterFor($CHANGES, $criteria);
-        foreach($CHANGES as $change){
-            $group = new Group($change["Row_id"]);
+        $changes_concerning_groups = $this->N->ORM->getRepository("Change")->findGroupChanges();
+        $deadline = Carbon::today()->addDays($settings["important_info_changed"]);
+        foreach($changes_concerning_groups as $change){
+            $group = $this->N->ORM->getRepository("Group")->find($change->getEntityId());
             $next_visit = $group->getNextVisit();
-            if($next_visit !== false && $next_visit->daysLeft() <= $settings["important_info_changed"]){
-                $col_name = $change["Column_name"];
-                $val = $change["Value"];
-                $error_type = $error_type_map[$col_name];
-                $info = ["old" => $val, "new" => $group->getInfo($col_name)];
+
+            if(!empty($next_visit) && $next_visit->isBefore($deadline)){
+                $att = $change->getAttribute();
+                $error_type = $error_type_map[$att];
+                if($att == "Food"){
+                    $new_value = $group->getFood();
+                } elseif($att == "NumberStudents"){
+                    $new_value = $group->getNumberStudents();
+                }
+                $info = ["from" => $change->getOldValue(), "to" => $new_value];
                 $info["group"] = $group;
-                $info["next_visit"] = $next_visit["Date"];
                 $this->addToAdminMail($error_type, $info);
             }
         }
@@ -173,59 +136,58 @@ class Task extends Entity
         // #######################
         // ### user profile incomplete
         // // #######################
-        foreach($USERS as $user_row){
-            $user = new User($user_row);
-            $immune = $user->daysSinceAdded() <= $settings["immunity_time"];
-            $too_frequent = $user->daysSinceLastMessage("reminder") < $settings["annoyance_interval"];
-            if( ! ($immune || $too_frequent) &&  ! ($user->has("Mobil") && $user->has("Mail"))){
-                $info = ["user" => $user];
-                $this->addToAdminMail("user_profile_incomplete", $info);
+        $immunity_start = Carbon::today()->subDays($settings["immunity_time"]);
+        $annoyance_start = Carbon::today()->subDays($settings["annoyance_interval"]);
+        $users = $this->N->ORM->getRepository("User")->findActiveUsers();
+        foreach($users as $user){
+            $immune = $user->wasCreatedAfter($immunity_start);
+            $too_frequent = $user->lastMessageWasAfter($annoyance_start);
+            if( ! ($immune || $too_frequent) &&  ! ($user->hasMobil() && $user->hasMail())){
+                $this->addToAdminMail("user_profile_incomplete", $user);
             }
         }
 
+
         // #######################
-        // ### less than 60days to last booked visit
+        // ###  last booked visit is coming soon!
         // // #######################
-        $visits = U::orderBy($VISITS, "Date", "datestring");
-        $last_visit = new Visit(array_pop($visits));
-        if($last_visit->daysLeft() <= $settings["soon_last_visit"]){
-            $info = ["last_visit" => $last_visit];
-            $this->addToAdminMail("soon_last_visit", $info);
+        $last_visit_deadline =  Carbon::today()->addDays($settings["soon_last_visit"]);
+        $last_visit = $this->N->ORM->getRepository("Visit")->findLastVisit();
+        if(empty($last_visit) || $last_visit->getDate()->lte($last_visit_deadline)){
+            $this->addToAdminMail("soon_last_visit", $last_visit);
         }
+
 
         // #######################
         // ### wrong amount of groups
         // // #######################
-        foreach($SCHOOLS as $school_row){
-            $school = new School($school_row);
-            $expected = $school->countExpectedGroups();
-            $active = $school->countActiveGroups();
-            if($expected !== $active){
-                $info = ["school" => $school, "expected" => $expected, "active" => $active];
-                $this->addToAdminMail("wrong_group_count", $info);
+        $schools = $this->N->ORM->getRepository("School")->findAll();
+        foreach($schools as $school){
+            foreach(School::GRADES_COLUMN as $column_val => $attribute){
+                $active = $school->getNrActiveGroupsByGrade($column_val);
+                $method_name = "get" . $attribute;
+                $expected = $school->$method_name();
+
+                if($expected !== $active){
+                    $info["school"] = $school;
+                    $info["grade"] = $column_val;
+                    $info["expected"] = $expected;
+                    $info["active"] = $active;
+
+                    $this->addToAdminMail("wrong_group_count", $info);
+                }
             }
         }
 
-        /*
-        any school
-        any arskurs
-        count_is = count_where(group[arskurs] == arskurs)
-        count_should = school[arskurs]
-        if(count_is != count_should)
-        add to mail(count_is, count_should, school, arskurs)
-
-        /*
-
-
-
+/*
         ---------------------------------------------------------------
         ### bus not in sync
 
         ### food not in sync
 
         ###group leader is not teacher
-        any group
-        group_leader = select_where(group[user] == user[id])
+        any active group
+        any group->User->getRole != User::TEACHER
         if(group_leader[type] == "admin")
         add to mail(group, user)
         */

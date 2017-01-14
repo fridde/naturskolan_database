@@ -2,24 +2,22 @@
 
 namespace Fridde;
 
-use \Fridde\Utility as U;
-use \Fridde\Entities\{School, Visit};
-use \Eluceo\iCal\Component\Calendar as Cal;
-use \Eluceo\iCal\Component\Event;
-use Fridde\Naturskolan;
-
+use \Fridde\{Utility as U, ORM};
+use \Eluceo\iCal\Component\{Calendar as Cal, Event};
+use \Carbon\Carbon;
 
 class Calendar
 {
     public $settings;
-    private $N;
+    private $ORM;
+
     public $formatted_array;
     public $file_name = "aventyr_kalender.ics";
 
     function __construct ()
     {
         $this->setConfiguration();
-        //$this->N = new Naturskolan;
+        $this->ORM = new ORM();
     }
 
 
@@ -35,70 +33,73 @@ class Calendar
     public function rebuild(){
 
         $cal_settings = $this->settings["calendar"];
-        $naturskolan = new School("natu");
-        $coll = $naturskolan->getUsers();
-        $colleagues = array_combine(array_column($coll, "id"),  array_column($coll, "FirstName"));
-        $visits = $naturskolan->getTable("visits");
+        $visits = $this->ORM->getRepository("Visit")->findAll();
 
         $cal = [];
 
-        foreach($visits as $visit_row){
-            $visit = new Visit($visit_row);
+        foreach($visits as $visit){
 
-            $group = $visit->getAsObject("Group");
-            $topic = $visit->getAsObject("Topic");
-            $school = $group->getAsObject("School");
-            $teacher = $group->getAsObject("User");
-            $location = $topic->getAsObject("Location");
-            $is_lektion = $topic->isLektion();
 
-            $date = $visit->pick("Date");
-            if($visit->has("Time") && $is_lektion){
-                $dur = $cal_settings["lektion_duration"];
-                $start_date_time = new \DateTime($date . " " . $visit->pick("Time"));
-                $end_date_time = clone($start_date_time);
-                $end_date_time->modify("+ " . $dur);
+            $group = $visit->getGroup();
+            $topic = $visit->getTopic();
+            $school = $group->getSchool();
+            $teacher = $group->getUser();
+            $location = $topic->getLocation();
+            $is_lektion = $topic->getIsLektion();
+
+            $date = $visit->getDate(); // is already Carbon
+            $start_DT = $date->copy();
+            $end_DT = $date->copy();
+
+            if($visit->hasTime() && $is_lektion){
+                $time = $visit->getTimeAsArray();
+                $start_DT->hour($time["start"]["hh"])->minute($time["start"]["mm"]);
+                if(empty($time["end"])){
+                    $dur = $cal_settings["lektion_duration"];
+                    $end_DT = $start_DT->copy()->addMinutes($dur);
+                } else {
+                    $end_DT->hour($time["end"]["hh"])->minute($time["end"]["mm"]);
+                }
             } else {
-                $start_date_time_string = $end_date_time_string = $date . " ";
-                $start_date_time_string .= $cal_settings["default_start_time"];
-                $end_date_time_string .= $cal_settings["default_end_time"];
-                $start_date_time = new \DateTime($start_date_time_string);
-                $end_date_time =  new \DateTime($end_date_time_string);
+                $start_DT->hour($cal_settings["default_start_time"][0]);
+                $start_DT->minute($cal_settings["default_start_time"][1]);
+                $end_DT->hour($cal_settings["default_end_time"][0]);
+                $end_DT->minute($cal_settings["default_end_time"][1]);
             }
 
-            $row["start_date_time"] = $start_date_time->format("c");
-            $row["end_date_time"] = $end_date_time->format("c");
+            $row["start_date_time"] = $start_DT->toIso8601String();
+            $row["end_date_time"] = $end_DT->toIso8601String();
 
-            $row["whole_day"] = "false";
+            $row["whole_day"] = false;
 
             $title = "";
-            $colleagues = $visit->getColleagues();
+            $colleagues = $visit->getColleagues()->getValues();
             if(!empty($colleagues)){
-                $acronyms = array_map(function($u){return $u->getShortName();}, $colleagues);
+                $acronyms = array_map(function($u){return $u->getAcronym();}, $colleagues);
                 $title .= "[" . implode('+', $acronyms) . "]";
             }
 
-            $title .= $topic->pick("ShortName") . " med ";
+            $title .= $topic->getShortName() . " med ";
             $title .= $group->getGradeLabel() . " från ";
-            $title .= $school->pick("Name") . " ";
-            $title .= "(" . $group->pick("Name") . ", " . $teacher->getShortName() . ")";
+            $title .= $school->getName() . " ";
+            $title .= "(" . $group->getName() . ", " . $teacher->getShortName() . ")";
             //temadag med åk från skola (klass, lärare)
             $row["title"] = $title;
-            $row["location"] = $location->pick("Name");
+            $row["location"] = $location->getName();
 
             $description = [];
-            $description[] = 'Tid: '.$start_date_time->format('H:i') . '-'.$end_date_time->format('H:i');
-            $description[] = 'Lärare: '.$teacher->getCompleteName();
+            $description[] = 'Tid: '.$start_DT->toTimeString() . '-'.$end_DT->toTimeString();
+            $description[] = 'Lärare: '.$teacher->getFullName();
             $description[] = 'Årskurs: '. $group->getGradeLabel();
-            $description[] = 'Mobil: '.$teacher->pick('Mobil');
-            $description[] = 'Mejl: '.$teacher->pick('Mail');
-            $description[] = 'Klass ' . $group->pick('Name') . ' med '. $group->pick('NumberStudents') . ' elever';
-            $description[] = 'Matpreferenser: ' . $group->pick('Food');
-            if($group->has("Info")){
-                $description[] = 'Annat: ' . $group->pick("Info");
+            $description[] = 'Mobil: '.$teacher->getMobil();
+            $description[] = 'Mejl: '.$teacher->getMail();
+            $description[] = 'Klass ' . $group->getName() . ' med '. $group->getNumberStudents() . ' elever';
+            $description[] = 'Matpreferenser: ' . $group->getFood();
+            if($group->hasInfo()){
+                $description[] = 'Annat: ' . $group->getInfo();
             }
-            if($group->has("Notes")){
-                $description[] = 'Interna anteckningar: ' . $group->pick("Notes");
+            if($group->hasNotes()){
+                $description[] = 'Interna anteckningar: ' . $group->getNotes();
             }
             $row["description"] = $description;
 
@@ -121,7 +122,7 @@ class Calendar
             $event = new Event();
             $event->setDtStart(new \DateTime($row["start_date_time"]));
             $event->setDtEnd(new \DateTime($row["end_date_time"]));
-            if($row["whole_day"] == "true"){
+            if($row["whole_day"]){
                 $event->setNoTime(true);
             }
             $event->setSummary($row["title"]);
@@ -137,20 +138,32 @@ class Calendar
 
     public function render()
     {
-
         $calendar_array = $this->rebuild();
         $ics_string = $this->convertToIcs($calendar_array);
-
         return $ics_string;
     }
 
     public function save($file_name = null)
     {
+        $dir = $GLOBALS["APP_DIR"] ?? "";
         $file_name = $file_name ?? ($this->file_name ?? false);
         if(!$file_name){
             throw new \Exception("Tried to save the Calendar without a file name.");
         }
-        return file_put_contents($file_name, $this->render());
+        $file_name = empty($dir) ? $file_name : $dir . "/" . $file_name;
 
+        return file_put_contents($file_name, $this->render());
     }
+
+    public function dateStringToArray($date_string)
+    {
+        $date = new Carbon($date_string);
+        $array[0] = $date->year;
+        $array[1] = $date->month;
+        $array[2] = $date->day;
+
+        return $array;
+    }
+
+
 }

@@ -3,7 +3,7 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-use \Fridde\{Essentials, Utility as U, Entities};
+use \Fridde\{Essentials, Utility as U, Entities, Naturskolan};
 use \Fridde\Entities\Task as T;
 use \Carbon\Carbon as C;
 
@@ -14,48 +14,29 @@ Essentials::activateDebug();
 $N = new \Fridde\Naturskolan();
 
 $cron_jobs = $SETTINGS["cronjobs"];
-$task_table = $N->getTable("tasks");
+$slot_counter = $_REQUEST["slot_counter"] ?? 1 + $N->getStatus("slot_counter");
 
-$task_status = array_column($task_table, "Value", "Name");
 
-if(empty($_REQUEST["slot_counter"])){
-	$slot_counter = 1 + $task_status["slot_counter"];
-} else {
-	$slot_counter = $_REQUEST["slot_counter"];
-}
-
-$updates = [];
 foreach($cron_jobs["intervals"] as $task_type => $interval){
-	if(($slot_counter - $cron_jobs["delay"]) % $interval == 0){		
+	if(($slot_counter - $cron_jobs["delay"]) % $interval == 0){
 		$task = new T($task_type);
 		$task->execute();
-		if($task->getStatus()){
-			$updates = array_merge($updates, $task->getUpdates());
-		}
 	}
 }
 
-$slot_counter += 1;
+$slot_counter++;
 //reset once every week
-$is_first_day_of_week = $N->_NOW_->dayOfWeek == 0;
+$is_first_day_of_week = $N->_NOW_->dayOfWeek === 0;
 $counter_has_gone_one_day = $slot_counter * $cron_jobs["slot_duration"] > 24 * 60; // 24h/day * 60min/h
 if($is_first_day_of_week && $counter_has_gone_one_day){
 	$slot_counter = 0;
 }
-$updates[] = [["Value" => $slot_counter], ["Name", "slot_counter"]];
-$N->batchUpdate("tasks", $updates);
+$N->setStatus("slot_counter", $slot_counter);
 
 /*
 Cron jobs
 INTERVAL: 12h
 -If categories and interests from MC to settings not in sync, add warning to daily admin mail
-
-
-
-INTERVAL: 24h
-If more than 24h since last total rebuild of calendar
-- rebuild calendar
-
 
 INTERVAL: 24h
 If user made group leader for at least one group since last mail
