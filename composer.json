@@ -22,7 +22,7 @@
         "fridde/essentials": "dev-master",
         "fridde/slacker": "dev-master",
         "fridde/orm": "dev-master",
-        "fzaninotto/faker": "^1.6"
+        "fzaninotto/faker": "^1.6"        
     },
 	"autoload": {
         "psr-4": { "Fridde\\": "src/" }

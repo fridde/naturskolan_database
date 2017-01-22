@@ -5,7 +5,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use \Fridde\{Essentials, Utility as U, Entities, Naturskolan};
 use \Fridde\Entities\Task as T;
-use \Carbon\Carbon as C;
+use \Carbon\Carbon;
 
 
 Essentials::getSettings();
@@ -26,7 +26,7 @@ foreach($cron_jobs["intervals"] as $task_type => $interval){
 
 $slot_counter++;
 //reset once every week
-$is_first_day_of_week = $N->_NOW_->dayOfWeek === 0;
+$is_first_day_of_week = Carbon::today()->dayOfWeek === 0;
 $counter_has_gone_one_day = $slot_counter * $cron_jobs["slot_duration"] > 24 * 60; // 24h/day * 60min/h
 if($is_first_day_of_week && $counter_has_gone_one_day){
 	$slot_counter = 0;

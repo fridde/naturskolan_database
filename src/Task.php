@@ -1,14 +1,15 @@
 <?php
 namespace Fridde;
 
-use \Carbon\Carbon as C;
-use \Fridde\{ORM, Calendar, Utility as U, Mailer};
+use Carbon\Carbon;
+use Fridde\{Naturskolan, Calendar, Mailer};
+use Fridde\Entities\{User, School};
+use Doctrine\Common\Collections\{ArrayCollection, Criteria};
 
 class Task
 {
     public $N;
     public $type;
-    public $task_table;
     public $result;
     public $admin_mail;
     private $task_to_function_map = [
@@ -39,7 +40,7 @@ class Task
     {
         $last_rebuild = $this->N->getLastRebuild();
         $is_dirty = $this->N->calendarIsDirty();
-        $too_old = $this->_NOW_->diffInHours($last_rebuild) >= 24;
+        $too_old = Carbon::now()->diffInHours($last_rebuild) >= 24;
         if($is_dirty || $too_old){
             $cal = new Calendar();
             $cal->save();
@@ -64,7 +65,7 @@ class Task
     {
     }
 
-    private function sendAdminSummaryMail()
+    public function sendAdminSummaryMail()
     {
 
         $this->compileAdminSummaryMail();
@@ -72,6 +73,8 @@ class Task
         if(empty($this->admin_mail)){
             return true;
         }
+        bdump($this->admin_mail);
+        /*
         $settings = $GLOBALS["SETTINGS"]["admin_summary"];
         $params["to"] = $settings["admin_adress"];
         $params["from"] = $settings["admin_adress"];
@@ -85,7 +88,7 @@ class Task
                 $M->addRow($row);
             }
         }
-        bdump($this->admin_mail);
+        */
         //TODO: Finish the creation of this mail and send it
     }
 
@@ -97,7 +100,6 @@ class Task
     {
         $settings = $GLOBALS["SETTINGS"]["admin_summary"];
 
-
         // #######################
         // ### visit not confirmed
         // #######################
@@ -106,90 +108,128 @@ class Task
         $unconfirmed_visits = $visits->filter(function($visit){
             return ! $visit->isConfirmed();
         });
-        $this->addToAdminMail("visit_not_confirmed", $unconfirmed_visits);
+        $this->addToAdminMail("visit_not_confirmed", $unconfirmed_visits->toArray());
 
         // #######################
         // ### food or number of students changed
-        // // #######################
-        $error_type_map = ["Food" => "food_changed", "Students" => "student_nr_changed"];
+        // #######################
 
-        $changes_concerning_groups = $this->N->ORM->getRepository("Change")->findGroupChanges();
         $deadline = Carbon::today()->addDays($settings["important_info_changed"]);
-        foreach($changes_concerning_groups as $change){
-            $group = $this->N->ORM->getRepository("Group")->find($change->getEntityId());
-            $next_visit = $group->getNextVisit();
+        $a = [];
 
+        $group_changes = $this->N->ORM->getRepository("Change")->findGroupChanges()->toArray();
+        array_walk($group_changes, function($c){
+            $g = $this->N->ORM->getRepository("Group")->find($c->getEntityId());
+            $next_visit = $g->getNextVisit();
             if(!empty($next_visit) && $next_visit->isBefore($deadline)){
-                $att = $change->getAttribute();
-                $error_type = $error_type_map[$att];
-                if($att == "Food"){
-                    $new_value = $group->getFood();
-                } elseif($att == "NumberStudents"){
-                    $new_value = $group->getNumberStudents();
-                }
-                $info = ["from" => $change->getOldValue(), "to" => $new_value];
-                $info["group"] = $group;
-                $this->addToAdminMail($error_type, $info);
+                $att = $c->getAttribute();
+                $method = "get" . $att;
+                $new_value = $g->$method();
+                $return = ["from" => $c->getOldValue(), "to" => $new_value];
+                $return["group"] = $g;
+                $a[$att][] = $return;
             }
-        }
+        }, $deadline);
+
+        $this->addToAdminMail("food_changed", $a["Food"] ?? []);
+        $this->addToAdminMail("nr_students_changed", $a["NumberStudents"] ?? []);
+
 
         // #######################
         // ### user profile incomplete
-        // // #######################
+        //#######################
         $immunity_start = Carbon::today()->subDays($settings["immunity_time"]);
         $annoyance_start = Carbon::today()->subDays($settings["annoyance_interval"]);
         $users = $this->N->ORM->getRepository("User")->findActiveUsers();
-        foreach($users as $user){
-            $immune = $user->wasCreatedAfter($immunity_start);
-            $too_frequent = $user->lastMessageWasAfter($annoyance_start);
-            if( ! ($immune || $too_frequent) &&  ! ($user->hasMobil() && $user->hasMail())){
-                $this->addToAdminMail("user_profile_incomplete", $user);
-            }
+        $users = new ArrayCollection($users);
+        $incomplete_users = $users->filter(function($u) use ($immunity_start, $annoyance_start){
+            $immune = $u->wasCreatedAfter($immunity_start);
+            $too_frequent = $u->lastMessageWasAfter($annoyance_start);
+            return !($immune || $too_frequent) &&  !($u->hasMobil() && $u->hasMail());
+        });
+        if(!empty($incomplete_users)){
+            $this->addToAdminMail("user_profile_incomplete", $incomplete_users->toArray());
         }
+
 
 
         // #######################
         // ###  last booked visit is coming soon!
-        // // #######################
+        //#######################
         $last_visit_deadline =  Carbon::today()->addDays($settings["soon_last_visit"]);
         $last_visit = $this->N->ORM->getRepository("Visit")->findLastVisit();
         if(empty($last_visit) || $last_visit->getDate()->lte($last_visit_deadline)){
             $this->addToAdminMail("soon_last_visit", $last_visit);
         }
 
-
         // #######################
         // ### wrong amount of groups
-        // // #######################
+        // #######################
         $schools = $this->N->ORM->getRepository("School")->findAll();
-        foreach($schools as $school){
-            foreach(School::GRADES_COLUMN as $column_val => $attribute){
-                $active = $school->getNrActiveGroupsByGrade($column_val);
+        $bad_schools = [];
+
+        array_walk($schools, function($s){
+            foreach(Group::GRADE_LABELS as $column_val => $attribute){
+                $active = $s->getNrActiveGroupsByGrade($column_val);
                 $method_name = "get" . $attribute;
-                $expected = $school->$method_name();
-
+                $expected = $s->$method_name();
                 if($expected !== $active){
-                    $info["school"] = $school;
-                    $info["grade"] = $column_val;
-                    $info["expected"] = $expected;
-                    $info["active"] = $active;
-
-                    $this->addToAdminMail("wrong_group_count", $info);
+                    $a = ["expected" => $expected, "active" => $active];
+                    $bad_schools[$s->getId()][$column_val][] = $a;
                 }
             }
+        });
+        $this->addToAdminMail("wrong_group_count", $bad_schools);
+
+
+
+        // #######################
+        // ### wrong group leader
+        // #######################
+        $groups = $this->N->ORM->getRepository("Group")->findActiveGroups();
+        $groups = new ArrayCollection($groups);
+        $bad_groups = $groups->filter(function($g){
+            $u = $g->getUser();
+            if(empty($u)){
+                return true;
+            }
+            $inactive = ! $u->isActive();
+            $not_teacher = ! $u->isRole("teacher");
+            $wrong_school = $u->getSchool()->getId() !== $g->getSchool()->getId();
+            return $inactive || $not_teacher || $wrong_school;
+        });
+        if(!empty($bad_groups)){
+            $this->addToAdminMail("wrong_group_leader", $bad_groups->toArray());
         }
 
-/*
+        // #######################
+        // ### visit with inactive group
+        // #######################
+        $visits = $this->N->ORM->getRepository("Visit")->findFutureVisits();
+        $bad_visits = $visits->filter(function($v){
+            $g = $v->getGroup();
+            return (empty($g) ? false : !$g->isActive()); //empty groups are okay
+        });
+        if(!empty($bad_visits)){
+            $this->addToAdminMail("inactive_group_visit", $bad_visits->toArray());
+        }
+
+        // #######################
+        // ### too many students in class
+        // #######################
+        $exp = Criteria::expr()->gt("NumberStudents", 33);
+        $crit = Criteria::create()->where($exp);
+        $large_groups = $groups->matching($crit);
+        if(!empty($large_groups)){
+            $this->addToAdminMail("too_many_students", $large_groups->toArray());
+        }
+
+        /*
         ---------------------------------------------------------------
         ### bus not in sync
 
         ### food not in sync
 
-        ###group leader is not teacher
-        any active group
-        any group->User->getRole != User::TEACHER
-        if(group_leader[type] == "admin")
-        add to mail(group, user)
         */
     }
 
@@ -198,76 +238,110 @@ class Task
     * @param [type] $type [description]
     * @param [type] $info [description]
     */
-    private function addToAdminMail($error_type, $info = []){
-        $row = "";
+    private function addToAdminMail($error_type, $entities = []){
 
-        switch($error_type){
-            case "visit_not_confirmed":
-            $visit = $info["visit"]; //as object
-            $topic = $visit->getAsObject("Topic");
-            $group = $visit->getAsObject("Group");
-            $school = $group->getAsObject("School");
-            $user = $group->getAsObject("User");
-
-            $row .= $visit->pick("Date") .  ": ";
-            $row .= $topic->pick("ShortName") . " med ";
-            $row .= $group->pick("Name") . " från ";
-            $row .= $school->pick("Name") . ". Lärare: ";
-            $row .= $user->getCompleteName() . ", ";
-            $row .= $user->pick("Mobil") . ", " . $user->pick("Mail");
-            break;
-
-            case "food_changed":
-            case "student_nr_changed":
-            $group = $info["group"];  // This is already a group object
-            $row .= "ÅK " . $group->pick("Grade") . ", ";
-            $row .= "Grupp " . $group->pick("Name") . " från " . $group->getSchool("Name");
-            $row .= ", möter oss härnast " .  $group->getNextVisit() . " : ";
-            $row .= $error_type == "food_changed" ? "Matpreferenserna " : "Antal elever ";
-            $row .= 'ändrades från "' . $info["old"] . '" till "' . $info["new"] . '"';
-            break;
-
-            case "soon_last_visit":
-            $last_visit = $info["last_visit"];
-            $row .= "Snart är sista planerade mötet med eleverna. Börja planera nästa termin!";
-            $row .= " Sista möte: " . $last_visit->pick("Date");
-            break;
-
-            case "user_profile_incomplete":
-            $user = $info["user"];  // as an object!
-            $school = $user->pick("School");
-            $mob_nr = $user->pick("Mobil");
-            $mail = $user->pick("Mail");
-
-            $row .= $user->getCompleteName() . " från ";
-            $row .= $school->pick("Name") . " saknar kontaktuppgifter. ";
-            $row .= "Mobil: " . (empty($mob_nr) ? "???" : $mob_nr) . ", ";
-            $row .= "Mejl: " .  (empty($mail) ? "???" : $mail) . ".";
-            break;
-
-            case "group_leader_not_teacher":
-            break;
-
-            case "bus_schedule_outdated":
-            break;
-
-            case "food_order_outdated":
-            break;
-
-            case "wrong_group_count":
-            //$info = ["school" => $school, "expected" => $expected, "active" => $active];
-            extract($info);
-            $row .= $school->pick("Name") . " har fel antal grupper. Det finns $active grupper, ";
-            $row .= " men det borde vara $expected";
-            break;
-            /*
-            case "":
-            break;
-            */
-
+        if(empty($entities)){
+            return ;
         }
-        $this->admin_mail = $this->admin_mail ?? [];
-        $this->admin_mail[$error_type][] = $row;
+
+        $entities = (array) $entities;
+        foreach($entities as $key => $entity){
+            $row = "";
+
+            switch($error_type){
+                case "visit_not_confirmed":
+                $visit = $entity;
+                $g = $visit->getGroup();
+                $u = $g->getUser();
+
+                $row .= $visit->getDate()->toDateString() . ": Ej bekräftad ";
+                $row .= $visit->getTopic()->getShortName() . " med ";
+                $row .= ($g->getName() ?? '???') . " från ";
+                $row .= $g->getSchool()->getName() . ". Lärare: ";
+                $row .= $u->getFullName() . ", ";
+                $row .= $u->getMobil() . ", " . $u->getMail();
+                break;
+                // ###########################################
+                case "food_changed":
+                case "student_nr_changed":
+
+                $g = $entity["group"];
+                $row .= $g->getGradeLabel() . ", ";
+                $row .= "Grupp " . ($g->getName() ?? '???') . " från " . $g->getSchool()->getName();
+                $row .= ", möter oss härnast " ;
+                $row .= $g->getNextVisit()->getDate()->toDateString() . " : ";
+                $row .= $error_type == "food_changed" ? "Matpreferenserna" : "Antal elever";
+                $row .= ' ändrades från "' . $entity["from"] . '" till "' . $entity["to"] . '"';
+                break;
+                // ###########################################
+                case "soon_last_visit":
+                $last_visit = $entity;
+                $row .= "Snart är sista planerade mötet med eleverna. Börja planera nästa termin!";
+                $row .= " Sista möte: ";
+                $row .= empty($last_visit) ? "Inga vidare möten." : $last_visit->getDate()->toDateString();
+                break;
+                // ###########################################
+                case "user_profile_incomplete":
+                $u = $entity;
+                $mob_nr = $u->getMobil();
+                $mail = $u->getMail();
+
+                $row .= $u->getCompleteName() . ", ";
+                $row .= $u->getSchool()->getName() . ", saknar kontaktuppgifter. ";
+                $row .= "Mobil: " . ($u->hasMobil() ? $u->getMobil() : '???') . ", ";
+                $row .= "Mejl: " . ($u->hasMail() ? $u->getMail() : '???') . ", ";
+                break;
+                // ###########################################
+                case "wrong_group_leader":
+                $g = $entity;
+                $u = $g->getUser();
+
+                $row .= $g->getGradeLabel() . ":";
+                $row .= $g->getName() . " från " . $g->getSchool()->getName();
+                $row .= " har fel ledare: ";
+                $row .= $g->hasUser() ? '[id:' . $u->getId() . '] ' . $u->getFullName() : "Ingen!";
+                break;
+                // ###########################################
+                case "wrong_group_count":
+                // example ["råbg" => ["2" => ["expected" => 1, "active" => 2]]]
+                $school_id = $key;
+                $school = $this->N->ORM->getRepository("School")->find($school_id);
+
+                $row .= $school->getName() . " har fel antal grupper. ";
+                foreach($entity as $grade => $exp_act){
+                    $row .= "I ". Group::GRADE_LABELS[$grade] . " finns det ";
+                    $row .= $exp_act["active"] . " grupper, men det borde vara ";
+                    $row .= $exp_act["expected"] . ". ";
+                }
+                break;
+                // ###########################################
+                case "inactive_group_visit":
+                $v = $entity;
+                $row .= "Ogiltigt besök på ";
+                $row .= $v->getDate()->toDateString() . ": ";
+                $row .= $v->getGroup()->getName() . " från ";
+                $row .= $v->getGroup()->getSchool()->getName();
+                $row .= ", " . $v->getGroup()->getGradeLabel();
+                $row .= ", är inte längre aktiv.";
+                break;
+                // ###########################################
+                case "too_many_students":
+                $g = $entity;
+                $row .= $g->getName() . ", " . $g->getGradeLabel() . ", ";
+                $row .= "från " . $g->getSchool()->getName() ;
+                $row .= " har " . $g->getNumberStudents() . " elever.";
+                break;
+                // ###########################################
+                case "bus_schedule_outdated":
+                break;
+                // ###########################################
+                case "food_order_outdated":
+                break;
+
+            }
+            $this->admin_mail = $this->admin_mail ?? [];
+            $this->admin_mail[$error_type][] = $row;
+        }
     }
 
     private function sendChangedGroupLeaderMail()

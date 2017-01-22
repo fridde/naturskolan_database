@@ -37,11 +37,13 @@ class School
     /** @OneToMany(targetEntity="User", mappedBy="School") */
     protected $Users;
 
-    const GRADES_COLUMN = ["2" => "GroupsAk2", "5" => "GroupsAk5", "fbk" => "GroupsFbk"];
+    /** @OneToMany(targetEntity="Password", mappedBy="School") */
+    protected $Passwords;
 
     public function __construct() {
         $this->Groups = new ArrayCollection();
         $this->Users = new ArrayCollection();
+        $this->Passwords = new ArrayCollection();
     }
 
     public function getId(){return $this->id;}
@@ -59,7 +61,11 @@ class School
     public function getVisitOrder(){return $this->VisitOrder;}
     public function setVisitOrder($VisitOrder){$this->VisitOrder = $VisitOrder;}
     public function getGroups(){return $this->Groups;}
+    public function getPasswords(){return $this->Passwords;}
+    public function setPasswords($Passwords){$this->Passwords = $Passwords;}
+    public function addPassword($Password){$this->Passwords->add($Password);}
     public function getUsers(){return $this->Users;}
+    public function addUser($User){$this->Users->add($User);}
 
     public function getActiveGroupsByGrade($grade)
     {
@@ -68,70 +74,23 @@ class School
         });
     }
 
+    public function hasGrade($grade)
+    {
+        return !empty($this->getActiveGroupsByGrade($grade));
+    }
+
+    public function getGradesAvailable($withLabels = false)
+    {
+        $available_grades = array_filter(Group::GRADE_LABELS, function($k){
+            return $this->hasGrade($k);
+        }, ARRAY_FILTER_USE_KEY);
+
+        return $withLabels ? $available_grades : array_keys($available_grades);
+    }
+
     public function getNrActiveGroupsByGrade($grade)
     {
         return count($this->getActiveGroupsByGrade($grade));
     }
-
-    /*
-    public function set($attribute, $value)
-    {
-    $this->$attribute = $value;
-}
-
-
-
-public function getAllGrades()
-{
-return array_keys($this->grade_column_map);
-}
-
-public function getVisitOrder()
-{
-$this->setInformation();
-return $this->pick("VisitOrder");
-}
-
-public function getName()
-{
-$this->setInformation();
-return $this->pick("Name");
-
-}
-
-public function getUsers()
-{
-return $this->Users;
-}
-
-public function countActiveGroups($grade = null)
-{
-$this->setInformation();
-$grades = $grade ?? $this->getAllGrades();
-$grades = (array) $grades;
-$groups = $this->getTable("groups");
-
-$group_count = 0;
-foreach($grades as $grade){
-$criteria = [["IsActive", "true"], ["Grade", $grade]];
-$group_count += count(U::filterFor($groups, $criteria));
-}
-return $group_count;
-}
-
-public function countExpectedGroups($grade = null)
-{
-$this->setInformation();
-$grades = $grade ?? $this->getAllGrades();
-$grades = (array) $grades;
-
-$group_count = 0;
-foreach($grades as $grade){
-$col_name = $this->grade_column_map[$grade];
-$group_count += $this->pick($col_name);
-}
-return $group_count;
-}
-*/
 
 }

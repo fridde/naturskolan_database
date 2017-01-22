@@ -52,16 +52,11 @@ class User
     /** @OneToMany(targetEntity="Message", mappedBy="User") */
     protected $Messages;
 
-    public $roleMapper = [0 => "teacher", 1 => "rektor", 2 => "administrator",
+    const ROLES = [0 => "teacher", 1 => "rektor", 2 => "administrator",
     3 => "stakeholder", 4 => "superadmin"];
 
     const ACTIVE = 1;
     const ARCHIVED = 0;
-    const TEACHER = 0;
-    const REKTOR = 1;
-    const ADMINISTRATOR = 2;
-    const INTRESSENT = 3;
-    const SUPERADMIN = 4;
 
     public function __construct() {
         $this->Visits = new ArrayCollection();
@@ -69,6 +64,10 @@ class User
     }
 
     public function getId(){return $this->id;}
+    public function hasId($Id)
+    {
+        return $this->getId() == $Id; 
+    }
     public function getFirstName(){return $this->FirstName;}
     public function setFirstName($FirstName){$this->FirstName = $FirstName;}
     public function getLastName(){return $this->LastName;}
@@ -92,22 +91,52 @@ class User
     public function setMail($Mail){$this->Mail = $Mail;}
     public function hasMail(){return !empty(trim($this->Mail));}
     public function getSchool(){return $this->School;}
-    public function setSchool($School){$this->School = $School;}
+    public function setSchool($School)
+    {
+        $this->School = $School;
+        $School->addUser($this);
+    }
+
+    public function isFromSchool($school_id)
+    {
+        $school_id = (array) $school_id;
+        return in_array($this->getSchool()->getId(), $school_id);
+    }
+
     public function getRole(){return $this->Role;}
     public function setRole($Role){$this->Role = $Role;}
+    public function getRoleLabel()
+    {
+        return self::ROLES($this->getRole());
+
+    }
+    public function isRole($role)
+    {
+        if(is_string($role)){
+            $role = array_search($role, self::ROLES);
+        }
+        return $this->getRole() == $role;
+    }
+
+
     public function getAcronym(){return $this->Acronym;}
     public function setAcronym($Acronym){$this->Acronym = $Acronym;}
     public function getStatus(){return $this->Status;}
     public function setStatus($Status){$this->Status = $Status;}
+
+    public function isActive()
+    {
+        return $this->getStatus() == self::ACTIVE;
+    }
+
     public function getLastChange(){return $this->LastChange;}
     public function setLastChange($LastChange){$this->LastChange = $LastChange;}
     public function getCreatedAt()
     {
-        if(!empty($this->CreatedAt)){
-            $date = new Carbon($this->CreatedAt);
-            return $date;
+        if(is_string($this->CreatedAt)){
+            $this->CreatedAt = new Carbon($this->CreatedAt);
         }
-        return null;
+        return $this->CreatedAt;
     }
     public function setCreatedAt($CreatedAt){
         if(!is_string($CreatedAt) && get_class($CreatedAt) == "Carbon\Carbon"){
@@ -150,7 +179,8 @@ class User
     public function getLastMessage()
     {
         $this->sortMessagesByDate();
-        return $this->Messages->last();
+        $last_message = $this->Messages->last();
+        return ($last_message === false ? null : $last_message);
     }
 
     public function lastMessageWasAfter($date)
@@ -158,7 +188,11 @@ class User
         if(is_string($date)){
             $date = new Carbon($date);
         }
-        return $this->getLastMessage()->getTimestamp()->gte($date);
+        $last_message = $this->getLastMessage();
+        if(!empty($lastMessage)){
+            return $this->getLastMessage()->getTimestamp()->gte($date);
+        }
+        return false;
     }
 
     /** @PostPersist */

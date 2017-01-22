@@ -5,22 +5,27 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-use \Fridde\Essentials;
-use \Fridde\Utility as U;
-use \Carbon\Carbon as C;
-use \Fridde\SMS as SMS;
-use \Fridde\NSDB_MailChimp as M;
-use \Fridde\HTML as H;
-use \Fridde\Calendar as Cal;
 
+use Fridde\{Naturskolan, Essentials, NSDB_MailChimp as M,
+    HTMLForTwig as H};
+
+
+Essentials::setAppDirectory("naturskolan_database");
 Essentials::getSettings();
-//Essentials::activateDebug();
+Essentials::activateDebug();
 
-$N = new \Fridde\Naturskolan();
+$N = new Naturskolan();
 
 $type = $_REQUEST["type"] ?? "" ;
 
 switch ($type) {
+    case "twig":
+    $H = new H();
+    $bla = ["first" => "second", "third" => "fourth", "fifth"];
+    $H->setTemplate("sandbox.twig")->setTitle("My great site")->addVariable("bla", $bla);
+    echo $H->render();
+    break;
+
     case "naturskolan":
     $N->delete("event", 6);
     $result = $N->get("events");

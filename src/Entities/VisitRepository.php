@@ -24,7 +24,7 @@ class VisitRepository extends EntityRepository
 
     public function findLastVisit()
     {
-        return $this->getFutureVisits()->last();
+        return $this->findFutureVisits()->last();
     }
 
 }

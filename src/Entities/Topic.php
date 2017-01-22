@@ -59,17 +59,8 @@ class Topic
     public function getUrl(){return $this->Url;}
     public function setUrl($Url){$this->Url = $Url;}
     public function getIsLektion(){return (boolean) $this->IsLektion;}
+    public function isLektion(){return $this->getIsLektion();}
     public function setIsLektion($IsLektion){$this->IsLektion = (int) $IsLektion;}
     public function getVisits(){return $this->Visits;}
-    /*
-    public function set($attribute, $value)
-    {
-        $this->$attribute = $value;
-    }
 
-    public function isLektion()
-    {
-        return trim($this->pick("IsLektion")) == "true";
-    }
-    */
 }

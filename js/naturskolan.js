@@ -4,18 +4,18 @@ var saveDelay = 10000; //milliseconds between ajax savings
 moment.locale('sv');
 
 $(document).ready(function(){
-	
+
 	setInterval(Update.setSaveTimeText, 30*1000);
-	
+
 	$('.modal').modal('show');
 	$('#login_modal_submit').click(function(){
 		var data = {
-			updateType: "password", 
+			updateType: "checkPassword", 
 			"password": $("[name='password']").val()
 		};
 		Update.changeValue(data, Update.passwordCorrect);
 	});
-	
+
 	$(".sortable").sortable({
 		change: function(event, ui){
 			var data = {updateType: "sort",	values : {id: []}};
@@ -25,7 +25,7 @@ $(document).ready(function(){
 			setTimeout(Update.changeValue(data, Update.lastChange), saveDelay);
 		}
 	});
-	
+
 	$(".group-container .editable").change("group", Edit.change);
 	$(".editable").find(":input:not(.special-column :input)").change("tableInput", Edit.change);
 	$("#group-change-modal input").change("groupModal", Edit.change);
@@ -35,15 +35,15 @@ $(document).ready(function(){
 	$("table .input-slider").each(function(i,element){
 		Slider.set($(this), "table");
 	});
-	
+
 	$(".date").datepicker({
 		dateFormat: 'yy-mm-dd',
 		firstDay: 1,
 		showWeek: true
 	});
-	
-	
-	
+
+
+
 	/* Buttons
 	*/
 	$("#add-row-btn").click(function(){
@@ -63,10 +63,10 @@ $(document).ready(function(){
 		newRow.show(1000);
 		newRow.find(":input").val('').removeAttr('value');
 	});
-	
+
 	$("#new-setting-btn").click(function(){
 		var sibs = $(this).siblings();
-		
+
 		var data = {
 			table : "settings",
 			values : {
@@ -77,34 +77,34 @@ $(document).ready(function(){
 		};
 		setTimeout(Update.changeValue(data, Update.reloadPage), saveDelay);
 	});
-	
+
 	$(".delete-btn").click(function(){
 		var data = {
 			values: {
 				id: $(this).closest("tr").data("id")
 			},
-			table: $(this).closest("table").data("table"),
+			table: $(this).closest("table").data("entity"),
 			updateType : "deleteRow"
-		}
+		};
 		setTimeout(Update.changeValue(data, Update.removeRow), saveDelay);
 	});
-	
+
 	$(".group-container h1").dblclick(function(){
 		var changeModalString = "#group-change-modal";
 		var container = $(this).closest(".group-container");
 		var groupId = container.data("group-id");
-		
+
 		$(changeModalString).attr("data-group-id", groupId);
 		$(changeModalString).data("group-id", groupId);
 		$(changeModalString + " .name-field").val($(this).text());
 		$(changeModalString).dialog("open");
 	});
-	
+
 	$("#group-change-modal").dialog({
 		autoOpen: false,
-		title: "Ändra gruppnamn"				
+		title: "Ändra gruppnamn"
 	});
-	
+
 });
 /* END OF document.ready()
 	#############################################################################################
@@ -112,7 +112,7 @@ $(document).ready(function(){
 */
 
 var Update = {
-	
+
 	lastChange: function(data, status){
 		console.log(data);
 		if(status === "success"){
@@ -131,19 +131,19 @@ var Update = {
 			console.log(data);
 		}
 	},
-	
+
 	groupName: function(data, status){
 		if(status === "success"){
 			$("div[data-group-id='" + data.groupId + "'] h1").text(data.newName);
 		}
 	},
-	
+
 	reloadPage: function(data, status){
 		if(status === "success"){
 			location.reload(true);
 		}
 	},
-	
+
 	removeRow: function(data, status){
 		console.log(status);
 		console.log(data);
@@ -153,16 +153,16 @@ var Update = {
 			//$("tr").find("[data-id=" + data.oldId +  "]").remove();
 		}
 	},
-	
+
 	setSaveTimeText: function(){
-		var lastChange = $(".save-time").data("last-change");	
+		var lastChange = $(".save-time").data("last-change");
 		if(lastChange !== undefined){
 			$(".save-time").text("Uppgifterna sparades senast " + moment(lastChange).fromNow() + '.');
 		}
 	},
-	
+
 	changeValue: function(data, successFunction){
-		
+
 		/* data can look like: {updateType: row, table: users, values: {id: 21, firstColumn:firstValue, secondColumnv:secondValue}}
 		*/
 		if(typeof data.updateType === 'undefined'){
@@ -170,9 +170,9 @@ var Update = {
 		}
 		var postData = $.param(data);
 		console.log(postData);
-		$.post(updateUrl, postData, successFunction, "json");	
+		$.post(updateUrl, postData, successFunction, "json");
 	},
-	
+
 	passwordCorrect: function(data, status){
 		if(status == "success" && data.status == "success"){
 			$('.modal').modal('hide');
@@ -190,21 +190,21 @@ var Update = {
 };
 
 var Cookie = {
-	
+
 	set : function(name, value, exdays) {
 		var d = new Date();
 		d.setTime(d.getTime() + (exdays*24*60*60*1000));
 		var expires = "expires="+ d.toUTCString();
 		document.cookie = name + "=" + value + "; " + expires;
 	},
-	
+
 	setAndReload : function(data, status){
 		if(status == "success"){
 			Cookie.set("Hash", data.hash, 90);
 			location.reload();
 		}
 	},
-	
+
 	get : function(name) {
 		name += "=";
 		var ca = document.cookie.split(';');
@@ -213,7 +213,7 @@ var Cookie = {
 			while (c.charAt(0)==' ') {
 				c = c.substring(1);
 			}
-			if (c.indexOf(name) == 0) {
+			if (c.indexOf(name) === 0) {
 				return c.substring(name.length,c.length);
 			}
 		}
@@ -221,41 +221,44 @@ var Cookie = {
 	}
 };
 
-
+/**
+ * [Edit description]
+ * @type {Object}
+ */
 var Edit = {
-	
+
 	change: function(inputData){
 		var data = {values:{}};
 		var column;
 		if(recentChange !== false){
 			clearTimeout(recentChange);
 		}
-		
+
 		switch(inputData.data){ // will contain the "option" added to the function
-			
+
 			case "group":
-			data.table = "groups";
+			data.entity = "groups";
 			data.values.id = $(this).closest(".group-container").data("group-id");
 			column = $(this).prop("name");
 			break;
-			
+
 			case "tableInput":
-			data.table = $(this).closest("table").data("table");
+			data.entity = $(this).closest("table").data("entity");
 			data.values.id = $(this).closest("tr").data("id");
 			if($(this).closest("tr").data("old-id")){
 				data.oldId = $(this).closest("tr").data("old-id");
 			}
 			break;
-			
+
 			case "groupModal":
-			data.table = "group";
+			data.entity = "group";
 			data.values.id = $(this).closest("#group-change-modal").data("group-id");
 			data.updateType = "updateGroupName";
 			column = $(this).prop("name");
 			break;
-			
+
 		}
-		
+
 		if($(this).prop("type") == "checkbox"){
 			column = $(this).prop("name");
 			if(column.endsWith('[]')){
@@ -271,27 +274,27 @@ var Edit = {
 		else if(typeof column != 'undefined'){
 			data.values[column] = $(this).val();
 		}
-		
-		recentChange = setTimeout(Update.changeValue(data, Update.lastChange), saveDelay);		
-	}	
+
+		recentChange = setTimeout(Update.changeValue(data, Update.lastChange), saveDelay);
+	}
 };
 
 var Slider = {
-	
+
 	set : function(jqueryObj, optionParam){
-		
+
 		var data = {values: {}}, container;
-		
+
 		if(optionParam == "group"){
 			container = jqueryObj.closest(".group-container");
 			data.values.id = container.data("group-id");
 		}
-		else if(optionParam == "table"){
+		else if(optionParam == "entity"){
 			container = jqueryObj.closest("table");
 			data.values.id = jqueryObj.closest("tr").data("id");
 		}
-		data.table = container.data("table");
-		
+		data.entity = container.data("entity");
+
 		jqueryObj.slider({
 			min: jqueryObj.data("min"),
 			max: jqueryObj.data("max"),
@@ -305,4 +308,4 @@ var Slider = {
 			}
 		});
 	}
-}
+};

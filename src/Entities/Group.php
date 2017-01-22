@@ -2,6 +2,7 @@
 namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Carbon\Carbon;
 
 /**
 * @Entity(repositoryClass="Fridde\Entities\GroupRepository")
@@ -78,14 +79,22 @@ class Group
     public function hasName(){return $this->has("Name");}
     public function getUser(){return $this->User;}
     public function setUser($User){$this->User = $User;}
+    public function hasUser(){return !empty($this->User);}
     public function getSchool(){return $this->School;}
     public function setSchool($School){$this->School = $School;}
     public function getGrade(){return $this->Grade;}
     public function getGradeLabel(){
         return self::GRADE_LABELS[$this->Grade];
     }
+    public static function translateGradeToLabel(){
 
+    }
     public function setGrade($Grade){$this->Grade = $Grade;}
+    public function isGrade($Grade)
+    {
+        return $this->getGrade() === strval($Grade);
+    }
+
     public function getStartYear(){return $this->StartYear;}
     public function setStartYear($StartYear){$this->StartYear = $StartYear;}
     public function getNumberStudents(){return $this->NumberStudents;}
@@ -113,12 +122,20 @@ class Group
     public function getVisits(){return $this->Visits;}
     public function getFutureVisits()
     {
-        if(!$this->hasVisits()){
-            return $this->Visits; //empty collection
+        return $this->getVisitsAfter(Carbon::today());
+    }
+
+    public function getVisitsAfter($date, $ordered = true)
+    {
+        if($ordered){
+            $this->sortVisits();
         }
-        return $this->getVisits()->filter(function($v){
-            return $v->isInFuture();
-        });
+        if(is_string($date)){
+            $date = new Carbon($date);
+        }
+        return $this->getVisits()->filter(function($v) use ($date){
+            return $v->isAfter($date);
+        });        
     }
 
     private function sortVisits($visit_collection = null)
@@ -164,51 +181,5 @@ class Group
     public function postUpdate(){ }
     /** @PreRemove */
     public function preRemove(){ }
-    /*
-    private function setVisits($renew = false)
-    {
-    if($renew || !isset($this->visits) || !isset($this->future_visits)){
-    $visits = U::filterFor($this->getTable("visits"), ["Group", $this->id], false);
-    $this->visits = U::orderBy($visits, "Date", "datestring");
-    $this->future_visits = U::filterFor($this->visits, ["Date", $this->_NOW_UNIX_, "after"]);
-}
-}
-
-private function setSchool()
-{
-$this->setInformation();
-$this->school = $this->school ?? U::getById($this->getTable("schools"),
-$this->information["School"]);
-}
-
-public function getSchool($key = null)
-{
-$this->setSchool();
-return $this->school[$key] ?? $this->school;
-}
-
-public function getInfo($key = null)
-{
-$this->information = $this->information ??  U::getById($this->getTable("groups"), $this->id);
-return $this->information[$key] ?? $this->information;
-}
-
-public function getGradeLabel()
-{
-$this->setInformation();
-return $this->grade_labels[$this->pick("Grade")];
-}
-
-public function getNextVisit()
-{
-$this->setVisits();
-if(!empty($this->future_visits)){
-$next_visit = new Visit(reset($this->future_visits));
-return $next_visit;
-} else {
-return false;
-}
-}
-*/
 
 }

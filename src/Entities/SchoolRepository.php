@@ -9,4 +9,5 @@ class SchoolRepository extends EntityRepository
     {
         return $this->find("natu")->getUsers();
     }
+
 }

@@ -1,0 +1,18 @@
+{% macro atts(attributes) %}
+    {% for key, val in attributes %}
+        {%- if  key is integer -%}
+            {{- val ~ " " -}}
+        {%- else -%}
+            {{ key }}="{{ val }}"{{" "}}
+        {%- endif -%}
+     {% endfor %}
+ {% endmacro %}
+
+
+{% macro a(adress, content, attributes = []) %}
+<a href="{{adress}}" {% for key, val in attributes %}{{key}}="{{val}}" {% endfor %} >{{content|default(adress)}}</a>
+{% endmacro %}
+
+{% macro select(options, label = "", attributes = []) %}
+<a href="{{adress}}" {% for key, val in attributes %}{{key}}="{{val}}" {% endfor %} >{{content|default(adress)}}</a>
+{% endmacro %}

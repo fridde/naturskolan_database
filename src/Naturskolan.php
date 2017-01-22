@@ -1,23 +1,19 @@
 <?php
 namespace Fridde;
 
-use \Fridde\{SQL, Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
+use Fridde\{ Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
 	HTML as H};
-use \Yosymfony\Toml\Toml;
-use \Carbon\Carbon;
+use Yosymfony\Toml\Toml;
+use Carbon\Carbon;
 
 	class Naturskolan
 	{
 		public $ORM;
-		public $_NOW_;
-		public $_NOW_UNIX_;
 		private $text_path = "texts";
 
 		public function __construct ()
 		{
 			$this->ORM = new ORM();
-			$this->_NOW_ =  C::now();
-			$this->_NOW_UNIX_ = $this->_NOW_->timestamp;
 		}
 
 		public function getStatus($id)
@@ -56,7 +52,7 @@ use \Carbon\Carbon;
 			switch($shorthand){
 				case "calendar clean":
 				$req[0] = ["SystemStatus", "calendar.status", "clean"];
-				$now_string = $this->_NOW_->toIso8601String();
+				$now_string = Carbon::now()->toIso8601String();
 				$req[1] = ["SystemStatus", "calendar.last_rebuild", $now_string];
 				$this->set($req);
 				break;
@@ -87,17 +83,17 @@ use \Carbon\Carbon;
 
 
 
-		public function createPassword($school, $length = 4)
+		public static function createPassword($prefix = "", $length = 4)
 		{
+			$password = $prefix;
 			$alpha = range('a', 'z');
-			$password = $school . "_";
 			foreach (range(1,$length) as $i){
 				$password .= $alpha[mt_rand(0, count($alpha) - 1)];
 			}
 			return $password;
 		}
 
-		public function createHash()
+		public static function createHash()
 		{
 			$hash_string = password_hash(microtime(), PASSWORD_DEFAULT);
 			$hash_array = explode("$", $hash_string);
@@ -161,7 +157,7 @@ use \Carbon\Carbon;
 
 		public function getTimestamp()
 		{
-			return $this->_NOW_->toAtomString();
+			return Carbon::now()->toAtomString();
 		}
 
 

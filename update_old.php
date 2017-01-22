@@ -34,6 +34,14 @@
 		}
 		break;
 
+		case "setCookie":
+		$hash = Naturskolan::createHash();
+		$expiration_date = Carbon::now()->addDays(90)->toIso8601String();
+		$entity = "Password";
+		$values = ["Hash" => $hash, "School" => $school, "ExpirationDate" => $expiration_date];
+		$return["hash"] = $hash;
+		break;
+
 		case "deleteCookie":
 		setcookie("Hash", "", time() - 24 * 3600);
 		U::redirect("index.php?view=grupper");
