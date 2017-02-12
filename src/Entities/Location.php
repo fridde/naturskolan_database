@@ -4,7 +4,8 @@ namespace Fridde\Entities;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
-* @Entity @Table(name="locations")
+* @Entity(repositoryClass="Fridde\Entities\LocationRepository")
+* @Table(name="locations")
 */
 class Location
 {

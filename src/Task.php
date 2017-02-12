@@ -147,7 +147,7 @@ class Task
             $too_frequent = $u->lastMessageWasAfter($annoyance_start);
             return !($immune || $too_frequent) &&  !($u->hasMobil() && $u->hasMail());
         });
-        if(!empty($incomplete_users)){
+        if(!$incomplete_users->isEmpty()){
             $this->addToAdminMail("user_profile_incomplete", $incomplete_users->toArray());
         }
 
@@ -198,7 +198,7 @@ class Task
             $wrong_school = $u->getSchool()->getId() !== $g->getSchool()->getId();
             return $inactive || $not_teacher || $wrong_school;
         });
-        if(!empty($bad_groups)){
+        if(!$bad_groups->isEmpty()){
             $this->addToAdminMail("wrong_group_leader", $bad_groups->toArray());
         }
 
@@ -210,7 +210,7 @@ class Task
             $g = $v->getGroup();
             return (empty($g) ? false : !$g->isActive()); //empty groups are okay
         });
-        if(!empty($bad_visits)){
+        if(!$bad_visits->isEmpty()){
             $this->addToAdminMail("inactive_group_visit", $bad_visits->toArray());
         }
 
@@ -220,7 +220,7 @@ class Task
         $exp = Criteria::expr()->gt("NumberStudents", 33);
         $crit = Criteria::create()->where($exp);
         $large_groups = $groups->matching($crit);
-        if(!empty($large_groups)){
+        if(!$large_groups->isEmpty()){
             $this->addToAdminMail("too_many_students", $large_groups->toArray());
         }
 

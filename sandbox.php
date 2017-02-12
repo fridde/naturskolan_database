@@ -6,8 +6,8 @@
 require __DIR__ . '/vendor/autoload.php';
 
 
-use Fridde\{Naturskolan, Essentials, NSDB_MailChimp as M,
-    HTMLForTwig as H};
+
+use Fridde\{Naturskolan, Essentials, NSDB_MailChimp as M, HTMLForTwig as H};
 
 
 Essentials::setAppDirectory("naturskolan_database");
@@ -19,6 +19,11 @@ $N = new Naturskolan();
 $type = $_REQUEST["type"] ?? "" ;
 
 switch ($type) {
+    case "dir":
+    bdump($_SERVER);
+    //echo __DIR__;
+    break;
+
     case "twig":
     $H = new H();
     $bla = ["first" => "second", "third" => "fourth", "fifth"];

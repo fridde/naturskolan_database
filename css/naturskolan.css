@@ -12,8 +12,13 @@ body {
     body { padding-top: 0px; }
 }
 
+.save-time {
+    height: 50px;
+    visibility: hidden;
+}
+
 .input-slider {
-	width: 50%;	
+	width: 50%;
 }
 
 .inputList input {

@@ -33,12 +33,20 @@ class Visit
     /** @Column(type="string", nullable=true) */
     protected $Time;
 
+    const STATUS = [0 => "unconfirmed", 1 => "confirmed"];
+
     public function __construct() {
         $this->Colleagues = new ArrayCollection();
     }
 
     public function getId(){return $this->id;}
     public function getGroup(){return $this->Group;}
+
+    public function getGroupId()
+    {
+        return $this->getGroup()->getId();
+    }
+
     public function setGroup($Group){$this->Group = $Group;}
 
     public function getDate(){
@@ -46,6 +54,11 @@ class Visit
             $this->Date = new Carbon($this->Date);
         }
         return $this->Date;
+    }
+
+    public function getDateString()
+    {
+        return $this->getDate()->toDateString();
     }
 
     public function setDate($Date){
@@ -56,8 +69,21 @@ class Visit
     }
 
     public function getTopic(){return $this->Topic;}
+
+    public function getTopicId()
+    {
+        return $this->getTopic()->getId();
+    }
+
     public function setTopic($Topic){$this->Topic = $Topic;}
     public function getColleagues(){return $this->Colleagues;}
+
+    public function getColleaguesIdArray()
+    {
+        return array_map(function($col){
+            return $col->getId();
+        }, $this->getColleagues()->toArray());
+    }
 
     public function addColleague($Colleague){
         $this->Colleagues->add($Colleague);
@@ -68,6 +94,12 @@ class Visit
         $Colleague->removeVisit($this);
     }
     public function isConfirmed(){return boolval($this->Confirmed);}
+
+    public function getConfirmedOptions()
+    {
+        return self::STATUS;
+    }
+
     public function getConfirmed(){return $this->Confirmed;}
     public function setConfirmed($Confirmed){$this->Confirmed = $Confirmed;}
     public function getTime(){return $this->Time;}

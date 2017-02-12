@@ -1,82 +1,70 @@
-{% import "macros.twig" as F %}
+{%- extends "user_area.twig" -%}
+
+{%- block school_area -%}
 {% set tabs, student_limits, teachers = DATA.tabs, DATA.student_limits, DATA.teachers %}
-
-{{ include('head.twig')  }}
-
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-3">
-        </div>
-        {# middle part #}
-        <div class="col-md-6">
-            <ul class="nav nav-tabs">
-                {% for tab in tabs %}
-                <li class="nav-item {%- if loop.first %} active{% endif %}">
-                    <a href="#tab_{{ tab.id }}" class="nav-link">{{ tab.grade_label }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-
-
-            <div class="tab-content">
-                {% for tab in tabs %}
-                <div id="tab_{{ tab.id }}" class="tab-pane {%- if loop.first %} active{% endif %}">
-                    <div class="row">
-                        {% for column in [tab.col_left, tab.col_right] %}
-                        <div class="col-md-6">
-                            {# left column of the groups #}
-                            {% for group in column %}
-                            <div class="group-container" data-group-id="{{ group.id }}" data-entity="Group">
-                                <h1 id="group_name_{{ group.id }}">{{ group.name }}</h1>
-                                <label for="select_user_{{ group.id }}">Ansvarig lärare</label>
-                                <select name="User" id="select_user_{{ group.id }}" class="editable" data-entity="Group_setUser">
-                                    {% for teacher in teachers %}
-                                    <option value="{{ teacher.id }}"{% if teacher.id == group.teacher_id %} selected{% endif %}>
-                                        {{ teacher.full_name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                                <label for="slider_{{ group.id }}">Antal elever</label>
-                                <div class="input-slider" id="slider_{{ group.id }}" data-min={{ student_limits.min }} data-max={{ student_limits.max }} value={{ group.nr_students }} data-slider-counter_id="slider_counter_{{ group.id }}">
-                                    {{ group.nr_students }}
-                                </div>
-                                <div id="slider_counter_{{ group.id }}" class="slider-value">
-                                    {{ group.nr_students }}
-                                </div>
-                                <label for="food_{{ group.id }}">Specialkost</label>
-                                <textarea name="Food" id="food_{{ group.id }}" class="editable form-control" rows="4" cols="50" placeholder="Ange specialkost här">
-                                    {{ group.food }}
-                                </textarea>
-                                <label for="info_{{ group.id }}">Information om gruppen</label>
-                                <textarea name="Info" id="info_{{ group.id }}" cols="50" rows="4" class="editable form-control" placeholder="Saker som är bra att veta">
-                                    {{ group.info }}
-                                </textarea>
-                                {% if group.visits %}
-                                <ul>
-                                    {% for visit in group.visits %}
-                                    <li>{{ visit.date }}:<a href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
-                                    {% if visit.confirmed %} Bekräftad. {% else %} <a href="/confirm/{{ visit.id|confirm_url }}">Bekräfta</a></li> {% endif %}
-                                    {% endfor %}
+<div class="row">
+    <div class="col-md-3"></div>
+    {# middle part -#}
+    <div class="col-md-6">
+        <ul class="nav nav-tabs">
+            {% for tab in tabs -%}
+            <li class="nav-item {%- if loop.first %} active{% endif %}">
+                <a href="#tab_{{ tab.id }}" data-toggle="tab" class="nav-link">{{ tab.grade_label }}</a>
+            </li>
+            {% endfor -%}
+        </ul>
+        <div class="tab-content">
+            <div class="save-time" data-last-change=""></div>
+            {% for tab in tabs -%}
+            <div id="tab_{{ tab.id }}" class="tab-pane fade{%- if loop.first %} in active show{% endif %}">
+                <div class="row">
+                    {% for column in [tab.col_left, tab.col_right] -%}
+                    <div class="col-md-6">
+                        {# left column of the groups -#}
+                        {% for group in column -%}
+                        <div class="group-container" data-entity-id="{{ group.id }}" data-entity="Group">
+                            <h1 id="group_name_{{ group.id }}">{{ group.name }}</h1>
+                            <label for="select_user_{{ group.id }}">Ansvarig lärare</label>
+                            <select name="User" id="select_user_{{ group.id }}" class="editable">
+                                {% for teacher in teachers -%}
+                                <option value="{{ teacher.id }}"{% if teacher.id == group.teacher_id %} selected{% endif %}>
+                                    {{- teacher.full_name -}}
+                                </option>
+                                {%- endfor %}
+                            </select>
+                            <label for="slider_{{ group.id }}">Antal elever</label>
+                            <div class="input-slider" id="slider_{{ group.id }}" data-min={{ student_limits.min }} data-max={{ student_limits.max }} name="NumberStudents" value={{ group.nr_students }} data-slider-label-id="slider_label_{{ group.id }}"></div>
+                            <div id="slider_label_{{ group.id }}" class="slider-value">{{ group.nr_students }}</div>
+                            <label for="food_{{ group.id }}">Specialkost</label>
+                            <textarea name="Food" id="food_{{ group.id }}" class="editable form-control" data-toggle="tooltip" rows="4" cols="50" placeholder="Ange specialkost här">
+                                {{- group.food -}}
+                            </textarea>
+                            <label for="info_{{ group.id }}">Information om gruppen</label>
+                            <textarea name="Info" id="info_{{ group.id }}" cols="50" rows="4" class="editable form-control" placeholder="Saker som är bra att veta">
+                                {{- group.info -}}
+                            </textarea>
+                            {% if group.visits -%}
+                            <ul>
+                                {% for visit in group.visits -%}
+                                <li>{{ visit.date }}: <a href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
+                                    {%- if visit.confirmed %} Bekräftad. {%- else %} <a href="/confirm/{{ visit.id|confirm_url }}">Bekräfta</a></li> {%- endif %}
+                                    {%- endfor %}
                                 </ul>
                                 {% else %}
-                                    <p>För närvarande är inga besök inplanerade för denna grupp.</p>
-                                {% endif %}
+                                <p>För närvarande är inga besök inplanerade för denna grupp.</p>
+                                {%- endif %}
                             </div>
-                            {% endfor %}
+                            {%- endfor %}
                         </div>
-                        {% endfor %}
+                        {%- endfor %}
 
-                        <div id="group-change-modal">
-                            <label for="name_modal">Gruppnamn</label>
-                            <input type="text" class="name-field" name="Name" id="name_modal" value="">
-                        </div>
+
                     </div>
                 </div>
-                {% endfor %}
+                {%- endfor %}
             </div>
         </div>
 
-        <div class="col-md-3">
-        </div>
+        <div class="col-md-3"></div>
     </div>
-</div>
+    {%- endblock -%}

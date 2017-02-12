@@ -1,0 +1,14 @@
+{% import "macros.twig" as F %}
+
+<!DOCTYPE html>
+<html>
+<head>
+{{ include('head.twig')  }}
+</head>
+<body>
+    <div class="container-fluid">
+        {%- block school_area -%} {%- endblock -%}
+        {%- block password_modal -%} {%- endblock -%}
+    </div>
+</body>
+</html>

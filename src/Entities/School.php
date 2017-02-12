@@ -76,7 +76,7 @@ class School
 
     public function hasGrade($grade)
     {
-        return !empty($this->getActiveGroupsByGrade($grade));
+        return !$this->getActiveGroupsByGrade($grade)->isEmpty();
     }
 
     public function getGradesAvailable($withLabels = false)

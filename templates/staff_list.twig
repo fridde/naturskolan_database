@@ -1,0 +1,37 @@
+{%- extends "user_area.twig" -%}
+
+{%- block school_area -%}
+{% set headers, users, entity_class = DATA.headers, DATA.users, DATA.entity_class %}
+<div class="row">
+    <div class="col-md-3"></div>
+    {# middle part -#}
+    <div class="col-md-6">
+        <div class="save-time" data-last-change=""></div>
+        <table class="table table-responsive table-striped editable" data-entity="{{ entity_class }}">
+            <thead>
+                <tr>
+                    {% for header in headers %}
+                    {% if header != "id" %}
+                    <th>
+                        {{- header|translate -}}
+                    </th>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users -%}
+                <tr data-id={{ user.id }}>
+                    <td><input type="text" name="FirstName" value="{{ user.FirstName }}"></td>
+                    <td><input type="text" name="LastName" value="{{ user.LastName }}"></td>
+                    <td><input type="text" name="Mobil" value="{{ user.Mobil }}"></td>
+                    <td><input type="text" name="Mail" value="{{ user.Mail }}"></td>
+                </tr>
+                {%- endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-3"></div>
+</div>
+{%- endblock -%}

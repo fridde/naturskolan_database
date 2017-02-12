@@ -2,9 +2,11 @@
 namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Fridde\Entities\Group;
 
 /**
-* @Entity @Table(name="topics")
+* @Entity(repositoryClass="Fridde\Entities\TopicRepository")
+* @Table(name="topics")
 */
 class Topic
 {
@@ -45,6 +47,17 @@ class Topic
 
     public function getId(){return $this->id;}
     public function getGrade(){return $this->Grade;}
+
+    public function getGradeLabel()
+    {
+        return Group::GRADE_LABELS[$this->getGrade()];
+    }
+
+    public function getGradeOptions()
+    {
+        return Group::GRADE_LABELS;
+    }
+
     public function setGrade($Grade){$this->Grade = $Grade;}
     public function getVisitOrder(){return $this->VisitOrder;}
     public function setVisitOrder($VisitOrder){$this->VisitOrder = $VisitOrder;}
@@ -53,6 +66,12 @@ class Topic
     public function getLongName(){return $this->LongName;}
     public function setLongName($LongName){$this->LongName = $LongName;}
     public function getLocation(){return $this->Location;}
+
+    public function getLocationId()
+    {
+        return $this->getLocation()->getId();
+    }
+
     public function setLocation($Location){$this->Location = $Location;}
     public function getFood(){return $this->Food;}
     public function setFood($Food){$this->Food = $Food;}
@@ -60,6 +79,12 @@ class Topic
     public function setUrl($Url){$this->Url = $Url;}
     public function getIsLektion(){return (boolean) $this->IsLektion;}
     public function isLektion(){return $this->getIsLektion();}
+
+    public function getIsLektionOptions()
+    {
+        return [0 => "No", 1 => "Yes"];
+    }
+
     public function setIsLektion($IsLektion){$this->IsLektion = (int) $IsLektion;}
     public function getVisits(){return $this->Visits;}
 

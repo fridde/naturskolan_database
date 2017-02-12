@@ -22,15 +22,22 @@ class Password
     /** @Column(type="integer") */
     protected $Rights;
 
-    const COOKIE_HASH = 0;
-    const PASSWORD = 1;
-
-    const NO_SCHOOLS = 0;
-    const SCHOOL_ONLY = 1;
-    const ALL_SCHOOLS = 2;
+    const TYPES = [0 => "cookie_hash", 1 => "password"];
+    const RIGHTS = [0 => "no_schools", 1 => "school_only", 2 => "all_schools"];
 
     public function getId(){return $this->id;}
     public function getType(){return $this->Type;}
+
+    public function getTypeOptions()
+    {
+        return self::TYPES;
+    }
+
+    public static function resolveTypeAsIndex($string)
+    {
+        return array_search($string, self::TYPES);
+    }
+
     public function setType($Type){
         if(is_string($Type)){
             $const_name = strtoupper($Type);
@@ -41,11 +48,11 @@ class Password
     }
     public function isHash()
     {
-        return $this->Type === self::HASH;
+        return self::TYPES[$this->Type] === "cookie_hash";
     }
     public function isPassword()
     {
-        return $this->Type === self::PASSWORD;
+        return self::TYPES[$this->Type] === "password";
     }
     public function getValue(){return $this->Value;}
     public function setValue($Value)
@@ -54,12 +61,23 @@ class Password
         return $this;
     }
     public function getSchool(){return $this->School;}
+
+    public function getSchoolId()
+    {
+        return $this->getSchool()->getId();
+    }
+
     public function setSchool($School){
         $this->School = $School;
         $School->addPassword($this);
         return $this;
     }
     public function getRights(){return $this->Rights;}
+    public function getRightsOptions()
+    {
+        return self::RIGHTS;
+    }
+
     public function setRights($Rights)
     {
         $this->Rights = $Rights;

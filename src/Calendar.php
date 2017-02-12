@@ -73,7 +73,7 @@ class Calendar
             $row["whole_day"] = false;
 
             $title = "";
-            $colleagues = $visit->getColleagues()->getValues();
+            $colleagues = $visit->getColleagues()->toArray();
             if(!empty($colleagues)){
                 $acronyms = array_map(function($u){return $u->getAcronym();}, $colleagues);
                 $title .= "[" . implode('+', $acronyms) . "]";
@@ -145,7 +145,7 @@ class Calendar
 
     public function save($file_name = null)
     {
-        $dir = $GLOBALS["APP_DIR"] ?? "";
+        $dir = $GLOBALS["APP_URL"] ?? "";
         $file_name = $file_name ?? ($this->file_name ?? false);
         if(!$file_name){
             throw new \Exception("Tried to save the Calendar without a file name.");

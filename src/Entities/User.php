@@ -55,8 +55,7 @@ class User
     const ROLES = [0 => "teacher", 1 => "rektor", 2 => "administrator",
     3 => "stakeholder", 4 => "superadmin"];
 
-    const ACTIVE = 1;
-    const ARCHIVED = 0;
+    const STATUS = [0 => "archived", 1 => "active"];    
 
     public function __construct() {
         $this->Visits = new ArrayCollection();
@@ -66,7 +65,7 @@ class User
     public function getId(){return $this->id;}
     public function hasId($Id)
     {
-        return $this->getId() == $Id; 
+        return $this->getId() == $Id;
     }
     public function getFirstName(){return $this->FirstName;}
     public function setFirstName($FirstName){$this->FirstName = $FirstName;}
@@ -91,6 +90,12 @@ class User
     public function setMail($Mail){$this->Mail = $Mail;}
     public function hasMail(){return !empty(trim($this->Mail));}
     public function getSchool(){return $this->School;}
+
+    public function getSchoolId()
+    {
+        return $this->getSchool()->getId();
+    }
+
     public function setSchool($School)
     {
         $this->School = $School;
@@ -110,6 +115,12 @@ class User
         return self::ROLES($this->getRole());
 
     }
+
+    public function getRoleOptions()
+    {
+        return self::ROLES;
+    }
+
     public function isRole($role)
     {
         if(is_string($role)){
@@ -122,11 +133,17 @@ class User
     public function getAcronym(){return $this->Acronym;}
     public function setAcronym($Acronym){$this->Acronym = $Acronym;}
     public function getStatus(){return $this->Status;}
+
+    public function getStatusOptions()
+    {
+        return self::STATUS;
+    }
+
     public function setStatus($Status){$this->Status = $Status;}
 
     public function isActive()
     {
-        return $this->getStatus() == self::ACTIVE;
+        return self::STATUS[$this->getStatus()] == "active";
     }
 
     public function getLastChange(){return $this->LastChange;}
@@ -160,10 +177,10 @@ class User
 
     private function sortMessagesByDate($message_collection = null)
     {
-        if(empty($message_collection)){
+        if($message_collection->isEmpty()){
             $messages = $this->getMessages();
         }
-        if(empty($messages)){
+        if($messages->isEmpty()){
             return $messages; //empty collection
         }
 

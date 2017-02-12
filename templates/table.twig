@@ -1,0 +1,73 @@
+{% import "macros.twig" as F %}
+{%- set headers, rows, entity_class = DATA.headers, DATA.rows, DATA.entity_class -%}
+<!DOCTYPE html>
+<html>
+<head>
+{{ include('head.twig')  }}
+</head>
+<body>
+    <table class="table table-responsive table-striped editable" data-entity="{{ entity_class }}">
+        <thead>
+            <tr>
+                {% for header in headers %}
+                {% if header != "id" %}
+                <th>
+                    {{- header|translate -}}
+                </th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+
+            {%- for row in rows -%}
+            <tr data-id={{ row.id.value }}>
+                {% for property_name, cell in row -%}
+                {% if cell.type == "ignored" -%} {# do absolutely nothing #}
+                {%- elseif cell.type == "select" -%}
+                <td>
+                    <select name="{{ property_name }}">
+                        {% for option_value, option_text in cell.options %}
+                        <option value="{{ option_value }}" {%- if option_value == cell.value %} selected{%- endif -%}>{{option_text}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                {%- elseif cell.type == "integer" -%}
+                <td>
+                    <input name="{{ property_name }}" type="number" min="0" step="1" size="3" value="{{ cell.value }}">
+                </td>
+                {%- elseif cell.type == "textarea" -%}
+                <td>
+                    <textarea name="{{ property_name }}" cols="30" rows="3">{{ cell.value }}</textarea>
+                </td>
+                {%- elseif cell.type == "radio" -%}
+                <td>
+                    {% for option_value, option_text in cell.options %}
+                        <input type="radio" name="{{ property_name ~ '#' ~ row.id.value }}" value="{{ option_value }}" {%- if option_value == cell.value %} checked{% endif %}>{{ option_text }}
+                    {%- endfor %}
+                </td>
+                {# TODO: Implement double-time-field
+                 {%- elseif cell.type == "time" -%}
+                #}
+                {%- elseif cell.type == "date" -%}
+                <td>
+                    <input type="text" class="form-control datepicker" name="{{ property_name }}" value="{{ cell.value }}">
+                </td>
+                {%- elseif cell.type == "" -%}
+                {%- elseif cell.type == "readonly" -%}
+                <td>
+                    {{- cell.value -}}
+                </td>
+                {%- else -%}
+                <td>
+                    <input type="{{ cell.type }}" name="{{ property_name }}" value="{{ cell.value }}">
+                </td>
+                {%- endif -%}
+                {% endfor %}
+
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+</body>
+</html>

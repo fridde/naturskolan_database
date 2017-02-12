@@ -3,6 +3,7 @@ namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Carbon\Carbon;
+use Fridde\ORM;
 
 /**
 * @Entity(repositoryClass="Fridde\Entities\GroupRepository")
@@ -61,12 +62,11 @@ class Group
     const COLOUR_NAMES = ["beige","blå","brun","röd","fuchsia","grå","grön",
     "gul","guld","khaki","lila","magenta","orange","rosa","sepia","silver",
     "svart","turkos","violett","vit"];
-    const INACTIVE = 0;
-    const ACTIVE = 1;
+    const STATUS = [0 => "inactive", 1 => "active"];
 
     public function getId(){return $this->id;}
     public function getName(){return $this->Name;}
-    public function setName($Name){$this->Name = $Name;}
+    public function setName(){$this->Name = func_get_arg(0);}
     public function getPlaceholderName(){
         $id = $this->id ?? mt_rand();
         $index = $id % count($this->colour_names);
@@ -78,47 +78,76 @@ class Group
     }
     public function hasName(){return $this->has("Name");}
     public function getUser(){return $this->User;}
-    public function setUser($User){$this->User = $User;}
+
+    public function getUserId()
+    {
+        return $this->getUser()->getId();
+    }
+    public function setUser(){
+        $this->User = $this->convertToEntity("User", func_get_args());
+    }
     public function hasUser(){return !empty($this->User);}
     public function getSchool(){return $this->School;}
-    public function setSchool($School){$this->School = $School;}
+
+    public function getSchoolId()
+    {
+        return $this->getSchool()->getId();
+    }
+
+    public function setSchool(){
+        $this->School = $this->convertToEntity("School", func_get_args());
+    }
     public function getGrade(){return $this->Grade;}
     public function getGradeLabel(){
         return self::GRADE_LABELS[$this->Grade];
     }
-    public static function translateGradeToLabel(){
 
+    public function getGradeOptions()
+    {
+        return self::GRADE_LABELS;
     }
-    public function setGrade($Grade){$this->Grade = $Grade;}
+
+
+    public function setGrade()
+    {
+        $this->Grade = func_get_arg(0);
+    }
+
     public function isGrade($Grade)
     {
         return $this->getGrade() === strval($Grade);
     }
 
     public function getStartYear(){return $this->StartYear;}
-    public function setStartYear($StartYear){$this->StartYear = $StartYear;}
+    public function setStartYear(){$this->StartYear = func_get_arg(0);}
     public function getNumberStudents(){return $this->NumberStudents;}
-    public function setNumberStudents($NumberStudents){$this->NumberStudents = $NumberStudents;}
+    public function setNumberStudents(){$this->NumberStudents = func_get_arg(0);}
     public function getFood(){return $this->Food;}
-    public function setFood($Food){$this->Food = $Food;}
+    public function setFood(){$this->Food = func_get_arg(0);}
     public function getInfo(){return $this->Info;}
-    public function setInfo($Info){$this->Info = $Info;}
+    public function setInfo(){$this->Info = func_get_arg(0);}
     public function hasInfo(){return $this->has("Info");}
     public function getNotes(){return $this->Notes;}
-    public function setNotes($Notes){$this->Notes = $Notes;}
+    public function setNotes(){$this->Notes = func_get_arg(0);}
     public function hasNotes(){return $this->has("Notes");}
     public function getStatus(){return $this->Status;}
-    public function setStatus($Status){$this->Status = $Status;}
+
+    public function getStatusOptions()
+    {
+        return self::STATUS;
+    }
+
+    public function setStatus(){$this->Status = func_get_arg(0);}
     public function isActive()
     {
-        return $this->getStatus() == self::ACTIVE;
+        return self::STATUS[$this->getStatus()] == "active";
     }
 
     public function getLastChange(){return $this->LastChange;}
-    public function setLastChange($LastChange){$this->LastChange = $LastChange;}
+    public function setLastChange(){$this->LastChange = func_get_arg(0);}
     public function getCreatedAt(){return $this->CreatedAt;}
-    public function setCreatedAt($CreatedAt){$this->CreatedAt = $CreatedAt;}
-    public function hasVisits(){return !empty($this->Visits);}
+    public function setCreatedAt(){$this->CreatedAt = func_get_arg(0);}
+    public function hasVisits(){return !$this->Visits->isEmpty();}
     public function getVisits(){return $this->Visits;}
     public function getFutureVisits()
     {
@@ -135,15 +164,15 @@ class Group
         }
         return $this->getVisits()->filter(function($v) use ($date){
             return $v->isAfter($date);
-        });        
+        });
     }
 
     private function sortVisits($visit_collection = null)
     {
-        if(empty($visit_collection)){
+        if($visit_collection->isEmpty()){
             $visits = $this->getVisits();
         }
-        if(empty($visits)){
+        if($visits->isEmpty()){
             return $visits; //empty collection
         }
         $visits = $visits->getIterator();
@@ -158,7 +187,7 @@ class Group
     public function getNextVisit()
     {
         $visits = $this->sortVisits($this->getFutureVisits());
-        if(!empty($visits)){
+        if(!$visits->isEmpty()){
             return $visits->first();
         } else {
             return null;
@@ -168,6 +197,17 @@ class Group
     public function hasNextVisit()
     {
         return !empty($this->getNextVisit());
+    }
+
+    public function convertToEntity($entity_class, $args)
+    {
+        $id_or_entity = $args[0];
+        $ORM = $args[1];
+        $entity = $id_or_entity;
+        if(is_string($id_or_entity) || is_integer($id_or_entity)){
+            $entity = $ORM->find($entity_class, $id_or_entity);
+        }
+        return $entity;
     }
 
     private function has($attribute)
