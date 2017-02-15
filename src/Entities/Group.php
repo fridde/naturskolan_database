@@ -201,10 +201,10 @@ class Group
 
     public function convertToEntity($entity_class, $args)
     {
-        $id_or_entity = $args[0];
-        $ORM = $args[1];
+        $id_or_entity = $args[0];        
         $entity = $id_or_entity;
         if(is_string($id_or_entity) || is_integer($id_or_entity)){
+            $ORM = $args[1];
             $entity = $ORM->find($entity_class, $id_or_entity);
         }
         return $entity;

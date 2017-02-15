@@ -2,7 +2,7 @@
 //// to test this, use http://localhost/naturskolan_database/index.php
 require __DIR__ . '/vendor/autoload.php';
 
-use Fridde\{Essentials, Utility as U, HTMLForTwig as H, Naturskolan};
+use Fridde\{Essentials};
 
 
 Essentials::setBaseDir(__DIR__);
@@ -18,11 +18,17 @@ if(substr($request_url, -1) == '/'){
 }
 
 $match = $router->match($request_url);
+if($match){
 
-list($class, $method) = explode('#', $match["target"]);
-$class = '\\Fridde\\Controller\\' . $class . "Controller";
-call_user_func([$class, $method], $match["params"]);
-exit();
+	list($class, $method) = explode('#', $match["target"]);
+	$class = '\\Fridde\\Controller\\' . $class . "Controller";
+	$object = new $class();
+	$object->$method($match["params"]);
+	exit();
+} else {
+	echo 'The URL "' . $request_url . '" did not have a matching route.';
+	exit();
+}
 
 // TODO: Create a login using a password passed as parameter to enable login via email
 
@@ -33,11 +39,6 @@ exit();
 //Creating the navigation bar
 //$nav_links = ["LEFT" => ["Grupper" => "index.php?view=grupper", "Lärare" => "index.php?view=larare"], "RIGHT" => ["Logga ut" => "update.php?updateType=deleteCookie"]];
 //$navbar = $H->addBsNav($nav_links);
-
-
-if(empty($school)){ // create pop-up window
-	$H->setTemplate("password_modal");
-}
 
 // if($view == "larare"){
 // 	$ops["ignore"] = ["id", "Mailchimp", "School", "Password", "IsRektor", "Status", "LastChange"]; // $ops = options

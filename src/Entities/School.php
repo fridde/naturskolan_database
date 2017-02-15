@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
 * @Entity(repositoryClass="Fridde\Entities\SchoolRepository")
 * @Table(name="schools")
+* @HasLifecycleCallbacks
 */
 class School
 {
@@ -16,14 +17,8 @@ class School
     /** @Column(type="string") */
     protected $Name;
 
-    /** @Column(type="integer") */
-    protected $GroupsAk2;
-
-    /** @Column(type="integer") */
-    protected $GroupsAk5;
-
-    /** @Column(type="integer") */
-    protected $GroupsFbk;
+    /** @Column(type="string") */
+    protected $GroupNumbers;
 
     /** @Column(type="string") */
     protected $Coordinates;
@@ -50,12 +45,30 @@ class School
     public function setId($id){$this->id = $id;}
     public function getName(){return $this->Name;}
     public function setName($Name){$this->Name = $Name;}
-    public function getGroupsAk2(){return $this->GroupsAk2;}
-    public function setGroupsAk2($GroupsAk2){$this->GroupsAk2 = $GroupsAk2;}
-    public function getGroupsAk5(){return $this->GroupsAk5;}
-    public function setGroupsAk5($GroupsAk5){$this->GroupsAk5 = $GroupsAk5;}
-    public function getGroupsFbk(){return $this->GroupsFbk;}
-    public function setGroupsFbk($GroupsFbk){$this->GroupsFbk = $GroupsFbk;}
+
+    public function getGroupNumbers()
+    {
+        return json_decode($this->GroupNumbers, true);
+    }
+
+    public function setGroupNumbers($numbers)
+    {
+        $this->GroupNumbers = json_encode($numbers);
+    }
+
+    public function getGroupNumber($grade)
+    {
+        $groupNumbers = $this->getGroupNumbers();
+        return $groupNumbers[$grade];
+    }
+
+    public function setGroupNumber($grade, $value)
+    {
+        $current_values = $this->getGroupNumbers();
+        $current_values[$grade] = $value;
+        $this->setGroupNumbers($current_values);
+    }
+
     public function getCoordinates(){return $this->Coordinates;}
     public function setCoordinates($Coordinates){$this->Coordinates = $Coordinates;}
     public function getVisitOrder(){return $this->VisitOrder;}

@@ -27,7 +27,7 @@ var Edit = {
 		data.updateType = "updateProperty";
 		data.entity = $(this).closest("table").data("entity");
 		data.entity_id = $(this).closest("tr").data("id");
-		data.property = $(this).prop("name").split('#').shift();
+		data.property = $(this).prop("name").split('#').shift();		
 		if($(this).attr("type") == "radio"){
 			data.value = $(this)
 			.closest("tr").find("[name='" + $(this).attr("name") + "']:checked")
@@ -40,10 +40,6 @@ var Edit = {
 			}
 		} else {
 			data.value = $(this).val();
-		}
-
-		if($(this).closest("tr").data("old-id")){
-			data.oldId = $(this).closest("tr").data("old-id");
 		}
 		break;
 
@@ -74,7 +70,8 @@ var Edit = {
 		Tooltip.check(this, data);
 	}
 
-	data.onReturn = 'lastChange';
+
+	data.onReturn = data.onReturn || 'lastChange';
 	recentChange = setTimeout(Update.updateProperty(data), saveDelay);
 }
 };

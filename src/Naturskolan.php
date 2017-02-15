@@ -1,8 +1,7 @@
 <?php
 namespace Fridde;
 
-use Fridde\{ Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U,
-	HTML as H};
+use Fridde\{ Calendar, NSDB_Mailchimp as MC, Mailer, Utility as U};
 use Yosymfony\Toml\Toml;
 use Carbon\Carbon;
 
@@ -18,7 +17,7 @@ use Carbon\Carbon;
 
 		public function getStatus($id)
 		{
-			return $this->ORM->getRepository("SystemStatus")->findOne($id)->getValue();
+			return $this->ORM->getRepository("SystemStatus")->find($id)->getValue();
 		}
 
 		public function setStatus($id, $value)
@@ -26,29 +25,31 @@ use Carbon\Carbon;
 			$this->set("SystemStatus", $id, $value);
 		}
 
-		public function set($repo, $id, $value, $attribute_name = "Value")
+		public function set()
 		{
-			$EM = $this->ORM->getEM();
+			//$repo, $id, $value, $attribute_name = "Value"
 			$requests = func_get_args();
-			if(count($requests) === 1 && is_array($requests[0])){
-				$requests = $requests[0];
+			if(func_num_args() === 1 && is_array(func_get_arg(0))){
+				$requests = func_get_arg(0);
+			} else {
+				$requests = [$requests];
 			}
+
 			foreach($requests as $args){
 				$repo = $args[0] ?? $args["repo"];
 				$id = $args[1] ?? $args["id"];
 				$value = $args[2] ?? $args["value"];
 				$attribute_name = $args[3] ?? ($args["att_name"] ?? "Value");
-				$e = $this->ORM->getRepository($repo)->findOne($id);
+				$e = $this->ORM->getRepository($repo)->find($id);
 				$method = "set" . $attribute_name;
 				$e->$method($value);
-				$EM->persist($e);
+				$this->ORM->EM->persist($e);
 			}
-			$EM->flush();
+			$this->ORM->EM->flush();
 		}
 
 		public function quickSet($shorthand)
 		{
-
 			switch($shorthand){
 				case "calendar clean":
 				$req[0] = ["SystemStatus", "calendar.status", "clean"];
@@ -61,8 +62,6 @@ use Carbon\Carbon;
 				throw \Exception("The parameter " . $shorthand . " is not defined.");
 				break;
 			}
-
-
 		}
 
 		public function setCalendarToClean()
@@ -77,8 +76,7 @@ use Carbon\Carbon;
 
 		public function getLastRebuild()
 		{
-			$last_rebuild = new Carbon($this->getStatus("calendar.last_rebuild"));
-			return $last_rebuild;
+			return new Carbon($this->getStatus("calendar.last_rebuild"));
 		}
 
 

@@ -5,10 +5,9 @@ var Update = {
 		if(data.success){
 			$(".save-time").attr("data-last-change", moment().format());
 			Update.setSaveTimeText();
-			if(typeof data.newId !== 'undefined'){
-				var tr = $("tr[data-old-id='" + data.oldId + "']");
-				tr.attr("data-id", data.newId).data("id", data.newId);
-				tr.data("old-id", "").removeAttr("data-old-id");
+			if(data.new_id){
+				var tr = $('tr[data-id="' + data.old_id + '"]');
+				tr.attr("data-id", data.new_id).data("id", data.new_id);
 			}
 			else if(typeof data.newName !== 'undefined'){
 				Update.groupName(data, status);
@@ -25,14 +24,12 @@ var Update = {
 	},
 
 	reloadPage: function(data, status){
-		if(status === "success"){
+		if(data.success){
 			location.reload(true);
 		}
 	},
 
 	removeRow: function(data, status){
-		console.log(status);
-		console.log(data);
 		if(status == "success" && data.status == "success"){
 			var tr = $("tr").filter("[data-id='" + data.oldId +  "']");
 			tr.hide("slow", function(){tr.remove(); });
@@ -45,26 +42,22 @@ var Update = {
 		if(lastChange !== undefined){
 			$(".save-time").text("Uppgifterna sparades senast " + moment(lastChange).fromNow() + '.')
 			.css("visibility", "visible");
-
-
 		}
 	},
 
 	updateProperty: function(data){
-
-		/* data can look like: {updateType: row, entity: User, value: :75}}
-		*/
 		if(!data.updateType){ //i.e. falsy
 			e = new Error("The updateType cannot be empty!");
 			console.log(e.message);
 		}
+		console.log("Request:");
 		console.log(data);
 		var options = {'data': data};
 		$.ajax(options);
 	},
 
 	passwordCorrect: function(data){
-		if(data.succes){
+		if(data.success){
 			$('.modal').modal('hide');
 			var newData = {
 				updateType: "setCookie",

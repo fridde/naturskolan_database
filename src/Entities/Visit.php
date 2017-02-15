@@ -28,7 +28,7 @@ class Visit
     protected $Colleagues;
 
     /** @Column(type="integer") */
-    protected $Confirmed;
+    protected $Confirmed = 0;
 
     /** @Column(type="string", nullable=true) */
     protected $Time;

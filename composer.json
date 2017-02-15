@@ -23,7 +23,8 @@
         "fridde/slacker": "dev-master",
         "fridde/orm": "dev-master",
         "fzaninotto/faker": "^1.6",
-        "altorouter/altorouter": "^1.2"        
+        "altorouter/altorouter": "^1.2",
+        "guzzlehttp/guzzle": "^6.2"        
     },
 	"autoload": {
         "psr-4": { "Fridde\\": "src/" }

@@ -2,6 +2,8 @@ var Response = {
 
     handler: function(jqXHR, status){
         var data = jqXHR.responseJSON;
+        console.log("Response:");
+        console.log(data);
         if(typeof data == 'undefined' || data.errors.length > 0){
             console.log('The response didn\'t come back without errors.');
             console.log(data.errors);

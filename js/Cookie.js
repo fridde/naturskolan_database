@@ -8,7 +8,7 @@ var Cookie = {
 	},
 
 	setAndReload : function(data, status){
-		if(status == "success"){
+		if(data.success){
 			Cookie.set("Hash", data.hash, 90);
 			location.assign(baseUrl + "skola/" + data.school);
 		}

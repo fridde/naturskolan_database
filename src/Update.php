@@ -11,6 +11,7 @@ class Update
     private $ORM;
     private $RQ;  // contains $_REQUEST
     private $is_changed = false;
+    private $new_entity;
     private $Return = [];
     private $Errors = [];
 
@@ -37,6 +38,9 @@ class Update
         }
         if ($this->is_changed) {
             $this->ORM->EM->flush();
+            if(!empty($this->new_entity)){
+                $this->setReturn("new_id", $this->new_entity->getId());
+            }
         }
         return $this;
     }
@@ -52,14 +56,14 @@ class Update
     public function setCookie()
     {
         $hash = Naturskolan::createHash();
-		$expiration_date = Carbon::now()->addDays(90)->toIso8601String();
+        $expiration_date = Carbon::now()->addDays(90)->toIso8601String();
         $pw = new Password();
         $school = $this->ORM->getRepository("School")->find($this->getRQ("school"));
-        $pw->setValue($hash)->setType(Password::COOKIE_HASH)->setSchool($school);
-        $pw->setRights(Password::SCHOOL_ONLY);
+        $pw->setValue($hash)->setType("cookie_hash")->setSchool($school);
+        $pw->setRights("school_only");
         $this->ORM->EM->persist($pw);
         $this->announceChange();
-		$this->setReturn("hash", $hash)->setReturn("school", $school->getId());
+        $this->setReturn("hash", $hash)->setReturn("school", $school->getId());
     }
 
     public function updateProperty()
@@ -67,24 +71,22 @@ class Update
         $rq = ["entity_class" => "entity", "entity_id", "property", "value"];
         extract($this->getRQ($rq));
 
-        $missing_parameter = false;
+
         $parameter_array = compact("entity_class", "entity_id", "property", "value");
-        array_walk($parameter_array, function($val, $key) use(&$missing_parameter){
-            if(!isset($val)){
-                $this->addError('Important parameter "'. $key .'" missing. Can\'t update.');
-                $missing_parameter = true;
-            }
-        });
-        if($missing_parameter){
+        if(! $this->checkParameters($parameter_array)){
             return;
         }
-        $entity = $this->ORM->getRepository($entity_class)->find($entity_id);
-        $setter = "set" . $property;
-        /* $special_setter_needed = in_array($property, self::SPECIAL_SETTER[$entity_class]);
-        if($special_setter_needed){
-            $value = $this->ORM->getRepository($property)->find($value);
+        if(substr($entity_id, 0, 3) == "new"){
+            $this->setReturn("old_id", $entity_id);
+            $temp = explode("#", $entity_id);
+            $model_entity_id = array_pop($temp);
+            $entity = $this->createNewEntity($entity_class, $model_entity_id);
+            $this->new_entity = $entity;
+        } else {
+            $entity = $this->ORM->getRepository($entity_class)->find($entity_id);
         }
-        */
+        $setter = "set" . $property;
+
         if (! method_exists($entity, $setter)) {
             $this->addError("The method " . $setter . " for the class " . $entity . " could not be found");
             return null;
@@ -93,6 +95,47 @@ class Update
         $entity->$setter($value, $this->ORM);
         $this->ORM->EM->persist($entity);
         $this->announceChange();
+    }
+
+    public function createNewEntity($entity_class, $model_entity_id = null)
+    {
+        $full_class_name = $this->ORM->qualifyClassname($entity_class);
+        $entity = new $full_class_name();
+        if($model_entity_id === 0 || !empty($model_entity_id)){
+            $model_entity = $this->ORM->getRepository($entity_class)->find($model_entity_id);
+            $entity = $this->syncProperties($entity, $model_entity, $entity_class);
+        }
+        return $entity;
+    }
+
+    private function checkParameters($parameters)
+    {
+        $missing_parameter = false;
+        array_walk($parameters, function($val, $key) use(&$missing_parameter){
+            if(!isset($val)){
+                $this->addError('Important parameter "'. $key .'" missing. Can\'t update.');
+                $missing_parameter = true;
+            }
+        });
+        if($missing_parameter){
+            return false;
+        }
+        return true;
+    }
+
+    private function syncProperties($entity, $model_entity, $entity_class = null)
+    {
+        if(empty($entity_class)){
+            $tmp = explode('\\', get_class($model_entity));
+            $entity_class = array_pop($tmp);
+        }
+
+        switch($entity_class){
+            case "User":
+            $entity->setSchool($model_entity->getSchool());
+            break;
+        }
+        return $entity;
     }
 
     public function sliderUpdate()

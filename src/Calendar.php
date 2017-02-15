@@ -145,12 +145,12 @@ class Calendar
 
     public function save($file_name = null)
     {
-        $dir = $GLOBALS["APP_URL"] ?? "";
+        $dir = $GLOBALS["BASE_DIR"] ?? "";
         $file_name = $file_name ?? ($this->file_name ?? false);
         if(!$file_name){
             throw new \Exception("Tried to save the Calendar without a file name.");
         }
-        $file_name = empty($dir) ? $file_name : $dir . "/" . $file_name;
+        $file_name = empty($dir) ? $file_name : $dir . $file_name;
 
         return file_put_contents($file_name, $this->render());
     }

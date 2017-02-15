@@ -73,19 +73,12 @@ $(document).ready(function(){
 	/* Buttons
 	*/
 	$("#add-row-btn").click(function(){
-		var firstOrLast = $(this).data("first") == 1 ? "first" : "last";
-		var oldRow = $(".editable tbody tr:" + firstOrLast);
+		var oldRow = $(".editable tbody tr:last");
 		var newRow = oldRow.clone(true);
-		var oldId = oldRow.data("old-id") || oldRow.data("id");
-		newRow.attr("data-old-id", oldId).data("old-id", oldId);
-		newRow.attr("data-id", "").data("id", "");
+		var newId = "new#" + (oldRow.attr("data-id") || oldRow.data("id"));
+		newRow.attr("data-id", newId).data("id", newId);
 		newRow.hide();
-		if(firstOrLast == "first"){
-			oldRow.before(newRow);
-		}
-		else {
-			oldRow.after(newRow);
-		}
+		oldRow.after(newRow);
 		newRow.show(1000);
 		newRow.find(":input").val('').removeAttr('value');
 	});

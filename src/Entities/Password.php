@@ -33,17 +33,18 @@ class Password
         return self::TYPES;
     }
 
-    public static function resolveTypeAsIndex($string)
+    public static function translate($value, $valueType)
     {
-        return array_search($string, self::TYPES);
+        if(is_string($value)){
+            $constant = constant("self::" . strtoupper($valueType));
+            $value = array_search($value, $constant);
+        }
+        return $value;
     }
 
-    public function setType($Type){
-        if(is_string($Type)){
-            $const_name = strtoupper($Type);
-            $Type = self::$const_name;
-        }
-        $this->Type = $Type;
+    public function setType($Type)
+    {
+        $this->Type = self::translate($Type, "TYPES");
         return $this;
     }
     public function isHash()
@@ -80,7 +81,7 @@ class Password
 
     public function setRights($Rights)
     {
-        $this->Rights = $Rights;
+        $this->Rights = self::translate($Rights, "RIGHTS");
         return $this;
     }
 

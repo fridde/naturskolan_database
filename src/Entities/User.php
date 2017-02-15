@@ -1,48 +1,48 @@
 <?php
 namespace Fridde\Entities;
 
-use \Fridde\{Utility as U};
-use \Carbon\Carbon;
+use Carbon\Carbon;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
 * @Entity(repositoryClass="Fridde\Entities\UserRepository")
 * @Table(name="users")
+* @HasLifecycleCallbacks
 */
 class User
 {
     /** @Id @Column(type="integer") @GeneratedValue    */
     protected $id;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $FirstName;
 
-    /** @Column(type="string")       */
+    /** @Column(type="string", nullable=true)       */
     protected $LastName;
 
-    /** @Column(type="string")       */
+    /** @Column(type="string", nullable=true)       */
     protected $Mobil;
 
-    /** @Column(type="string")       */
+    /** @Column(type="string", nullable=true)       */
     protected $Mail;
 
     /** @ManyToOne(targetEntity="School", inversedBy="Users")     **/
     protected $School;
 
-    /** @Column(type="integer")       */
-    protected $Role;
+    /** @Column(type="integer", nullable=true)       */
+    protected $Role = 0;
 
     /** @Column(type="string", nullable=true)       */
     protected $Acronym;
 
-    /** @Column(type="integer")      */
-    protected $Status;
+    /** @Column(type="integer", nullable=true)      */
+    protected $Status = 1;
 
-    /** @Column(type="string")  */
+    /** @Column(type="string", nullable=true)  */
     protected $LastChange;
 
-    /** @Column(type="string")  */
+    /** @Column(type="string", nullable=true)  */
     protected $CreatedAt;
 
     /** @ManyToMany(targetEntity="Visit", mappedBy="Colleagues")
@@ -55,7 +55,7 @@ class User
     const ROLES = [0 => "teacher", 1 => "rektor", 2 => "administrator",
     3 => "stakeholder", 4 => "superadmin"];
 
-    const STATUS = [0 => "archived", 1 => "active"];    
+    const STATUS = [0 => "archived", 1 => "active"];
 
     public function __construct() {
         $this->Visits = new ArrayCollection();
@@ -147,7 +147,13 @@ class User
     }
 
     public function getLastChange(){return $this->LastChange;}
-    public function setLastChange($LastChange){$this->LastChange = $LastChange;}
+    public function setLastChange($LastChange)
+    {
+        if(!is_string($LastChange) && get_class($LastChange) == "Carbon\Carbon"){
+            $LastChange = $LastChange->toIso8601String();
+        }
+        $this->LastChange = $LastChange;
+    }
     public function getCreatedAt()
     {
         if(is_string($this->CreatedAt)){
@@ -172,12 +178,13 @@ class User
         if(is_string($date)){
             $date = new Carbon($date);
         }
-        return $date->lte($this->getCreatedAt());
+        $created_at = $this->getCreatedAt() ?? Carbon::now();
+        return $date->lte($created_at);
     }
 
     private function sortMessagesByDate($message_collection = null)
     {
-        if($message_collection->isEmpty()){
+        if(empty($message_collection) || $message_collection->isEmpty()){
             $messages = $this->getMessages();
         }
         if($messages->isEmpty()){
@@ -212,21 +219,18 @@ class User
         return false;
     }
 
-    /** @PostPersist */
-    public function postPersist(){ }
-    /** @PostUpdate */
-    public function postUpdate(){ }
+    /** @PrePersist */
+    public function prePersist()
+    {
+        $this->setCreatedAt(Carbon::now());
+    }
+    /** @PreUpdate */
+    public function preUpdate()
+    {
+        $this->setLastChange(Carbon::now());
+    }
     /** @PreRemove */
     public function preRemove(){ }
 
 
 }
-
-/*
-public function getRoleName()
-{
-$this->setInformation();
-$roleId = $this->pick("Role");
-return $this->roleMapper[$roleId];
-}
-*/
