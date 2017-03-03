@@ -2,36 +2,29 @@
 namespace Fridde\Entities;
 
 /**
-* @Entity(repositoryClass="Fridde\Entities\PasswordRepository")
-* @Table(name="passwords")
+* @Entity(repositoryClass="Fridde\Entities\CookieRepository")
+* @Table(name="cookies")
 */
-class Password
+class Cookie
 {
     /** @Id @Column(type="integer") @GeneratedValue    */
     protected $id;
 
-    /** @Column(type="integer") */
-    protected $Type;
+    /** @Column(type="string") */
+    protected $Name;
 
     /** @Column(type="string") */
     protected $Value;
 
-    /** @ManyToOne(targetEntity="School", inversedBy="Passwords")     **/
+    /** @ManyToOne(targetEntity="School", inversedBy="Hashes")     **/
     protected $School;
 
     /** @Column(type="integer") */
     protected $Rights;
 
-    const TYPES = [0 => "cookie_hash", 1 => "password"];
     const RIGHTS = [0 => "no_schools", 1 => "school_only", 2 => "all_schools"];
 
     public function getId(){return $this->id;}
-    public function getType(){return $this->Type;}
-
-    public function getTypeOptions()
-    {
-        return self::TYPES;
-    }
 
     public static function translate($value, $valueType)
     {
@@ -42,19 +35,13 @@ class Password
         return $value;
     }
 
-    public function setType($Type)
+    public function getName(){return $this->Name;}
+    public function setName($Name)
     {
-        $this->Type = self::translate($Type, "TYPES");
+        $this->Name = $Name;
         return $this;
     }
-    public function isHash()
-    {
-        return self::TYPES[$this->Type] === "cookie_hash";
-    }
-    public function isPassword()
-    {
-        return self::TYPES[$this->Type] === "password";
-    }
+
     public function getValue(){return $this->Value;}
     public function setValue($Value)
     {

@@ -2,65 +2,92 @@
 
 namespace Fridde\Controller;
 
-//use Fridde\{Naturskolan, Utility as U, Task};
-//use Carbon\Carbon;
+use Fridde\{Mailer, HTML};
 
-class MailController {
+class MailController extends MessageController
+{
+    private $mail_status;
+    private $params;
+    protected $HTML;
+    protected $Mailer;
+    protected $type_mapper = ["admin_summary" => "AdminSummary", "default" => "DefaultMail",
+    "password_reset" => "PasswordReset", "confirm_visit" => "ConfirmVisit"];
 
-    private $RQ;
-    private $SETTINGS;
-    private $mail_type;
-    private $template = "default_mail";
-    private $is_legit_request = false;
-    private $type_mapper = ["admin_summary" => "AdminSummary", "default" => "DefaultMail"];
-
-    public function __construct()
+    public function __construct($params)
     {
-        $this->RQ = $_REQUEST;
-        $this->SETTINGS = $GLOBALS["SETTINGS"];
+        parent::__construct();
+        $this->HTML = new HTML();
+        $this->Mailer = new Mailer();
+        $this->params = $params;
     }
 
-    public function send($params = [])
+    public function send()
     {
-        $this->checkRequestApiKey();
-        if(! $this->is_legit_request){
-            return;
+        $this->prepare($this->params);
+        $body = $this->HTML->inkify()->addInlineCss()->render(false);
+        $this->Mailer->set("body", $body);
+        $result = $this->Mailer->sendAway();
+        if($result === false){
+            $this->mail_status["success"] = false;
+            $this->mail_status["errors"] = $result->ErrorInfo;
+        } else {
+            $this->mail_status["success"] = true;
         }
-        $this->mail_type = $params["type"] ?? "default";
-        $method_name = "prepare" . $this->type_mapper[$this->mail_type];
-        $DATA = $this->$method_name();
-
-        $H = new H();
-        $H->setTitle();
-        $H->addDefaultJs("index")->addDefaultCss("index")
-        ->setTemplate($this->template)->setBase();
-
-        $H->addVariable("DATA", $DATA);
-        $H->render();
+        echo json_encode($this->mail_status);
     }
 
-    private function prepareAdminSummary()
+    protected function prepareAdminSummary()
     {
-        $this->template = "admin_summary";
+        $this->HTML->setTitle("Sammanfattning: Status av databasen");
+        $this->HTML->setTemplate("admin_summary");
+        $this->HTML->addCssFile("admin_summary.css");
+        $receiver = SETTINGS["admin_summary"]["admin_adress"];
+        $this->Mailer->set("receiver", $receiver);
+        $this->Mailer->set("subject", "Dagliga sammanfattningen av databasen");
 
-        // TODO: continue here!   
-        return $DATA;
+        $DATA = $this->getRQ("data");
+        $this->HTML->addVariable("DATA", $DATA);
     }
 
-    private function prepareDefaultMail()
+    protected function prepareDefaultMail()
     {
+
     }
 
-    private function checkRequestApiKey()
+    protected function preparePasswordReset()
     {
-        $request_api_key = $this->getRQ("api_key");
-        $settings_api_key = $this->SETTINGS["smtp_settings"]["api_key"];
-        $this->is_legit_request = $request_api_key === $settings_api_key;
-        return $this->is_legit_request;
+        $this->HTML->setTitle("Återställning av lösenordet");
+        $this->HTML->setTemplate("password_reset");
+        $this->HTML->addCssFile("mail.css");
+        $this->Mailer->set("receiver", $this->getRQ("receiver"));
+        $this->Mailer->set("subject", "Naturskolan: Återställning av lösenord");
+
+        $DATA = $this->getRQ("data");
+        $this->HTML->addVariable("DATA", $DATA);
     }
 
-    private function getRQ($key)
+    protected function prepareProfileUpdateReminderMail()
     {
-        return $this->RQ[$key] ?? null;
+        $this->HTML->setTitle("Ofullständig profil");
+        $this->HTML->setTemplate("incomplete_profile");
+        $this->HTML->addCssFile("mail.css");
+        $this->Mailer->set("receiver", $this->getRQ("receiver"));
+        $this->Mailer->set("subject", "Vi behöver mer information från dig!");
+
+        $DATA = $this->getRQ("data");
+        $this->HTML->addVariable("DATA", $DATA);
     }
+
+    protected function prepareConfirmVisit()
+    {
+        $DATA = $this->getRQ("data");
+        $date_string = $DATA["visit_info"]["date_string"];
+        $this->HTML->setTitle("Bekräfta ditt besök");
+        $this->HTML->setTemplate("confirm_visit");
+        $this->HTML->addCssFile("mail.css");
+        $this->Mailer->set("receiver", $this->getRQ("receiver"));
+        $this->Mailer->set("subject", "Bekräfta ditt besök på " . $date_string);
+        $this->HTML->addVariable("DATA", $DATA);
+    }
+
 }

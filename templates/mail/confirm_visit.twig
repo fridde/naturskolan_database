@@ -1,0 +1,73 @@
+{{ include('mail_head.twig') }}
+
+{%- set visit = DATA.visit_info -%}
+
+<container class="body-drip">
+
+    <spacer size="16"></spacer>
+
+    <center>
+        <img src="http://placekitten.com/120/120">
+    </center>
+
+    <spacer size="16"></spacer>
+    <row>
+        <columns>
+
+            <h1 class="text-center">Hej {{ DATA.user_fname }}!</h1>
+
+
+            <spacer size="16"></spacer>
+
+            <p class="lead">Du och din grupp {% if visit.group_name %} "{{ visit.group_name }}" {% endif %}ska hälsa på oss</p>
+            <center>
+                <callout class="success">
+                    <p class="text-center"><strong>{{ visit.date_string }}</strong></p>
+                </callout>
+            </center>
+            <hr/>
+
+
+
+            <p>Här kan du läsa mer om dagens pedagogiska planering, uppgifter om mat och annat som kan vara bra att veta.</p>
+            <p>Vänligen bekräfta att du är medveten om besöket och att ni kommer genom att klicka på nedanstående knapp.</p>
+            <spacer size="16"></spacer>
+            <center>
+                <button class="success" href="{{ DATA.confirmation_url}}">Bekräfta besöket!</button>
+            </center>
+            <spacer size="16"></spacer>
+            <row>
+                <columns large="4">
+                    <a href="http://www.sigtunanaturskola.se/kontakta-oss/">
+                        <center>
+                            <img src="http://lorempixel.com/60/60/cats/Kontakta-oss">
+                        </center>
+                        <h5 class="text-center">Kontakta oss</h5>
+                    </a>
+                    <p class="text-center">Tveka inte att höra av dig till oss!</p>
+
+                </columns>
+                <columns large="4">
+                    <a href="http://www.sigtunanaturskola.se/vanliga-fragor/">
+                        <center>
+                            <img src="http://lorempixel.com/60/60/cats/FAQ">
+                        </center>
+                        <h5 class="text-center">Vanliga frågor</h5>
+                    </a>
+                    <p class="text-center">Läs gärna genom våra vanliga frågor.</p>
+                </columns>
+                <columns large="4">
+                    <a href="{{ DATA.school_url }}">
+                        <center>
+                            <img src="http://lorempixel.com/60/60/cats/Uppgifter">
+                        </center>
+                        <h5 class="text-center">Ändra uppgifter</h5>
+                    </a>
+                    <p class="text-center">Ändra adressuppgifter, kolla upp framtida besök, ändra specialkost med mera.</p>
+                </columns>
+            </row>
+
+            <p><small>Du fick detta mejl för att du eller någon annan har gjort dig ansvarig för minst en grupp som ska besöka Naturskolan. Om detta är ett fel, ber vi dig att meddela detta till oss. Svara i så fall på detta mejl.</small></p>
+        </columns>
+    </row>
+</container>

@@ -14,17 +14,18 @@
         "fridde/html": "dev-master",
         "fridde/mailer": "dev-master",
         "fridde/utility": "dev-master",
-        "fridde/sql": "dev-master",
         "fridde/sms": "dev-master",
         "fridde/dumper": "dev-master",
         "eluceo/ical": "^0.11.0",
-        "monolog/monolog": "^1.21",
         "fridde/essentials": "dev-master",
         "fridde/slacker": "dev-master",
         "fridde/orm": "dev-master",
         "fzaninotto/faker": "^1.6",
         "altorouter/altorouter": "^1.2",
-        "guzzlehttp/guzzle": "^6.2"        
+        "guzzlehttp/guzzle": "^6.2",
+        "hashids/hashids": "^2.0",
+        "dotzero/googl": "^0.2.0",
+        "league/container": "^2.3"
     },
 	"autoload": {
         "psr-4": { "Fridde\\": "src/" }

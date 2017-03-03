@@ -2,7 +2,7 @@
 namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use \Carbon\Carbon;
+use Carbon\Carbon;
 
 /**
 * @Entity(repositoryClass="Fridde\Entities\VisitRepository")
@@ -85,6 +85,11 @@ class Visit
         }, $this->getColleagues()->toArray());
     }
 
+    public function getColleaguesIdAsString()
+    {
+        return implode(",", $this->getColleaguesIdArray());
+    }
+
     public function addColleague($Colleague){
         $this->Colleagues->add($Colleague);
         $Colleague->addVisit($this);
@@ -101,7 +106,13 @@ class Visit
     }
 
     public function getConfirmed(){return $this->Confirmed;}
-    public function setConfirmed($Confirmed){$this->Confirmed = $Confirmed;}
+    public function setConfirmed($Confirmed)
+    {
+        if(is_string($Confirmed)){
+            $Confirmed = array_search(strtolower($Confirmed), self::STATUS);
+        }
+        $this->Confirmed = intval($Confirmed);
+    }
     public function getTime(){return $this->Time;}
     public function getTimeAsArray()
     {
@@ -142,8 +153,6 @@ class Visit
         } else {
             throw new \Exception("The comparison " . $beforeOrAfter . " is not defined.");
         }
-
-
     }
 
     public function isAfter($date)
@@ -159,6 +168,11 @@ class Visit
     public function isInFuture()
     {
         return $this->isAfter(Carbon::today());
+    }
+
+    public function isLessThanNrDaysAway($days)
+    {
+        return $this->isBefore(Carbon::today()->addDays($days));
     }
 
     /** @PostPersist */

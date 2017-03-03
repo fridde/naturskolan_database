@@ -23,7 +23,7 @@ class NSDB_MailChimp extends MailChimp {
 
 	public function setConfiguration()
 	{
-		$this->SETTINGS = $GLOBALS["SETTINGS"]["mailchimp"];
+		$this->SETTINGS = SETTINGS["mailchimp"];
 		$default_list = $this->SETTINGS["default_list"];
 		$this->api_key = $this->SETTINGS["api_key"];
 		$this->list_id = $this->SETTINGS["lists"][$default_list];

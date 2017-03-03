@@ -2,38 +2,49 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{HTMLForTwig as H};
+use Fridde\{HTML as H};
 use Fridde\Controller\{LoginController};
 
 class SchoolController {
 
-    //public $N;
-    public $SETTINGS;
-    public $params;
+    private $params;
     public $school;
+    private $user;
+    private $Login;
 
     public function __construct($params = [])
     {
-        //$this->N = new Naturskolan();
-        $this->SETTINGS = $GLOBALS['SETTINGS'];
         $this->params = $params;
-        $this->school = LoginController::checkCookie();
+        $this->Login = new LoginController($this->params);
+        $this->school = $this->Login->checkCookie();
+        $this->user = $this->Login->checkCode();
     }
 
-    public static function handleRequest($params = [])
+    public function handleRequest()
     {
-        $own_class_name = get_called_class();
-        $THIS = new $own_class_name($params);
-
-        if(empty($THIS->school) || $THIS->school->getId() != $THIS->params["school"]){
-            return LoginController::getModal();
+        $authorized = false;
+        if(!empty($this->user)){
+            $this->school = $this->user->getSchool();
+            $authorized = true;
+        } elseif(!empty($this->school)){
+            if($this->school->isNaturskolan()){
+                $authorized = true;
+                $this->school = $this->Login->N->ORM->getRepository("School")
+                ->find($this->params["school"]);
+            } elseif ($this->school->getId() === $this->params["school"]){
+                $authorized = true;
+            }
         }
-        $page = $THIS->params["page"] ?? "groups";
+        if(!$authorized){
+            return $this->Login->checkPassword();
+        }
+
+        $page = $this->params["page"] ?? "groups";
         if($page == "groups"){
-            $DATA = $THIS->getAllGroups($THIS->school);
+            $DATA = $this->getAllGroups($this->school);
             $template = "group_settings";
         } elseif ($page == "personal"){
-            $DATA = $THIS->getAllUsers($THIS->school);
+            $DATA = $this->getAllUsers($this->school);
             $template = "staff_list";
         }
 
@@ -68,7 +79,7 @@ class SchoolController {
         $DATA["teachers"] = array_map(function($u){
             return ["id" => $u->getId(), "full_name" => $u->getFullName()];
         }, $school->getUsers()->toArray());
-        $DATA["student_limits"] = $this->SETTINGS["values"]["min_max_students"];
+        $DATA["student_limits"] = SETTINGS["values"]["min_max_students"];
         $DATA["school_name"] = $school->getName();
 
         $groups = $school->getGroups();
@@ -79,7 +90,7 @@ class SchoolController {
                 return $g->isGrade($grade_val);
             });
             $tab = ["id" => $grade_val, "grade_label" => $grade_label];
-            $extract_group_info = function($g){
+            $groups_current_grade_formatted = array_map(function($g){
                 $r["id"] = $g->getId();
                 $r["name"] = $g->getName();
                 $r["teacher_id"] = $g->getUser()->getId();
@@ -92,12 +103,13 @@ class SchoolController {
                     $r["topic_short_name"] = $v->getTopic()->getShortName();
                     $r["topic_url"] = $v->getTopic()->getUrl();
                     $r["confirmed"] = $v->isConfirmed();
+                    $d = SETTINGS["values"]["show_confirm_link"];
+                    $r["show_confirm_link"] = $v->isLessThanNrDaysAway($d);
                     return $r;
-                }, $g->getVisits()->toArray());
+                }, $g->getSortedVisits()->toArray());
 
                 return $r;
-            };
-            $groups_current_grade_formatted = array_map($extract_group_info, $groups_current_grade->toArray());
+            }, $groups_current_grade->toArray());
 
             $group_columns = H::partition($groups_current_grade_formatted); // puts items in two equally large columns
             $tab["col_left"] = $group_columns[0] ?? [];

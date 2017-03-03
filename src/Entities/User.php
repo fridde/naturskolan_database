@@ -84,7 +84,12 @@ class User
 
 
     public function getMobil(){return $this->Mobil;}
-    public function setMobil($Mobil){$this->Mobil = $Mobil;}
+
+    public function setMobil($Mobil)
+    {
+        $this->Mobil = $this->standardizeMobNr($Mobil);
+    }
+
     public function hasMobil(){return !empty(trim($this->Mobil));}
     public function getMail(){return $this->Mail;}
     public function setMail($Mail){$this->Mail = $Mail;}
@@ -173,6 +178,11 @@ class User
     public function getMessages(){return $this->Messages;}
     public function setMessages($Messages){$this->Messages = $Messages;}
 
+    public function addMessage($Message)
+    {
+        $this->Messages->add($Message);
+    }
+
     public function wasCreatedAfter($date)
     {
         if(is_string($date)){
@@ -185,38 +195,77 @@ class User
     private function sortMessagesByDate($message_collection = null)
     {
         if(empty($message_collection) || $message_collection->isEmpty()){
-            $messages = $this->getMessages();
-        }
-        if($messages->isEmpty()){
-            return $messages; //empty collection
+            return $this->getMessages();
         }
 
-        $messages = $messages->getIterator();
+        $messages = $this->getMessages()->getIterator();
 
         $messages->uasort(function($a, $b){
-            return ($a->getTimestamp()->lt($b->getTimestamp())) ? -1 : 1 ;
+            if(empty($a->getTimestamp()) && empty($b->getTimestamp())){
+                return 0;
+            } elseif(empty($a->getTimestamp())){
+                return 1;
+            } elseif(empty($b->getTimestamp())){
+                return -1;
+            } else {
+                return ($a->getTimestamp()->lt($b->getTimestamp())) ? -1 : 1 ;
+            }
+
         });
         $this->Messages =  new ArrayCollection(iterator_to_array($messages));
         return $this->Messages;
     }
 
-    public function getLastMessage()
+    public function getFilteredMessages($properties, $messages = null)
     {
-        $this->sortMessagesByDate();
-        $last_message = $this->Messages->last();
+        if(empty($messages)){
+            $messages = $this->Messages;
+        }
+        return $messages->filter(function($m) use ($properties){
+            return $m->checkProperties($properties);
+        });
+    }
+
+    /**
+    * [getLastMessage description]
+    * @param  string $type    [description]
+    * @param  string $carrier [description]
+    * @return [type]          [description]
+    */
+    public function getLastMessage($properties = null)
+    {
+        $msg = $this->Messages;
+        if(!empty($properties)){
+            $msg = $this->getFilteredMessages($properties);
+        }
+        $msg = $this->sortMessagesByDate($msg);
+        $last_message = $msg->last();
         return ($last_message === false ? null : $last_message);
     }
 
-    public function lastMessageWasAfter($date)
+
+    public function lastMessageWasAfter($date, $properties = null)
     {
-        if(is_string($date)){
-            $date = new Carbon($date);
-        }
         $last_message = $this->getLastMessage();
         if(!empty($lastMessage)){
-            return $this->getLastMessage()->getTimestamp()->gte($date);
+            return $this->getLastMessage($properties)->wasSentAfter($date);
         }
         return false;
+    }
+
+    public function standardizeMobNr($number){
+
+        $nr = $number;
+        $nr = preg_replace("/[^0-9]/", "", $nr);
+        $trim_characters = ["0", "4", "6"]; // we need to trim from left to right order
+        foreach($trim_characters as $char){
+            $nr = ltrim($nr, $char);
+        }
+        if(in_array(substr($nr, 0, 2), ["70", "72", "73", "76"])){
+            return "+46" . $nr;
+        } else {
+            return $number;
+        }
     }
 
     /** @PrePersist */

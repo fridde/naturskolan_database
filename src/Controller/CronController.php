@@ -2,12 +2,13 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{Naturskolan, Utility as U, Task};
+use Fridde\{Utility as U, Task};
 use Carbon\Carbon;
 
 class CronController {
 
     private $N;
+    private $params;
     private $CRON_SETTINGS;
     private $delay;
     private $slot_duration;
@@ -15,18 +16,19 @@ class CronController {
     private $slot_counter;
     private $slot_time;
 
-    public function __construct()
+    public function __construct($params)
     {
-        $this->N = new Naturskolan();
-        $this->CRON_SETTINGS = $GLOBALS["SETTINGS"]["cronjobs"];
+        $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
+        $this->params = $params;
+        $this->CRON_SETTINGS = SETTINGS["cronjobs"];
         $this->delay = $this->CRON_SETTINGS["delay"];
         $this->slot_duration = $this->CRON_SETTINGS["slot_duration"];
         $this->intervals = $this->CRON_SETTINGS["intervals"];
     }
 
-    public function execute($params = [])
+    public function execute()
     {
-        $this->slot_counter = $params["counter"] ?? $this->N->getStatus("slot_counter");
+        $this->slot_counter = $this->params["counter"] ?? $this->N->getStatus("slot_counter");
 
         $this->setSlotTime();
         $this->resetIfMonday();
@@ -62,7 +64,7 @@ class CronController {
     {
         $interval = $this->intervals[$task_type];
         $interval = U::adjustInterval($interval, $this->slot_duration);
-        $mod = fmod(U::divideDuration($this->slot_time, $interval), 1.0);        
+        $mod = fmod(U::divideDuration($this->slot_time, $interval), 1.0);
         return $mod === 0.0;
     }
 

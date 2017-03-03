@@ -27,7 +27,7 @@ var Edit = {
 		data.updateType = "updateProperty";
 		data.entity = $(this).closest("table").data("entity");
 		data.entity_id = $(this).closest("tr").data("id");
-		data.property = $(this).prop("name").split('#').shift();		
+		data.property = $(this).prop("name").split('#').shift();
 		if($(this).attr("type") == "radio"){
 			data.value = $(this)
 			.closest("tr").find("[name='" + $(this).attr("name") + "']:checked")
@@ -41,6 +41,9 @@ var Edit = {
 		} else {
 			data.value = $(this).val();
 		}
+		// setting the new data-order and data-search for DataTables
+		$(this).data("search", data.value).data("order", data.value)
+		.attr("data-search", data.value).attr("data-order", data.value);
 		break;
 
 		case "groupModal":
@@ -50,6 +53,26 @@ var Edit = {
 		data.property = $(this).prop("name").split('#').shift();
 		data.value = $(this).val();
 		break;
+
+		case "tableReorder":
+		data.updateType = "updateVisitOrder";
+		data.entity = specialInfo; // the button should have a data-entity attribute
+		data.property = "VisitOrder";
+		data.order = $('table[data-entity="' + data.entity + '"] tbody')
+		.sortable("toArray", {attribute: "data-id"});
+		data.onReturn = "reloadPage";
+		break;
+
+		case "visitConfirm":
+		data.updateType = "updateProperty";
+		data.entity = "Visit";
+		data.entity_id = $(this).data("visit-id");
+		data.property = "Confirmed";
+		data.value = true;
+		data.onReturn = "changeConfirmedLink";
+		// TODO: Implement this in html/js
+		break;
+
 
 	}
 

@@ -22,23 +22,30 @@ class Topic
     /** @Column(type="string") */
     protected $ShortName;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $LongName;
 
     /** @ManyToOne(targetEntity="Location", inversedBy="Topics")     **/
     protected $Location;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $Food;
 
-    /** @Column(type="string") */
+    /** @Column(type="integer", nullable=true) */
+    protected $FoodInstructions;
+
+    /** @Column(type="string", nullable=true) */
     protected $Url;
 
-    /** @Column(type="integer") */
+    /** @Column(type="integer", nullable=true) */
     protected $IsLektion;
 
     /** @OneToMany(targetEntity="Visit", mappedBy="Topic")   **/
     protected $Visits;
+
+    // byo means "bring your own" and means in this context that the group
+    // provides for their own food
+    const FOOD_INSTRUCTION_TYPES = [0 => "provided", 1 => "byo", 2 => "irrelevant"];
 
     public function __construct()
     {
@@ -65,6 +72,16 @@ class Topic
     public function setShortName($ShortName){$this->ShortName = $ShortName;}
     public function getLongName(){return $this->LongName;}
     public function setLongName($LongName){$this->LongName = $LongName;}
+
+    public function getLongestName()
+    {
+        $long = $this->getLongName();
+        if(empty($long)){
+            return $this->getShortName();
+        }
+        return $long;
+    }
+
     public function getLocation(){return $this->Location;}
 
     public function getLocationId()
@@ -75,6 +92,24 @@ class Topic
     public function setLocation($Location){$this->Location = $Location;}
     public function getFood(){return $this->Food;}
     public function setFood($Food){$this->Food = $Food;}
+
+    public function getFoodInstructions($as_string = false)
+    {
+        if($as_string){
+            return self::FOOD_INSTRUCTION_TYPES[$this->FoodInstructions] ?? null;
+        }
+        return $this->FoodInstructions;
+    }
+
+    public function setFoodInstructions($FoodInstructions)
+    {
+        if(is_string($FoodInstructions)){
+            $FoodInstructions = array_search($FoodInstructions, self::FOOD_INSTRUCTION_TYPES);
+        }
+        $this->FoodInstructions = $FoodInstructions;
+    }
+
+
     public function getUrl(){return $this->Url;}
     public function setUrl($Url){$this->Url = $Url;}
     public function getIsLektion(){return (boolean) $this->IsLektion;}

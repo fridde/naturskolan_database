@@ -1,4 +1,5 @@
 aventyr_kalender.ics
+PasswordHandler.php
 
 cli-config.php
 composer.lock
@@ -11,6 +12,7 @@ backup/*
 *.backup
 
 docs/
+misc/
 old_files/
 sigtunanaturskola.se/
 temp/

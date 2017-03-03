@@ -2,15 +2,22 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{Naturskolan, Update};
+use Fridde\{Update};
 
 class UpdateController {
 
-    public static function handleRequest($parameters = [])
+    private $params;
+
+    public function __construct($params)
+    {
+        $this->params = $params;
+    }
+
+    public function handleRequest()
     {
         $update = new Update($_REQUEST);
         $return = $update->execute()->getReturn();
         echo json_encode($return);
     }
-    
+
 }

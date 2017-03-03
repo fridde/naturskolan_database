@@ -1,0 +1,23 @@
+{%- set errors, labels = DATA.errors, DATA.labels -%}
+{{ include('mail_head.twig') }}
+
+<body>
+    <table class="body" >
+        <tr>
+            <td>
+                <h1>{{ DATA.TITLE }}</h1>
+                {% for key, error_rows in errors %}
+                <h2>{{ attribute(labels, key) }}</h2>
+                <ul>
+                    {% for row in error_rows -%}
+                    <li>
+                        {{- row -}}
+                    </li>
+                    {%- endfor %}
+                </ul>
+                {%- endfor -%}
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

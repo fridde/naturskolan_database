@@ -1,14 +1,12 @@
 <?php
 namespace Fridde;
 
-//use Carbon\Carbon;
-use Fridde\{Naturskolan, ORM};
-use Fridde\Entities\{Password};
+use Fridde\Entities\{Cookie};
 use Carbon\Carbon;
 
 class Update
 {
-    private $ORM;
+    private $N;
     private $RQ;  // contains $_REQUEST
     private $is_changed = false;
     private $new_entity;
@@ -16,19 +14,26 @@ class Update
     private $Errors = [];
 
     private $defined_methods = ["updateProperty", "checkPassword", "setCookie",
-    "deleteCookie", "updateGroupName", "sliderUpdate"];
-    //const SPECIAL_SETTER = ["Group" => ["User"]];
+    "deleteCookie", "updateGroupName", "sliderUpdate", "updateVisitOrder",
+    "confirmVisit", "createNewEntity"];
 
-
+    /* request data: ["updateType" => "", "entity_class" => "",
+    *     "entity_id" => "", "property" => "", "value" => ""]
+    */
     public function __construct($request_data = []){
 
-        $this->ORM = new ORM();
+        $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
         $this->setRQ($request_data);
+    }
+
+    public static function create($request_data){
+        $THIS = new self($request_data);
+        return $THIS->execute();
     }
 
     public function execute()
     {
-        $updateType = $this->getUpdateType();
+        $updateType = $this->getRQ("updateType");
         if(empty($updateType)){
             $this->addError("Error: The updateType can not be empty");
         } elseif (!in_array($updateType, $this->defined_methods)){
@@ -37,7 +42,7 @@ class Update
             $this->$updateType();
         }
         if ($this->is_changed) {
-            $this->ORM->EM->flush();
+            $this->N->ORM->EM->flush();
             if(!empty($this->new_entity)){
                 $this->setReturn("new_id", $this->new_entity->getId());
             }
@@ -47,30 +52,36 @@ class Update
 
     public function checkPassword()
     {
-        $password = $this->ORM->getRepository("Password")->findByPassword($this->getRQ("password"));
-        if(!empty($password)){
-            $this->setReturn("status", "success")->setReturn("school", $password->getSchool()->getId());
+        $school_id = $this->N->checkPassword($this->getRQ("password"));
+        if($school_id){
+            $this->setReturn("school", $school_id);
+        } else {
+            $this->addError("Wrong password!");
         }
+
     }
 
     public function setCookie()
     {
-        $hash = Naturskolan::createHash();
+        $hash = $this->N->createHash();
         $expiration_date = Carbon::now()->addDays(90)->toIso8601String();
-        $pw = new Password();
-        $school = $this->ORM->getRepository("School")->find($this->getRQ("school"));
-        $pw->setValue($hash)->setType("cookie_hash")->setSchool($school);
-        $pw->setRights("school_only");
-        $this->ORM->EM->persist($pw);
+        $cookie = new Cookie();
+        $school = $this->N->ORM->getRepository("School")->find($this->getRQ("school"));
+        $cookie->setValue($hash)->setName("Hash")->setSchool($school);
+        $cookie->setRights("school_only");
+        $this->N->ORM->EM->persist($cookie);
         $this->announceChange();
         $this->setReturn("hash", $hash)->setReturn("school", $school->getId());
     }
 
-    public function updateProperty()
+    public function updateProperty($array = null)
     {
-        $rq = ["entity_class" => "entity", "entity_id", "property", "value"];
-        extract($this->getRQ($rq));
-
+        if(empty($array)){
+            $rq = ["entity_class" => "entity", "entity_id", "property", "value"];
+            extract($this->getRQ($rq));
+        } else {
+            extract($array);
+        }
 
         $parameter_array = compact("entity_class", "entity_id", "property", "value");
         if(! $this->checkParameters($parameter_array)){
@@ -80,10 +91,15 @@ class Update
             $this->setReturn("old_id", $entity_id);
             $temp = explode("#", $entity_id);
             $model_entity_id = array_pop($temp);
-            $entity = $this->createNewEntity($entity_class, $model_entity_id);
+            $entity = $this->createNewEntityFromModel($entity_class,  $model_entity_id);
             $this->new_entity = $entity;
         } else {
-            $entity = $this->ORM->getRepository($entity_class)->find($entity_id);
+            $entity = $this->N->ORM->getRepository($entity_class)->find($entity_id);
+            if(empty($entity)){
+                $e = "No entity of the class<" . $entity_class . "> with the id <";
+                $e .= $entity_id . "> could be found.";
+                throw new \Exception($e);
+            }
         }
         $setter = "set" . $property;
 
@@ -92,20 +108,35 @@ class Update
             return null;
         }
 
-        $entity->$setter($value, $this->ORM);
-        $this->ORM->EM->persist($entity);
+        $entity->$setter($value, $this->N->ORM);
+        $this->N->ORM->EM->persist($entity);
         $this->announceChange();
     }
 
-    public function createNewEntity($entity_class, $model_entity_id = null)
+    private function createNewEntityFromModel($entity_class, $model_entity_id = null)
     {
-        $full_class_name = $this->ORM->qualifyClassname($entity_class);
+        $full_class_name = $this->N->ORM->qualifyClassname($entity_class);
         $entity = new $full_class_name();
+
         if($model_entity_id === 0 || !empty($model_entity_id)){
-            $model_entity = $this->ORM->getRepository($entity_class)->find($model_entity_id);
+            $model_entity = $this->N->ORM->getRepository($entity_class)->find($model_entity_id);
             $entity = $this->syncProperties($entity, $model_entity, $entity_class);
         }
         return $entity;
+    }
+
+    private function createNewEntity()
+    {
+        $entity_class = $this->getRQ("entity_class");
+        $properties = $this->getRQ("properties");
+        $full_class_name = $this->N->ORM->qualifyClassname($entity_class);
+        $entity = new $full_class_name();
+        foreach($properties as $property => $value){
+            $method_name = "set" . ucfirst($property);
+            $entity->$method_name($value);
+        }
+        $this->N->ORM->EM->persist($entity);
+        $this->announceChange();
     }
 
     private function checkParameters($parameters)
@@ -143,6 +174,28 @@ class Update
         $this->setReturn(["sliderId", "sliderLabelId"]);
         $this->setReturn("newValue", $this->getRQ("value"));
         $this->updateProperty();
+    }
+
+    private function updateVisitOrder()
+    {
+        $ordered_ids = $this->getRQ("order");
+        foreach($ordered_ids as $index => $id){
+            $a["entity_class"] = "School";
+            $a["entity_id"] = $id;
+            $a["property"] = "VisitOrder";
+            $a["value"] = $index + 1;
+            $this->updateProperty($a);
+        }
+
+    }
+
+    private function confirmVisit()
+    {
+        $a["entity_class"] = "Visit";
+        $a["entity_id"] = $this->getRQ("visit_id");
+        $a["property"] = "Confirmed";
+        $a["value"] = true;
+        $this->updateProperty($a);
     }
 
     public function deleteCookie()
@@ -200,7 +253,7 @@ class Update
 
 
     public function getUpdateType(){
-        return $this->RQ["updateType"] ?? null;
+        return $this->getRQ("updateType");
     }
 
     public function getErrors()
@@ -218,7 +271,7 @@ class Update
 
     private function findById($entity_class, $id)
     {
-        $e = $this->ORM->getRepository($entity_class)->find($id);
+        $e = $this->N->ORM->getRepository($entity_class)->find($id);
         return $e;
     }
 
@@ -226,6 +279,8 @@ class Update
     {
         return $this->findById("User", $id);
     }
+
+
 
     private function unmixArray($array)
     {

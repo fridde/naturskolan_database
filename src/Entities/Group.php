@@ -3,7 +3,6 @@ namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Carbon\Carbon;
-use Fridde\ORM;
 
 /**
 * @Entity(repositoryClass="Fridde\Entities\GroupRepository")
@@ -14,7 +13,7 @@ class Group
     /** @Id @Column(type="integer") @GeneratedValue    */
     protected $id;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $Name;
 
     /** @ManyToOne(targetEntity="User", inversedBy="Groups")     **/
@@ -32,19 +31,19 @@ class Group
     /** @Column(type="integer") */
     protected $NumberStudents;
 
-    /** @Column(type="text") */
+    /** @Column(type="text", nullable=true) */
     protected $Food;
 
-    /** @Column(type="text") */
+    /** @Column(type="text", nullable=true) */
     protected $Info;
 
-    /** @Column(type="text") */
+    /** @Column(type="text", nullable=true) */
     protected $Notes;
 
     /** @Column(type="integer") */
     protected $Status;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $LastChange;
 
     /** @Column(type="string")  */
@@ -67,15 +66,18 @@ class Group
     public function getId(){return $this->id;}
     public function getName(){return $this->Name;}
     public function setName(){$this->Name = func_get_arg(0);}
+
     public function getPlaceholderName(){
         $id = $this->id ?? mt_rand();
         $index = $id % count($this->colour_names);
         return "Grupp " . ucfirst($this->colour_names[$id]);
     }
+
     public function setPlaceholderName()
     {
         $this->setName($this->getPlaceholderName());
     }
+
     public function hasName(){return $this->has("Name");}
     public function getUser(){return $this->User;}
 
@@ -167,9 +169,15 @@ class Group
         });
     }
 
+    public function getSortedVisits()
+    {
+        $this->sortVisits();
+        return $this->getVisits();
+    }
+
     private function sortVisits($visit_collection = null)
     {
-        if($visit_collection->isEmpty()){
+        if(empty($visit_collection) || $visit_collection->isEmpty()){
             $visits = $this->getVisits();
         }
         if($visits->isEmpty()){
@@ -201,7 +209,7 @@ class Group
 
     public function convertToEntity($entity_class, $args)
     {
-        $id_or_entity = $args[0];        
+        $id_or_entity = $args[0];
         $entity = $id_or_entity;
         if(is_string($id_or_entity) || is_integer($id_or_entity)){
             $ORM = $args[1];

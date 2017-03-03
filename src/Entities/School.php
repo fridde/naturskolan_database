@@ -1,7 +1,7 @@
 <?php
 namespace Fridde\Entities;
 
-use \Fridde\{Utility as U};
+use Fridde\Entities\{Group};
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
@@ -32,19 +32,38 @@ class School
     /** @OneToMany(targetEntity="User", mappedBy="School") */
     protected $Users;
 
-    /** @OneToMany(targetEntity="Password", mappedBy="School") */
-    protected $Passwords;
+    /** @OneToMany(targetEntity="Cookie", mappedBy="School") */
+    protected $Hashes;
 
     public function __construct() {
         $this->Groups = new ArrayCollection();
         $this->Users = new ArrayCollection();
-        $this->Passwords = new ArrayCollection();
+        $this->Hashes = new ArrayCollection();
     }
 
     public function getId(){return $this->id;}
     public function setId($id){$this->id = $id;}
+
+    public function getIdAsInteger()
+    {
+        $int = "";
+        $all_letters = array_merge(range("a","z"), ["åäö"]);
+        $d = (int) (log(max(array_keys($all_letters)), 10) + 1);
+        $id_array = preg_split('//u', $this->getId(), -1, PREG_SPLIT_NO_EMPTY);
+        foreach($id_array as $ch){
+            $id = array_search(strtolower($ch), $all_letters);
+            $int .= str_pad($id, $d, "0", STR_PAD_LEFT);
+        }
+        return intval($int);
+    }
+
     public function getName(){return $this->Name;}
     public function setName($Name){$this->Name = $Name;}
+
+    public function getGroupNumbersAsString()
+    {
+        return $this->GroupNumbers;
+    }
 
     public function getGroupNumbers()
     {
@@ -53,6 +72,9 @@ class School
 
     public function setGroupNumbers($numbers)
     {
+        if(is_string($numbers)){
+            $numbers = json_decode($numbers, true);
+        }
         $this->GroupNumbers = json_encode($numbers);
     }
 
@@ -74,9 +96,9 @@ class School
     public function getVisitOrder(){return $this->VisitOrder;}
     public function setVisitOrder($VisitOrder){$this->VisitOrder = $VisitOrder;}
     public function getGroups(){return $this->Groups;}
-    public function getPasswords(){return $this->Passwords;}
-    public function setPasswords($Passwords){$this->Passwords = $Passwords;}
-    public function addPassword($Password){$this->Passwords->add($Password);}
+    public function getHashes(){return $this->Hashes;}
+    public function setHashes($Hashes){$this->Hashes = $Hashes;}
+    public function addPassword($Hash){$this->Hashes->add($Hash);}
     public function getUsers(){return $this->Users;}
     public function addUser($User){$this->Users->add($User);}
 
@@ -104,6 +126,11 @@ class School
     public function getNrActiveGroupsByGrade($grade)
     {
         return count($this->getActiveGroupsByGrade($grade));
+    }
+
+    public function isNaturskolan()
+    {
+        return $this->getId() == "natu";
     }
 
 }

@@ -47,7 +47,9 @@
                             <ul>
                                 {% for visit in group.visits -%}
                                 <li>{{ visit.date }}: <a href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
+                                    {% if visit.show_confirm_link -%}
                                     {%- if visit.confirmed %} Bekräftad. {%- else %} <a href="/confirm/{{ visit.id|confirm_url }}">Bekräfta</a></li> {%- endif %}
+                                    {%- endif -%}                                    
                                     {%- endfor %}
                                 </ul>
                                 {% else %}

@@ -15,6 +15,7 @@ $(document).ready(function(){
 	});
 
 	setInterval(Update.setSaveTimeText, 30*1000);
+
 	$('.modal').modal('show');
 	$('#login_modal_submit').click(function(){
 		var data = {
@@ -24,6 +25,10 @@ $(document).ready(function(){
 		};
 		Update.updateProperty(data);
 	});
+	var predefined_pw = $('#login-modal input[name="password"]').val();
+	if(typeof predefined_pw === "string" && predefined_pw !== ''){
+		$('#login_modal_submit')[0].click();
+	}
 
 	$(".sortable").sortable({
 		change: function(event, ui){
@@ -37,8 +42,8 @@ $(document).ready(function(){
 	});
 
 	/**
-	 * Configuration of callbacks for several elements
-	 */
+	* Configuration of callbacks for several elements
+	*/
 	$(".group-container .editable").change("group", Edit.change);
 	$(".editable").find(":input").not(".datepicker").change("tableInput", Edit.change);
 	$(".editable").find(".datepicker").on("changeDate", ["tableInput", "datepicker"] , Edit.change);
@@ -124,5 +129,8 @@ $(document).ready(function(){
 		autoOpen: false,
 		title: "Ändra gruppnamn"
 	});
+
+	$("table").DataTable(DataTableConfigurator.options($("table")));
+	$("tbody.sortable").sortable();
 
 });

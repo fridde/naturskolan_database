@@ -23,7 +23,7 @@ class Calendar
 
     public function setConfiguration($settings = null)
     {
-        $settings = $settings ?? ($GLOBALS["SETTINGS"] ?? false);
+        $settings = $settings ?? (defined(SETTINGS) ? SETTINGS : false);
         if($settings === false){
             throw new \Exception("No settings given or found in the global scope");
         }
