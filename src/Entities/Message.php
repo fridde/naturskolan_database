@@ -6,6 +6,7 @@ use Carbon\Carbon;
 /**
 * @Entity(repositoryClass="Fridde\Entities\MessageRepository")
 * @Table(name="messages")
+* @HasLifecycleCallbacks
 */
 class Message
 {
@@ -21,14 +22,17 @@ class Message
     /** @Column(type="integer", nullable=true) */
     protected $Carrier;
 
+    /** @Column(type="integer", nullable=true) */
+    protected $Status;
+
+    /** @Column(type="string", nullable=true) */
+    protected $ExtId;
+
     /** @Column(type="text", nullable=true) */
     protected $Content;
 
     /** @Column(type="string", nullable=true) */
     protected $Timestamp;
-
-    /** @Column(type="integer", nullable=true) */
-    protected $Status;
 
     const STATUS_TYPES = [0 => "pending", 1 => "sent", 2 => "received"];
     const CARRIER_TYPES = [0 => "mail", 1 => "sms"];
@@ -43,14 +47,14 @@ class Message
         $User->addMessage($this);
     }
 
-    public function getSubject($as_string = false)
+    public function getSubject()
     {
         return $this->Subject;
     }
 
     public function getSubjectString()
     {
-        return self::SUBJECT_TYPES[$this->Subject];
+        return self::SUBJECT_TYPES[$this->Subject] ?? null;
     }
 
     public function setSubject($Subject)
@@ -61,14 +65,14 @@ class Message
         $this->Subject = $Subject;
     }
 
-    public function getCarrier($as_string = false)
+    public function getCarrier()
     {
         return $this->Carrier;
     }
 
     public function getCarrierString()
     {
-        return self::CARRIER_TYPES[$this->Carrier];
+        return self::CARRIER_TYPES[$this->Carrier] ?? null;
     }
 
     public function setCarrier($Carrier)
@@ -79,8 +83,62 @@ class Message
         $this->Carrier = $Carrier;
     }
 
-    public function getContent(){return $this->Content;}
-    public function setContent($Content){$this->Content = $Content;}
+    public function getStatus()
+    {
+        return $this->Status;
+    }
+
+    public function getStatusString()
+    {
+        return self::STATUS_TYPES[$this->Status] ?? null;
+    }
+
+    public function setStatus($Status)
+    {
+        if(is_string($Status)){
+            $Status = array_flip(self::STATUS_TYPES)[$Status];
+        }
+        $this->Status = $Status;
+    }
+
+    public function getExtId()
+    {
+        return $this->ExtId;
+    }
+
+    public function setExtId($ExtId)
+    {
+        $this->ExtId = $ExtId;
+    }
+
+    public function getContent($key = null)
+    {
+        $content = json_decode($this->Content, true);
+        if(!empty($key)){
+            $content = $content[$key] ?? null;
+        }
+        return $content;
+    }
+
+    public function getContentAsString()
+    {
+        return $this->Content;
+    }
+    public function setContent(...$args)
+    {        
+
+        if(is_array($args[0])){
+            $this->Content = json_encode($args[0]);
+        } elseif(count($args) === 2){
+            $content = $this->getContent();
+            $content[$args[0]] = $args[1];
+            $this->setContent($content);
+        } else {
+            $this->Content = $args[0];
+        }
+    }
+
+
     public function getTimestamp()
     {
         if(is_string($this->Timestamp)){
@@ -96,24 +154,6 @@ class Message
         $this->Timestamp = $Timestamp;
     }
 
-    public function getStatus($as_string = false)
-    {
-        return $this->Status;
-    }
-
-    public function getStatusString()
-    {
-        return self::STATUS_TYPES[$this->Status];
-    }
-
-    public function setStatus($Status)
-    {
-        if(is_string($Status)){
-            $Status = array_flip(self::STATUS_TYPES)[$Status];
-        }
-        $this->Status = $Status;
-    }
-
     public function wasSentAfter($date)
     {
         if(is_string($date)){
@@ -127,7 +167,6 @@ class Message
         if(empty($properties)){
             return null;
         }
-        $method_translator = ["sent_after" => "wasSentAfter"];
         $booleans = [];
         foreach($properties as $prop => $val){
             if($prop == "sent_after"){
@@ -137,12 +176,10 @@ class Message
             } else {
                 $method_name = "get" . ucfirst($prop);
             }
-            if($method_name ?? false){
-                $actual_value = $this->$method_name();
-                $possible_values = (array) $val;
-                $b = in_array($actual_value, $possible_values);
-            }
-            $booleans[] = $b;
+            $actual_value = $this->$method_name();
+            $possible_values = (array) $val;
+
+            $booleans[] = in_array($actual_value, $possible_values);
         }
         $filtered = array_filter($booleans);
         switch($return){
@@ -165,10 +202,16 @@ class Message
     }
 
 
-    /** @PostPersist */
-    public function postPersist(){ }
-    /** @PostUpdate */
-    public function postUpdate(){ }
+    /** @PrePersist */
+    public function prePersist()
+    {
+        $this->setTimestamp(Carbon::now());
+    }
+    /** @PreUpdate */
+    public function preUpdate()
+    {
+    }
+
     /** @PreRemove */
     public function preRemove(){ }
 

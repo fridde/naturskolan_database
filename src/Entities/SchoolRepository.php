@@ -1,9 +1,9 @@
 <?php
 namespace Fridde\Entities;
 
-use \Doctrine\ORM\EntityRepository;
+use Fridde\CustomRepository;
 
-class SchoolRepository extends EntityRepository
+class SchoolRepository extends CustomRepository
 {
 
 

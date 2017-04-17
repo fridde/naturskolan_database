@@ -68,7 +68,7 @@ var Update = {
 			$.ajax(options);
 		}
 		else {
-			// TODO update modal and tell that password was incorrect
+			// TODO: update modal and tell that password was incorrect
 		}
 	},
 

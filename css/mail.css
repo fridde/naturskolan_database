@@ -1332,6 +1332,7 @@ th.callout-inner.alert {
   background: #fce6e2;
   border: 1px solid #b42912;
   color: #fefefe;
+  -webkit-text-stroke: 1px black;
 }
 
 .thumbnail {

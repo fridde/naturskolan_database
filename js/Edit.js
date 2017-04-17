@@ -14,10 +14,10 @@ var Edit = {
 		}
 
 		switch(option){ // will contain the "option" added to the function
-
+		
 		case "group":
 		data.updateType = "updateProperty";
-		data.entity = "Group";
+		data.entity_class = "Group";
 		data.entity_id = $(this).closest(".group-container").data("entity-id");
 		data.property = $(this).prop("name").split('#').shift();
 		data.value = $(this).val();
@@ -25,7 +25,7 @@ var Edit = {
 
 		case "tableInput":
 		data.updateType = "updateProperty";
-		data.entity = $(this).closest("table").data("entity");
+		data.entity_class = $(this).closest("table").data("entity");
 		data.entity_id = $(this).closest("tr").data("id");
 		data.property = $(this).prop("name").split('#').shift();
 		if($(this).attr("type") == "radio"){
@@ -48,7 +48,7 @@ var Edit = {
 
 		case "groupModal":
 		data.updateType = "updateGroupName";
-		data.entity = "group";
+		data.entity_class = "group";
 		data.entity_id = $(this).closest("#group-change-modal").data("entity-id");
 		data.property = $(this).prop("name").split('#').shift();
 		data.value = $(this).val();
@@ -56,16 +56,16 @@ var Edit = {
 
 		case "tableReorder":
 		data.updateType = "updateVisitOrder";
-		data.entity = specialInfo; // the button should have a data-entity attribute
+		data.entity_class = specialInfo; // the button should have a data-entity attribute
 		data.property = "VisitOrder";
-		data.order = $('table[data-entity="' + data.entity + '"] tbody')
+		data.order = $('table[data-entity="' + data.entity_class + '"] tbody')
 		.sortable("toArray", {attribute: "data-id"});
 		data.onReturn = "reloadPage";
 		break;
 
 		case "visitConfirm":
 		data.updateType = "updateProperty";
-		data.entity = "Visit";
+		data.entity_class = "Visit";
 		data.entity_id = $(this).data("visit-id");
 		data.property = "Confirmed";
 		data.value = true;

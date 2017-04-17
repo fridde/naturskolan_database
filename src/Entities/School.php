@@ -26,6 +26,9 @@ class School
     /** @Column(type="integer") */
     protected $VisitOrder;
 
+    /** @Column(type="integer") */
+    protected $BusRule = 0;
+
     /** @OneToMany(targetEntity="Group", mappedBy="School") */
     protected $Groups;
 
@@ -86,7 +89,7 @@ class School
 
     public function setGroupNumber($grade, $value)
     {
-        $current_values = $this->getGroupNumbers();
+        $current_values = $this->getGroupNumbers() ?? [];
         $current_values[$grade] = $value;
         $this->setGroupNumbers($current_values);
     }
@@ -95,6 +98,8 @@ class School
     public function setCoordinates($Coordinates){$this->Coordinates = $Coordinates;}
     public function getVisitOrder(){return $this->VisitOrder;}
     public function setVisitOrder($VisitOrder){$this->VisitOrder = $VisitOrder;}
+    public function getBusRule(){return $this->BusRule;}
+    public function setBusRule($BusRule){$this->BusRule = $BusRule;}
     public function getGroups(){return $this->Groups;}
     public function getHashes(){return $this->Hashes;}
     public function setHashes($Hashes){$this->Hashes = $Hashes;}
@@ -132,5 +137,12 @@ class School
     {
         return $this->getId() == "natu";
     }
+
+    /** @PrePersist */
+    public function prePersist(){}
+    /** @PreUpdate */
+    public function preUpdate(){}
+    /** @PreRemove */
+    public function preRemove(){}
 
 }

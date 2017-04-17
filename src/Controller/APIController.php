@@ -10,11 +10,13 @@ class APIController {
 
     public $N;
     private $params;
+    private $RQ;
 
     public function __construct($params)
     {
         $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
         $this->params = $params;
+        $this->RQ = getRequest();
     }
 
     public function passwordReset($params = [])
@@ -54,7 +56,7 @@ class APIController {
 
     private function getRQ($key)
     {
-        return $_REQUEST[$key] ?? null;
+        return $this->RQ[$key] ?? null;
     }
 
     public function confirmVisit()

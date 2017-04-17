@@ -1,25 +1,69 @@
 <?php
+/**
+ * This file contains the Naturskolan class that acts as a basic helper class for the Naturskolan-Database app
+ */
+
 namespace Fridde;
 
-use Fridde\{Utility as U, PasswordHandler as PW};
+use Fridde\PasswordHandler as PW;
+use Fridde\Utility as U;
 use Yosymfony\Toml\Toml;
 use Carbon\Carbon;
 use dotzero\Googl;
+use GuzzleHttp\Client;
 
+/**
+ * The basic class to assist most other classes in the Naturskolan-Database application
+ */
 class Naturskolan
 {
+	/** @var Contains an instance of Fridde\ORM */
 	public $ORM;
+	/** @var Contains an instance of GuzzleHttp\Client for HTTP requests */
+	private $Client;
+	/** @var An instance of Googl to create short-links */
 	private $Googl;
+	/** @var Instance of PasswordHandler */
 	private $PW;
+	/** @var A text array containing labels and other text bits  */
 	private $text_array;
-	private $text_path = "texts";
+	/** @var the path for the text pieces */
+	private $text_path = "text";
 
+/**
+ * Constructor
+ *
+ * Creates an instance of $ORM and $PasswordHandler
+ */
 	public function __construct ()
 	{
 		$this->ORM = new ORM();
 		$this->PW = new PW();
 	}
 
+/**
+ * Get a certain value from SETTINGS using a chain of indices
+ *
+ * @param  string|array $indices The array-path to the setting. Can either be ONE array or
+ *                               several strings.
+ * @return mixed The value retrieved from the settings
+ */
+	public function getSettings(...$indices)
+    {
+        if(count($indices) === 1 && is_array($indices[0])){
+            $indices = $indices[0];
+        }
+        return U::resolve(SETTINGS, $indices);
+    }
+
+/**
+ * Retrieve a value from the SystemStatus table using its id.
+ *
+ * @param  string $id The id of the SystemStatus value.
+ *
+ * @return string|null The value of the SystemStatus row. Returns null if row not exists,
+ *                     or is an empty string.
+ */
 	public function getStatus($id)
 	{
 		$status = $this->ORM->getRepository("SystemStatus")->find($id);
@@ -34,12 +78,21 @@ class Naturskolan
 		$this->set("SystemStatus", $id, $value);
 	}
 
-	public function set()
+/**
+ * Shorthand function to set a value for a certain entity in a certain repository.
+ *
+ * @param mixed $requests The function takes either 3-4 arguments corresponding to
+ *                        $repo, $id, $value and $attribute_name (with default "Value").
+ *                        Or it takes ONE array which in itself consists of one or more
+ *                        arrays with each exactly 3-4 elements. The elements can either
+ *                        be in right order or indexed with "repo", "id", "value" and "att_name".
+ *
+ * @return void
+ */
+	public function set(...$requests)
 	{
-		//$repo, $id, $value, $attribute_name = "Value"
-		$requests = func_get_args();
-		if(func_num_args() === 1 && is_array(func_get_arg(0))){
-			$requests = func_get_arg(0);
+		if(count($requests) === 1 && is_array($requests[0])){
+			$requests = $requests[0];
 		} else {
 			$requests = [$requests];
 		}
@@ -63,6 +116,12 @@ class Naturskolan
 		$this->ORM->EM->flush();
 	}
 
+/**
+ * Execute a certain database update without specifying any parameters.
+ *
+ * @param  string $shorthand The type of update to perform.
+ * @return void
+ */
 	public function quickSet($shorthand)
 	{
 		switch($shorthand){
@@ -79,16 +138,34 @@ class Naturskolan
 		}
 	}
 
+/**
+ * Wrapper function to set the calendar.status in SystemStatus to "clean"
+ */
 	public function setCalendarToClean()
 	{
 		$this->quickSet("calendar clean");
 	}
 
+/**
+ * Check to see if calendar should be updated.
+ *
+ * @return boolean Returns true if the value for calendar.status in SystemStatus is "dirty"
+ */
 	public function calendarIsDirty()
 	{
 		return $this->getStatus("calendar.status") === "dirty";
 	}
 
+/**
+ * Gets the cron_tasks.activation from SystemStatus and returns it as an array.
+ * The array deactivates certain Tasks to help debug or to be able to tinker
+ * without being interrupted by the cron task.
+ *
+ * @return null|integer[] An array which each task name as index and either 0 or 1 as
+ *                        deactivated or activated. Fridde\Task assumes a task as
+ *                        "activated" if not present in this array.
+ *
+ */
 	public function getCronTasks()
 	{
 		$val = $this->getStatus("cron_tasks.activation");
@@ -98,20 +175,38 @@ class Naturskolan
 		return null;
 	}
 
+/**
+ * Gets the time the calendar was rebuilt the last time.
+ *
+ * @return Carbon\Carbon DateTime of last build
+ */
 	public function getLastRebuild()
 	{
 		return new Carbon($this->getStatus("calendar.last_rebuild"));
 	}
 
+/**
+ * Creates a password for a certain school for the current year.
+ *
+ * @param  string $school_id The id of the school.
+ * @return string            The password
+ */
 	public function createPassword($school_id)
 	{
 		return $this->PW->createPassword($school_id);
 	}
 
+/**
+ *
+ *
+ * @param  Fridde\Entities\User $user The User object
+ * @return string       The url a user can click to reach the school page
+ *                      without writing any password.
+ */
 	public function createLoginUrl($user)
 	{
 		$params["school"] = $user->getSchoolId();
-		$params["page"] = "personal";
+		$params["page"] = "team";
 		$params["code"] = $this->PW->createCodeFromInt($user->getId(), "user");
 		return $this->generateUrl("school", $params);
 	}
@@ -175,6 +270,32 @@ class Naturskolan
 		$router = $GLOBALS["CONTAINER"]->get("Router");
 		$url_end = $router->generate($route_name, $params);
 		return $_SERVER['HTTP_HOST'] . $url_end;
+	}
+
+	public function sendRequest($url, $post_data = [], $api_key = true, $debug = false)
+	{
+		if($api_key){
+			$post_data["api_key"] = $this->getApiKey();
+		}
+		if($debug || ($GLOBALS["debug"] ?? false)){
+			$post_data["XDEBUG_SESSION_START"] = "api";
+		}
+		//$post_data = ["data" => json_encode($post_data)];
+		usleep(100 * 1000); // = 0.1 seconds to not choke the server
+		return $this->getClient()->post($url, ['json' => $post_data]);
+	}
+
+	public function getApiKey()
+	{
+		return SETTINGS["values"]["api_key"] ?? null;
+	}
+
+	public function getClient($new_client = false)
+	{
+		if(empty($this->Client) || $new_client){
+			$this->Client = new Client();
+		}
+		return $this->Client;
 	}
 
 

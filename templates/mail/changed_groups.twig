@@ -1,0 +1,98 @@
+{{ include('mail_head.twig') }}
+
+{%- set groups = DATA.groups -%}
+
+<container class="body-drip">
+
+    <spacer size="16"></spacer>
+
+    <center>
+        <img src="http://placekitten.com/120/120">
+    </center>
+
+    <spacer size="16"></spacer>
+    <row>
+        <columns>
+
+            <h1 class="text-center">Hej {{ DATA.user_fname }}!</h1>
+
+            <spacer size="16"></spacer>
+            <p>
+                Det har skett ändringar angående vilka grupper du ansvarar för.
+            </p>
+            {% if groups.new %}
+            <center>
+                <callout class="success">
+                    <strong>{% if groups.new|length == 1 %}Ny grupp{%- else -%}Nya grupper{%- endif %} som du ansvarar för:</strong>
+                    {%- for group in groups.new -%}
+                    <p class="text-center">{{ group.name }}, {{ group.grade }}</p>
+                    {%- endfor -%}
+                </callout>
+            </center>
+            {% endif %}
+            {%- if groups.removed -%}
+            <center>
+                <callout class="alert">
+                    <strong>{% if groups.removed|length == 1 %}Borttagen grupp{%- else -%}Borttagna grupper{%- endif  %} som du ej längre ansvarar för:</strong>
+                    {%- for group in groups.removed -%}
+                    <p class="text-center">{{ group.name }}, {{ group.grade }}</p>
+                    {%- endfor -%}
+                </callout>
+            </center>
+            {% endif %}
+            {% if groups.rest %}
+            <center>
+                <callout>
+                    <strong>{% if groups.rest|length == 1 %}Gruppen{%- else -%}Grupper{%- endif %} som du förtsätter ansvara för:</strong>
+                    {%- for group in groups.rest -%}
+                    <p class="text-center">{{ group.name }}, {{ group.grade }}</p>
+                    {%- endfor -%}
+                </callout>
+            </center>
+            {% endif %}
+            <hr/>
+
+
+
+            <p>Ändringarna har genomförts av dig, en registrerad kollega från din skola eller någon på Naturskolan.</p>
+            <p>Om du tycker att denna ändring är felaktig, gå in på sidan för din skola i vår databas och ändra tillbaka eller hör av dig till oss på Naturskolan.</p>
+            <spacer size="16"></spacer>
+            <center>
+                <button class="success" href="{{ DATA.school_url }}">Besök inställningarna för din skola</button>
+            </center>
+            <spacer size="16"></spacer>
+            <row>
+                <columns large="4">
+                    <a href="http://www.sigtunanaturskola.se/kontakta-oss/">
+                        <center>
+                            <img src="http://lorempixel.com/60/60/cats/Kontakt">
+                        </center>
+                        <h5 class="text-center">Kontakta oss</h5>
+                    </a>
+                    <p class="text-center">Tveka inte att höra av dig till oss!</p>
+
+                </columns>
+                <columns large="4">
+                    <a href="http://www.sigtunanaturskola.se/vanliga-fragor/">
+                        <center>
+                            <img src="http://lorempixel.com/60/60/cats/FAQ">
+                        </center>
+                        <h5 class="text-center">Vanliga frågor</h5>
+                    </a>
+                    <p class="text-center">Läs gärna genom våra vanliga frågor.</p>
+                </columns>
+                <columns large="4">
+                    <a href="{{ DATA.school_url }}/team">
+                        <center>
+                            <img src="http://lorempixel.com/60/60/cats/Uppgifter">
+                        </center>
+                        <h5 class="text-center">Registrerade användare på din skola</h5>
+                    </a>
+                    <p class="text-center">Se vilka av dina kollegor är registrerade, ändra kontaktuppgifter, med mera.</p>
+                </columns>
+            </row>
+
+            <p><small>Du fick detta mejl för att du eller någon annan har gjort dig ansvarig för minst en grupp som ska besöka Naturskolan. Om detta är ett fel, ber vi dig att meddela detta till oss. Svara i så fall på detta mejl.</small></p>
+        </columns>
+    </row>
+</container>

@@ -52,7 +52,10 @@ class User
     /** @OneToMany(targetEntity="Message", mappedBy="User") */
     protected $Messages;
 
-    const ROLES = [0 => "teacher", 1 => "rektor", 2 => "administrator",
+    /** @OneToMany(targetEntity="Group", mappedBy="User") */
+    protected $Groups;
+
+    const ROLES = [0 => "teacher", 1 => "headmaster", 2 => "administrator",
     3 => "stakeholder", 4 => "superadmin"];
 
     const STATUS = [0 => "archived", 1 => "active"];
@@ -60,6 +63,7 @@ class User
     public function __construct() {
         $this->Visits = new ArrayCollection();
         $this->Messages = new ArrayCollection();
+        $this->Groups = new ArrayCollection();
     }
 
     public function getId(){return $this->id;}
@@ -68,9 +72,9 @@ class User
         return $this->getId() == $Id;
     }
     public function getFirstName(){return $this->FirstName;}
-    public function setFirstName($FirstName){$this->FirstName = $FirstName;}
+    public function setFirstName($FirstName){$this->FirstName = trim($FirstName);}
     public function getLastName(){return $this->LastName;}
-    public function setLastName($LastName){$this->LastName = $LastName;}
+    public function setLastName($LastName){$this->LastName = trim($LastName);}
 
     public function getFullName()
     {
@@ -83,16 +87,24 @@ class User
     }
 
 
-    public function getMobil(){return $this->Mobil;}
+    public function getMobil(){
+        return $this->Mobil;
+    }
+
+    public function getStandardizedMobil()
+    {
+        return $this->standardizeMobNr($this->Mobil);
+    }
 
     public function setMobil($Mobil)
     {
-        $this->Mobil = $this->standardizeMobNr($Mobil);
+        $mob = preg_replace('/[^0-9+]/', '', $Mobil);
+        $this->Mobil = $mob;
     }
 
     public function hasMobil(){return !empty(trim($this->Mobil));}
     public function getMail(){return $this->Mail;}
-    public function setMail($Mail){$this->Mail = $Mail;}
+    public function setMail($Mail){$this->Mail = trim($Mail);}
     public function hasMail(){return !empty(trim($this->Mail));}
     public function getSchool(){return $this->School;}
 
@@ -154,7 +166,7 @@ class User
     public function getLastChange(){return $this->LastChange;}
     public function setLastChange($LastChange)
     {
-        if(!is_string($LastChange) && get_class($LastChange) == "Carbon\Carbon"){
+        if(!is_string($LastChange)){
             $LastChange = $LastChange->toIso8601String();
         }
         $this->LastChange = $LastChange;
@@ -167,7 +179,7 @@ class User
         return $this->CreatedAt;
     }
     public function setCreatedAt($CreatedAt){
-        if(!is_string($CreatedAt) && get_class($CreatedAt) == "Carbon\Carbon"){
+        if(!is_string($CreatedAt)){
             $CreatedAt = $CreatedAt->toIso8601String();
         }
         $this->CreatedAt = $CreatedAt;
@@ -176,12 +188,35 @@ class User
     public function addVisit($Visit){$this->Visits->add($Visit);}
     public function removeVisit($Visit){$this->Visits->removeElement($Visit);}
     public function getMessages(){return $this->Messages;}
+
+    public function getFilteredMessages($properties, $messages = null)
+    {
+        if(empty($messages)){
+            $messages = $this->Messages;
+        }
+        return $messages->filter(function($m) use ($properties){
+            return $m->checkProperties($properties);
+        });
+    }
+
     public function setMessages($Messages){$this->Messages = $Messages;}
 
     public function addMessage($Message)
     {
         $this->Messages->add($Message);
     }
+
+    public function getGroups(){return $this->Groups;}
+
+    public function getGroupIdArray()
+    {
+        return array_map(function($g){
+            return $g->getId();
+        }, $this->getGroups()->toArray());
+    }
+
+    public function addGroup($Group){$this->Groups->add($Group);}
+    public function removeGroup($Group){$this->Groups->removeElement($Group);}
 
     public function wasCreatedAfter($date)
     {
@@ -192,12 +227,8 @@ class User
         return $date->lte($created_at);
     }
 
-    private function sortMessagesByDate($message_collection = null)
+    public function sortMessagesByDate()
     {
-        if(empty($message_collection) || $message_collection->isEmpty()){
-            return $this->getMessages();
-        }
-
         $messages = $this->getMessages()->getIterator();
 
         $messages->uasort(function($a, $b){
@@ -216,15 +247,7 @@ class User
         return $this->Messages;
     }
 
-    public function getFilteredMessages($properties, $messages = null)
-    {
-        if(empty($messages)){
-            $messages = $this->Messages;
-        }
-        return $messages->filter(function($m) use ($properties){
-            return $m->checkProperties($properties);
-        });
-    }
+
 
     /**
     * [getLastMessage description]
@@ -253,19 +276,30 @@ class User
         return false;
     }
 
-    public function standardizeMobNr($number){
+    public function hasStandardizedMob()
+    {
+        return $this->standardizeMobNr(null, true);
+    }
 
-        $nr = $number;
-        $nr = preg_replace("/[^0-9]/", "", $nr);
+    public function standardizeMobNr($number = null, $just_check = false)
+    {
+        $number = !empty($number) ? $number : $this->Mobil;
+        $nr = preg_replace("/[^0-9]/", "", $number);
         $trim_characters = ["0", "4", "6"]; // we need to trim from left to right order
         foreach($trim_characters as $char){
             $nr = ltrim($nr, $char);
         }
         if(in_array(substr($nr, 0, 2), ["70", "72", "73", "76"])){
-            return "+46" . $nr;
+            $nr = "+46" . $nr;
+            $standardized = true;
         } else {
-            return $number;
+            $nr = $number;
+            $standardized = false;
         }
+        if($just_check){
+            return $standardized;
+        }
+        return $nr;
     }
 
     /** @PrePersist */

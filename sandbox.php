@@ -3,18 +3,11 @@
 // to test this, use http://localhost/naturskolan_database/sandbox.php?XDEBUG_SESSION_START=test&type=naturskolan&trial=01
 // and exchange the type-parameter for whatever you specified in the switch-case
 
-require __DIR__ . '/vendor/autoload.php';
+
+use Fridde\{NSDB_MailChimp as M, HTMLForTwig as H};
 
 
-
-use Fridde\{Naturskolan, Essentials, NSDB_MailChimp as M, HTMLForTwig as H};
-
-
-Essentials::setAppDirectory("naturskolan_database");
-Essentials::getSettings();
-Essentials::activateDebug();
-
-$N = new Naturskolan();
+$N = $GLOBALS["CONTAINER"]->get("Naturskolan");
 
 $type = $_REQUEST["type"] ?? "" ;
 
@@ -31,10 +24,12 @@ switch ($type) {
     echo $H->render();
     break;
 
-    case "naturskolan":
-    $N->delete("event", 6);
-    $result = $N->get("events");
-    Essentials::prePrint($result);
+    case "test_change":
+    $group = $N->ORM->getRepository("Group")->find(1);
+    $user = $N->ORM->getRepository("User")->find(26); // 26, 51
+    $group->setUser($user);
+    $N->ORM->EM->persist($group);
+    $N->ORM->EM->flush();
     break;
 
     case "calendar":
@@ -76,6 +71,6 @@ switch ($type) {
     break;
 
     default:
-    echo 'The type _' . $type . '_ was not found in the switch case.';
+    echo 'The type <' . $type . '> was not found in the switch case.';
 
 }

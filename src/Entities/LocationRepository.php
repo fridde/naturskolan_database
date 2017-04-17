@@ -1,9 +1,9 @@
 <?php
 namespace Fridde\Entities;
 
-use Doctrine\ORM\EntityRepository;
+use Fridde\CustomRepository;
 
-class LocationRepository extends EntityRepository
+class LocationRepository extends CustomRepository
 {
 
     public function findAllLocationLabels()

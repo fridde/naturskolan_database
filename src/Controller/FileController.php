@@ -12,13 +12,13 @@ class FileController {
 
     public function renderSandbox()
     {
-        echo file_get_contents("sandbox.php");
+        include(BASE_DIR . "sandbox.php");
 
     }
 
     public function include()
     {
-        $path = BASE_DIR . '\\';
+        $path = BASE_DIR;
         $depth = 3;
         $dir_names = [];
         foreach(range(1, $depth) as $i){

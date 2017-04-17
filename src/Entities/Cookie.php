@@ -1,9 +1,12 @@
 <?php
 namespace Fridde\Entities;
 
+use Carbon\Carbon;
+
 /**
 * @Entity(repositoryClass="Fridde\Entities\CookieRepository")
 * @Table(name="cookies")
+* @HasLifecycleCallbacks
 */
 class Cookie
 {
@@ -21,6 +24,9 @@ class Cookie
 
     /** @Column(type="integer") */
     protected $Rights;
+
+    /** @Column(type="string", nullable=true)  */
+    protected $CreatedAt;
 
     const RIGHTS = [0 => "no_schools", 1 => "school_only", 2 => "all_schools"];
 
@@ -72,11 +78,29 @@ class Cookie
         return $this;
     }
 
-    /** @PostPersist */
-    public function postPersist(){ }
-    /** @PostUpdate */
-    public function postUpdate(){ }
+    public function getCreatedAt()
+    {
+        if(is_string($this->CreatedAt)){
+            $this->CreatedAt = new Carbon($this->CreatedAt);
+        }
+        return $this->CreatedAt;
+    }
+    public function setCreatedAt($CreatedAt){
+        if(!is_string($CreatedAt) && get_class($CreatedAt) == "Carbon\Carbon"){
+            $CreatedAt = $CreatedAt->toIso8601String();
+        }
+        $this->CreatedAt = $CreatedAt;
+    }
+
+
+    /** @PrePersist */
+    public function prePersist()
+    {
+        $this->setCreatedAt(Carbon::now());
+    }
+    /** @PreUpdate */
+    public function preUpdate(){}
     /** @PreRemove */
-    public function preRemove(){ }
+    public function preRemove(){}
 
 }

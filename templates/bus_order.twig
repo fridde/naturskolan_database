@@ -1,0 +1,31 @@
+{% import "macros.twig" as F %}
+
+{%- set locations, calendar, date_strings = DATA.locations, DATA.calendar, DATA.date_strings -%}
+<pre>
+Vi uppskattar samåkning av flera grupper ifall resvägen och busstorleken tillåter. Meddela chauffören tydligt hållplatserna och eventuella stopp på vägen.
+Det är viktigt att grupperna släpps av på rätt plats, oavsett var medföljande lärare "tror" att de ska vara.
+
+Kund-ID: 197
+
+PLATSER som används i denna beställning:
+{% for location in locations %}
+{{ location }}
+{% endfor -%}
+------------------
+{% for week_nr, days in calendar  %}
+#########
+Vecka {{ week_nr }}
+#########
+{% for day_index, visits in days %}
+------------------
+# {{ date_strings[day_index] }}
+-------
+{% for visit in visits %}
+Från {{ visit.school }} till {{ visit.location }}; Avfärd kl {{ visit.departure|default('08.15') }} från {{ visit.school }}; Cirka {{ visit.nr_passengers|default('???') }} passagerare.
+Från {{ visit.location }} till {{ visit.school }}; Avfärd kl {{ visit.return|default('13.30') }} från {{ visit.location }}; Cirka {{ visit.nr_passengers|default('???') }} passagerare.
+
+{% endfor -%}
+------------------
+{% endfor -%}
+{%- endfor -%}
+</pre>

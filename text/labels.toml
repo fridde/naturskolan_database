@@ -8,13 +8,13 @@ wrong_group_leader = "Fel gruppledare"
 wrong_group_count = "Fel antal grupper på skolan"
 soon_last_visit = "Deadlines"
 user_profile_incomplete = "Ofullständiga kontaktuppgifter"
-
+bad_mobil = "Felaktiga mobilnummer"
 nonexistent = "Har ingen gruppledare."
 inactive = "Ledaren är inaktiv."
 not_teacher = "Ledaren är inte lärare."
 wrong_school = "Ledaren går på en annan skola."
 
 [sms]
-confirm_visit = "Hej! Vänligen bekräfta att du och din grupp kommer på %%date_string%% genom att svara med ett enkelt \"Ja\" på detta sms. Annars hör av dig snarast! Hälsningar, Naturskolans databas"
+confirm_visit = "Hej %%fname%%! Vänligen bekräfta att du och din grupp kommer på %%date_string%% genom att svara med ett enkelt \"Ja\" på detta sms. Annars hör av dig snarast! Hälsningar, Naturskolans databas"
 
 update_profile = "Hej! Vi saknar fortfarande din mejladress! Följ denna länk och uppdatera gärna snarast. Tack på förhand! Hälsningar, Naturskolans databas  %%login_url%%"

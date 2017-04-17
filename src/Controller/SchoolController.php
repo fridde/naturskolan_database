@@ -43,7 +43,7 @@ class SchoolController {
         if($page == "groups"){
             $DATA = $this->getAllGroups($this->school);
             $template = "group_settings";
-        } elseif ($page == "personal"){
+        } elseif ($page == "team"){
             $DATA = $this->getAllUsers($this->school);
             $template = "staff_list";
         }

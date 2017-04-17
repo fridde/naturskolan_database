@@ -1,15 +1,19 @@
 <?php
 namespace Fridde\Entities;
 
-use \Doctrine\ORM\EntityRepository;
-use Doctrine\Common\Collections\ArrayCollection;
+use Fridde\CustomRepository;
 
-class CookieRepository extends EntityRepository
+class CookieRepository extends CustomRepository
 {
-
     public function findByHash($hash)
     {
         return $this->findOneBy(["Value" => $hash, "Name" => "Hash"]);
+    }
+
+    public function findCookiesOlderThan($date)
+    {
+        $criteria = ["lt", "CreatedAt", $date->toIso8601String()];
+        return $this->select($criteria);
     }
 
 }

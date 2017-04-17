@@ -1,21 +1,29 @@
 <?php
+/**
+* Contains the class Update.
+*/
 namespace Fridde;
 
-use Fridde\Entities\{Cookie};
+use Fridde\Utility as U;
+use Fridde\Entities\Cookie;
 use Carbon\Carbon;
 
+
+/**
+* Contains the logic to update records in the database.
+*/
 class Update
 {
     private $N;
-    private $RQ;  // contains $_REQUEST
+    /** @var The request data sent into the constructor */
+    private $RQ;
+    /** @var Is true if any changes have been made that should be flushed by the EM */
     private $is_changed = false;
+    /** @var Any new entity that should be saved for future reference */
     private $new_entity;
+    /** @var  */
     private $Return = [];
     private $Errors = [];
-
-    private $defined_methods = ["updateProperty", "checkPassword", "setCookie",
-    "deleteCookie", "updateGroupName", "sliderUpdate", "updateVisitOrder",
-    "confirmVisit", "createNewEntity"];
 
     /* request data: ["updateType" => "", "entity_class" => "",
     *     "entity_id" => "", "property" => "", "value" => ""]
@@ -26,18 +34,31 @@ class Update
         $this->setRQ($request_data);
     }
 
+    /**
+    * A static wrapper to both create and execute a Update at the same time.
+    *
+    * @param  array $request_data The data that should be sent to the constructor
+    * @return Fridde\Update Returns itself for chaining.
+    */
     public static function create($request_data){
         $THIS = new self($request_data);
         return $THIS->execute();
     }
 
+    /**
+    * Executes the actual update according to the value of "updateType" given in the
+    * array given to the constructor. The updateType (or update_type) has to correspond
+    * to a method of this class to be executed.
+    *
+    * @return Fridde\Update Returns itself for chaining.
+    */
     public function execute()
     {
-        $updateType = $this->getRQ("updateType");
+        $updateType = $this->getRQ("updateType") ?? $this->getRQ("update_type"); // different spellings
         if(empty($updateType)){
-            $this->addError("Error: The updateType can not be empty");
-        } elseif (!in_array($updateType, $this->defined_methods)){
-            $this->addError("Error: The UpdateType ". $updateType . "was not recognized.");
+            $this->addError("Error: The updateType cannot be empty");
+        } elseif (!method_exists($this, $updateType)){
+            $this->addError("Error: The UpdateType <". $updateType . "> is not a valid method");
         } else {
             $this->$updateType();
         }
@@ -50,6 +71,12 @@ class Update
         return $this;
     }
 
+    /**
+    * Checks if $RQ["password"] corresponds to any school and saves the matching
+    * school_id into $RETURN for the callback to receive.
+    *
+    * @return void
+    */
     public function checkPassword()
     {
         $school_id = $this->N->checkPassword($this->getRQ("password"));
@@ -59,6 +86,17 @@ class Update
             $this->addError("Wrong password!");
         }
 
+    }
+
+    public function addDates()
+    {
+        $topic = $this->findById("Topic", $this->getRQ("entity_id"));
+        $dates = $this->getRQ("value");
+        $properties = ["Topic" => $topic];
+        foreach($dates as $date){
+            $properties["Date"] = trim($date);
+            $this->createNewEntity("Visit", $properties);
+        }
     }
 
     public function setCookie()
@@ -77,7 +115,7 @@ class Update
     public function updateProperty($array = null)
     {
         if(empty($array)){
-            $rq = ["entity_class" => "entity", "entity_id", "property", "value"];
+            $rq = ["entity_class", "entity_id", "property", "value"];
             extract($this->getRQ($rq));
         } else {
             extract($array);
@@ -125,10 +163,10 @@ class Update
         return $entity;
     }
 
-    private function createNewEntity()
+    private function createNewEntity($entity_class = null, $properties = null)
     {
-        $entity_class = $this->getRQ("entity_class");
-        $properties = $this->getRQ("properties");
+        $entity_class = $entity_class ?? $this->getRQ("entity_class");
+        $properties = $properties ?? $this->getRQ("properties");
         $full_class_name = $this->N->ORM->qualifyClassname($entity_class);
         $entity = new $full_class_name();
         foreach($properties as $property => $value){
@@ -137,6 +175,44 @@ class Update
         }
         $this->N->ORM->EM->persist($entity);
         $this->announceChange();
+    }
+
+    // event, trackables
+    /**
+    * Logs a change
+    *
+    * @return [type] [description]
+    */
+    private function logChange()
+    {
+        $common_keys = ["EntityClass", "EntityId", "Property", "OldValue"];
+        $repo = $this->N->ORM->getRepository("Change");
+        $event = $this->getRQ("event");
+        $change = [["isNull", "Processed"]];
+        $ec_array = explode('\\', get_class($event->getObject()));
+        $change[] = ["EntityClass", array_pop($ec_array)];
+        $change[] = ["EntityId", $event->getObject()->getId()];
+
+        $props_to_track = $this->getRQ("trackables");
+        foreach($props_to_track as $property){
+            if($event->hasChangedField($property)){
+                $c = $change;
+                $c[] = ["Property", $property];
+                $result = $repo->select($c);
+                if(empty($result)){
+                    $rq = ["update_type" => "createNewEntity"];
+                    // might be confusing, but this is the class for the new entity, i.e. the table row
+                    $rq["entity_class"] = "Change";
+                    $old_value = $event->getOldValue($property);
+                    if(is_object($old_value)){
+                        $old_value = $old_value->getId();
+                    }
+                    $c[] = ["OldValue", $old_value];
+                    $rq["properties"] = U::pluck(array_column($c, 1, 0), $common_keys);
+                    self::create($rq);
+                }
+            }
+        }
     }
 
     private function checkParameters($parameters)
@@ -198,10 +274,6 @@ class Update
         $this->updateProperty($a);
     }
 
-    public function deleteCookie()
-    {
-    }
-
     public function updateGroupName()
     {
     }
@@ -228,6 +300,15 @@ class Update
         return $this;
     }
 
+    /**
+    * Prepares and returns the answer to the request for further handling by JS or
+    * other parts of the app.
+    *
+    * @param  string|null $key If specified, only the value of $Return[$key] is returned.
+    * @return array|mixed If no key was specified, the whole $Return is returned.
+    *                     It contains ["onReturn" => "...", "success" => true|false,
+    *                     "errors" => [...]]
+    */
     public function getReturn($key = null)
     {
         if(empty($key)){
@@ -239,51 +320,121 @@ class Update
         return $this->Return[$key];
     }
 
+    /**
+    * Sets $Return[$key]  with either a given $value or with a value taken from the
+    * initial request $RQ.
+    *
+    * @param string|array  $key The key to set. If array each key-value pair
+    *                           are the arguments for this function.
+    * @param mixed|null  $value  The value to set at $Return[$key]. If null,
+    *                            the function looks in the request given to the constructor.
+    * @param boolean $ignoreValue If true, the function looks automatically in the request
+    *                             and ignores any value given as a parameter.
+    */
     public function setReturn($key, $value = null, $ignoreValue = false)
     {
+        // ["key1" => val1, "key2" => val2, ...]
         if(is_array($key)){
             array_walk($key, [$this, "setReturn"], true);
-        } elseif(isset($value) && !$ignoreValue){
+        }
+        // setReturn("key", value, false)
+        elseif(isset($value) && !$ignoreValue){
             $this->Return[$key] = $value;
-        } else {
+        }
+        // setReturn("key", null, false) OR setReturn("key", value, true)
+        else {
             $this->Return[$key] = $this->getRQ($key);
         }
         return $this;
     }
 
-
-    public function getUpdateType(){
+    /**
+    *  Quick function to get "updateType" from $RQ
+    *
+    * @return string The updateType.
+    */
+    public function getUpdateType()
+    {
         return $this->getRQ("updateType");
     }
 
+    /**
+    * Returns $Errors.
+    *
+    * @return string[] All error strings as array.
+    */
     public function getErrors()
     {
         return $this->Errors;
     }
-    public function addError($error_string){$this->Errors[] = $error_string;}
 
-    public function hasErrors(){return !empty($this->getErrors());}
+    /**
+    * Adds error string as element to $Errors.
+    *
+    * @param string $error_string A string describing the error.
+    */
+    public function addError($error_string)
+    {
+        $this->Errors[] = $error_string;
+    }
 
+    /**
+    * Checks if $Errors is not empty.
+    *
+    * @return boolean Returns true if $Errors is not empty.
+    */
+    public function hasErrors()
+    {
+        return !empty($this->getErrors());
+    }
+
+    /**
+    * Sets $is_changed to true.
+    *
+    * @return void
+    */
     private function announceChange()
     {
         $this->is_changed = true;
     }
 
+    /**
+     * Quick shortcut to retrieving an entity by id.
+     *
+     * @param  string $entity_class The (unqualified) class name of the entity.
+     * @param  integer|string $id The id of the entity to look for.
+     * @return object|null The entity or null if no entity was found.
+     */
     private function findById($entity_class, $id)
     {
-        $e = $this->N->ORM->getRepository($entity_class)->find($id);
-        return $e;
+        return $this->N->ORM->getRepository($entity_class)->find($id);
     }
 
+    /**
+     * Quick shortcut to get a user only using the id.
+     *
+     * @param  integer $id The id of the User to look for
+     * @return Fridde\Entities\User The User (or null if no User found)
+     */
     private function getUser($id)
     {
         return $this->findById("User", $id);
     }
 
 
-
+    /**
+     * Takes an array and converts all numerical indices to strings by using
+     * its respective value as index.
+     *
+     * @param  array $array The array to unmix
+     * @return [type]        [description]
+     */
     private function unmixArray($array)
     {
+        $strings_only = array_filter($array, "is_string");
+        $unique = array_unique($array);
+        //if(count($strings_only))
+        //TODO: continue here with the check!
         $return = [];
         foreach($array as $key=>$val){
             $key = is_integer($key) ? $val : $key;

@@ -9,27 +9,33 @@
         }
     ],
     "require": {
-        "drewm/mailchimp-api": "^2.1",
-        "nesbot/carbon": "^1.21",
+        "drewm/mailchimp-api": "2.4",
+        "nesbot/carbon": "1.22",
         "fridde/html": "dev-master",
         "fridde/mailer": "dev-master",
         "fridde/utility": "dev-master",
         "fridde/sms": "dev-master",
         "fridde/dumper": "dev-master",
-        "eluceo/ical": "^0.11.0",
+        "eluceo/ical": "0.11.0",
         "fridde/essentials": "dev-master",
         "fridde/slacker": "dev-master",
         "fridde/orm": "dev-master",
-        "fzaninotto/faker": "^1.6",
-        "altorouter/altorouter": "^1.2",
-        "guzzlehttp/guzzle": "^6.2",
-        "hashids/hashids": "^2.0",
-        "dotzero/googl": "^0.2.0",
-        "league/container": "^2.3"
+        "fzaninotto/faker": "1.6",
+        "altorouter/altorouter": "1.2",
+        "guzzlehttp/guzzle": "6.2",
+        "hashids/hashids": "2.0",
+        "dotzero/googl": "0.2.0"
     },
 	"autoload": {
         "psr-4": { "Fridde\\": "src/" }
 	},
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+    "config": {
+        "preferred-install": {
+            "fridde/*": "source",
+            "*": "dist"
+        },
+        "process-timeout": 60
+    }
 }

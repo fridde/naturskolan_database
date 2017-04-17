@@ -1,56 +1,74 @@
 <?php
 namespace Fridde\Entities;
 
-use Doctrine\ORM\EntityRepository;
-use Doctrine\Common\Collections\ArrayCollection;
+use Fridde\CustomRepository;
 use Carbon\Carbon;
 
-class VisitRepository extends EntityRepository
+class VisitRepository extends CustomRepository
 {
-    public function findFutureVisits($maxForward = null)
+    public function findFutureVisits()
     {
-        if(!empty($maxForward) && is_string($maxForward)){
-            $maxForward = new Carbon($maxForward);
+        return $this->findFutureVisitsUntil(null);
+    }
+
+    /**
+     *
+     * @param  Carbon\Carbon|null $until The date after which visits are not included.
+     *                                   If omitted, all future visits are returned.
+     * @return Fridde\Entities\Visit[]  An array consisting of all visits from today until
+     *                                  the specified date.
+     */
+    public function findFutureVisitsUntil(Carbon $until = null)
+    {
+        if(!empty($until) && is_string($until)){
+            $until = new Carbon($until);
         }
-        $all_visits = new ArrayCollection($this->findAll());
-        return $all_visits->filter(function($visit) use ($maxForward){
-            if(!empty($maxForward)){
-                return $visit->isAfter(Carbon::now()) && $visit->isBefore($maxForward);
-            } else {
-                return $visit->isAfter(Carbon::now());
-            }
-        });
+        $all_visits = $this->findAll();
+        $methods[] = ["isAfter", true, [Carbon::today()]];
+        if(!empty($until)){
+            $methods[] = ["isBefore", true, [$until]];
+        }
+
+        $filtered_visits = $this->findViaMultipleMethods($methods);
+
+        return $this->sortVisits($filtered_visits);
     }
 
     public function findLastVisit()
     {
-        $visits = $this->findFutureVisits();
-        return $this->sortVisitsByDate($visits)->last();
+        return array_pop($this->findSortedVisits());
     }
 
     /**
-     * [findUnconfirmedVisitsWithin description]
-     *
-     * @param  int $days nr of days to go forward. Implicitly converts to integer via (int)
-     * @return [ArrayCollection]       [description]
-     */
-    public function findUnconfirmedVisitsWithin($days)
+    * [findUnconfirmedVisitsUntil description]
+    *
+    * @param  Carbon\Carbon|null $until The date after which visits are not included.
+    *                                   If omitted, all future visits are returned.
+    * @return [ArrayCollection]       [description]
+    */
+    public function findUnconfirmedVisitsUntil(Carbon\Carbon $until = null)
     {
-        $visits = $this->findFutureVisits(Carbon::today()->addDays($days));
-        return $visits->filter(function($v){
+        return array_filter($this->findFutureVisits($until), function($v){
             return !$v->isConfirmed();
         });
     }
 
-    public function sortVisitsByDate($visit_collection)
+    public function findSortedVisits($topic = null)
     {
-        if(!is_array($visit_collection)){
-            $visit_collection = $visit_collection->toArray();
+        if(!empty($topic)){
+            $visits = $this->select(["Topic", $topic]);
+        } else {
+            $visits = $this->findAll();
         }
-        usort($visit_collection, function($v1, $v2){
+        return $this->sortVisits($visits);
+    }
+
+    public function sortVisits($visits)
+    {
+        usort($visits, function($v1, $v2){
             return $v1->getDate()->lte($v2->getDate()) ? -1 : 1;
         });
-        return new ArrayCollection($visit_collection);
+        return $visits;
     }
 
 }

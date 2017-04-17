@@ -22,7 +22,7 @@ var Slider = {
 			animate: true,
 			change: function(event, ui){
 				data.updateType = "sliderUpdate";
-				data.entity = container.data("entity");
+				data.entity_class = container.data("entity");
 				data.property = jqueryObj.attr("name");
 				data.onReturn = 'sliderChanged';
 				data.value = ui.value;

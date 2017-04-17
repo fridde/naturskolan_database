@@ -3,10 +3,12 @@ namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Carbon\Carbon;
+use Fridde\Update;
 
 /**
 * @Entity(repositoryClass="Fridde\Entities\VisitRepository")
 * @Table(name="visits")
+* @HasLifecycleCallbacks
 */
 class Visit
 {
@@ -48,6 +50,11 @@ class Visit
     }
 
     public function setGroup($Group){$this->Group = $Group;}
+
+    public function hasGroup()
+    {
+        return !empty($this->getGroup());
+    }
 
     public function getDate(){
         if(is_string($this->Date)){
@@ -109,7 +116,7 @@ class Visit
     public function setConfirmed($Confirmed)
     {
         if(is_string($Confirmed)){
-            $Confirmed = array_search(strtolower($Confirmed), self::STATUS);
+            $Confirmed = array_flip(self::STATUS)[strtolower($Confirmed)];
         }
         $this->Confirmed = intval($Confirmed);
     }
@@ -175,11 +182,35 @@ class Visit
         return $this->isBefore(Carbon::today()->addDays($days));
     }
 
-    /** @PostPersist */
-    public function postPersist(){ }
-    /** @PostUpdate */
-    public function postUpdate(){ }
+    public function needsBus()
+    {
+        if(!$this->hasGroup()){
+            return false;
+        }
+        $bus_id = $this->getTopic()->getLocation()->getBusId();
+        $bus_rule = $this->getGroup()->getSchool()->getBusRule();
+        $location_value = empty($bus_id) ? 0 : 2 ** $bus_id;
+
+        return $bus_rule & $location_value; // bitwise AND !
+    }
+
+    public function needsFood()
+    {        
+        return $this->getTopic()->getFoodInstructions() === 0;
+
+    }
+
+    /** @PrePersist */
+    public function prePersist(){}
+    /** @PreUpdate */
+    public function preUpdate($event)
+    {
+        $rq["update_type"] = "logChange";
+        $rq["event"] = $event;
+        $rq["trackables"] = ["Group", "Date", "Time"];
+        Update::create($rq);
+    }
     /** @PreRemove */
-    public function preRemove(){ }
+    public function preRemove(){}
 
 }

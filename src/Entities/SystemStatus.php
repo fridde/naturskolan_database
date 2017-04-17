@@ -28,11 +28,12 @@ class SystemStatus
 
     public function getLastChange(){return $this->LastChange;}
     public function setLastChange($LastChange){$this->LastChange = $LastChange;}
-    /** @PostPersist */
-    public function postPersist(){ }
-    /** @PostUpdate */
-    public function postUpdate(){ }
+
+    /** @PrePersist */
+    public function prePersist(){}
+    /** @PreUpdate */
+    public function preUpdate(){}
     /** @PreRemove */
-    public function preRemove(){ }
+    public function preRemove(){}
 
 }

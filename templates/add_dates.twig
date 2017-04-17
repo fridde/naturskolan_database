@@ -1,0 +1,21 @@
+{% import "macros.twig" as F %}
+
+{%- set topic = DATA.topic -%}
+
+<!DOCTYPE html>
+<html>
+<head>
+{{ include('head.twig')  }}
+</head>
+<body>
+    <div class="container-fluid">
+        <h1>{{ topic.serial }}: {{ topic.name }}</h1>
+        <div>
+            <button id="clean">Clean up</button>
+            <button id="add">Add to database</button>
+        </div>
+        <textarea class="date-lines" data-id="{{ topic.id }}" cols="20" rows="50"></textarea>
+
+    </div>
+</body>
+</html>

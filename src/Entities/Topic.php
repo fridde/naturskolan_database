@@ -123,4 +123,11 @@ class Topic
     public function setIsLektion($IsLektion){$this->IsLektion = (int) $IsLektion;}
     public function getVisits(){return $this->Visits;}
 
+    /** @PrePersist */
+    public function prePersist(){}
+    /** @PreUpdate */
+    public function preUpdate(){}
+    /** @PreRemove */
+    public function preRemove(){}
+
 }

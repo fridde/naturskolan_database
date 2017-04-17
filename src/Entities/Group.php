@@ -3,10 +3,12 @@ namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Carbon\Carbon;
+use Fridde\Update;
 
 /**
 * @Entity(repositoryClass="Fridde\Entities\GroupRepository")
 * @Table(name="groups")
+* @HasLifecycleCallbacks
 */
 class Group
 {
@@ -65,17 +67,17 @@ class Group
 
     public function getId(){return $this->id;}
     public function getName(){return $this->Name;}
-    public function setName(){$this->Name = func_get_arg(0);}
-
-    public function getPlaceholderName(){
-        $id = $this->id ?? mt_rand();
-        $index = $id % count($this->colour_names);
-        return "Grupp " . ucfirst($this->colour_names[$id]);
+    public function setName()
+    {
+        $this->Name = trim(func_get_arg(0)); // why func_get_arg?
     }
 
     public function setPlaceholderName()
     {
-        $this->setName($this->getPlaceholderName());
+        $animals = SETTINGS["defaults"]["placeholder"]["animals"];
+        $id = $this->id ?? mt_rand();
+        $index = $id % count($animals);
+        $this->setName("Grupp " . $animals[$index]);
     }
 
     public function hasName(){return $this->has("Name");}
@@ -85,8 +87,9 @@ class Group
     {
         return $this->getUser()->getId();
     }
-    public function setUser(){
-        $this->User = $this->convertToEntity("User", func_get_args());
+    public function setUser(...$properties){
+        $this->User = $this->convertToEntity("User", $properties);
+        $this->User->addGroup($this);
     }
     public function hasUser(){return !empty($this->User);}
     public function getSchool(){return $this->School;}
@@ -96,8 +99,8 @@ class Group
         return $this->getSchool()->getId();
     }
 
-    public function setSchool(){
-        $this->School = $this->convertToEntity("School", func_get_args());
+    public function setSchool(...$properties){
+        $this->School = $this->convertToEntity("School", $properties);
     }
     public function getGrade(){return $this->Grade;}
     public function getGradeLabel(){
@@ -175,15 +178,12 @@ class Group
         return $this->getVisits();
     }
 
-    private function sortVisits($visit_collection = null)
+    private function sortVisits()
     {
-        if(empty($visit_collection) || $visit_collection->isEmpty()){
-            $visits = $this->getVisits();
+        if($this->Visits->isEmpty()){
+            return $this->Visits; //empty collection
         }
-        if($visits->isEmpty()){
-            return $visits; //empty collection
-        }
-        $visits = $visits->getIterator();
+        $visits = $this->Visits->getIterator();
 
         $visits->uasort(function($a, $b){
             return ($a->getDate()->lt($b->getDate())) ? -1 : 1;
@@ -223,11 +223,17 @@ class Group
         return !empty(trim($this->$attribute));
     }
 
-    /** @PostPersist */
-    public function postPersist(){ }
-    /** @PostUpdate */
-    public function postUpdate(){ }
+    /** @PrePersist */
+    public function prePersist(){}
+    /** @PreUpdate */
+    public function preUpdate($event)
+    {
+        $rq["update_type"] = "logChange";
+        $rq["event"] = $event;
+        $rq["trackables"] = ["User", "Food", "NumberStudents", "Info"];
+        Update::create($rq);
+    }
     /** @PreRemove */
-    public function preRemove(){ }
+    public function preRemove(){}
 
 }

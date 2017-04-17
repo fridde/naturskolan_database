@@ -1,10 +1,9 @@
 <?php
 namespace Fridde\Entities;
 
-use Doctrine\ORM\EntityRepository;
-use Carbon\Carbon;
+use Fridde\CustomRepository;
 
-class UserRepository extends EntityRepository
+class UserRepository extends CustomRepository
 {
     public function findActiveUsers()
     {
@@ -24,13 +23,27 @@ class UserRepository extends EntityRepository
         $users = array_filter($this->findActiveUsers(), function($u){
             return !($u->hasMobil() && $u->hasMail());
         });
-        if(!empty($created_before)){
-            $users = array_filter($users, function($u) use ($created_before){
-                return !$u->wasCreatedAfter($created_before);
-            });
-        }
+        $this->removeImmune($users, $created_before);
         return $users;
     }
 
+    public function findUsersWithBadMobil($created_before = null)
+    {
+        $users = array_filter($this->findActiveUsers(), function($u){
+            return $u->hasMobil() && !$u->hasStandardizedMob();
+        });
+        $this->removeImmune($users, $created_before);
+        return $users;
+    }
+
+    private function removeImmune($users, $created_before = null)
+    {
+        if(empty($created_before)){
+            return $users;
+        }
+        return array_filter($users, function($u) use ($created_before){
+            return !$u->wasCreatedAfter($created_before);
+        });
+    }
 
 }

@@ -7,9 +7,28 @@
 body {
     overflow-x: hidden;
 	padding-top: 70px;
+    overflow-y: auto;
 }
 @media screen and (max-width: 768px) {
     body { padding-top: 0px; }
+}
+
+div.set-dates {
+    padding: 10px;
+    float: left;
+}
+
+div.set-dates li {
+    list-style-type: none;
+    font-size: 12px;
+    padding: 2px;
+    border-style: solid;
+    background-color: #99ffcc;
+
+}
+
+div.set-dates li:nth-child(odd){
+    background-color: #ffff99;
 }
 
 .save-time {

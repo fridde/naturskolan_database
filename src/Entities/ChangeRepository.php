@@ -1,18 +1,19 @@
 <?php
 namespace Fridde\Entities;
 
-use \Doctrine\ORM\EntityRepository;
-use Doctrine\Common\Collections\ArrayCollection;
+use Fridde\CustomRepository;
 
-class ChangeRepository extends EntityRepository
+class ChangeRepository extends CustomRepository
 {
+    public function findNewChanges($criteria = [])
+    {
+        $criteria[] = ["isNull", "Processed"];
+        return $this->select($criteria);
+    }
 
-     public function findGroupChanges()
-     {
-         $all_changes = new ArrayCollection($this->findAll());
-         $group_changes = $all_changes->filter(function($c){
-            return $c->getEntity() == "Group";
-         });
-         return $group_changes;
-     }
+    public function findChangesOlderThan($date)
+    {
+        $criteria = ["lt", "Timestamp", $date->toIso8601String()];
+        return $this->select($criteria);
+    }
 }

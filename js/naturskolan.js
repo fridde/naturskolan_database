@@ -30,15 +30,47 @@ $(document).ready(function(){
 		$('#login_modal_submit')[0].click();
 	}
 
-	$(".sortable").sortable({
-		change: function(event, ui){
-			var data = {updateType: "sort",	values : {id: []}};
-			$(this).filter("[data-id]").each(function(){
-				data.values.id.push($(this).data("id"));
-			});
-			data.onReturn = 'lastChange';
-			setTimeout(Update.updateProperty(data), saveDelay);
+	$(".sortable").sortable();
+	var lists = $('div.set-dates ul');
+	lists.sortable({
+		placeholder: "ui-state-highlight",
+		forcePlaceholderSize: true,
+		forceHelperSize: true,
+		containment: "parent",
+		scrollSensitivity: 10,
+		helper: function(event, ui){
+			var $clone =  $(ui).clone();
+			$clone .css('position','absolute');
+			return $clone.get(0);
 		}
+	});
+	$("button#send").click(function(){
+		text = [];
+		lists.each(function(i, obj){
+			text.push($(obj).sortable("serialize",{attribute: "data-id"}));
+		});
+		console.log(text.join('&'));
+	});
+
+	$("button#clean").click(function(){
+		$text = $("textarea.date-lines");
+		var textArray = $text.val().split(/\r|\n|;/).map(function(i){
+			return i.trim();
+		}).filter(function(i){
+			return i.length > 0;
+		}).sort();
+		$text.val(textArray.join("\n"));
+	});
+	$("button#add").click(function(){
+		var textarea = $("textarea.date-lines");
+		var textArray = textarea.val().split(/\r|\n/);
+		var data = {
+			updateType : "addDates",
+			entity_id: textarea.data("id"),
+			value: textArray,
+			onReturn: "datesAdded"
+		};
+		Update.updateProperty(data);
 	});
 
 	/**
@@ -130,7 +162,9 @@ $(document).ready(function(){
 		title: "Ändra gruppnamn"
 	});
 
-	$("table").DataTable(DataTableConfigurator.options($("table")));
+	if(typeof(DataTableConfigurator) !== "undefined"){
+		$("table").DataTable(DataTableConfigurator.options($("table")));
+	}
 	$("tbody.sortable").sortable();
 
 });

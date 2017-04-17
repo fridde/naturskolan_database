@@ -3,24 +3,24 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use Fridde\{Essentials};
-use League\Container\Container;
-use League\Container\Argument\RawArgument;
+
 
 Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl();
 Essentials::getSettings();
-Essentials::activateDebug(["tracy"]);
-Essentials::activateLogger();
+Essentials::activateDebug(["no_tracy"]);
+Essentials::activateGlobalFunctions();
+
+$services[] = ['Naturskolan', 'Fridde\Naturskolan'];
+$services[] = ['Router', 'AltoRouter', Essentials::getRoutes(), '/'. basename(BASE_DIR)];
+$services[] = ['Logger', Essentials::getLogger()];
+$container = Essentials::registerSharedServices($services);
+
+$em = $container->get('Naturskolan')->ORM->EM;
+$logger = $container->get('Logger');
+Essentials::registerDBLogger($em, $logger);
+
 setlocale(LC_TIME, 'Swedish');
-
-
-$container = new Container();
-$arg1 = new RawArgument(Essentials::getRoutes());
-$args2 = new RawArgument('/'. basename(BASE_DIR));
-$container->share('Naturskolan', 'Fridde\Naturskolan');
-$container->share('Router', 'AltoRouter')
-	->withArgument($arg1)->withArgument($args2);
-$GLOBALS["CONTAINER"] = $container;
 
 $router = $container->get('Router');
 

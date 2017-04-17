@@ -1,9 +1,0 @@
-TEST CASES
-
-1. DO: Change the email adress of a dummy teacher via the mailchimp-website.
-	EXPECTED: 1. In the "larare"-table in the SQL-database a new row appears with the current user data and the status "active". 
-			2. The row containing the old email-adress has the status "archived"
-			3. The calendar, arbetsfördelning, 
-
-2. DO: Change any other field of a dummy teacher via the mailchimp website
-	EXPECTED: 1. The corresponding row in the sql-table changes correspondingly.

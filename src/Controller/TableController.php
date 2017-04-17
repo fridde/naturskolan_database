@@ -146,7 +146,7 @@ class TableController {
             $cols["Confirmed"]["type"] = "radio";
             $cols["Confirmed"]["options"] = "getConfirmedOptions";
             //$cols["Time"]["type"] = "time";
-            //TODO: implement time-picker
+            // TODO: implement time-picker
             array_push($cols, "Time");
         }
         $this->t_settings["columns"] = $cols;

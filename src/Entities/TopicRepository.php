@@ -1,9 +1,9 @@
 <?php
 namespace Fridde\Entities;
 
-use \Doctrine\ORM\EntityRepository;
+use Fridde\CustomRepository;
 
-class TopicRepository extends EntityRepository
+class TopicRepository extends CustomRepository
 {
     public function findAllTopicsWithGrade()
     {
@@ -13,5 +13,13 @@ class TopicRepository extends EntityRepository
             return [$t->getId(), $label];
         }, $this->findAll());
         return array_column($topics_id_name_grade, 1, 0);
+    }
+
+    public function findAllTopics($grade = null)
+    {
+        if(!empty($grade)){
+            return $this->select(["Grade", $grade]);
+        }
+        return $this->findAll();
     }
 }
