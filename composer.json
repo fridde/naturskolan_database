@@ -32,8 +32,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
     "config": {
-        "preferred-install": {
-            "fridde/*": "source",
+        "preferred-install": {            
             "*": "dist"
         },
         "process-timeout": 60

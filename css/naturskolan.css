@@ -31,6 +31,10 @@ div.set-dates li:nth-child(odd){
     background-color: #ffff99;
 }
 
+div.set-dates li.sortable-disabled {
+    background-color: #d1d1e0;
+}
+
 .save-time {
     height: 50px;
     visibility: hidden;
@@ -43,6 +47,19 @@ div.set-dates li:nth-child(odd){
 .inputList input {
 	margin-left: 10px;
 	padding-left: 5px;
+}
+
+.group-name-input {
+    display: none;
+}
+
+.group-container h1 i {
+    margin-left: 20px;
+    font-size: 50%;
+}
+
+.group-container ul.group-visit-list {
+    margin-top: 30px;
 }
 
 p {

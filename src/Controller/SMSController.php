@@ -2,7 +2,8 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{Update, SMS};
+use Fridde\Update;
+use Fridde\SMS;
 
 class SMSController extends MessageController
 {
@@ -34,7 +35,6 @@ class SMSController extends MessageController
 
     protected function updateReceivedSms()
     {
-        $logger = $GLOBALS["CONTAINER"]->get('Logger');
         $secret = $this->getRQ("secret");
         if($secret !== SETTINGS["sms_settings"]["smsgateway"]["callback_secret"]){
             // log error and exit
@@ -44,7 +44,7 @@ class SMSController extends MessageController
             $msg_id = $this->getRQ("id");
             $message = $this->N->findBy("Message", ["ExtId" => $msg_id]);
             if(!empty($message)){
-                $request["updateType"] = "updateProperty";
+                $request["updateMethod"] = "updateProperty";
                 $request["entity_class"] = "Message";
                 $request["entity_id"] = $message->getId();
                 $request["property"] = "Status";
@@ -54,20 +54,18 @@ class SMSController extends MessageController
         } elseif($event == "received"){
             $check = $this->checkReceivedSmsForConfirmation();
             if($check["about_visit"]){
-                $request["updateType"] = "updateProperty";
+                $request["updateMethod"] = "updateProperty";
                 $request["entity_class"] = "Visit";
                 $request["entity_id"] = $check["visit_id"];
                 $request["property"] = "Confirmed";
                 $request["value"] = "confirmed";
                 $update_result = Update::create($request);
-                $logger->info(json_encode($update_result));
             }
         }
     }
 
     protected function checkReceivedSmsForConfirmation()
     {
-        $logger = $GLOBALS["CONTAINER"]->get('Logger');
         $return["about_visit"] = false;
         $contact = $this->getRQ("contact");
         $nr = $contact["number"];

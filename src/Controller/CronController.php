@@ -2,7 +2,8 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{Utility as U, Task};
+use Fridde\Utility as U;
+use Fridde\Task;
 use Carbon\Carbon;
 
 class CronController {
@@ -16,7 +17,7 @@ class CronController {
     private $slot_counter;
     private $slot_time;
 
-    public function __construct($params)
+    public function __construct(array $params)
     {
         $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
         $this->params = $params;
@@ -26,7 +27,7 @@ class CronController {
         $this->intervals = $this->CRON_SETTINGS["intervals"];
     }
 
-    public function execute()
+    public function run()
     {
         $this->slot_counter = $this->params["counter"] ?? $this->N->getStatus("slot_counter");
 
@@ -40,6 +41,13 @@ class CronController {
         	}
         }
         $this->N->setStatus("slot_counter", $this->slot_counter + 1);
+    }
+
+    public function executeTask()
+    {
+        $task_type = $this->params["type"];
+        $task = new Task($task_type);
+        $task->execute(true); // ignores task activation in SystemStatus
     }
 
     public function resetIfMonday()
@@ -60,7 +68,7 @@ class CronController {
         $this->slot_time = [$value, $unit];
     }
 
-    private function checkIfRightTime($task_type)
+    private function checkIfRightTime(string $task_type)
     {
         $interval = $this->intervals[$task_type];
         $interval = U::adjustInterval($interval, $this->slot_duration);

@@ -1,31 +1,37 @@
-var Cookie = {
+disabledClass = "sortable-disabled";
 
-	set : function(name, value, exdays) {
-		var d = new Date();
-		d.setTime(d.getTime() + (exdays*24*60*60*1000));
-		var expires = "; expires="+ d.toUTCString();
-		document.cookie = name + "=" + value + expires + "; path=/";
-	},
+var Batch = {
 
-	setAndReload : function(data, status){
-		if(data.success){
-			Cookie.set("Hash", data.hash, 90);
-			location.assign(baseUrl + "skola/" + data.school);
+    listIdentifier: 'div.set-dates ul',    
+    sortableOptions: {
+		items: 'li:not(.'+ disabledClass + ')',
+		placeholder: "ui-state-highlight",
+		forcePlaceholderSize: true,
+		forceHelperSize: true,
+		containment: "parent",
+		scrollSensitivity: 10,
+		helper: function(event, ui){
+			var $clone =  $(ui).clone();
+			$clone .css('position','absolute');
+			return $clone.get(0);
+		},
+		start: function(){
+			$('.'+ disabledClass, this).each(function(){
+				var $this = $(this);
+				$this.data('pos', $this.index());
+			});
+		},
+		change: function(){
+			$sortable = $(this);
+			$statics = $('.'+ disabledClass, this).detach();
+			$helper = $('<li></li>').prependTo(this);
+			$statics.each(function(){
+				var $this = $(this);
+				var target = $this.data('pos');
+
+				$this.insertAfter($('li', $sortable).eq(target));
+			});
+			$helper.remove();
 		}
-	},
-
-	get : function(name) {
-		name += "=";
-		var ca = document.cookie.split(';');
-		for(var i = 0; i <ca.length; i++) {
-			var c = ca[i];
-			while (c.charAt(0)==' ') {
-				c = c.substring(1);
-			}
-			if (c.indexOf(name) === 0) {
-				return c.substring(name.length,c.length);
-			}
-		}
-		return "";
 	}
 };

@@ -5,7 +5,7 @@ use Fridde\CustomRepository;
 
 class TopicRepository extends CustomRepository
 {
-    public function findAllTopicsWithGrade()
+    public function findLabelsForTopics()
     {
         $topics_id_name_grade = array_map(function($t){
             $label = "[" . $t->getGradeLabel() ."] ";
@@ -15,7 +15,7 @@ class TopicRepository extends CustomRepository
         return array_column($topics_id_name_grade, 1, 0);
     }
 
-    public function findAllTopics($grade = null)
+    public function findTopicsForGrade($grade = null)
     {
         if(!empty($grade)){
             return $this->select(["Grade", $grade]);

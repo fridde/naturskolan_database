@@ -23,7 +23,13 @@
             <h5>{{ col.serial }}: {{ col.name|slice(0,5) }}</h5>
             <ul>
                 {% for visit in col.visits  %}
-                    <li data-id="topic#{{ col.id }}_{{ visit.id }}">{{ visit.date }}</li>
+                    {% if visit %}
+                    {%- if visit.has_group -%}{%- set row_class = "sortable-disabled" -%}
+                    {%- else -%} {%- set row_class = "" -%}{%- endif -%}
+                    <li class="{{ row_class }}" data-id="visit_{{ visit.id }}">{{ visit.date }}</li>
+                    {%- else -%}
+                    <li class="sortable-disabled" data-id="visit_null">---</li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>

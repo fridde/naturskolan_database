@@ -14,12 +14,16 @@ $(document).ready(function(){
 		dataType: 'json'
 	});
 
-	setInterval(Update.setSaveTimeText, 30*1000);
+	/**
+	* Defines the interval between the "Uppdaterades senast..." text
+	*/
+	$('.save-time').css('visibility', 'hidden'); // initially blank
+	setInterval(Update.setSaveTimeText, 10*1000);
 
 	$('.modal').modal('show');
 	$('#login_modal_submit').click(function(){
 		var data = {
-			updateType: "checkPassword",
+			updateMethod: "checkPassword",
 			password: $("[name='password']").val(),
 			onReturn: 'passwordCorrect'
 		};
@@ -30,28 +34,46 @@ $(document).ready(function(){
 		$('#login_modal_submit')[0].click();
 	}
 
+	/**
+	* Initialize sortable lists here
+	*/
 	$(".sortable").sortable();
-	var lists = $('div.set-dates ul');
-	lists.sortable({
-		placeholder: "ui-state-highlight",
-		forcePlaceholderSize: true,
-		forceHelperSize: true,
-		containment: "parent",
-		scrollSensitivity: 10,
-		helper: function(event, ui){
-			var $clone =  $(ui).clone();
-			$clone .css('position','absolute');
-			return $clone.get(0);
-		}
-	});
-	$("button#send").click(function(){
-		text = [];
-		lists.each(function(i, obj){
-			text.push($(obj).sortable("serialize",{attribute: "data-id"}));
-		});
-		console.log(text.join('&'));
-	});
 
+	$(Batch.listIdentifier).sortable(Batch.sortableOptions);
+
+	/**
+	* ###################
+	* Button definitions
+	* ###################
+	*/
+
+	/**
+	* This button is used on /batch/set_visits/{grade}
+	* and sends away all configurations as a big array
+	* TODO: complete this function
+	*/
+	$("button#send").click(function(){
+		lists = [];
+		$(Batch.listIdentifier).each(function(i, listobj){
+			rows = [];
+			$(listobj).find("li").each(function(i, itemobj){
+				rows.push($(itemobj).attr("data-id"));
+			});
+			lists.push(rows);
+		});
+		var data = {
+			updateMethod: "setVisits",
+			value: lists,
+			onReturn: 'visitsSet'
+		};
+		console.log(lists);
+		//Update.send(data);
+	});
+	/**
+	* This button is used on /batch/add_dates/{topic_id}
+	* and "cleans" the textarea after inserting date rows using a method written in
+	* google spreadsheets. It removes empty rows and trims and sorts the rows.
+	*/
 	$("button#clean").click(function(){
 		$text = $("textarea.date-lines");
 		var textArray = $text.val().split(/\r|\n|;/).map(function(i){
@@ -61,17 +83,67 @@ $(document).ready(function(){
 		}).sort();
 		$text.val(textArray.join("\n"));
 	});
+	/**
+	* This button is used on /batch/add_dates/{topic_id}
+	* and sends the date array in the textarea as "value"
+	* and the topic_id as "entity_id"
+	*/
 	$("button#add").click(function(){
 		var textarea = $("textarea.date-lines");
 		var textArray = textarea.val().split(/\r|\n/);
 		var data = {
-			updateType : "addDates",
+			updateMethod : "addDates",
 			entity_id: textarea.data("id"),
 			value: textArray,
 			onReturn: "datesAdded"
 		};
-		Update.updateProperty(data);
+		Update.send(data);
 	});
+
+	$("#add-row-btn").click(function(){
+		var oldRow = $(".editable tbody tr:last");
+		var newRow = oldRow.clone(true);
+		var newId = "new#" + (oldRow.attr("data-id") || oldRow.data("id"));
+		newRow.attr("data-id", newId).data("id", newId);
+		newRow.hide();
+		oldRow.after(newRow);
+		newRow.show(1000);
+		newRow.find(":input").val('').removeAttr('value');
+	});
+
+	/**
+	* ###################
+	* Click definitions
+	* ###################
+	*/
+
+	var toggleGroupNameField = function(event){
+		var h1 = $(event.target).closest('h1');
+		var dataId = h1.closest(".group-container").attr("data-entity-id");
+		var inputField = h1.children('input');
+		if(event.type == 'click' || event.type == 'dblclick'){
+			h1.children("span, i").hide();
+			inputField.val(h1.children('span').text());
+			inputField.show().focus();
+
+		} else if (event.type == 'focusout'){
+			var newName = h1.children('input').hide().val();
+			var data = {
+				updateMethod : "changeGroupName",
+				entity_id: dataId,
+				value: newName,
+				onReturn: "groupNameChanged"
+			};
+			Update.send(data);
+			h1.children("span, i").show();
+		} else {
+			console.log('The event.type ' + event.type + ' has no implementation');
+		}
+	};
+
+	$(".group-container h1 span").dblclick(toggleGroupNameField);
+	$(".group-container h1 i").click(toggleGroupNameField);
+	$(".group-container input.group-name-input").focusout(toggleGroupNameField);
 
 	/**
 	* Configuration of callbacks for several elements
@@ -80,6 +152,10 @@ $(document).ready(function(){
 	$(".editable").find(":input").not(".datepicker").change("tableInput", Edit.change);
 	$(".editable").find(".datepicker").on("changeDate", ["tableInput", "datepicker"] , Edit.change);
 	$("#group-change-modal input").change("groupModal", Edit.change);
+
+	/**
+	* Initializing tooltips, sliders and datepickers
+	*/
 	$(".group-container .input-slider").each(function(i,element){
 		Slider.set($(this), "group");
 	});
@@ -107,56 +183,6 @@ $(document).ready(function(){
 
 
 
-	/* Buttons
-	*/
-	$("#add-row-btn").click(function(){
-		var oldRow = $(".editable tbody tr:last");
-		var newRow = oldRow.clone(true);
-		var newId = "new#" + (oldRow.attr("data-id") || oldRow.data("id"));
-		newRow.attr("data-id", newId).data("id", newId);
-		newRow.hide();
-		oldRow.after(newRow);
-		newRow.show(1000);
-		newRow.find(":input").val('').removeAttr('value');
-	});
-
-	$("#new-setting-btn").click(function(){
-		var sibs = $(this).siblings();
-
-		var data = {
-			onReturn: 'reloadPage',
-			values : {
-				id : null,
-				Parent: sibs.filter("select").val(),
-				Name: sibs.filter("input").val()
-			}
-		};
-		setTimeout(Update.updateProperty(data), saveDelay);
-	});
-
-	$(".delete-btn").click(function(){
-		var data = {
-			values: {
-				id: $(this).closest("tr").data("id")
-			},
-			table: $(this).closest("table").data("entity"),
-			updateType : "deleteRow",
-			onReturn: 'removeRow'
-		};
-		setTimeout(Update.updateProperty(data), saveDelay);
-	});
-
-	$(".group-container h1").dblclick(function(){
-		var changeModalString = "#group-change-modal";
-		var container = $(this).closest(".group-container");
-		var groupId = container.data("entity-id");
-
-		$(changeModalString).attr("data-entity-id", groupId);
-		$(changeModalString).data("entity-id", groupId);
-		$(changeModalString + " .name-field").val($(this).text());
-		$(changeModalString).dialog("open");
-	});
-
 	$("#group-change-modal").dialog({
 		autoOpen: false,
 		title: "Ändra gruppnamn"
@@ -165,6 +191,6 @@ $(document).ready(function(){
 	if(typeof(DataTableConfigurator) !== "undefined"){
 		$("table").DataTable(DataTableConfigurator.options($("table")));
 	}
-	$("tbody.sortable").sortable();
+
 
 });

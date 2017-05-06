@@ -3,13 +3,17 @@
 namespace Fridde\Controller;
 
 use Fridde\HTML;
+use Fridde\Utility as U;
 
 class BatchController {
 
+    /** @var \Fridde\Naturskolan The Naturskolan object obtained from the global container */
     private $N;
     private $params;
+    /** @var \Fridde\HTML A Html object to build the page */
     private $H;
-    private $operations = ["set_visits" => "setVisits", "add_dates" => "addDates"];
+    private $operations = ["set_visits" => "setVisits", "add_dates" => "addDates",
+    "add_groups" => "addGroups"];
 
     public function __construct($params)
     {
@@ -47,6 +51,10 @@ class BatchController {
         $this->H->render();
     }
 
+    /**
+    * @example setVisitsExample.php
+    * @return void
+    */
     private function setVisits()
     {
         $filter = explode(",", $this->params["filter"] ?? null);
@@ -58,34 +66,64 @@ class BatchController {
         if(!empty($start_year)){
             $criteria[] = ["StartYear", $start_year];
         }
+        $visit_repo =  $this->N->ORM->getRepository("Visit");
+
         $groups = $this->N->ORM->getRepository("Group")->selectAnd($criteria);
         usort($groups, function($g1, $g2){
-            $v_order_1 = $g1->getSchool()->getVisitOrder();
-            $v_order_2 = $g2->getSchool()->getVisitOrder();
-            if($v_order_1 !== $v_order_2){
-                return $v_order_1 - $v_order_2;
-            }
-            return $g1->getId() - $g2->getId();
+            return $g1->compareVisitOrder($g2);
         });
+
         $DATA["groups"] = array_map(function($g){
             $r = ["id" => $g->getId()];
             $r["name"] = $g->getName();
             $r["school"] = $g->getSchoolId();
             return $r;
         }, $groups);
-        $topics = $this->N->ORM->getRepository("Topic")->findAllTopics($grade);
+
+        $group_to_row_translator = array_flip(array_column($DATA["groups"], "id"));
+        $topics = $this->N->ORM->getRepository("Topic")->findTopicsForGrade($grade);
+
         usort($topics, function($t1, $t2){
             return $t1->getVisitOrder() - $t2->getVisitOrder();
         });
-        $visit_repo =  $this->N->ORM->getRepository("Visit");
+
         $DATA["date_columns"] = [];
         foreach($topics as $t){
             $d = ["id" => $t->getId()];
             $d["name"] = $t->getShortName();
             $d["serial"] = $t->getGrade() . "." . $t->getVisitOrder();
-            $d["visits"] = array_map(function($v){
-                return ["id" => $v->getId(), "date" => $v->getDateString()];
-            }, $visit_repo->findSortedVisits($t));
+
+            $visits = $visit_repo->findSortedVisitsForTopic($t);
+
+            $orphan_visits = array_filter($visits, function($v){
+                return !$v->hasGroup();
+            });
+            $visits_with_group = array_filter($visits, function($v) use ($start_year){
+                if(!$v->hasGroup()){
+                    return false;
+                }
+                return empty($start_year) || $v->getGroup()->getStartYear() == $start_year;
+            });
+            usort($visits_with_group, function($v1, $v2) use ($group_to_row_translator){
+                $v1_index = $group_to_row_translator[$v1->getGroupId()];
+                $v2_index = $group_to_row_translator[$v2->getGroupId()];
+                return $v1_index - $v2_index;
+            });
+            foreach($visits_with_group as $vg){
+                $index = $group_to_row_translator[$vg->getGroupId()];
+                $orphan_visits = U::insertAt($orphan_visits, $index, $vg);
+            }
+            $fixed_visits = array_values(array_pad($orphan_visits, count($DATA["groups"]), null));
+
+            $d["visits"] = array_map(function($v, $key){
+                if(empty($v)){
+                    return null;
+                }
+                $r = ["id" => $v->getId(), "date" => $v->getDateString()];
+                $r["has_group"] = $v->hasGroup();
+                $r["position"] = $key;
+                return $r;
+            }, $fixed_visits, array_keys($fixed_visits));
             $DATA["date_columns"][] = $d;
         }
 
@@ -94,6 +132,11 @@ class BatchController {
 
         $this->H->addVariable("DATA", $DATA);
         $this->H->render();
+    }
+
+    private function addGroups()
+    {
+
     }
 
 

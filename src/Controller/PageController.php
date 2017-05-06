@@ -2,7 +2,7 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{HTML};
+use Fridde\HTML;
 
 
 class PageController {

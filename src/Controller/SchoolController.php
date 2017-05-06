@@ -1,23 +1,30 @@
 <?php
+/**
+* The School Controller
+*/
 
 namespace Fridde\Controller;
 
-use Fridde\{HTML as H};
-use Fridde\Controller\{LoginController};
+use Fridde\HTML as H;
+use Fridde\Utility as U;
+use Fridde\Controller\LoginController;
 
 class SchoolController {
 
+    private $N;
     private $params;
     public $school;
     private $user;
-    private $Login;
+    private $LoginController;
 
     public function __construct($params = [])
     {
+        $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
         $this->params = $params;
-        $this->Login = new LoginController($this->params);
-        $this->school = $this->Login->checkCookie();
-        $this->user = $this->Login->checkCode();
+        $this->LoginController = new LoginController($this->params);
+        $this->school = $this->LoginController->checkCookie();
+        $this->user = $this->LoginController->checkCode();
+
     }
 
     public function handleRequest()
@@ -29,14 +36,14 @@ class SchoolController {
         } elseif(!empty($this->school)){
             if($this->school->isNaturskolan()){
                 $authorized = true;
-                $this->school = $this->Login->N->ORM->getRepository("School")
+                $this->school = $this->N->ORM->getRepository("School")
                 ->find($this->params["school"]);
             } elseif ($this->school->getId() === $this->params["school"]){
                 $authorized = true;
             }
         }
         if(!$authorized){
-            return $this->Login->checkPassword();
+            return $this->LoginController->checkPassword();
         }
 
         $page = $this->params["page"] ?? "groups";
@@ -45,7 +52,7 @@ class SchoolController {
             $template = "group_settings";
         } elseif ($page == "team"){
             $DATA = $this->getAllUsers($this->school);
-            $template = "staff_list";
+            $template = "team_list";
         }
 
         $H = new H();
@@ -66,13 +73,21 @@ class SchoolController {
         foreach($keys as $key){
             $DATA["headers"][] = $key;
             foreach($users as $i => $user){
-                $method_name = $key == "id" ? "getId" : "get" . $key;
+                $method_name = "get" . ucfirst($key);
                 $DATA["users"][$i][$key] = $user->$method_name();
             }
         }
         return $DATA;
     }
 
+    /**
+     * Collects all active groups for the specified school, adds relevant info
+     * and orders them into a structured array to be viewed on the school page later.
+     *
+     * @example getAllGroupsExample.php
+     * @param  Fridde\Entities\School $school The School object.
+     * @return array An array containing structured data. See example.
+     */
     public function getAllGroups($school)
     {
         $DATA = [];
@@ -103,8 +118,8 @@ class SchoolController {
                     $r["topic_short_name"] = $v->getTopic()->getShortName();
                     $r["topic_url"] = $v->getTopic()->getUrl();
                     $r["confirmed"] = $v->isConfirmed();
-                    $d = SETTINGS["values"]["show_confirm_link"];
-                    $r["show_confirm_link"] = $v->isLessThanNrDaysAway($d);
+                    $d = U::addDuration(SETTINGS["values"]["show_confirm_link"]);
+                    $r["show_confirm_link"] = $v->isBefore($d);
                     return $r;
                 }, $g->getSortedVisits()->toArray());
 

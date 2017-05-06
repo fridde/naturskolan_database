@@ -22,10 +22,10 @@
             <tbody>
                 {% for user in users -%}
                 <tr data-id={{ user.id }}>
-                    <td><input type="text" name="FirstName" value="{{ user.FirstName }}"></td>
-                    <td><input type="text" name="LastName" value="{{ user.LastName }}"></td>
-                    <td><input type="text" name="Mobil" value="{{ user.Mobil }}"></td>
-                    <td><input type="text" name="Mail" value="{{ user.Mail }}"></td>
+                    <td><input type="text" name="FirstName" placeholder="Förnamn" value="{{ user.FirstName }}"></td>
+                    <td><input type="text" name="LastName" placeholder="Efternamn" value="{{ user.LastName }}"></td>
+                    <td><input type="text" name="Mobil" placeholder="Mobilnummer" value="{{ user.Mobil }}"></td>
+                    <td><input type="text" name="Mail" placeholder="Mejladdress" value="{{ user.Mail }}"></td>
                 </tr>
                 {%- endfor %}
                 <button type="button" id="add-row-btn" class="btn btn-primary">Lägg till person</button>

@@ -140,7 +140,7 @@ class TableController {
             $cols["Date"]["value"] = "getDateString";
             $cols["Date"]["type"] = "date";
             $cols["Topic"]["value"] = "getTopicId";
-            $cols["Topic"]["options"] = ["Topic", "findAllTopicsWithGrade"];
+            $cols["Topic"]["options"] = ["Topic", "findLabelsForTopics"];
             $cols["Colleagues"]["value"] = "getColleaguesIdAsString";
             $cols["Colleagues"]["options"] = ["School", "getStaffWithNames"];
             $cols["Confirmed"]["type"] = "radio";

@@ -60,24 +60,17 @@ class Group
 
 
     const GRADE_LABELS = ["2" => "åk 2/3", "5" => "åk 5", "fbk" => "FBK"];
-    const COLOUR_NAMES = ["beige","blå","brun","röd","fuchsia","grå","grön",
-    "gul","guld","khaki","lila","magenta","orange","rosa","sepia","silver",
-    "svart","turkos","violett","vit"];
     const STATUS = [0 => "inactive", 1 => "active"];
 
     public function getId(){return $this->id;}
     public function getName(){return $this->Name;}
-    public function setName()
+    public function setName($Name = null)
     {
-        $this->Name = trim(func_get_arg(0)); // why func_get_arg?
-    }
-
-    public function setPlaceholderName()
-    {
-        $animals = SETTINGS["defaults"]["placeholder"]["animals"];
-        $id = $this->id ?? mt_rand();
-        $index = $id % count($animals);
-        $this->setName("Grupp " . $animals[$index]);
+        if(empty($Name)){
+            $alias_names = \Fridde\Naturskolan::getSetting("defaults","placeholder", "animals");
+            $Name = "Grupp " . $alias_names[mt_rand(0, count($alias_names) - 1)];
+        }
+        $this->Name = trim($Name);
     }
 
     public function hasName(){return $this->has("Name");}
@@ -113,9 +106,9 @@ class Group
     }
 
 
-    public function setGrade()
+    public function setGrade($Grade)
     {
-        $this->Grade = func_get_arg(0);
+        $this->Grade = $Grade;
     }
 
     public function isGrade($Grade)
@@ -152,7 +145,10 @@ class Group
     public function setLastChange(){$this->LastChange = func_get_arg(0);}
     public function getCreatedAt(){return $this->CreatedAt;}
     public function setCreatedAt(){$this->CreatedAt = func_get_arg(0);}
-    public function hasVisits(){return !$this->Visits->isEmpty();}
+    public function hasVisits()
+    {
+        return !$this->Visits->isEmpty();
+    }
     public function getVisits(){return $this->Visits;}
     public function getFutureVisits()
     {
@@ -218,17 +214,33 @@ class Group
         return $entity;
     }
 
+/**
+ *
+ * @param  \Fridde\Entities\Group  $other_group Another group to compare to.
+ * @return int Returns a negative number if this group is supposed to visit before
+ *             the other group, returns a positive number otherwise. Won't return 0.
+ */
+    public function compareVisitOrder(Group $other_group)
+    {
+        $v_order_1 = $this->getSchool()->getVisitOrder();
+        $v_order_2 = $other_group->getSchool()->getVisitOrder();
+        if($v_order_1 !== $v_order_2){
+            return $v_order_1 - $v_order_2;
+        }
+        return $this->getId() - $other_group->getId();
+    }
+
     private function has($attribute)
     {
         return !empty(trim($this->$attribute));
     }
 
     /** @PrePersist */
-    public function prePersist(){}
+    public function prePersist($event){}
     /** @PreUpdate */
     public function preUpdate($event)
     {
-        $rq["update_type"] = "logChange";
+        $rq["update_method"] = "logChange";
         $rq["event"] = $event;
         $rq["trackables"] = ["User", "Food", "NumberStudents", "Info"];
         Update::create($rq);

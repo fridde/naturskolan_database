@@ -19,10 +19,10 @@ class Change
     /** @Column(type="string") */
     protected $EntityId;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $Property;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $OldValue;
 
     /** @Column(type="string", nullable=true) */

@@ -2,7 +2,7 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{Update};
+use Fridde\Update;
 use GuzzleHttp\Client;
 
 
@@ -66,7 +66,7 @@ class APIController {
             $id = $this->N->getIntFromCode($code, "visit");
             if(!empty($id)){
                 $request["visit_id"] = $id;
-                $request["updateType"] = "confirmVisit";
+                $request["updateMethod"] = "confirmVisit";
                 $update = new Update($request);
                 $return = $update->execute()->getReturn();
             }

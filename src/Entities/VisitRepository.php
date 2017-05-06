@@ -36,7 +36,7 @@ class VisitRepository extends CustomRepository
 
     public function findLastVisit()
     {
-        return array_pop($this->findSortedVisits());
+        return array_pop($this->findSortedVisitsForTopic());
     }
 
     /**
@@ -53,7 +53,14 @@ class VisitRepository extends CustomRepository
         });
     }
 
-    public function findSortedVisits($topic = null)
+    /**
+     * Finds visits with a given topic, in sorted order.
+     *
+     * @param  \Fridde\Entities\Topic $topic The topic to select for. If omitted,
+     *                                       all Visits will be returned.
+     * @return array The Visits with the given Topic sorted by date.
+     */
+    public function findSortedVisitsForTopic(Topic $topic = null)
     {
         if(!empty($topic)){
             $visits = $this->select(["Topic", $topic]);

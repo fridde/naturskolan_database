@@ -2,7 +2,8 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{Mailer, HTML};
+use Fridde\HTML;
+use Fridde\Mailer;
 
 class MailController extends MessageController
 {
@@ -11,7 +12,7 @@ class MailController extends MessageController
     protected $Mailer;
     // PREPARE=1; SEND=2; UPDATE=4;
     protected $methods = ["admin_summary" => 3,"password_reset" => 3, "confirm_visit" => 3,
-        "update_profile_reminder" => 3, "changed_groups_for_user" => 3];
+    "update_profile_reminder" => 3, "changed_groups_for_user" => 3, "welcome_new_user" => 3];
 
     public function __construct($params = [])
     {
@@ -39,7 +40,7 @@ class MailController extends MessageController
         $this->HTML->setTitle("Sammanfattning: Status av databasen");
         $this->HTML->setTemplate("admin_summary");
         $this->HTML->addCssFile("admin_summary.css");
-        $receiver = SETTINGS["admin_summary"]["admin_adress"];
+        $receiver = SETTINGS["admin_summary"]["admin_address"];
         $this->Mailer->set("receiver", $receiver);
         $this->Mailer->set("subject", "Dagliga sammanfattningen av databasen");
 
@@ -113,6 +114,32 @@ class MailController extends MessageController
             throw new \Exception("There were no groups given for this user.");
         }
         $this->Mailer->set("subject", $subject);
+        $this->HTML->addVariable("DATA", $DATA);
+    }
+
+/**
+ * Prepares and gathers the variables needed to send the Welcome-New-User mail
+ *
+ * @example welcome_mail_example.php
+ * @return void
+ */
+    protected function prepareWelcomeNewUser()
+    {
+        $DATA = $this->getRQ("data");
+        array_walk_recursive($DATA["groups"], function(&$g_id){
+            $group = $this->N->ORM->getRepository("Group")->find($g_id);
+            $g = ["group_id" => $g_id];
+            $g["name"] = $group->getName();
+            $g["grade"] = $group->getGradeLabel();
+            $g_id = $g;
+        });
+
+        $this->HTML->setTitle("Välkommen till Naturskolans besöksområde");
+        $this->HTML->setTemplate("new_user_welcome");
+        $this->HTML->addCssFile("mail.css");
+        $this->Mailer->set("receiver", $this->getRQ("receiver"));
+
+        $this->Mailer->set("subject", "Välkommen till Naturskolans besöksområde");
         $this->HTML->addVariable("DATA", $DATA);
     }
 

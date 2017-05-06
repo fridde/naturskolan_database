@@ -15,21 +15,23 @@ use Carbon\Carbon;
 class Update
 {
     private $N;
-    /** @var The request data sent into the constructor */
+    /** @var array The request data sent into the constructor */
     private $RQ;
-    /** @var Is true if any changes have been made that should be flushed by the EM */
+    /** @var boolean Is true if any changes have been made that should be flushed by the EM */
     private $is_changed = false;
     /** @var Any new entity that should be saved for future reference */
     private $new_entity;
-    /** @var  */
+    /** @var array  */
     private $Return = [];
+    /** @var array  */
     private $Errors = [];
 
-    /* request data: ["updateType" => "", "entity_class" => "",
+    /* request data: ["updateMethod" => "", "entity_class" => "",
     *     "entity_id" => "", "property" => "", "value" => ""]
     */
-    public function __construct($request_data = []){
 
+    public function __construct($request_data)
+    {
         $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
         $this->setRQ($request_data);
     }
@@ -40,27 +42,28 @@ class Update
     * @param  array $request_data The data that should be sent to the constructor
     * @return Fridde\Update Returns itself for chaining.
     */
-    public static function create($request_data){
+    public static function create($request_data)
+    {
         $THIS = new self($request_data);
         return $THIS->execute();
     }
 
     /**
-    * Executes the actual update according to the value of "updateType" given in the
-    * array given to the constructor. The updateType (or update_type) has to correspond
+    * Executes the actual update according to the value of "updateMethod" given in the
+    * array given to the constructor. The updateMethod (or update_method) has to correspond
     * to a method of this class to be executed.
     *
     * @return Fridde\Update Returns itself for chaining.
     */
     public function execute()
     {
-        $updateType = $this->getRQ("updateType") ?? $this->getRQ("update_type"); // different spellings
-        if(empty($updateType)){
-            $this->addError("Error: The updateType cannot be empty");
-        } elseif (!method_exists($this, $updateType)){
-            $this->addError("Error: The UpdateType <". $updateType . "> is not a valid method");
+        $update_method = $this->getUpdateMethod();
+        if(empty($update_method)){
+            $this->addError("Error: The updateMethod cannot be empty");
+        } elseif (!method_exists($this, $update_method)){
+            $this->addError("Error: The update method <". $update_method . "> is not a valid method");
         } else {
-            $this->$updateType();
+            $this->$update_method();
         }
         if ($this->is_changed) {
             $this->N->ORM->EM->flush();
@@ -70,6 +73,41 @@ class Update
         }
         return $this;
     }
+
+    public function handleRequest()
+    {
+
+    }
+
+
+
+    private function getUpdateMethod()
+    {
+        $possible_keys = ["update_method", "updateMethod"];
+        return array_shift(array_intersect_key($this->RQ, array_flip($possible_keys)));
+    }
+
+    public function updateProperty(array $array = null)
+    {
+        $entity = $this->N->ORM->getRepository($entity_class)->find($entity_id);
+            if(empty($entity)){
+                $e = "No entity of the class<" . $entity_class . "> with the id <";
+                $e .= $entity_id . "> could be found.";
+                throw new \Exception($e);
+            }
+        }
+        $setter = "set" . $property;
+
+        if (! method_exists($entity, $setter)) {
+            $this->addError("The method " . $setter . " for the class " . $entity . " could not be found");
+            return null;
+        }
+
+        $entity->$setter($value);
+        $this->N->ORM->EM->persist($entity);
+        $this->announceChange();
+    }
+
 
     /**
     * Checks if $RQ["password"] corresponds to any school and saves the matching
@@ -88,6 +126,12 @@ class Update
 
     }
 
+/**
+ * Creates new Visits having certain topic using the dates given.
+ *
+ * Expects $RQ["entity_id"] to contain the id of the topic and $RQ["value"] to be
+ * the date array in the format ["YYYY-MM-DD", "YYYY-MM-DD", ...]
+ */
     public function addDates()
     {
         $topic = $this->findById("Topic", $this->getRQ("entity_id"));
@@ -97,6 +141,49 @@ class Update
             $properties["Date"] = trim($date);
             $this->createNewEntity("Visit", $properties);
         }
+    }
+
+/**
+ * [setVisits description]
+ */
+    public function setVisits()
+    {
+        $big_array = $this->getRQ("value");
+        $row_to_group_translator = [];
+        $group_dates = [];
+        foreach($big_array as $array){
+            foreach($array as $row_index => $row){
+                $class_id = explode("_", $row);
+                $class = $class_id[0];
+                if(empty($class_id[1]) || $class_id[1] === "null"){
+                    $entity_id = null;
+                } else {
+                    $entity_id =$class_id[1];
+                }
+                if($class === "group"){
+                    if(empty($entity_id)){
+                        $e_msg = 'Empty group given at row <' . $row_index;
+                        $e_msg .= '>. This is not supposed to happen.';
+                        throw new \Exception($e_msg);
+                    }
+                    $row_to_group_translator[$row_index] = $entity_id;
+                } elseif($class === "visit"){
+                    $group_dates[$row_index] = $entity_id;
+                } else {
+                    throw new \Exception("The class <" . $class . "> is not implemented.");
+                }
+            }
+        }
+        foreach($group_dates as $row_index => $visit_id){
+            $group_id = $row_to_group_translator[$row_index] ?? false;
+            if($group_id !== false){
+                $visit = $this->findById("Visit", $visit_id);
+                $group = $this->findById("Group", $group_id);
+
+                // TODO: continue here
+            }
+        }
+
     }
 
     public function setCookie()
@@ -112,69 +199,29 @@ class Update
         $this->setReturn("hash", $hash)->setReturn("school", $school->getId());
     }
 
-    public function updateProperty($array = null)
-    {
-        if(empty($array)){
-            $rq = ["entity_class", "entity_id", "property", "value"];
-            extract($this->getRQ($rq));
-        } else {
-            extract($array);
-        }
 
-        $parameter_array = compact("entity_class", "entity_id", "property", "value");
-        if(! $this->checkParameters($parameter_array)){
-            return;
-        }
-        if(substr($entity_id, 0, 3) == "new"){
-            $this->setReturn("old_id", $entity_id);
-            $temp = explode("#", $entity_id);
-            $model_entity_id = array_pop($temp);
-            $entity = $this->createNewEntityFromModel($entity_class,  $model_entity_id);
-            $this->new_entity = $entity;
-        } else {
-            $entity = $this->N->ORM->getRepository($entity_class)->find($entity_id);
-            if(empty($entity)){
-                $e = "No entity of the class<" . $entity_class . "> with the id <";
-                $e .= $entity_id . "> could be found.";
-                throw new \Exception($e);
-            }
-        }
-        $setter = "set" . $property;
 
-        if (! method_exists($entity, $setter)) {
-            $this->addError("The method " . $setter . " for the class " . $entity . " could not be found");
-            return null;
-        }
-
-        $entity->$setter($value, $this->N->ORM);
-        $this->N->ORM->EM->persist($entity);
-        $this->announceChange();
-    }
-
-    private function createNewEntityFromModel($entity_class, $model_entity_id = null)
+    private function createNewEntityFromModel(string $entity_class, $model_entity_id = null)
     {
         $full_class_name = $this->N->ORM->qualifyClassname($entity_class);
         $entity = new $full_class_name();
 
-        if($model_entity_id === 0 || !empty($model_entity_id)){
+        if($model_entity_id === 0 || !empty($model_entity_id)){  // since 0 would also count as "empty"
             $model_entity = $this->N->ORM->getRepository($entity_class)->find($model_entity_id);
             $entity = $this->syncProperties($entity, $model_entity, $entity_class);
         }
         return $entity;
     }
 
-    private function createNewEntity($entity_class = null, $properties = null)
+    private function createNewEntity(string $entity_class = null, array $properties = [], $model_entity_id = null)
     {
-        $entity_class = $entity_class ?? $this->getRQ("entity_class");
-        $properties = $properties ?? $this->getRQ("properties");
-        $full_class_name = $this->N->ORM->qualifyClassname($entity_class);
-        $entity = new $full_class_name();
-        foreach($properties as $property => $value){
-            $method_name = "set" . ucfirst($property);
-            $entity->$method_name($value);
-        }
-        $this->N->ORM->EM->persist($entity);
+        $properties = $this->replaceIdsWithObjects($entity_class, $properties, $model_entity_id);
+        $this->N->ORM->createNewEntity($entity_class, $properties);
         $this->announceChange();
+    }
+
+    private function replaceIdsWithObjects($entity_class, $properties, $model_entity_id)
+    {
     }
 
     // event, trackables
@@ -183,24 +230,35 @@ class Update
     *
     * @return [type] [description]
     */
-    private function logChange()
+    private function logChange(bool $new_object = false)
     {
-        $common_keys = ["EntityClass", "EntityId", "Property", "OldValue"];
         $repo = $this->N->ORM->getRepository("Change");
+        $entity_class = $this->getClassFromEventObject();
+        $entity_id = $this->getRQ("event")->getObject()->getId();
         $event = $this->getRQ("event");
-        $change = [["isNull", "Processed"]];
-        $ec_array = explode('\\', get_class($event->getObject()));
-        $change[] = ["EntityClass", array_pop($ec_array)];
-        $change[] = ["EntityId", $event->getObject()->getId()];
 
+        if($new_object){
+            $rq = ["update_method" => "createNewEntity"];
+            $rq["entity_class"] = "Change";
+            // the new object is a Change, but the parameter is EntityClass
+            $props["EntityClass"] = $entity_class;
+            $props["EntityId"] = $entity_id;
+            $rq["properties"] = $props;
+            return self::create($rq);
+        }
+
+        $change_criteria[] = ["isNull", "Processed"];
+        $change_criteria[] = ["EntityClass", $entity_class];
+        $change_criteria[] = ["EntityId", $entity_id];
+
+        $common_keys = ["EntityClass", "EntityId", "Property", "OldValue"];
         $props_to_track = $this->getRQ("trackables");
         foreach($props_to_track as $property){
             if($event->hasChangedField($property)){
-                $c = $change;
-                $c[] = ["Property", $property];
-                $result = $repo->select($c);
+                $change_criteria[] = ["Property", $property];
+                $result = $repo->selectAnd($change_criteria);
                 if(empty($result)){
-                    $rq = ["update_type" => "createNewEntity"];
+                    $rq = ["update_method" => "createNewEntity"];
                     // might be confusing, but this is the class for the new entity, i.e. the table row
                     $rq["entity_class"] = "Change";
                     $old_value = $event->getOldValue($property);
@@ -213,6 +271,18 @@ class Update
                 }
             }
         }
+    }
+
+    private function logNewEntity()
+    {
+        $this->logChange(true);
+    }
+
+    private function getClassFromEventObject($event = null)
+    {
+        $event = $event ?? $this->getRQ("event");
+        $ec_array = explode('\\', get_class($event->getObject()));
+        return array_pop($ec_array);
     }
 
     private function checkParameters($parameters)
@@ -230,7 +300,7 @@ class Update
         return true;
     }
 
-    private function syncProperties($entity, $model_entity, $entity_class = null)
+    private function syncProperties($entity, $model_entity, string $entity_class = null)
     {
         if(empty($entity_class)){
             $tmp = explode('\\', get_class($model_entity));
@@ -274,8 +344,16 @@ class Update
         $this->updateProperty($a);
     }
 
-    public function updateGroupName()
+
+    public function changeGroupName()
     {
+        $a["entity_class"] = "Group";
+        $a["property"] = "Name";
+        $a["value"] = $this->getRQ("value");
+        $a["entity_id"] = $this->getRQ("entity_id");
+        $this->setReturn("newName", $this->getRQ("value"));
+        $this->setReturn("groupId", $this->getRQ("entity_id"));
+        $this->updateProperty($a);
     }
 
     public function getRQ($key = null)
@@ -349,13 +427,13 @@ class Update
     }
 
     /**
-    *  Quick function to get "updateType" from $RQ
+    *  Quick function to get "updateMethod" from $RQ
     *
-    * @return string The updateType.
+    * @return string The updateMethod.
     */
     public function getUpdateType()
     {
-        return $this->getRQ("updateType");
+        return $this->getRQ("updateMethod");
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Fridde\Entities;
 use Carbon\Carbon;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Fridde\Update;
 
 /**
 * @Entity(repositoryClass="Fridde\Entities\UserRepository")
@@ -303,9 +304,16 @@ class User
     }
 
     /** @PrePersist */
-    public function prePersist()
+    public function prePersist($event)
     {
         $this->setCreatedAt(Carbon::now());
+    }
+    /** @PostPersist */
+    public function postPersist($event)
+    {
+        $rq["update_method"] = "logNewEntity";
+        $rq["event"] = $event;
+        Update::create($rq);
     }
     /** @PreUpdate */
     public function preUpdate()

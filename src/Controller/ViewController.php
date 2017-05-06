@@ -32,7 +32,7 @@ class ViewController {
         $collection = $this->indexIntoWeekAndDays($visits);
         array_walk_recursive($collection["calendar"], function(&$visit){
             $topic = $visit->getTopic();
-            $group = $visit->getGroup();
+            $group = $visit->getGroup();            
             $v = ["grade_label" => $visit->getGroup()->getGradeLabel()];
             $v["group_name"] = $group->getName();
             $v["topic_name"] = $topic->getShortName();

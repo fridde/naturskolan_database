@@ -15,6 +15,14 @@ class GroupRepository extends CustomRepository
         return $this->findBy($criteria);
     }
 
+    public function findGroupsInGrade($grade = null)
+    {
+        if(!empty($grade)){
+            return $this->select(["Grade", $grade]);
+        }
+        return $this->findAll();
+    }
+
     public function findAllGroupsWithNameAndSchool()
     {
         $groups_id_name_school = array_map(function($g){

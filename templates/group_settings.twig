@@ -23,7 +23,11 @@
                         {# left column of the groups -#}
                         {% for group in column -%}
                         <div class="group-container" data-entity-id="{{ group.id }}" data-entity="Group">
-                            <h1 id="group_name_{{ group.id }}">{{ group.name }}</h1>
+                            <h1><span id="group_name_{{ group.id }}">{{ group.name -}}</span>
+                                <i class="fa fa-pencil-square-o" title="Ändra gruppnamn"></i>
+                                <input class="group-name-input" type="text"/>
+                            </h1>
+
                             <label for="select_user_{{ group.id }}">Ansvarig lärare</label>
                             <select name="User" id="select_user_{{ group.id }}" class="editable">
                                 {% for teacher in teachers -%}
@@ -44,12 +48,12 @@
                                 {{- group.info -}}
                             </textarea>
                             {% if group.visits -%}
-                            <ul>
+                            <ul class="group-visit-list">
                                 {% for visit in group.visits -%}
                                 <li>{{ visit.date }}: <a href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
                                     {% if visit.show_confirm_link -%}
                                     {%- if visit.confirmed %} Bekräftad. {%- else %} <a href="/confirm/{{ visit.id|confirm_url }}">Bekräfta</a></li> {%- endif %}
-                                    {%- endif -%}                                    
+                                    {%- endif -%}
                                     {%- endfor %}
                                 </ul>
                                 {% else %}

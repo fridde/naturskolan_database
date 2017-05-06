@@ -9,8 +9,8 @@
  {% endmacro %}
 
 
-{% macro a(adress, content, attributes = []) %}
-<a href="{{adress}}" {% for key, val in attributes %}{{key}}="{{val}}" {% endfor %} >{{content|default(adress)}}</a>
+{% macro a(address, content, attributes = []) %}
+<a href="{{address}}" {% for key, val in attributes %}{{key}}="{{val}}" {% endfor %} >{{content|default(address)}}</a>
 {% endmacro %}
 
 {% macro select(options, label = "", attributes = []) %}

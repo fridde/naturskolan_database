@@ -3,23 +3,22 @@ var Update = {
 	lastChange: function(data){
 
 		if(data.success){
-			$(".save-time").attr("data-last-change", moment().format());
+			var time = moment().format();
+			$(".save-time").attr("data-last-change", time).data("last-change", time);
 			Update.setSaveTimeText();
 			if(data.new_id){
 				var tr = $('tr[data-id="' + data.old_id + '"]');
 				tr.attr("data-id", data.new_id).data("id", data.new_id);
 			}
-			else if(typeof data.newName !== 'undefined'){
-				Update.groupName(data, status);
-			}
 		} else {
-			console.log(data);
+			// console.log(data);
 		}
 	},
 
 	groupName: function(data){
 		if(data.success){
-			$("div[data-entity-id='" + data.groupId + "'] h1").text(data.newName);
+			$("#group_name_" + data.groupId).text(data.newName);
+			Update.lastChange(data);
 		}
 	},
 
@@ -39,15 +38,19 @@ var Update = {
 
 	setSaveTimeText: function(){
 		var lastChange = $(".save-time").data("last-change");
-		if(lastChange !== undefined){
-			$(".save-time").text("Uppgifterna sparades senast " + moment(lastChange).fromNow() + '.')
-			.css("visibility", "visible");
+		if(lastChange !== undefined && lastChange.length > 0){
+			$(".save-time").text("Uppgifterna sparades senast " + moment(lastChange).fromNow() + '.');
+			$(".save-time").css("visibility", "visible");
 		}
 	},
 
+	send: function(data){
+		$.ajax({'data': data});
+	},
+
 	updateProperty: function(data){
-		if(!data.updateType){ //i.e. falsy
-			e = new Error("The updateType cannot be empty!");
+		if(!data.updateMethod){ //i.e. falsy
+			e = new Error("The updateMethod cannot be empty!");
 			console.log(e.message);
 		}
 		console.log("Request:");
@@ -60,7 +63,7 @@ var Update = {
 		if(data.success){
 			$('.modal').modal('hide');
 			var newData = {
-				updateType: "setCookie",
+				updateMethod: "setCookie",
 				school: data.school,
 				onReturn: 'setAndReload'
 			};

@@ -17,4 +17,4 @@ wrong_school = "Ledaren går på en annan skola."
 [sms]
 confirm_visit = "Hej %%fname%%! Vänligen bekräfta att du och din grupp kommer på %%date_string%% genom att svara med ett enkelt \"Ja\" på detta sms. Annars hör av dig snarast! Hälsningar, Naturskolans databas"
 
-update_profile = "Hej! Vi saknar fortfarande din mejladress! Följ denna länk och uppdatera gärna snarast. Tack på förhand! Hälsningar, Naturskolans databas  %%login_url%%"
+update_profile = "Hej! Vi saknar fortfarande din mejladdress! Följ denna länk och uppdatera gärna snarast. Tack på förhand! Hälsningar, Naturskolans databas  %%login_url%%"

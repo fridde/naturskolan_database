@@ -1,7 +1,7 @@
 <?php
 namespace Fridde\Entities;
 
-use Fridde\Entities\{Group};
+use Fridde\Entities\Group;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
@@ -17,7 +17,7 @@ class School
     /** @Column(type="string") */
     protected $Name;
 
-    /** @Column(type="string") */
+    /** @Column(type="json_array") */
     protected $GroupNumbers;
 
     /** @Column(type="string") */
@@ -70,21 +70,19 @@ class School
 
     public function getGroupNumbers()
     {
-        return json_decode($this->GroupNumbers, true);
-    }
-
-    public function setGroupNumbers($numbers)
-    {
-        if(is_string($numbers)){
-            $numbers = json_decode($numbers, true);
-        }
-        $this->GroupNumbers = json_encode($numbers);
+        return $this->GroupNumbers;
     }
 
     public function getGroupNumber($grade)
     {
         $groupNumbers = $this->getGroupNumbers();
         return $groupNumbers[$grade];
+    }
+
+    public function setGroupNumbers(array $GroupNumbers)
+    {
+
+        $this->GroupNumbers = $GroupNumbers;
     }
 
     public function setGroupNumber($grade, $value)
@@ -140,9 +138,9 @@ class School
 
     /** @PrePersist */
     public function prePersist(){}
-    /** @PreUpdate */
-    public function preUpdate(){}
-    /** @PreRemove */
-    public function preRemove(){}
+        /** @PreUpdate */
+        public function preUpdate(){}
+            /** @PreRemove */
+            public function preRemove(){}
 
-}
+            }

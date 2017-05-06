@@ -195,7 +195,10 @@ class Visit
     }
 
     public function needsFood()
-    {        
+    {
+        if(!$this->hasGroup()){
+            return false;
+        }
         return $this->getTopic()->getFoodInstructions() === 0;
 
     }
@@ -205,7 +208,7 @@ class Visit
     /** @PreUpdate */
     public function preUpdate($event)
     {
-        $rq["update_type"] = "logChange";
+        $rq["update_method"] = "logChange";
         $rq["event"] = $event;
         $rq["trackables"] = ["Group", "Date", "Time"];
         Update::create($rq);

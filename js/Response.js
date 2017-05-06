@@ -19,7 +19,9 @@ var Response = {
         setAndReload: Cookie.setAndReload,
         removeRow: Update.removeRow,
         reloadPage: Update.reloadPage,
-        sliderChanged: Update.setSliderLabel
+        sliderChanged: Update.setSliderLabel,
+        datesAdded: Update.reloadPage, // TODO: Maybe exchange this for a better feedback
+        groupNameChanged: Update.groupName
     }
 
 };
