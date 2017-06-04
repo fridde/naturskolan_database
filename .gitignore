@@ -5,7 +5,7 @@ cli-config.php
 composer.lock
 logg.txt
 sandbox.php
-settings.toml
+settings.yml
 test.php
 
 backup/*
