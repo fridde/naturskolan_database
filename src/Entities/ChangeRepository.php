@@ -11,6 +11,10 @@ class ChangeRepository extends CustomRepository
         return $this->select($criteria);
     }
 
+    /**
+     * @param \Carbon\Carbon $date
+     * @return array
+     */
     public function findChangesOlderThan($date)
     {
         $criteria = ["lt", "Timestamp", $date->toIso8601String()];

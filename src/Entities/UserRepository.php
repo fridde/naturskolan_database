@@ -12,7 +12,8 @@ class UserRepository extends CustomRepository
 
     public function findAllUsersWithSchools()
     {
-        $users_id_name_school = array_map(function($u){
+        /* @var $u \Fridde\Entities\User */
+        $users_id_name_school = array_map(function(\Fridde\Entities\User $u){
             return [$u->getId(), $u->getFullName() . ", " . mb_strtoupper($u->getSchoolId())];
         }, $this->findAll());
         return array_column($users_id_name_school, 1, 0);
@@ -20,7 +21,7 @@ class UserRepository extends CustomRepository
 
     public function findIncompleteUsers($created_before = null)
     {
-        $users = array_filter($this->findActiveUsers(), function($u){
+        $users = array_filter($this->findActiveUsers(), function(\Fridde\Entities\User $u){
             return !($u->hasMobil() && $u->hasMail());
         });
         $this->removeImmune($users, $created_before);
@@ -29,7 +30,7 @@ class UserRepository extends CustomRepository
 
     public function findUsersWithBadMobil($created_before = null)
     {
-        $users = array_filter($this->findActiveUsers(), function($u){
+        $users = array_filter($this->findActiveUsers(), function(\Fridde\Entities\User $u){
             return $u->hasMobil() && !$u->hasStandardizedMob();
         });
         $this->removeImmune($users, $created_before);
@@ -41,7 +42,7 @@ class UserRepository extends CustomRepository
         if(empty($created_before)){
             return $users;
         }
-        return array_filter($users, function($u) use ($created_before){
+        return array_filter($users, function(\Fridde\Entities\User $u) use ($created_before){
             return !$u->wasCreatedAfter($created_before);
         });
     }

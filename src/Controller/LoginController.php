@@ -2,11 +2,12 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{HTML as H};
+use Fridde\HTML as H;
 
 
 class LoginController {
 
+    /** @var \Fridde\Naturskolan */
     public $N;
     private $params;
 
@@ -28,12 +29,31 @@ class LoginController {
         return null;
     }
 
-    public function checkCookie()
+    public function getSchoolFromCookie()
     {
         $hash = $_COOKIE["Hash"] ?? null;
         if(!empty($hash)){
         	$hash = $this->N->ORM->getRepository("Cookie")->findByHash($hash);
         	return empty($hash) ? null : $hash->getSchool();
+        }
+        return null;
+    }
+
+    /**
+     * Returns the school-id for the logged in user
+     *
+     * @param bool $ignore_empty_results
+     * @return \Fridde\Entities\School|null
+     * @throws \Exception
+     */
+    public function getSchooldIdFromCookie(bool $ignore_empty_results = false)
+    {
+        /* @var \Fridde\Entities\School $school  */
+        $school = $this->getSchoolFromCookie();
+        if(!empty($school)){
+            return $school->getId();
+        } elseif (!$ignore_empty_results) {
+            throw new \Exception("The school of the user could not be identified although the user is logged in. Weird!");
         }
         return null;
     }

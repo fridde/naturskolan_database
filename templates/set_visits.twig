@@ -1,40 +1,33 @@
-{% import "macros.twig" as F %}
+{%- extends "admin_area.twig" -%}
 
 {%- set groups, date_columns = DATA.groups, DATA.date_columns -%}
 
-<!DOCTYPE html>
-<html>
-<head>
-{{ include('head.twig')  }}
-</head>
-<body>
-    <div class="container-fluid">
-        <div><button id="send">Send away</button></div>
-        <div class="groups set-dates">
-            <h5>Grupper</h5>
-            <ul>
-                {% for group in groups %}
-                <li data-id="group_{{ group.id }}">{{ group.school|upper }}: {{ group.name }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% for col in date_columns %}
-        <div class="set-dates">
-            <h5>{{ col.serial }}: {{ col.name|slice(0,5) }}</h5>
-            <ul>
-                {% for visit in col.visits  %}
-                    {% if visit %}
+{% block content %}
+<div>
+    <button id="send">Send away</button>
+</div>
+<div class="groups set-dates">
+    <h5>Grupper</h5>
+    <ul>
+        {% for group in groups %}
+            <li data-id="group_{{ group.id }}">{{ group.school|upper }}: {{ group.name }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% for col in date_columns %}
+    <div class="set-dates">
+        <h5>{{ col.serial }}: {{ col.name|slice(0,5) }}</h5>
+        <ul>
+            {% for visit in col.visits %}
+                {% if visit %}
                     {%- if visit.has_group -%}{%- set row_class = "sortable-disabled" -%}
                     {%- else -%} {%- set row_class = "" -%}{%- endif -%}
                     <li class="{{ row_class }}" data-id="visit_{{ visit.id }}">{{ visit.date }}</li>
-                    {%- else -%}
+                {%- else -%}
                     <li class="sortable-disabled" data-id="visit_null">---</li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-        {% endfor %}
-
+                {% endif %}
+            {% endfor %}
+        </ul>
     </div>
-</body>
-</html>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,116 @@
+Connection_Details:
+
+  db_host :  localhost
+  db_name : naturskolan
+  db_username : root
+  db_password : ''
+
+ORM:
+  default_namespace : '\Fridde\Entities'
+
+debug:
+  mail : 'lanowojo@vpsorg.top' # at temp-mail.org
+  mobil : '0736665275'
+
+smtp_settings:
+  from : 'info@sigtunanaturskola.se'
+  host : 'smtp.sigtunanaturskola.se'
+  password : 'a3k3Y5xJ'
+  username : 'info@sigtunanaturskola.se'
+
+mailchimp:
+  api_key : '21d78c0b9bca7c55088db8064849f080-us9'
+  default_list : 'naturskolan_database' # the index of one of the lists below
+  lists:
+    larare:
+      categories : ''
+      id : '1ff7412fc8'
+    naturskolan_database:
+      id : '587590b7f2'
+
+cronjobs:
+  slot_duration : [15, m]
+  # delay : [3, "h"] # time after midnight when daily tasks are executed.  = 3am
+  delay : [0, h] # use 3h in production
+  max_calendar_age : [24, h]
+
+  intervals:
+    calendar_rebuild : [15, m]
+    mailchimp_sync : [12, h]
+    visit_confirmation_message : [24, h]
+    admin_summary : [24, h]
+    changed_group_leader_mail : [24, h]
+    new_user_mail : [6, h]
+    update_profile_reminder : [4, d]
+    table_cleanup : [2, d]
+
+admin:
+  table_menu_items: [Group, Location, School, SystemStatus, Topic, User, Visit]
+  summary:
+    # who should the summary go to?
+    admin_adress : 'info@sigtunanaturskola.se'
+    # time before a non-confirmed visit shows up in the mail
+    no_confirmation_warning : [5, d]
+    # time until the last visit before a warning is issued
+    soon_last_visit : [60, d]
+    # time to next visit within which a warning is issued if number of
+    # students or food restrictions are changed
+    important_info_changed : [21, d]
+    # minimum and maximum number of students in a group. If not in this range, a warning is issued
+    allowed_group_size : [5, 33]
+
+user_message:
+  # time after user creation until reminders are sent
+  immunity_time : [9, d]
+  # interval between reminders
+  annoyance_interval : [4, d]
+  visit_confirmation_time : [14, d]
+
+sms_settings:
+  google_api_key : 'AIzaSyAueOokSbfen3mlDCbgqlyO6oO_6YoT-8E'
+  default_gateway : 'smsgateway'
+
+  46elks:
+    from : '+46703730778'
+    password : 'D44132B5F439BD25BD723B7CEB71C3C6'
+    url : 'https://api.46elks.com/a1/'
+    username : 'u6b646d685e7084c78eb9b946a992c5f3'
+
+  smsgateway:
+    callback_secret : 'GtZDNBlk8BJSREsS'
+    device : '42912' # The id of the device
+    email : 'friedrich.hehl@sigtuna.se'
+    password : 'bqchPVTp'
+
+  telerivet:
+    # api_key : 'CtTRI9IAeh1wMwGW2BH3VT2vyIwYeg5r'
+    project_id : 'PJf189c95980727782'
+
+slacker:
+  webhook_url : 'https://hooks.slack.com/services/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'
+  username : 'Naturskolans databas'
+  channel : '#administration'
+
+values:
+  show_confirm_link : [30, d] # time before the confirmation link is shown in the group settings
+  school_pw_validity : 3 # nr of calendar years that a school password is valid
+  pw_salt : 'trbwvuagie'
+  api_key : 'esGWU1pDAONX5IdK'
+
+  min_max_students:
+    min : 5
+    max : 35 # the minimum and maximum of students allowed in each group
+
+calendar:
+  default_start_time : [8,15] # [hours, minutes]
+  default_end_time : [13,30] # [hours, minutes]
+  lektion_duration : 60 # in minutes
+
+defaults:
+  title : "Sigtuna Naturskolans databas"
+  js:
+    index : ["jquery.debug", "js.jqueryUI.debug", "js.tether", "js.bs.debug", "moment", "moment_sv", "js.natskol", "js.edit", "js.update", "js.slider", "js.cookie", "js.response", "js.tooltip", 'js.batch']
+  css:
+    index : ["css.bs", "css.fAwe", "css.jqueryUI", "css.natskol"]
+  placeholder:
+    animals : [Albatross,Alpacka,Anakonda,Antilop,Apa,Björn,Bläckfisk,Blåmes,Blåval,Bofink,Buffel,Bältdjur,Bäver,Capybara,Delfin,Dromedar,Duva,Ekorre,Elefant,Fjäril,Fladdermus,Flamingo,Flodhäst,Får,Get,Giraff,Gorilla,Gris,Groda,Grävling,Gädda,Hamster,Hare,Hermelin,Hjort,Hund,Häst,Hök,Höna,Igelkott,Isbjörn,Järv,Kalkon,Kamel,Kanin,Katt,Ko,Koala,Kobra,Krabba,Krokodil,Känguru,Lama,Lejon,Leopard,Lodjur,Lämmel,Mammut,Marsvin,Mink,Mullvad,Murmeldjur,Myra,Mård,Noshörning,Näbbdjur,Näbbmus,Oxe,Padda,Papegoja,Piggsvin,Pingvin,Python,Påfågel,Ren,Räv,Rådjur,Råtta,Rödhake,Salamander,Schimpans,Sebra,Sengångare,Skata,Skunk,Sköldpadda,Snok,Sparv,Spindel,Späckhuggare,Struts,Svan,Säl,Talgoxe,Tapir,Tiger,Torsk,Tumlare,Tvättbjörn,Uggla,Undulat,Utter,Varg,Vessla,Vildsvin,Älg,Öring,Örn]

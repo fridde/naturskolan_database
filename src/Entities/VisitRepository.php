@@ -13,9 +13,9 @@ class VisitRepository extends CustomRepository
 
     /**
      *
-     * @param  Carbon\Carbon|null $until The date after which visits are not included.
+     * @param  Carbon|null $until The date after which visits are not included.
      *                                   If omitted, all future visits are returned.
-     * @return Fridde\Entities\Visit[]  An array consisting of all visits from today until
+     * @return \Fridde\Entities\Visit[]  An array consisting of all visits from today until
      *                                  the specified date.
      */
     public function findFutureVisitsUntil(Carbon $until = null)
@@ -42,9 +42,9 @@ class VisitRepository extends CustomRepository
     /**
     * [findUnconfirmedVisitsUntil description]
     *
-    * @param  Carbon\Carbon|null $until The date after which visits are not included.
+    * @param  Carbon|null $until The date after which visits are not included.
     *                                   If omitted, all future visits are returned.
-    * @return [ArrayCollection]       [description]
+    * @return array
     */
     public function findUnconfirmedVisitsUntil(Carbon\Carbon $until = null)
     {

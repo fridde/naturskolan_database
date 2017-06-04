@@ -44,22 +44,15 @@ class SMSController extends MessageController
             $msg_id = $this->getRQ("id");
             $message = $this->N->findBy("Message", ["ExtId" => $msg_id]);
             if(!empty($message)){
-                $request["updateMethod"] = "updateProperty";
-                $request["entity_class"] = "Message";
-                $request["entity_id"] = $message->getId();
-                $request["property"] = "Status";
-                $request["value"] = strtolower($this->getRQ("status"));
-                $update_result = Update::create($request);
+                $e_id = $message->getId();
+                $val = strtolower($this->getRQ("status"));
+                (new Update)->updateProperty("Message", $e_id, "Status", $val);
             }
         } elseif($event == "received"){
             $check = $this->checkReceivedSmsForConfirmation();
             if($check["about_visit"]){
-                $request["updateMethod"] = "updateProperty";
-                $request["entity_class"] = "Visit";
-                $request["entity_id"] = $check["visit_id"];
-                $request["property"] = "Confirmed";
-                $request["value"] = "confirmed";
-                $update_result = Update::create($request);
+                $e_id = $check["visit_id"];
+                (new Update)->updateProperty("Visit", $e_id, "Confirmed", "confirmed");
             }
         }
     }

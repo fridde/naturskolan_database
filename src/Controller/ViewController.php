@@ -45,7 +45,7 @@ class ViewController {
 
         $DATA = $collection;
 
-        $this->H->setTitle();
+        $this->H->setTitle()->addNav();
         $this->H->setTemplate("food_order")->setBase();
 
         $this->H->addVariable("DATA", $DATA);
@@ -79,7 +79,7 @@ class ViewController {
         $DATA = $collection;
         $DATA["locations"] = $locations;
 
-        $this->H->setTitle();
+        $this->H->setTitle()->addNav();
         $this->H->setTemplate("bus_order")->setBase();
 
         $this->H->addVariable("DATA", $DATA);

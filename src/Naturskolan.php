@@ -18,17 +18,17 @@ use GuzzleHttp\Cookie\CookieJar;
 */
 class Naturskolan
 {
-	/** @var Contains an instance of Fridde\ORM */
+	/** @var \Fridde\ORM A doctrine ORM wrapped in own class */
 	public $ORM;
-	/** @var Contains an instance of GuzzleHttp\Client for HTTP requests */
+	/** @var \GuzzleHttp\Client Contains an instance of GuzzleHttp\Client for HTTP requests */
 	private $Client;
-	/** @var An instance of Googl to create short-links */
+	/** @var \dotzero\Googl An instance of Googl to create short-links */
 	private $Googl;
-	/** @var Instance of PasswordHandler */
+	/** @var \Fridde\PasswordHandler Instance of PasswordHandler */
 	private $PW;
-	/** @var A text array containing labels and other text bits  */
+	/** @var array A text array containing labels and other text bits  */
 	private $text_array;
-	/** @var the path for the text pieces */
+	/** @var string the path for the text pieces */
 	private $text_path = "text";
 
 	/**
@@ -46,7 +46,7 @@ class Naturskolan
     * Wrapper for Naturskolan->ORM->getRepository()
     *
     * @param  string $repo The (non-qualified-) name of the class of entities
-    * @return Doctrine\ORM\EntityRepository The repository
+    * @return mixed The repository
     */
     public function getRepo($repo)
     {
@@ -211,11 +211,11 @@ class Naturskolan
 	/**
 	*
 	*
-	* @param  Fridde\Entities\User $user The User object
+	* @param  \Fridde\Entities\User $user The User object
 	* @return string       The url a user can click to reach the school page
 	*                      without writing any password.
 	*/
-	public function createLoginUrl($user)
+	public function createLoginUrl(\Fridde\Entities\User $user)
 	{
 		$params["school"] = $user->getSchoolId();
 		$params["page"] = "team";
@@ -254,7 +254,11 @@ class Naturskolan
 		return $this->generateUrl('confirmvisit', $params);
 	}
 
-	public function checkPassword($school_id_password)
+    /**
+     * @param string $school_id_password
+     * @return bool
+     */
+    public function checkPassword(string $school_id_password)
 	{
 		if(substr($school_id_password, 0, 5) == 'user$'){
 			$code = substr($school_id_password, 5);
@@ -281,7 +285,8 @@ class Naturskolan
 	{
 		$router = $GLOBALS["CONTAINER"]->get("Router");
 		$url_end = $router->generate($route_name, $params);
-		return $_SERVER['HTTP_HOST'] . $url_end;
+		return $url_end;
+		//return $_SERVER['HTTP_HOST'] . $url_end;
 	}
 
 	public function sendRequest($url, $post_data = [], $api_key = true, $debug = false)

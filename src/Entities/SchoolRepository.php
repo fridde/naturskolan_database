@@ -37,4 +37,12 @@ class SchoolRepository extends CustomRepository
         return array_column($schools_id_name, 1, 0);
     }
 
+    public function findIdsAndLabels()
+    {
+        $school_labels = $this->findAllSchoolLabels();
+        return array_map(function($id, $label){
+            return ["value" => $id, "label" => $label];
+        }, array_keys($school_labels), $school_labels);
+    }
+
 }

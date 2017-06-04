@@ -1,7 +1,7 @@
 {% block head %}
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
 {%- if base -%}
-<base href="{{ base }}" target="_blank">
+<base href="{{ base }}" target="_self">
 {%- endif -%}
 {% for css in CssFiles %}
     <link rel="stylesheet" href="{{ css }}">

@@ -1,0 +1,14 @@
+{% import "macros.twig" as F %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    {{ include('head.twig') }}
+</head>
+<body>
+{{ include('nav.twig') }}
+<div class="container-fluid">
+    {%- block content -%} {%- endblock -%}
+</div>
+</body>
+</html>

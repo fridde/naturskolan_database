@@ -9,7 +9,6 @@ $(document).ready(function(){
 	baseUrl = $("base").attr("href");
 	$.ajaxSetup({
 		url: baseUrl + updateUrl,
-		complete: Response.handler,
 		type: 'POST',
 		dataType: 'json'
 	});
@@ -21,20 +20,21 @@ $(document).ready(function(){
 	setInterval(Update.setSaveTimeText, 10*1000);
 
 	$('.modal').modal('show');
-	$('#login_modal_submit').click(function(){
+	var $login_modal_submit = $('#login_modal_submit');
+    $login_modal_submit.click(function(){
 		var data = {
 			updateMethod: "checkPassword",
 			password: $("[name='password']").val(),
 			onReturn: 'passwordCorrect'
 		};
-		Update.updateProperty(data);
+		Update.send(data);
 	});
 	var predefined_pw = $('#login-modal input[name="password"]').val();
 	if(typeof predefined_pw === "string" && predefined_pw !== ''){
-		$('#login_modal_submit')[0].click();
+        $login_modal_submit[0].click();
 	}
 
-	/**
+    /**
 	* Initialize sortable lists here
 	*/
 	$(".sortable").sortable();
@@ -50,7 +50,7 @@ $(document).ready(function(){
 	/**
 	* This button is used on /batch/set_visits/{grade}
 	* and sends away all configurations as a big array
-	* TODO: complete this function
+	*
 	*/
 	$("button#send").click(function(){
 		lists = [];
@@ -68,37 +68,63 @@ $(document).ready(function(){
 		};
 		console.log(lists);
 		//Update.send(data);
+		// TODO: complete this function
 	});
 	/**
 	* This button is used on /batch/add_dates/{topic_id}
 	* and "cleans" the textarea after inserting date rows using a method written in
 	* google spreadsheets. It removes empty rows and trims and sorts the rows.
 	*/
-	$("button#clean").click(function(){
-		$text = $("textarea.date-lines");
-		var textArray = $text.val().split(/\r|\n|;/).map(function(i){
+	$(".add-dates button#clean").click(function(){
+		var $text = $("textarea.date-lines");
+		var lines = $text.val().split(/\r|\n|;/).map(function(i){
 			return i.trim();
 		}).filter(function(i){
 			return i.length > 0;
 		}).sort();
-		$text.val(textArray.join("\n"));
+		$text.val(lines.join("\n"));
 	});
+
+	$('.set-group-count button#clean').click(function(){
+        var $text = $("textarea.group-count-lines");
+        var lines = $text.val().split(/\r|\n|;/).map(function(i){
+            return i.trim();
+        }).filter(function(i){
+            return i.length > 0;
+        });
+        $text.val(lines.join("\n"));
+    });
+
 	/**
 	* This button is used on /batch/add_dates/{topic_id}
 	* and sends the date array in the textarea as "value"
 	* and the topic_id as "entity_id"
 	*/
-	$("button#add").click(function(){
+	$(".add-dates button#add").click(function(){
 		var textarea = $("textarea.date-lines");
-		var textArray = textarea.val().split(/\r|\n/);
+		var lines = textarea.val().split(/\r|\n/);
 		var data = {
 			updateMethod : "addDates",
-			entity_id: textarea.data("id"),
-			value: textArray,
+			topic_id: $('select.date-lines').val(),
+			dates: lines,
 			onReturn: "datesAdded"
 		};
 		Update.send(data);
 	});
+
+    $('.set-group-count button#update').click(function(){
+        var $text = $("textarea.group-count-lines");
+        var lines = $text.val().split(/\r|\n/).map(function(i){
+            return i.split(',').map(function(j){return j.trim()});
+        });
+        var data = {
+            updateMethod : "batchSetGroupCount",
+            group_numbers : lines,
+            start_year : $('#start-year-selector').val(),
+            onReturn: "groupCountUpdated"
+        };
+        Update.send(data);
+    });
 
 	$("#add-row-btn").click(function(){
 		var oldRow = $(".editable tbody tr:last");
@@ -121,12 +147,12 @@ $(document).ready(function(){
 		var h1 = $(event.target).closest('h1');
 		var dataId = h1.closest(".group-container").attr("data-entity-id");
 		var inputField = h1.children('input');
-		if(event.type == 'click' || event.type == 'dblclick'){
+		if(event.type === 'click' || event.type === 'dblclick'){
 			h1.children("span, i").hide();
 			inputField.val(h1.children('span').text());
 			inputField.show().focus();
 
-		} else if (event.type == 'focusout'){
+		} else if (event.type === 'focusout'){
 			var newName = h1.children('input').hide().val();
 			var data = {
 				updateMethod : "changeGroupName",
@@ -148,9 +174,10 @@ $(document).ready(function(){
 	/**
 	* Configuration of callbacks for several elements
 	*/
-	$(".group-container .editable").change("group", Edit.change);
-	$(".editable").find(":input").not(".datepicker").change("tableInput", Edit.change);
-	$(".editable").find(".datepicker").on("changeDate", ["tableInput", "datepicker"] , Edit.change);
+	$editable = $(".editable");
+    $('.group-container .editable').change('group', Edit.change);
+    $('table.editable :input').not(".datepicker").change("tableInput", Edit.change);
+    $editable.filter(".datepicker").on("changeDate", ["tableInput", "datepicker"] , Edit.change);
 	$("#group-change-modal input").change("groupModal", Edit.change);
 
 	/**
@@ -189,7 +216,8 @@ $(document).ready(function(){
 	});
 
 	if(typeof(DataTableConfigurator) !== "undefined"){
-		$("table").DataTable(DataTableConfigurator.options($("table")));
+	    var $table = $("table");
+        $table.DataTable(DataTableConfigurator.options($table));
 	}
 
 

@@ -38,7 +38,7 @@ class TableController {
         $DATA["entity_class"] = $this->entity_class;
         $DATA["sortable"] = $this->t_settings["sortable"] ?? false;
 
-        $this->H->setTitle();
+        $this->H->setTitle()->addNav();
         $js = ["js.bs.date.debug", "js.bs.date.sv", "js.DT", "js.DT.config"];
         $css = ["css.bs.date", "css.DT"];
         $this->H->addDefaultJs("index")->addJs($js)
@@ -132,6 +132,7 @@ class TableController {
 
         if(in_array($ec, ["School"])){
             $cols["GroupNumbers"]["value"] = "getGroupNumbersAsString";
+            $cols["GroupNumbers"]["type"] = "readonly";
         }
 
         if(in_array($ec, ["Visit"])){
@@ -200,7 +201,7 @@ class TableController {
                     $entity = $this->N->ORM->getRepository($this->entity_class)->findOneBy([]);
                     $cols[$name]["options"] = call_user_func([$entity, $val["options"]]);
                 } else {
-                    throw new Exception("Options could not be retrieved for parameter " . var_export($val["options"], true));
+                    throw new \Exception("Options could not be retrieved for parameter " . var_export($val["options"], true));
                 }
             }
         }

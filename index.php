@@ -3,11 +3,12 @@
 require __DIR__ . '/vendor/autoload.php';
 
 use Fridde\Essentials;
+use Fridde\Settings;
 
 /** START OF BOOTSTRAP  */
 Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl();
-Essentials::getSettings();
+Settings::setSettings();
 Essentials::activateDebug(["tracy"]);
 Essentials::activateGlobalFunctions();
 
@@ -33,14 +34,12 @@ if(substr($request_url, -1) == '/'){
 
 $match = $router->match($request_url);
 if($match){
-
 	list($class, $method) = explode('#', $match["target"]);
 	$controller_class = '\\Fridde\\Controller\\' . $class . "Controller";
 	$object = new $controller_class($match["params"]);
 	$object->$method();
 	exit();
 } else {
-	$error_string = 'The URL "' . $request_url . '" did not have a matching route.';
-	throw new \Exception($error_string);
-	exit();
+    header( $_SERVER["SERVER_PROTOCOL"] . ' 404 Not Found');
+    exit();
 }

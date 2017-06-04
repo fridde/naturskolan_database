@@ -82,7 +82,7 @@ class DatabaseMaintainer
             $this->N->ORM->EM->remove($entity);
         });
         array_walk($nameless, function($g){
-            $g->setPlaceholderName();
+            $g->setName();
         });
 
         $this->N->ORM->EM->flush();

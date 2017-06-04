@@ -1,20 +1,24 @@
-{% import "macros.twig" as F %}
+{%- extends "admin_area.twig" -%}
 
 {%- set calendar, date_strings = DATA.calendar, DATA.date_strings -%}
-<pre>
-{% for week_nr, days in calendar  %}
-#########
-Vecka {{ week_nr }}
-#########
-{% for day_index, visits in days %}
--------------
-# {{ date_strings[day_index] }}
--------
-{% for visit in visits %}
-{{ visit.group_name|default('???') }}, {{ visit.grade_label }}. Temadag "{{ visit.topic_name }}" på/i {{ visit.location }}. {{ visit.students_nr|default('???') }} elever.
-Specialkost: {{ visit.diet|default('???') }}
+{% block content %}
+    <pre>
+{% for week_nr, days in calendar %}
+    #########
+    Vecka {{ week_nr }}
+    #########
+    {% for day_index, visits in days %}
+        -------------
+        # {{ date_strings[day_index] }}
+        -------
+        {% for visit in visits %}
+            {{ visit.group_name|default('???') }}, {{ visit.grade_label }}. Temadag "{{ visit.topic_name }}" på/i {{ visit.location }}. {{ visit.students_nr|default('???') }} elever.
+            Specialkost: {{ visit.diet|default('???') }}
 
-{% endfor -%}
-{%- endfor -%}
+        {% endfor -%}
+    {%- endfor -%}
 {%- endfor -%}
 </pre>
+{% endblock %}
+
+
