@@ -42,6 +42,10 @@ class Visit
     }
 
     public function getId(){return $this->id;}
+
+    /**
+     * @return \Fridde\Entities\Group
+     */
     public function getGroup(){return $this->Group;}
 
     public function getGroupId()
@@ -75,6 +79,9 @@ class Visit
         $this->Date = $Date;
     }
 
+    /**
+     * @return \Fridde\Entities\Topic
+     */
     public function getTopic(){return $this->Topic;}
 
     public function getTopicId()
@@ -208,10 +215,8 @@ class Visit
     /** @PreUpdate */
     public function preUpdate($event)
     {
-        $rq["update_method"] = "logChange";
-        $rq["event"] = $event;
-        $rq["trackables"] = ["Group", "Date", "Time"];
-        Update::create($rq);
+        $trackables = ["Group", "Date", "Time"];
+        (new Update)->logChange($event, $trackables);
     }
     /** @PreRemove */
     public function preRemove(){}

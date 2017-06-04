@@ -1,19 +1,26 @@
 var Response = {
 
-    handler: function(jqXHR, status){
+    handler: function (jqXHR, onReturn) {
         var data = jqXHR.responseJSON;
         console.log("Response:");
         console.log(data);
-        if(typeof data == 'undefined' || data.errors.length > 0){
+        if (typeof data === 'undefined' || data.errors.length > 0) {
             console.log('The response didn\'t come back without errors.');
             console.log(data.errors);
         } else {
-            var callbackHandler = Response.callbackTranslator[data.onReturn];
-            response = callbackHandler.call(this, data);
+            if (typeof onReturn === 'undefined') {
+                console.log('No return function was defined');
+            } else {
+                var callbackHandler = Response.callbackTranslator[onReturn];
+                if(typeof callbackHandler === 'undefined'){
+                    console.log("The return function <" + onReturn + "> was not defined in Response.js");
+                }
+                response = callbackHandler.call(this, data);
+            }
         }
     },
 
-    callbackTranslator : {
+    callbackTranslator: {
         passwordCorrect: Update.passwordCorrect,
         lastChange: Update.lastChange,
         setAndReload: Cookie.setAndReload,

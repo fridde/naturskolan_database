@@ -12,8 +12,8 @@ class BatchController {
     private $params;
     /** @var \Fridde\HTML A Html object to build the page */
     private $H;
-    private $operations = ["set_visits" => "setVisits", "add_dates" => "addDates",
-    "add_groups" => "addGroups"];
+    /* @var array $operations An array that translates the operation parameter to the method executed  */
+    private $operations = [];
 
     public function __construct($params)
     {
@@ -28,25 +28,26 @@ class BatchController {
         if(empty($operation)){
             throw new \Exception("The operation parameter can not be empty");
         }
-        $method = $this->operations[$operation] ?? $operation;
+        $method = $this->operations[$operation] ?? U::toCamelCase($operation);
         $this->$method();
     }
 
+    /**
+     * @route admin/batch/
+     */
     private function addDates()
     {
-        $topic_id = $this->params["filter"] ?? null;
-        $topic = $this->N->ORM->getRepository("Topic")->find($topic_id);
-        if(empty($topic)){
-            // return 404
-            throw new \Exception("No topic with the id <" . $topic_id . "> found.");
-        }
-        $DATA["topic"] = ["id" => $topic_id];
-        $DATA["topic"]["serial"] = $topic->getGrade() . "." . $topic->getVisitOrder();
-        $DATA["topic"]["name"] = $topic->getShortName();
+        /* @var \Fridde\Entities\TopicRepository $topic_repo  */
+        $topic_repo = $this->N->getRepo("Topic");
+        $topics = $topic_repo->findLabelsForTopics();
+        $DATA["topics"] = array_map(function($key, $value){
+           return ["id" => $key, "label" => $value];
+        }, array_keys($topics), $topics);
 
         $this->H->addDefaultJs("index")->addDefaultCss("index")
         ->setTemplate("add_dates")->setBase();
 
+        $this->H->addNav();
         $this->H->addVariable("DATA", $DATA);
         $this->H->render();
     }
@@ -60,6 +61,7 @@ class BatchController {
         $filter = explode(",", $this->params["filter"] ?? null);
         $grade = $filter[0] ?? null;
         $start_year = $filter[1] ?? null;
+        $criteria = [];
         if(!empty($grade)){
             $criteria[] = ["Grade", $grade];
         }
@@ -130,14 +132,19 @@ class BatchController {
         $this->H->addDefaultJs("index")->addDefaultCss("index")
         ->setTemplate("set_visits")->setBase();
 
+        $this->H->addNav();
         $this->H->addVariable("DATA", $DATA);
         $this->H->render();
     }
 
-    private function addGroups()
+    public function setGroupCount()
     {
-
+        $this->H->addDefaultJs("index")->addDefaultCss("index")
+            ->setTemplate("set_group_count")->setBase();
+        $this->H->addNav();
+        $this->H->render();
     }
+
 
 
 

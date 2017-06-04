@@ -3,7 +3,7 @@ namespace Fridde;
 
 use Fridde\Utility as U;
 use Fridde\Entities\Group;
-use Fridde\Task;
+use Psr\Http\Message\ResponseInterface;
 
 /**
 * This class compiles a summary of the state of the system and the database and informs
@@ -49,27 +49,27 @@ public function __construct ()
 /**
 * Calls compileSummary() and sends the content to the current admin mail address
 *
-* @return \Guzzle\Http\Message\Response The response object returned by the request
+* @return ResponseInterface The response object returned by the request
 */
 public function send()
 {
     $this->summary = $this->compileSummary();
     if(empty($this->summary)){
-        return true;
+        return null;
     }
     $data["data"]["errors"] = $this->summary;
     $data["data"]["labels"] = $this->N->getText(["admin_summary"]);
-    $url = $this->N->createMailUrl("admin_summary");
+    $url = $this->N->generateUrl("mail", ["purpose" => "admin_summary"]);
     return $this->N->sendRequest($url, $data);
 }
 
 
 /**
 * Performs a variety of checks of the whole system (visits, missing or bad information, etc)
-* and saves any anomalities in the parameter *summary* using addToAdminMail().
+* and saves any anomalies in the parameter *summary* using addToAdminMail().
 *
 * @return array The array containing the error_types as index and an array containing each
-*               incident of the error occuring as a string
+*               incident of the error occurring as a string
 */
 private function compileSummary()
 {
@@ -80,13 +80,17 @@ private function compileSummary()
     return array_filter($summary);
 }
 
-private function getBadMobileNumbers()
+    /**
+     * @return array
+     */
+    private function getBadMobileNumbers()
 {
     $rows = [];
     $imm_date = Task::getStartDate("immunity");
     $users_with_bad_mob = $this->N->getRepo("User")->findUsersWithBadMobil($imm_date);
+    /* @var $u \Fridde\Entities\User */
     foreach($users_with_bad_mob as $u){
-        $row = $u->getCompleteName() . ", ";
+        $row = $u->getFullName() . ", ";
         $row .= $u->getSchool()->getName() . ": ";
         $row .= "Mobil: " . $u->hasMobil();
         $rows[] = $row;
@@ -97,6 +101,7 @@ private function getBadMobileNumbers()
 private function formatGroupChange($change, string $property_name)
 {
     $text = "";
+    /* @var $g \Fridde\Entities\Group */
     $g = $change["group"];
 
     $text = $g->getGradeLabel() . ", ";
@@ -120,9 +125,10 @@ private function getInactiveGroupVisits()
 {
     $rows = [];
     $visits = $this->N->getRepo("Visit")->findFutureVisits();
-    $bad_visits = array_filter($visits, function($v){
+    $bad_visits = array_filter($visits, function(\Fridde\Entities\Visit $v){
         return $v->hasGroup() && !$v->getGroup()->isActive(); //empty groups are okay
     });
+    /* @var $v \Fridde\Entities\Visit */
     foreach($bad_visits as $v){
         $row = "Ogiltigt besök på ";
         $row .= $v->getDate()->toDateString() . ": ";
@@ -150,7 +156,7 @@ private function getChangedStudentNrs()
 
 private function getLoomingLastVisit()
 {
-    $days_left_interval = Naturskolan::getSetting("admin_summary", "soon_last_visit");
+    $days_left_interval = Naturskolan::getSetting("admin","summary", "soon_last_visit");
     $last_visit_deadline = U::addDuration($days_left_interval);
     $last_visit = $this->N->getRepo("Visit")->findLastVisit();
     if(empty($last_visit) || $last_visit->getDate()->lte($last_visit_deadline)){
@@ -162,10 +168,14 @@ private function getLoomingLastVisit()
     return false;
 }
 
-private function getWrongStudentNumbers()
+    /**
+     * @return array
+     */
+    private function getWrongStudentNumbers()
 {
     $rows = [];
-    $range = Naturskolan::getSetting("admin_summary", "allowed_group_size");
+    $range = Naturskolan::getSetting("admin","summary", "allowed_group_size");
+    /* @var $g \Fridde\Entities\Group */
     $ill_sized_groups = array_filter($groups, function($g) use ($range){
         $nr_students = $g->getNumberStudents();
         return $nr_students > 0 && ($nr_students < $range[0] || $nr_students > $range[1]);
@@ -184,8 +194,9 @@ private function getIncompleteUserProfiles()
     $rows = [];
     $imm_date = Task::getStartDate("immunity");
     $incomplete_users = $this->N->getRepo("User")->findIncompleteUsers($imm_date);
+    /* @var $u \Fridde\Entities\User */
     foreach($incomplete_users as $u){
-        $row = $u->getCompleteName() . ", ";
+        $row = $u->getFullName() . ", ";
         $row .= $u->getSchool()->getName() . ": ";
         $row .= "Mobil: " . ($u->hasMobil() ? $u->getMobil() : '???') . ", ";
         $row .= "Mejl: " . ($u->hasMail() ? $u->getMail() : '???') . ", ";
@@ -197,11 +208,11 @@ private function getIncompleteUserProfiles()
 private function getUnconfirmedVisits()
 {
     $rows = [];
-    $no_conf_interval = Naturskolan::getSetting("admin_summary", "no_confirmation_warning");
+    $no_conf_interval = Naturskolan::getSetting("admin","summary", "no_confirmation_warning");
     $days = U::convertDuration($no_conf_interval, "d");
     $unconfirmed_visits = $this->N->getRepo("Visit")->findUnconfirmedVisitsUntil($days)->toArray();
+    /* @var $visit \Fridde\Entities\Visit  */
 
-    $visit = $entity;
     foreach($unconfirmed_visits as $visit){
         $g = $visit->getGroup();
         $u = $g->getUser();
@@ -221,7 +232,7 @@ private function getWrongGroupCounts()
 {
     $rows = [];
     $schools = $this->N->getRepo("School")->findAll();
-
+    /* @var $school \Fridde\Entities\School  */
     foreach($schools as $school){
         foreach(Group::GRADE_LABELS as $grade_id => $label){
             $active = $school->getNrActiveGroupsByGrade($grade_id);
@@ -242,7 +253,7 @@ private function getWrongGroupLeaders()
     $rows = [];
 
     $groups = $this->N->getRepo("Group")->findActiveGroups();
-
+    /* @var $group \Fridde\Entities\Group  */
     foreach($groups as $group){
         $id = $group->getId();
         $u = $group->getUser();
@@ -277,12 +288,14 @@ private function getOutdatedFoodOrders(){} //TODO: implement this function
 
 private function setRecentGroupChanges()
 {
-    $deadline = U::addDuration(Naturskolan::getSetting("admin_summary", "important_info_changed"));
+    $deadline = U::addDuration(Naturskolan::getSetting("admin","summary", "important_info_changed"));
     $recent_group_changes = [];
 
     $crit = [["EntityClass", "Group"], ["in", "Property", ["Food", "NumberStudents", "Info"]]];
     $group_changes = $this->N->getRepo("Change")->findNewChanges($crit);
+    /* @var $change \Fridde\Entities\Change  */
     foreach($group_changes as $change){
+        /* @var $g \Fridde\Entities\Group */
         $g = $this->N->getRepo("Group")->find($change->getEntityId());
         $next_visit = $g->getNextVisit();
         if(!empty($next_visit) && $next_visit->isBefore($deadline)){

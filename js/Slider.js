@@ -2,14 +2,14 @@ var Slider = {
 
 	set : function(jqueryObj, optionParam){
 		var data = {};
-		var container;
+		var container, entity_id;
 
 		if(optionParam == "group"){
 			container = jqueryObj.closest(".group-container");
-			data.entity_id = container.data("entity-id");
+            entity_id = container.data("entity-id");
 		} else if(optionParam == "entity"){
 			container = jqueryObj.closest("table");
-			data.entity_id = jqueryObj.closest("tr").data("entity-id");
+            entity_id = jqueryObj.closest("tr").data("entity-id");
 		}
 
 		data.sliderLabelId = jqueryObj.data("slider-label-id");
@@ -23,10 +23,11 @@ var Slider = {
 			change: function(event, ui){
 				data.updateMethod = "sliderUpdate";
 				data.entity_class = container.data("entity");
+				data.entity_id = entity_id;
 				data.property = jqueryObj.attr("name");
-				data.onReturn = 'sliderChanged';
 				data.value = ui.value;
-				setTimeout(Update.updateProperty(data), saveDelay);
+                data.onReturn = 'sliderChanged';
+				setTimeout(Update.send(data), saveDelay);
 			},
 			slide: function(event, ui){
 				data.direct = true;

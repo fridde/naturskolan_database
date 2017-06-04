@@ -2,7 +2,8 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{Update};
+use Fridde\Update;
+use Fridde\Utility as U;
 
 class UpdateController {
 
@@ -19,8 +20,14 @@ class UpdateController {
     public function handleRequest()
     {
         $update = new Update($this->RQ);
-        $return = $update->execute()->getReturn();
-        echo json_encode($return);
+        $update_method = $this->RQ["updateMethod"] ?? $this->RQ["update_method"] ?? null;
+        if(empty($update_method)){
+            throw new \InvalidArgumentException('Missing updateMethod in $_REQUEST');
+        }
+        $args = U::pluck($this->RQ, Update::getMethodArgs($update_method));
+        call_user_func_array([$update, $update_method], $args);
+
+        echo json_encode($update->getReturn());
     }
 
 }

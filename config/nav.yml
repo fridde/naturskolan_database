@@ -1,0 +1,65 @@
+NAV_SETTINGS:
+  base:
+    - &home
+      label: 'Hem'
+      url: ''
+    - &support
+      label: 'Hjälp'
+      url: 'support'
+    - &logout
+      label: 'Logga ut'
+      url: 'logout'
+    - &staff
+      label: 'Personal'
+      method: 'getStaffPageUrl'
+    - &contact
+      label: 'Kontakt'
+      url: 'contact'
+
+  admin:
+    -
+      <<: *home
+    -
+      label: 'Skolor'
+      children:
+        method: 'getAllSchoolUrls'
+    -
+      label: 'Kontrollrum'
+      url: 'admin'
+      children:
+        items:
+          -
+            label: 'Lägg till besöksdatum till tema'
+            url: 'admin/batch/add_dates'
+          -
+            label: 'Fördela besök på grupper'
+            url: 'admin/batch/set_visits'
+          -
+            label: 'Redigera kalendern'
+            url: 'calendar/edit'
+    -
+      label: 'Tabeller'
+      children:
+        method: 'getAllTableUrls'
+  user:
+    -
+      <<: *home
+    -
+      label: 'Grupper'
+      method: 'getGroupsPageUrl'
+    -
+      <<: *staff
+    -
+      <<: *support
+    -
+      <<: *logout
+    -
+      <<: *contact
+
+
+
+  guest:
+    -
+      <<: *support
+    -
+      <<: *contact

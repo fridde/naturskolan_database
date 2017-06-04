@@ -6,10 +6,10 @@ use Carbon\Carbon;
 use Fridde\Update;
 
 /**
-* @Entity(repositoryClass="Fridde\Entities\GroupRepository")
-* @Table(name="groups")
-* @HasLifecycleCallbacks
-*/
+ * @Entity(repositoryClass="Fridde\Entities\GroupRepository")
+ * @Table(name="groups")
+ * @HasLifecycleCallbacks
+ */
 class Group
 {
     /** @Id @Column(type="integer") @GeneratedValue    */
@@ -74,17 +74,25 @@ class Group
     }
 
     public function hasName(){return $this->has("Name");}
+
+    /**
+     * @return \Fridde\Entities\User
+     */
     public function getUser(){return $this->User;}
 
     public function getUserId()
     {
         return $this->getUser()->getId();
     }
-    public function setUser(...$properties){
-        $this->User = $this->convertToEntity("User", $properties);
-        $this->User->addGroup($this);
+    public function setUser(User $User){
+        $this->User = $User;
     }
+
     public function hasUser(){return !empty($this->User);}
+
+    /**
+     * @return \Fridde\Entities\School
+     */
     public function getSchool(){return $this->School;}
 
     public function getSchoolId()
@@ -92,8 +100,8 @@ class Group
         return $this->getSchool()->getId();
     }
 
-    public function setSchool(...$properties){
-        $this->School = $this->convertToEntity("School", $properties);
+    public function setSchool($School){
+        $this->School = $School;
     }
     public function getGrade(){return $this->Grade;}
     public function getGradeLabel(){
@@ -135,16 +143,22 @@ class Group
         return self::STATUS;
     }
 
-    public function setStatus(){$this->Status = func_get_arg(0);}
+    public function setStatus($Status)
+    {
+        if(is_string($Status)){
+            $Status = array_search(strtolower($Status), self::STATUS);
+        }
+        $this->Status = $Status;
+    }
     public function isActive()
     {
-        return self::STATUS[$this->getStatus()] == "active";
+        return self::STATUS[$this->getStatus()] === "active";
     }
 
     public function getLastChange(){return $this->LastChange;}
-    public function setLastChange(){$this->LastChange = func_get_arg(0);}
+    public function setLastChange($LastChange){$this->LastChange = $LastChange;}
     public function getCreatedAt(){return $this->CreatedAt;}
-    public function setCreatedAt(){$this->CreatedAt = func_get_arg(0);}
+    public function setCreatedAt($CreatedAt){$this->CreatedAt = $CreatedAt;}
     public function hasVisits()
     {
         return !$this->Visits->isEmpty();
@@ -203,23 +217,12 @@ class Group
         return !empty($this->getNextVisit());
     }
 
-    public function convertToEntity($entity_class, $args)
-    {
-        $id_or_entity = $args[0];
-        $entity = $id_or_entity;
-        if(is_string($id_or_entity) || is_integer($id_or_entity)){
-            $ORM = $args[1];
-            $entity = $ORM->find($entity_class, $id_or_entity);
-        }
-        return $entity;
-    }
-
-/**
- *
- * @param  \Fridde\Entities\Group  $other_group Another group to compare to.
- * @return int Returns a negative number if this group is supposed to visit before
- *             the other group, returns a positive number otherwise. Won't return 0.
- */
+    /**
+     *
+     * @param  \Fridde\Entities\Group  $other_group Another group to compare to.
+     * @return int Returns a negative number if this group is supposed to visit before
+     *             the other group, returns a positive number otherwise. Won't return 0.
+     */
     public function compareVisitOrder(Group $other_group)
     {
         $v_order_1 = $this->getSchool()->getVisitOrder();
@@ -240,10 +243,8 @@ class Group
     /** @PreUpdate */
     public function preUpdate($event)
     {
-        $rq["update_method"] = "logChange";
-        $rq["event"] = $event;
-        $rq["trackables"] = ["User", "Food", "NumberStudents", "Info"];
-        Update::create($rq);
+        $trackables = ["User", "Food", "NumberStudents", "Info"];
+        (new Update())->logChange($event, $trackables);
     }
     /** @PreRemove */
     public function preRemove(){}

@@ -107,6 +107,9 @@ class User
     public function getMail(){return $this->Mail;}
     public function setMail($Mail){$this->Mail = trim($Mail);}
     public function hasMail(){return !empty(trim($this->Mail));}
+    /**
+     * @return \Fridde\Entities\School
+     */
     public function getSchool(){return $this->School;}
 
     public function getSchoolId()
@@ -311,9 +314,7 @@ class User
     /** @PostPersist */
     public function postPersist($event)
     {
-        $rq["update_method"] = "logNewEntity";
-        $rq["event"] = $event;
-        Update::create($rq);
+        (new Update())->logNewEntity($event);
     }
     /** @PreUpdate */
     public function preUpdate()

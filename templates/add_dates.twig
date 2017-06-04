@@ -1,21 +1,17 @@
-{% import "macros.twig" as F %}
+{%- extends "admin_area.twig" -%}
 
-{%- set topic = DATA.topic -%}
+{%- set topics = DATA.topics -%}
 
-<!DOCTYPE html>
-<html>
-<head>
-{{ include('head.twig')  }}
-</head>
-<body>
-    <div class="container-fluid">
-        <h1>{{ topic.serial }}: {{ topic.name }}</h1>
-        <div>
-            <button id="clean">Clean up</button>
-            <button id="add">Add to database</button>
-        </div>
-        <textarea class="date-lines" data-id="{{ topic.id }}" cols="20" rows="50"></textarea>
-
+{% block content %}
+    <select class="date-lines">
+        {% for topic in topics %}
+            <option value="{{ topic.id }}">{{ topic.label }}</option>
+        {% endfor %}
+    </select>
+    <div class="add-dates">
+        <button id="clean">Clean up</button>
+        <button id="add">Add to database</button>
     </div>
-</body>
-</html>
+    <textarea class="date-lines" cols="20" rows="50"></textarea>
+{% endblock %}
+

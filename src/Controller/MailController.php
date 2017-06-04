@@ -40,7 +40,7 @@ class MailController extends MessageController
         $this->HTML->setTitle("Sammanfattning: Status av databasen");
         $this->HTML->setTemplate("admin_summary");
         $this->HTML->addCssFile("admin_summary.css");
-        $receiver = SETTINGS["admin_summary"]["admin_address"];
+        $receiver = SETTINGS["admin"]["summary"]["admin_address"];
         $this->Mailer->set("receiver", $receiver);
         $this->Mailer->set("subject", "Dagliga sammanfattningen av databasen");
 

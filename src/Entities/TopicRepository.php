@@ -7,7 +7,7 @@ class TopicRepository extends CustomRepository
 {
     public function findLabelsForTopics()
     {
-        $topics_id_name_grade = array_map(function($t){
+        $topics_id_name_grade = array_map(function(\Fridde\Entities\Topic $t){
             $label = "[" . $t->getGradeLabel() ."] ";
             $label .= $t->getShortName();
             return [$t->getId(), $label];
