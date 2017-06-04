@@ -9,7 +9,6 @@
         }
     ],
     "require": {
-        "drewm/mailchimp-api": "2.4",
         "nesbot/carbon": "1.22",
         "fridde/html": "dev-master",
         "fridde/mailer": "dev-master",
@@ -20,12 +19,14 @@
         "fridde/essentials": "dev-master",
         "fridde/slacker": "dev-master",
         "fridde/orm": "dev-master",
-        "fzaninotto/faker": "1.6",
         "altorouter/altorouter": "1.2",
         "guzzlehttp/guzzle": "6.2",
         "hashids/hashids": "2.0",
         "dotzero/googl": "0.2.0",
         "symfony/yaml": "3.3.0"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "1.6"
     },
 	"autoload": {
         "psr-4": { "Fridde\\": "src/" }
