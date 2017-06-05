@@ -18,8 +18,7 @@ sigtunanaturskola.se/
 temp/
 tests/
 vendor/
-.htaccess
-.log
+*.log
 test_*
 .ftpconfig
 .idea/
