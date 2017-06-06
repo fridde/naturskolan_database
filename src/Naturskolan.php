@@ -256,7 +256,7 @@ class Naturskolan
 
     /**
      * @param string $school_id_password
-     * @return bool
+     * @return string|bool $school_id or false if none is found
      */
     public function checkPassword(string $school_id_password)
 	{
@@ -268,7 +268,7 @@ class Naturskolan
 				return $user->getSchool()->getId();
 			}
 		} else {
-			return $this->PW->checkPassword($school_id_password);
+			return $this->PW->passwordToSchoolId($school_id_password);
 		}
 	}
 
