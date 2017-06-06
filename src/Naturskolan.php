@@ -39,7 +39,7 @@ class Naturskolan
 	public function __construct ()
 	{
 		$this->ORM = new ORM();
-		$this->PW = new PW();
+        $this->PW = new PW();
 	}
 
 	/**

@@ -135,7 +135,7 @@ class Update extends DefaultUpdate
         $hash = $GLOBALS["CONTAINER"]->get("Naturskolan")->createHash();
         $expiration_date = Carbon::now()->addDays(90)->toIso8601String();
         $cookie = new Cookie();
-        $school = $this->ORM->getRepository("School")->find($school_id);
+        $school = $this->getRepo("School")->find($school_id);
         $cookie->setValue($hash)->setName("Hash")->setSchool($school);
         $cookie->setRights("school_only");
         $this->ORM->save($cookie);

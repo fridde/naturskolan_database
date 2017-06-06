@@ -1,5 +1,4 @@
 aventyr_kalender.ics
-PasswordHandler.php
 
 cli-config.php
 composer.lock
@@ -9,16 +8,12 @@ settings.yml
 test.php
 
 backup/*
-*.backup
 
 docs/
 misc/
 old_files/
-sigtunanaturskola.se/
-temp/
 tests/
 vendor/
 *.log
-test_*
 .ftpconfig
 .idea/

@@ -11,9 +11,9 @@ Essentials::setAppUrl();
 Settings::setSettings();
 Essentials::activateDebug(["tracy"]);
 Essentials::activateGlobalFunctions();
-
+var_dump(basename(APP_URL));
 $services[] = ['Naturskolan', 'Fridde\Naturskolan'];
-$services[] = ['Router', 'AltoRouter', Essentials::getRoutes(), '/'. basename(BASE_DIR)];
+$services[] = ['Router', 'AltoRouter', Essentials::getRoutes(), "/" . basename(APP_URL)];
 $services[] = ['InfoLogger', Essentials::getLogger("Info")];
 $services[] = ['ErrorLogger', Essentials::getLogger("Error")];
 $container = Essentials::registerSharedServices($services);
@@ -28,10 +28,8 @@ $router = $container->get('Router');
 /** END OF BOOTSTRAP */
 
 $request_url = rawurldecode($_SERVER['REQUEST_URI']);
-if(substr($request_url, -1) == '/'){
-	$request_url = substr($request_url, 0, -1);
-}
-
+$request_url = rtrim($request_url, '/\\');
+var_dump($request_url);
 $match = $router->match($request_url);
 if($match){
 	list($class, $method) = explode('#', $match["target"]);
@@ -41,5 +39,7 @@ if($match){
 	exit();
 } else {
     header( $_SERVER["SERVER_PROTOCOL"] . ' 404 Not Found');
+    echo "No match found. Requested url: ". PHP_EOL;
+    var_dump($request_url);
     exit();
 }
