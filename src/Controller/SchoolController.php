@@ -56,9 +56,11 @@ class SchoolController
         if ($page == "groups") {
             $DATA = $this->getAllGroups($this->school);
             $template = "group_settings";
-        } elseif ($page == "team") {
+        } elseif ($page == "staff") {
             $DATA = $this->getAllUsers($this->school);
             $template = "team_list";
+        } else {
+            throw new \Exception("No action was defined for the page variable $page .");
         }
 
         $H = new H();

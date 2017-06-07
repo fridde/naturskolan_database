@@ -132,8 +132,7 @@ class Update extends DefaultUpdate
 
     public function setCookie(string $school_id)
     {
-        $hash = $GLOBALS["CONTAINER"]->get("Naturskolan")->createHash();
-        $expiration_date = Carbon::now()->addDays(90)->toIso8601String();
+        $hash = $this->N->createHash();
         $cookie = new Cookie();
         $school = $this->N->getRepo("School")->find($school_id);
         $cookie->setValue($hash)->setName("Hash")->setSchool($school);
@@ -153,7 +152,7 @@ class Update extends DefaultUpdate
         $properties_to_sync = $syncables[$entity_class] ?? [];
         foreach ($properties_to_sync as $property_name) {
             $method_name = "get".$property_name;
-            $properties[$property_name] = $model_entity->$method_name;
+            $properties[$property_name] = call_user_func([$model_entity, $method_name]);
         }
         $this->createNewEntity($entity_class, $properties);
     }

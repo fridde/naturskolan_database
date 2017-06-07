@@ -6,7 +6,9 @@ var Response = {
         console.log(data);
         if (typeof data === 'undefined' || data.errors.length > 0) {
             console.log('The response didn\'t come back without errors.');
-            console.log(data.errors);
+            if(data.errors.length > 0) {
+                console.log(data.errors);
+            }
         } else {
             if (typeof onReturn === 'undefined') {
                 console.log('No return function was defined');
