@@ -3,6 +3,7 @@
 namespace Fridde\Controller;
 
 use Fridde\HTML as H;
+use Fridde\Update;
 
 
 class LoginController {
@@ -70,5 +71,11 @@ class LoginController {
         }
 
         $H->render();
+    }
+
+    public function logout()
+    {
+        $school_id = $this->getSchooldIdFromCookie();
+        $update = new Update();
     }
 }

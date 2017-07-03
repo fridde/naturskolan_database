@@ -8,7 +8,25 @@
 <body>
 {{ include('nav.twig') }}
 <div class="container-fluid">
-    {%- block content -%} {%- endblock -%}
+    {%- block content -%}
+        <div id="missingGroups">
+            <button class=".btn-primary">Lägg till resterande grupper</button>
+            <select name="grade">
+                {% for value, label in DATA.grades  %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="cron-task-activation">
+            {% for task in DATA.tasks %}
+                <div class="checkbox">
+                    <label><input type="checkbox" name="{{ task.value }}"{% if task.status %} checked {% endif %}>
+                        {{ task.label }}
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    {%- endblock -%}
 </div>
 </body>
 </html>

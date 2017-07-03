@@ -24,10 +24,12 @@ NAV_SETTINGS:
       children:
         method: 'getAllSchoolUrls'
     -
-      label: 'Kontrollrum'
-      url: 'admin'
+      label: 'Verktyg'
       children:
         items:
+          -
+            label: 'Översikt'
+            url: 'admin'
           -
             label: 'Lägg till besöksdatum till tema'
             url: 'admin/batch/add_dates'
@@ -41,6 +43,10 @@ NAV_SETTINGS:
       label: 'Tabeller'
       children:
         method: 'getAllTableUrls'
+    -
+      <<: *staff
+    -
+      <<: *logout
   user:
     -
       <<: *home
@@ -52,10 +58,9 @@ NAV_SETTINGS:
     -
       <<: *support
     -
-      <<: *logout
-    -
       <<: *contact
-
+    -
+      <<: *logout
 
 
   guest:

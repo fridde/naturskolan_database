@@ -59,7 +59,7 @@
                                             {% if group.visits -%}
                                                 <ul class="group-visit-list">
                                                     {% for visit in group.visits -%}
-                                                        <li>{{ visit.date }}:
+                                                        <li>{{ visit.date }}:&nbsp;
                                                             {%- if visit.topic_url -%}
                                                                 <a href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
                                                             {%- else -%}

@@ -3,68 +3,75 @@
 {%- set headers, rows, entity_class = DATA.headers, DATA.rows, DATA.entity_class -%}
 
 {% block content %}
-<h1>{{ entity_class }}</h1>
+    <h1>{{ entity_class }}</h1>
     <div class="save-time" data-last-change=""></div>
     <table class="table table-responsive table-striped editable" data-entity="{{ entity_class }}">
         <thead>
-            <tr>
-                {% for header in headers %}
+        <tr>
+            {% for header in headers %}
                 {% if header != "id" %}
-                <th>
-                    {{- header|translate -}}
-                </th>
+                    <th>
+                        {{- header|translate -}}
+                    </th>
                 {% endif %}
-                {% endfor %}
-            </tr>
+            {% endfor %}
+        </tr>
         </thead>
         <tbody {%- if DATA.sortable %} class="sortable"{% endif %}>
-            {%- for row in rows -%}
+        {%- for row in rows -%}
             <tr data-id="{{ row.id.value }}">
                 {% for property_name, cell in row -%}
-                {% if cell.type == "ignored" -%} {# do absolutely nothing #}
-                {%- elseif cell.type == "select" -%}
-                <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
-                    <select name="{{ property_name }}">
-                        {% for option_value, option_text in cell.options %}
-                        <option value="{{ option_value }}" {%- if option_value == cell.value %} selected{%- endif -%}>{{option_text}}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-                {%- elseif cell.type == "integer" -%}
-                <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
-                    <input name="{{ property_name }}" type="number" min="0" step="1" size="3" value="{{ cell.value }}">
-                </td>
-                {%- elseif cell.type == "textarea" -%}
-                <td>
-                    <textarea name="{{ property_name }}" cols="30" rows="3">{{ cell.value }}</textarea>
-                </td>
-                {%- elseif cell.type == "radio" -%}
-                <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
-                    {% for option_value, option_text in cell.options %}
-                        <input type="radio" name="{{ property_name ~ '#' ~ row.id.value }}" value="{{ option_value }}" {%- if option_value == cell.value %} checked{% endif %}>{{ option_text }}
-                    {%- endfor %}
-                </td>
-                {# TODO: Implement double-time-field
-                 {%- elseif cell.type == "time" -%}
-                #}
-                {%- elseif cell.type == "date" -%}
-                <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
-                    <input type="text" class="form-control datepicker" name="{{ property_name }}" value="{{ cell.value }}">
-                </td>
-                {%- elseif cell.type == "" -%}
-                {%- elseif cell.type == "readonly" -%}
-                <td>
-                    {{- cell.value -}}
-                </td>
-                {%- else -%}
-                <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
-                    <input type="{{ cell.type }}" name="{{ property_name }}" value="{{ cell.value }}">
-                </td>
-                {%- endif -%}
+                    {% if cell.type == "ignored" -%} {# do absolutely nothing #}
+                    {%- elseif cell.type == "select" -%}
+                        <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
+                            <select name="{{ property_name }}">
+                                {% if not cell.value %}
+                                    <option selected>Ingen grupp</option>
+                                {% endif %}
+                                {% for option_value, option_text in cell.options %}
+                                    <option
+                                        value="{{ option_value }}" {%- if option_value == cell.value %} selected{%- endif -%}>{{ option_text }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    {%- elseif cell.type == "integer" -%}
+                        <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
+                            <input name="{{ property_name }}" type="number" min="0" step="1" size="3"
+                                   value="{{ cell.value }}">
+                        </td>
+                    {%- elseif cell.type == "textarea" -%}
+                        <td>
+                            <textarea name="{{ property_name }}" cols="30" rows="3">{{ cell.value }}</textarea>
+                        </td>
+                    {%- elseif cell.type == "radio" or cell.type == "checkbox"-%}
+                        <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
+                            {% for option_value, option_text in cell.options %}
+                                <input type="{{ cell.type }}" name="{{ property_name ~ '#' ~ row.id.value }}"
+                                       value="{{ option_value }}" {%- if option_value == cell.value %} checked{% endif %}>{{ option_text }}
+                            {%- endfor %}
+                        </td>
+                         {# TODO: Implement double-time-field
+                         {%- elseif cell.type == "time" -%}
+                        #}
+                    {%- elseif cell.type == "date" -%}
+                        <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
+                            <input type="text" class="form-control datepicker" name="{{ property_name }}"
+                                   value="{{ cell.value }}">
+                        </td>
+                    {%- elseif cell.type == "" -%}
+                    {%- elseif cell.type == "readonly" -%}
+                        <td>
+                            {{- cell.value -}}
+                        </td>
+                    {%- else -%}
+                        <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
+                            <input type="{{ cell.type }}" name="{{ property_name }}" value="{{ cell.value }}">
+                        </td>
+                    {%- endif -%}
                 {% endfor %}
 
             </tr>
-            {%- endfor -%}
+        {%- endfor -%}
         </tbody>
     </table>
 {% endblock %}

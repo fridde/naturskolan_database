@@ -187,10 +187,17 @@ class Naturskolan
 		return null;
 	}
 
+    public function setCronTask(string $task_name, $status)
+    {
+        $cron_tasks = $this->getCronTasks() ?? [];
+        $cron_tasks[$task_name] = $status;
+        $this->setStatus("cron_tasks.activation", json_encode($cron_tasks));
+	}
+
 	/**
 	* Gets the time the calendar was rebuilt the last time.
 	*
-	* @return Carbon\Carbon DateTime of last build
+	* @return \Carbon\Carbon DateTime of last build
 	*/
 	public function getLastRebuild()
 	{
@@ -248,7 +255,7 @@ class Naturskolan
 		return $this->PW->getIntFromCode($code, $entropy);
 	}
 
-	public function getConfirmationUrl($visit_id)
+	public function createConfirmationUrl($visit_id)
 	{
 		$params["code"] = $this->PW->createCodeFromInt($visit_id, "visit");
 		return $this->generateUrl('confirmvisit', $params);
@@ -283,25 +290,36 @@ class Naturskolan
 
 	public function generateUrl($route_name, $params = [])
 	{
-		$router = $GLOBALS["CONTAINER"]->get("Router");
+        /* @var \AltoRouter $router  */
+	    $router = $GLOBALS["CONTAINER"]->get("Router");
 		$url_end = $router->generate($route_name, $params);
 		return $url_end;
 		//return $_SERVER['HTTP_HOST'] . $url_end;
 	}
 
-	public function sendRequest($url, $post_data = [], $api_key = true, $debug = false)
+    /**
+     * @param string $url
+     * @param array $post_data
+     * @param bool $use_api_key
+     * @param bool $debug
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+	public function sendRequest(string $url, $post_data = [], $use_api_key = true, $debug = false)
 	{
-		if($api_key){
-			$post_data["api_key"] = $this->getApiKey();
+		$options = ["json" => $post_data, "cookies" => null, "debug" => false];
+
+	    if($use_api_key){
+			$options['json']['api_key'] = $this->getApiKey();
 		}
 		if($debug || ($GLOBALS["debug"] ?? false)){
-			$cookie =  CookieJar::fromArray(['XDEBUG_SESSION' => 'xdebug.api'], 'localhost');
-			$post_data["XDEBUG_SESSION_START"] = "api";
+			$options['cookies'] = CookieJar::fromArray(['XDEBUG_SESSION' => 'xdebug.api'], 'localhost');
+            $options['json']["XDEBUG_SESSION_START"] = "api";
+            $options['debug'] = true;
 			$url .= '?XDEBUG_SESSION_START=api';
 		}
 
 		usleep(100 * 1000); // = 0.1 seconds to not choke the server
-		return $this->getClient()->post($url, ['json' => $post_data, "cookies" => $cookie]);
+		return $this->getClient()->post($url, $options);
 	}
 
 	public function getApiKey()
@@ -312,7 +330,7 @@ class Naturskolan
 	public function getClient($new_client = false)
 	{
 		if(empty($this->Client) || $new_client){
-			$this->Client = new Client();
+			$this->Client = new Client(['base_uri' => APP_URL]);
 		}
 		return $this->Client;
 	}

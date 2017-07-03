@@ -7,8 +7,11 @@ use Fridde\Mailer;
 
 class MailController extends MessageController
 {
+    /* @var array $mail_status  */
     private $mail_status;
+    /* @var \Fridde\HTML $HTML */
     protected $HTML;
+    /* @var \Fridde\Mailer $Mailer  */
     protected $Mailer;
     // PREPARE=1; SEND=2; UPDATE=4;
     protected $methods = ["admin_summary" => 3,"password_reset" => 3, "confirm_visit" => 3,

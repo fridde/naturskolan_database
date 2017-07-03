@@ -128,7 +128,7 @@ class SchoolController
                     $r["confirmed"] = $v->isConfirmed();
                     $dur = U::addDuration(SETTINGS["values"]["show_confirm_link"]);
                     if($v->isBefore($dur)){
-                        $r["confirmation_url"] = $this->N->getConfirmationUrl($v->getId());
+                        $r["confirmation_url"] = $this->N->createConfirmationUrl($v->getId());
                     }
                     return $r;
                 }, $g->getSortedVisits()->toArray());

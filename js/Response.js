@@ -30,7 +30,9 @@ var Response = {
         reloadPage: Update.reloadPage,
         sliderChanged: Update.setSliderLabel,
         datesAdded: Update.reloadPage, // TODO: Maybe exchange this for a better feedback
-        groupNameChanged: Update.groupName
+        groupNameChanged: Update.groupName,
+        removeCookie: Cookie.removeHashAndReload,
+        showStatus: Update.showChange
     }
 
 };

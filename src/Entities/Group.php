@@ -30,7 +30,7 @@ class Group
     /** @Column(type="integer") */
     protected $StartYear;
 
-    /** @Column(type="integer") */
+    /** @Column(type="integer", nullable=true) */
     protected $NumberStudents;
 
     /** @Column(type="text", nullable=true) */
@@ -158,7 +158,14 @@ class Group
     public function getLastChange(){return $this->LastChange;}
     public function setLastChange($LastChange){$this->LastChange = $LastChange;}
     public function getCreatedAt(){return $this->CreatedAt;}
-    public function setCreatedAt($CreatedAt){$this->CreatedAt = $CreatedAt;}
+    public function setCreatedAt($CreatedAt)
+    {
+        if(!is_string($CreatedAt)){
+            $CreatedAt = $CreatedAt->toIso8601String();
+        }
+        $this->CreatedAt = $CreatedAt;
+    }
+
     public function hasVisits()
     {
         return !$this->Visits->isEmpty();
@@ -239,7 +246,10 @@ class Group
     }
 
     /** @PrePersist */
-    public function prePersist($event){}
+    public function prePersist($event)
+    {
+        $this->setCreatedAt(Carbon::now());
+    }
     /** @PreUpdate */
     public function preUpdate($event)
     {

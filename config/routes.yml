@@ -1,5 +1,6 @@
 # keys will be parsed as the name of the route
 routes:
+   admin : ['GET','/admin/[:action]?','Admin#handleRequest']
    batch : ['GET','/admin/batch/[:operation]/[:filter]?','Batch#handleRequest']
    checkcookie : ['GET','/','Login#checkCookie']
    checkpw : ['GET','/login/[:password]?','Login#checkPassword']
@@ -10,13 +11,13 @@ routes:
    pwrecover : ['GET','/passwordrecover/[:code]?','API#passwordRecover']
    pwreset : ['GET','/passwordreset','API#passwordReset']
    sandbox : ['GET','/sandbox','File#renderSandbox']
-   school : ['GET|POST','/skola/[a:school]/[a:page]?/[:code]?','School#handleRequest']
+   school : ['GET|POST','/skola/[a:school]/[a:page]?/[:code]?','School#handleRequest']  # changing this affects Navigation::getStaffPageUrl()
    sms : ['GET|POST','/sms/[:purpose]?/[:encoding]?','SMS#handleRequest']
    table : ['GET','/table/[a:entity]','Table#view']
    task : ['GET','/task/[:type]','Cron#executeTask']
    update : ['POST','/update','Update#handleRequest']
    view : ['GET','/view/[:page]','View#handleRequest']
-# - ['','','','']
+# - ['','','']
 #120 = ['','','']
 #130 = ['','','']
 #140 = ['','','']

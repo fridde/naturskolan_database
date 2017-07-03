@@ -6,7 +6,8 @@ use Fridde\Utility as U;
 use Fridde\Task;
 use Carbon\Carbon;
 
-class CronController {
+class CronController
+{
 
     private $N;
     private $params;
@@ -32,14 +33,17 @@ class CronController {
         $this->slot_counter = $this->params["counter"] ?? $this->N->getStatus("slot_counter");
 
         $this->setSlotTime();
-        $this->resetIfMonday();
-
-        foreach(array_keys($this->intervals) as $task_type){
-            if($this->checkIfRightTime($task_type)){
-        		$task = new Task($task_type);
-        		$task->execute();
-        	}
+        echo "<pre>";
+        foreach (array_keys($this->intervals) as $task_type) {
+            if ($this->checkIfRightTime($task_type)) {
+                echo $this->slot_counter . ': ' .PHP_EOL;
+                echo $task_type . PHP_EOL;
+                $task = new Task($task_type);
+                $task->execute();
+            }
         }
+        echo "</pre>";
+        $this->resetIfMonday();
         $this->N->setStatus("slot_counter", $this->slot_counter + 1);
     }
 
@@ -54,7 +58,7 @@ class CronController {
     {
         $has_gone_one_day = U::divideDuration($this->slot_time, [1, "d"]) > 1.0;
         $is_monday = Carbon::today()->dayOfWeek === 1;
-        if($has_gone_one_day && $is_monday){
+        if ($has_gone_one_day && $is_monday) {
             $this->slot_counter = 0;
         }
     }
@@ -73,6 +77,7 @@ class CronController {
         $interval = $this->intervals[$task_type];
         $interval = U::adjustInterval($interval, $this->slot_duration);
         $mod = fmod(U::divideDuration($this->slot_time, $interval), 1.0);
+
         return $mod === 0.0;
     }
 

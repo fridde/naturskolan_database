@@ -2,26 +2,15 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{HTML};
+class TableController extends BaseController {
 
-class TableController {
 
-    private $N;
-    private $params;
-    private $H;
     private $entity_class;
     private $t_settings;
     private $entity_table;
     private $rows;
 
     private $col_order = ["School" => ["first" => ["VisitOrder"]]];
-
-    public function __construct($params)
-    {
-        $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
-        $this->H = new HTML();
-        $this->params = $params;
-    }
 
     public function view()
     {
@@ -39,7 +28,7 @@ class TableController {
         $DATA["sortable"] = $this->t_settings["sortable"] ?? false;
 
         $this->H->setTitle()->addNav();
-        $js = ["js.bs.date.debug", "js.bs.date.sv", "js.DT", "js.DT.config"];
+        $js = ["js.bs.date", "js.bs.date.sv", "js.DT", "js.DT.config"];
         $css = ["css.bs.date", "css.DT"];
         $this->H->addDefaultJs("index")->addJs($js)
         ->addDefaultCss("index")->addCss($css)
@@ -142,9 +131,9 @@ class TableController {
             $cols["Date"]["type"] = "date";
             $cols["Topic"]["value"] = "getTopicId";
             $cols["Topic"]["options"] = ["Topic", "findLabelsForTopics"];
-            $cols["Colleagues"]["value"] = "getColleaguesIdAsString";
-            $cols["Colleagues"]["options"] = ["School", "getStaffWithNames"];
-            $cols["Confirmed"]["type"] = "radio";
+            $cols["Colleagues"]["value"] = "getColleaguesAsAcronymString";
+            $cols["Colleagues"]["type"] = "readonly";
+            $cols["Confirmed"]["type"] = "checkbox";
             $cols["Confirmed"]["options"] = "getConfirmedOptions";
             //$cols["Time"]["type"] = "time";
             // TODO: implement time-picker

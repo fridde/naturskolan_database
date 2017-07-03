@@ -9,7 +9,9 @@ use Fridde\Settings;
 Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl();
 Settings::setSettings();
-Essentials::activateDebug(["tracy"]);
+if(SETTINGS['environment'] === 'dev'){
+    Essentials::activateDebug(["tracy"]);
+}
 Essentials::activateGlobalFunctions();
 
 $services[] = ['Naturskolan', 'Fridde\Naturskolan'];

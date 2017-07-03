@@ -65,6 +65,7 @@ var Update = {
             var options = {
                 updateMethod: "setCookie",
                 school: data.school,
+                url: window.location.pathname,
                 onReturn: 'setAndReload'
             };
             Update.send(options);
@@ -72,6 +73,10 @@ var Update = {
         else {
             // TODO: update modal and tell that password was incorrect
         }
+    },
+
+    showChange: function() {
+        // TODO: implement this function to show the result of the operation
     },
 
     setSliderLabel: function (data) {

@@ -46,7 +46,7 @@ class VisitRepository extends CustomRepository
     *                                   If omitted, all future visits are returned.
     * @return array
     */
-    public function findUnconfirmedVisitsUntil(Carbon\Carbon $until = null)
+    public function findUnconfirmedVisitsUntil(Carbon $until = null)
     {
         return array_filter($this->findFutureVisits($until), function($v){
             return !$v->isConfirmed();

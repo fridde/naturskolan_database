@@ -22,20 +22,27 @@ class Update extends DefaultUpdate
     protected $syncables = ["User" => ["School"]];
 
     /** @var array $object_required */
-    protected $object_required = ["User" => ["School"], "Group" => ["User"]];
+    protected $object_required = [
+        "User" => ["School"],
+        "Group" => ["User"],
+        'Visit' => ['Group'],
+    ];
 
     /* @var array */
     const METHOD_ARGUMENTS = [
         "checkPassword" => ["password"],
         "addDates" => ["topic_id", "dates"],
         "setVisits" => ["value"],
-        "setCookie" => ["school"],
+        "setCookie" => ["school", "url"],
+        "removeCookie" => ["hash"],
         "logChange" => ["event", "trackables"],
         "sliderUpdate" => ["entity_class", "entity_id", "property", "value"],
         "updateVisitOrder" => ["order"],
         "confirmVisit" => ["visit_id"],
         "changeGroupName" => ["entity_id", "value"],
-        "batchSetGroupCount" => ["group_numbers", "start_year"],
+        "batchSetGroupCount" => ['group_numbers', "start_year"],
+        'changeTaskActivation' => ['task_name', 'status'],
+        'createMissingGroups' => ['grade'],
     ];
 
     /**
@@ -89,7 +96,8 @@ class Update extends DefaultUpdate
     }
 
     /**
-     * [setVisits description]
+     * @param array $big_array An array of
+     * @throws \Exception
      */
     public function setVisits(array $big_array)
     {
@@ -112,25 +120,28 @@ class Update extends DefaultUpdate
                     }
                     $row_to_group_translator[$row_index] = $entity_id;
                 } elseif ($class === "visit") {
-                    $group_dates[$row_index] = $entity_id;
+                    $group_dates[$row_index][] = $entity_id;
                 } else {
                     throw new \Exception("The class <".$class."> is not implemented.");
                 }
             }
         }
-        foreach ($group_dates as $row_index => $visit_id) {
-            $group_id = $row_to_group_translator[$row_index] ?? false;
-            if ($group_id !== false) {
-                $visit = $this->findById("Visit", $visit_id);
-                $group = $this->findById("Group", $group_id);
-                $visit->setGroup($group);
-                $this->ORM->EM->persist($visit);
+        foreach ($group_dates as $row_index => $visits) {
+            $group_id = $row_to_group_translator[$row_index] ?? null;
+            foreach ($visits as $visit_id) {
+                if (isset($group_id, $visit_id)) {
+                    $visit = $this->findById("Visit", $visit_id);
+                    $group = $this->findById("Group", $group_id);
+                    $visit->setGroup($group);
+                    $this->ORM->EM->persist($visit);
+                }
             }
         }
         $this->ORM->EM->flush();
+        echo "";
     }
 
-    public function setCookie(string $school_id)
+    public function setCookie(string $school_id, string $url)
     {
         $hash = $this->N->createHash();
         $cookie = new Cookie();
@@ -138,7 +149,13 @@ class Update extends DefaultUpdate
         $cookie->setValue($hash)->setName("Hash")->setSchool($school);
         $cookie->setRights("school_only");
         $this->ORM->save($cookie);
-        $this->setReturn("hash", $hash)->setReturn("school", $school->getId());
+        $this->setReturn("hash", $hash)->setReturn("school", $school->getId())->setReturn("url", $url);
+    }
+
+    public function removeCookie(string $hash)
+    {
+        $cookie = $this->N->getRepo("Cookie")->findByHash($hash);
+        $this->ORM->delete($cookie);
     }
 
 
@@ -259,7 +276,6 @@ class Update extends DefaultUpdate
      */
     public function createMissingGroups(string $grade, int $start_year = null)
     {
-        // TODO: Create the matching button for this
         $start_year = $start_year ?? Carbon::today()->year;
         $all_schools = $this->N->getRepo("School")->findAll();
         /* @var \Fridde\Entities\School $school */
@@ -302,6 +318,12 @@ class Update extends DefaultUpdate
             $school->setGroupNumber($grade, $nr, $start_year);
         }
         $this->N->ORM->EM->flush();
+    }
+
+    public function changeTaskActivation(string $task_name, $status)
+    {
+        $status = intval(in_array($status, [1, "true", true], true));
+        $this->N->setCronTask($task_name, $status);
     }
 
 
