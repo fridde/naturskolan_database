@@ -406,7 +406,10 @@ class Task
      */
     private function cleanSQLDatabase()
     {
-        // TODO: implement this function
+        $DBM = new DatabaseMaintainer();
+        $DBM->cleanOldGroupNumbers();
+
+        // TODO: add more functionality to this function
     }
 
 

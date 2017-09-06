@@ -86,7 +86,7 @@ class School
         return json_encode($this->getGroupNumbers());
     }
 
-    public function getGroupNumbers()
+    public function getGroupNumbers(): array
     {
         return $this->GroupNumbers;
     }
@@ -195,7 +195,7 @@ class School
     public function getGradesAvailable($withLabels = false)
     {
         $available_grades = array_filter(
-            Group::GRADE_LABELS,
+            Group::getGradeLabels(),
             function ($k) {
                 return $this->hasGrade($k);
             },

@@ -58,8 +58,6 @@ class Group
         $this->Visits = new ArrayCollection();
     }
 
-
-    const GRADE_LABELS = ["2" => "åk 2/3", "5" => "åk 5", "fbk" => "FBK"];
     const STATUS = [0 => "inactive", 1 => "active"];
 
     public function getId(){return $this->id;}
@@ -82,7 +80,10 @@ class Group
 
     public function getUserId()
     {
-        return $this->getUser()->getId();
+        if($this->hasUser()){
+            return $this->getUser()->getId();
+        }
+        return null;
     }
     public function setUser(User $User){
         $this->User = $User;
@@ -104,15 +105,16 @@ class Group
         $this->School = $School;
     }
     public function getGrade(){return $this->Grade;}
+
     public function getGradeLabel(){
-        return self::GRADE_LABELS[$this->Grade];
+        $labels = self::getGradeLabels();
+        return $labels[$this->Grade];
     }
 
-    public function getGradeOptions()
+    public static function getGradeLabels()
     {
-        return self::GRADE_LABELS;
+        return SETTINGS['grades'];
     }
-
 
     public function setGrade($Grade)
     {

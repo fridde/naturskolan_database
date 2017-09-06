@@ -2,10 +2,13 @@
 namespace Fridde;
 
 use Carbon\Carbon;
-use Fridde\{Dumper};
+use Fridde\{
+    Dumper, Entities\School
+};
 
 class DatabaseMaintainer
 {
+    /** @var Naturskolan $N */
     private $N;
 
     public function __construct(){
@@ -31,6 +34,22 @@ class DatabaseMaintainer
                 }
             }
         }
+    }
+
+    public function cleanOldGroupNumbers()
+    {
+       $current_year = Carbon::today()->year;
+        /** @var School $school */
+        foreach($this->N->getRepo("School")->findAll() as $school){
+           $group_numbers = $school->getGroupNumbers();
+           foreach($group_numbers as $startyear => $numbers){
+               if($startyear < $current_year - 2){
+                   unset($group_numbers[$startyear]);
+               }
+           }
+           $school->setGroupNumbers($group_numbers);
+       }
+       $this->N->ORM->EM->flush();
     }
 
     private function isSafe($date)

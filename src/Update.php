@@ -138,7 +138,6 @@ class Update extends DefaultUpdate
             }
         }
         $this->ORM->EM->flush();
-        echo "";
     }
 
     public function setCookie(string $school_id, string $url)
@@ -173,19 +172,6 @@ class Update extends DefaultUpdate
         }
         $this->createNewEntity($entity_class, $properties);
     }
-
-    /**
-     * @param string $entity_class
-     * @param array $properties
-     */
-    public function createNewEntity(string $entity_class, array $properties = [])
-    {
-        $properties = $this->replaceIdsWithObjects($entity_class, $properties);
-        $entity = $this->ORM->createNewEntity($entity_class, $properties);
-        $this->ORM->EM->flush();
-        $this->setReturn("new_id", $entity->getId());
-    }
-
 
     /**
      * @param \Doctrine\Common\Persistence\Event\LifecycleEventArgs $event *
@@ -225,7 +211,7 @@ class Update extends DefaultUpdate
                         $old_value = $old_value->getId();
                     }
                     $c["OldValue"] = $old_value;
-                    $this->createNewEntity("Change", $c);
+                    $this->createNewEntity("Change", $c, false);
                 }
             }
         }
@@ -293,14 +279,14 @@ class Update extends DefaultUpdate
                 $group->setGrade($grade);
                 $group->setStartYear($start_year);
                 $group->setStatus(1);
-                $this->N->ORM->EM->persist($group);
+                $this->ORM->EM->persist($group);
             }
 
             if ($diff < 0) { // too many groups
                 // TODO: log this situation somewhere
             }
         }
-        $this->N->ORM->EM->flush();
+        $this->ORM->EM->flush();
     }
 
     /**
@@ -317,7 +303,7 @@ class Update extends DefaultUpdate
             $school = $this->N->getRepo("School")->find($school_id);
             $school->setGroupNumber($grade, $nr, $start_year);
         }
-        $this->N->ORM->EM->flush();
+        $this->ORM->EM->flush();
     }
 
     public function changeTaskActivation(string $task_name, $status)
@@ -325,102 +311,4 @@ class Update extends DefaultUpdate
         $status = intval(in_array($status, [1, "true", true], true));
         $this->N->setCronTask($task_name, $status);
     }
-
-
-    /**
-     * Prepares and returns the answer to the request for further handling by JS or
-     * other parts of the app.
-     *
-     * @param  string|null $key If specified, only the value of $Return[$key] is returned.
-     * @return array|mixed If no key was specified, the whole $Return is returned.
-     *                     It contains ["success" => true|false, "errors" => [...]]
-     */
-    public function getReturn($key = null)
-    {
-        if (empty($key)) {
-            $this->setReturn("success", !$this->hasErrors());
-            $this->setReturn("errors", $this->getErrors());
-
-            return $this->Return;
-        }
-
-        return $this->Return[$key];
-    }
-
-    /**
-     * Sets $Return[$key]  with either a given $value or with a value taken from the
-     * initial request $RQ.
-     *
-     * @param string|array $key The key to set. If array each key-value pair
-     *                           are the arguments for this function.
-     * @param mixed|null $value The value to set at $Return[$key].
-     */
-    public function setReturn($key, $value = null)
-    {
-        if (is_string($key)) {
-            $key_value_pairs = [$key => $value];
-        } else {
-            $key_value_pairs = $key;
-        }
-        foreach ($key_value_pairs as $key => $value) {
-            $this->Return[$key] = $value;
-        }
-
-        return $this;
-    }
-
-    public function setReturnFromRequest($keys)
-    {
-        if (is_string($keys)) {
-            $keys = [$keys];
-        }
-        foreach ($keys as $key) {
-            $this->setReturn($key, $this->RQ[$key]);
-        }
-    }
-
-    /**
-     * Returns $Errors.
-     *
-     * @return string[] All error strings as array.
-     */
-    public function getErrors()
-    {
-        return $this->Errors;
-    }
-
-    /**
-     * Adds error string as element to $Errors.
-     *
-     * @param string $error_string A string describing the error.
-     */
-    public function addError($error_string)
-    {
-        $this->Errors[] = $error_string;
-    }
-
-    /**
-     * Checks if $Errors is not empty.
-     *
-     * @return boolean Returns true if $Errors is not empty.
-     */
-    public function hasErrors()
-    {
-        return !empty($this->getErrors());
-    }
-
-
-    /**
-     * Quick shortcut to retrieving an entity by id.
-     *
-     * @param  string $entity_class The (unqualified) class name of the entity.
-     * @param  integer|string $id The id of the entity to look for.
-     * @return object|null The entity or null if no entity was found.
-     */
-    private function findById(string $entity_class, $id)
-    {
-        return $this->ORM->getRepository($entity_class)->find($id);
-    }
-
-
 }

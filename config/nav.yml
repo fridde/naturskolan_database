@@ -37,6 +37,9 @@ NAV_SETTINGS:
             label: 'Fördela besök på grupper'
             url: 'admin/batch/set_visits'
           -
+            label: 'Uppdatera önskat antal grupper per skola'
+            url: 'admin/batch/set_group_count'
+          -
             label: 'Redigera kalendern'
             url: 'calendar/edit'
     -

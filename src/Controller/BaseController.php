@@ -22,6 +22,13 @@ class BaseController
         $this->params = $params;
     }
 
+    /**
+     * Renders HTML using default options. If options are specified, the default values are overridden.
+     *
+     * @param array $options An array containing values that override the default values.
+     *              Possible keys are **js, css, template, DATA**
+     * @return HTML
+     */
     protected function standardRender(array $options = [])
     {
         $js_key = $options["js"] ?? 'index';

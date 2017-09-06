@@ -20,7 +20,7 @@ class AdminController extends BaseController
             $tasks[] = $task;
         }
         $options['DATA']['tasks'] = $tasks;
-        $options['DATA']['grades'] = Group::GRADE_LABELS;
+        $options['DATA']['grades'] = Group::getGradeLabels();
         $options["template"] = "admin_area";
         $this->standardRender($options);
     }

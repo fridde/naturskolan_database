@@ -93,7 +93,7 @@ class TableController extends BaseController {
         }
 
         if(in_array($ec, ["Topic", "Group"])){
-            $cols["Grade"]["options"] = "getGradeOptions";
+            $cols["Grade"]["options"] = "getGradeLabels";
         }
 
         if(in_array($ec, ["Topic", "School"])){

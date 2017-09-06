@@ -234,7 +234,7 @@ private function getWrongGroupCounts()
     $schools = $this->N->getRepo("School")->findAll();
     /* @var $school \Fridde\Entities\School  */
     foreach($schools as $school){
-        foreach(Group::GRADE_LABELS as $grade_id => $label){
+        foreach(Group::getGradeLabels() as $grade_id => $label){
             $active = $school->getNrActiveGroupsByGrade($grade_id);
             $expected = $school->getGroupNumber($grade_id);
             if($expected !== $active){

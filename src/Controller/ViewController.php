@@ -2,14 +2,12 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Entities\Visit;
 use Fridde\HTML;
 use Carbon\Carbon;
 
-class ViewController {
+class ViewController extends BaseController {
 
-    private $N;
-    private $params;
-    private $H;
     private $page_translations = ["food_order" => "viewFoodOrder", "bus_order" => "viewBus"];
 
     public function __construct($params)
@@ -43,13 +41,11 @@ class ViewController {
             $visit = $v;
         });
 
-        $DATA = $collection;
+        $options["DATA"] = $collection;
 
-        $this->H->setTitle()->addNav();
-        $this->H->setTemplate("food_order")->setBase();
+        $options["template"] = "food_order";
 
-        $this->H->addVariable("DATA", $DATA);
-        $this->H->render();
+        $this->standardRender($options);
     }
 
     private function viewBus()
@@ -65,25 +61,25 @@ class ViewController {
             $locations[$loc->getId()] = $string;
         }
         $collection = $this->indexIntoWeekAndDays($visits);
-        array_walk_recursive($collection["calendar"], function(&$visit){
+        array_walk_recursive($collection["calendar"], function(Visit &$visit){
             $v = [];
             $g = $visit->getGroup();
             $v["school"] = $g->getSchool()->getName();
             $v["location"] = $visit->getTopic()->getLocation()->getName();
             // $v["departure"] = // TODO: Add method for departure
             // $v["return"] = // TODO: Add method for return
-            $v["nr_passengers"] = $g->getNumberStudents() + 2 ;
+            $nr_students = $g->getNumberStudents();
+            $v["nr_passengers"] = is_null($nr_students) ? '???' : $nr_students + 2;
             $visit = $v;
         });
 
         $DATA = $collection;
         $DATA["locations"] = $locations;
 
-        $this->H->setTitle()->addNav();
-        $this->H->setTemplate("bus_order")->setBase();
+        $options["template"] = "bus_order";
+        $options["DATA"] = $DATA;
 
-        $this->H->addVariable("DATA", $DATA);
-        $this->H->render();
+        $this->standardRender($options);
     }
 
 
@@ -103,7 +99,11 @@ class ViewController {
         });
     }
 
-    private function indexIntoWeekAndDays($visits)
+    /**
+     * @param array Visit[] $visits
+     * @return array
+     */
+    private function indexIntoWeekAndDays(array $visits): array
     {
         $calendar = [];
         $date_strings = [];

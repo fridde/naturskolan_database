@@ -1,6 +1,15 @@
 $(document).ready(function () {
 
 
+    function cleanLines(text){
+        var lines = text.split(/\r|\n|;/).map(function (i) {
+            return i.trim();
+        }).filter(function (i) {
+            return i.length > 0;
+        }).sort();
+        return lines.join("\n");
+    }
+
     /**
      * ###################
      * Button definitions
@@ -26,7 +35,6 @@ $(document).ready(function () {
             value: lists,
             onReturn: 'showStatus'
         };
-        console.log(lists);
         Update.send(data);
     });
     /**
@@ -44,14 +52,6 @@ $(document).ready(function () {
         $textElement.val(cleanLines($textElement.val()));
     });
 
-    function cleanLines(text){
-        var lines = text.split(/\r|\n|;/).map(function (i) {
-            return i.trim();
-        }).filter(function (i) {
-            return i.length > 0;
-        }).sort();
-        return lines.join("\n");
-    }
 
     /**
      * This button is used on /batch/add_dates/{topic_id}
@@ -82,7 +82,7 @@ $(document).ready(function () {
             updateMethod: "batchSetGroupCount",
             group_numbers: lines,
             start_year: $('#start-year-selector').val(),
-            onReturn: "groupCountUpdated"
+            onReturn: "showStatus"
         };
         Update.send(data);
     });

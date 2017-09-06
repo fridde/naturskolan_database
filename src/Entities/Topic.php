@@ -1,22 +1,23 @@
 <?php
+
 namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Fridde\Entities\Group;
 
 /**
-* @Entity(repositoryClass="Fridde\Entities\TopicRepository")
-* @Table(name="topics")
-*/
+ * @Entity(repositoryClass="Fridde\Entities\TopicRepository")
+ * @Table(name="topics")
+ */
 class Topic
 {
-    /** @Id @Column(type="integer") @GeneratedValue    */
+    /** @Id @Column(type="integer") @GeneratedValue */
     protected $id;
 
     /** @Column(type="string") */
     protected $Grade;
 
-    /** @Column(type="integer")       */
+    /** @Column(type="integer") */
     protected $VisitOrder;
 
     /** @Column(type="string") */
@@ -25,7 +26,7 @@ class Topic
     /** @Column(type="string", nullable=true) */
     protected $LongName;
 
-    /** @ManyToOne(targetEntity="Location", inversedBy="Topics")     **/
+    /** @ManyToOne(targetEntity="Location", inversedBy="Topics")     * */
     protected $Location;
 
     /** @Column(type="string", nullable=true) */
@@ -40,7 +41,7 @@ class Topic
     /** @Column(type="integer", nullable=true) */
     protected $IsLektion;
 
-    /** @OneToMany(targetEntity="Visit", mappedBy="Topic")   **/
+    /** @OneToMany(targetEntity="Visit", mappedBy="Topic")   * */
     protected $Visits;
 
     // byo means "bring your own" and means in this context that the group
@@ -52,82 +53,164 @@ class Topic
         $this->Visits = new ArrayCollection();
     }
 
-    public function getId(){return $this->id;}
-    public function getGrade(){return $this->Grade;}
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getGrade()
+    {
+        return $this->Grade;
+    }
 
     public function getGradeLabel()
     {
-        return Group::GRADE_LABELS[$this->getGrade()];
+        $labels = Group::getGradeLabels();
+
+        return $labels[$this->getGrade()];
     }
 
-    public function getGradeOptions()
+    public function getGradeLabels()
     {
-        return Group::GRADE_LABELS;
+        return Group::getGradeLabels();
     }
 
-    public function setGrade($Grade){$this->Grade = $Grade;}
-    public function getVisitOrder(){return $this->VisitOrder;}
-    public function setVisitOrder($VisitOrder){$this->VisitOrder = $VisitOrder;}
-    public function getShortName(){return $this->ShortName;}
-    public function setShortName($ShortName){$this->ShortName = $ShortName;}
-    public function getLongName(){return $this->LongName;}
-    public function setLongName($LongName){$this->LongName = $LongName;}
+    public function setGrade($Grade)
+    {
+        $this->Grade = $Grade;
+    }
+
+    public function getVisitOrder()
+    {
+        return $this->VisitOrder;
+    }
+
+    public function setVisitOrder($VisitOrder)
+    {
+        $this->VisitOrder = $VisitOrder;
+    }
+
+    public function getShortName()
+    {
+        return $this->ShortName;
+    }
+
+    public function setShortName($ShortName)
+    {
+        $this->ShortName = $ShortName;
+    }
+
+    public function getLongName()
+    {
+        return $this->LongName;
+    }
+
+    public function setLongName($LongName)
+    {
+        $this->LongName = $LongName;
+    }
 
     public function getLongestName()
     {
         $long = $this->getLongName();
-        if(empty($long)){
+        if (empty($long)) {
             return $this->getShortName();
         }
+
         return $long;
     }
 
-    public function getLocation(){return $this->Location;}
+    public function getLocation(): Location
+    {
+        return $this->Location;
+    }
 
     public function getLocationId()
     {
         return $this->getLocation()->getId();
     }
 
-    public function setLocation($Location){$this->Location = $Location;}
-    public function getFood(){return $this->Food;}
-    public function setFood($Food){$this->Food = $Food;}
+    public function setLocation($Location)
+    {
+        $this->Location = $Location;
+    }
+
+    public function getFood()
+    {
+        return $this->Food;
+    }
+
+    public function setFood($Food)
+    {
+        $this->Food = $Food;
+    }
 
     public function getFoodInstructions($as_string = false)
     {
-        if($as_string){
+        if ($as_string) {
             return self::FOOD_INSTRUCTION_TYPES[$this->FoodInstructions] ?? null;
         }
+
         return $this->FoodInstructions;
     }
 
     public function setFoodInstructions($FoodInstructions)
     {
-        if(is_string($FoodInstructions)){
+        if (is_string($FoodInstructions)) {
             $FoodInstructions = array_search($FoodInstructions, self::FOOD_INSTRUCTION_TYPES);
         }
         $this->FoodInstructions = $FoodInstructions;
     }
 
 
-    public function getUrl(){return $this->Url;}
-    public function setUrl($Url){$this->Url = $Url;}
-    public function getIsLektion(){return (boolean) $this->IsLektion;}
-    public function isLektion(){return $this->getIsLektion();}
+    public function getUrl()
+    {
+        return $this->Url;
+    }
+
+    public function setUrl($Url)
+    {
+        $this->Url = $Url;
+    }
+
+    public function getIsLektion()
+    {
+        return (boolean)$this->IsLektion;
+    }
+
+    public function isLektion()
+    {
+        return $this->getIsLektion();
+    }
 
     public function getIsLektionOptions()
     {
         return [0 => "No", 1 => "Yes"];
     }
 
-    public function setIsLektion($IsLektion){$this->IsLektion = (int) $IsLektion;}
-    public function getVisits(){return $this->Visits;}
+    public function setIsLektion($IsLektion)
+    {
+        $this->IsLektion = (int)$IsLektion;
+    }
+
+    public function getVisits()
+    {
+        return $this->Visits;
+    }
 
     /** @PrePersist */
-    public function prePersist(){}
+    public function prePersist()
+    {
+    }
+
     /** @PreUpdate */
-    public function preUpdate(){}
+    public function preUpdate()
+    {
+    }
+
     /** @PreRemove */
-    public function preRemove(){}
+    public function preRemove()
+    {
+    }
 
 }

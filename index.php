@@ -10,7 +10,7 @@ Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl();
 Settings::setSettings();
 if(SETTINGS['environment'] === 'dev'){
-    Essentials::activateDebug(["tracy"]);
+    Essentials::activateDebug(["no_tracy"]);
 }
 Essentials::activateGlobalFunctions();
 
