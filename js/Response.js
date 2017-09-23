@@ -10,7 +10,7 @@ var Response = {
                 console.log(data.errors);
             }
         } else {
-            if (typeof onReturn === 'undefined') {
+            if (typeof onReturn === 'undefined' || onReturn === null) {
                 console.log('No return function was defined');
             } else {
                 var callbackHandler = Response.callbackTranslator[onReturn];

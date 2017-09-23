@@ -3,3 +3,4 @@ AddType 'text/calendar; charset=UTF-8' .ics
 RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule . index.php [L]
+#RewriteRule . maintenance.html [L]

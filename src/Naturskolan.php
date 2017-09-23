@@ -429,4 +429,13 @@ class Naturskolan
 		return str_replace($search, $rep, $text);
 	}
 
+    /**
+     * @param string $msg
+     * @param string|null $source
+     */
+    public function log(string $msg, string $source = null)
+    {
+        $GLOBALS["CONTAINER"]->get('Logger')->addInfo($msg, ['source' => $source]);
+	}
+
 }

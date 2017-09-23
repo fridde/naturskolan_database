@@ -68,6 +68,7 @@ class Task
         if ($is_active || $ignore_task_activation) {
             $function_name = self::TASK_TO_METHOD_MAP[$this->type];
             $this->$function_name();
+            $this->N->log("Executed task: " . $this->type, 'Task->execute()');
         }
     }
 
@@ -81,7 +82,7 @@ class Task
     private function rebuildCalendar()
     {
         $last_rebuild = $this->N->getLastRebuild();
-        $max_age = SETTINGS["cron_jobs"]["max_calendar_age"];
+        $max_age = SETTINGS["cronjobs"]["max_calendar_age"];
         $too_old = U::subDuration($max_age)->gt($last_rebuild);
 
         $is_dirty = $this->N->calendarIsDirty();

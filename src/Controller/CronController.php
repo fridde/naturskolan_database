@@ -31,18 +31,14 @@ class CronController
     public function run()
     {
         $this->slot_counter = $this->params["counter"] ?? $this->N->getStatus("slot_counter");
-
+        $this->N->log('Slot Counter: ' . $this->slot_counter, 'CronController->run()');
         $this->setSlotTime();
-        echo "<pre>";
         foreach (array_keys($this->intervals) as $task_type) {
             if ($this->checkIfRightTime($task_type)) {
-                echo $this->slot_counter . ': ' .PHP_EOL;
-                echo $task_type . PHP_EOL;
                 $task = new Task($task_type);
                 $task->execute();
             }
         }
-        echo "</pre>";
         $this->resetIfMonday();
         $this->N->setStatus("slot_counter", $this->slot_counter + 1);
     }

@@ -88,6 +88,7 @@ $(document).ready(function () {
     });
 
     $("#add-row-btn").click(function () {
+        // TODO: What if no row available, i.e. no user exists for this school?
         var oldRow = $(".editable tbody tr:last");
         var newRow = oldRow.clone(true);
         var newId = "new#" + (oldRow.attr("data-id") || oldRow.data("id"));

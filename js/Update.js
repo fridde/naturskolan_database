@@ -20,7 +20,7 @@ var Update = {
             $(".save-time").attr("data-last-change", time).data("last-change", time);
             Update.setSaveTimeText();
             if (data.new_id) {
-                var tr = $('tr[data-id="' + data.old_id + '"]');
+                var tr = $('tr[data-id="new#' + data.old_id + '"]');
                 tr.attr("data-id", data.new_id).data("id", data.new_id);
             }
         } else {

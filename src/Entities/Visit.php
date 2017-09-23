@@ -128,7 +128,7 @@ class Visit
 
     public function getColleagues()
     {
-        return $this->Colleagues;
+        return $this->Colleagues ?? [];
     }
 
     public function getColleaguesIdArray()

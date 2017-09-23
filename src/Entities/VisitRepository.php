@@ -36,7 +36,8 @@ class VisitRepository extends CustomRepository
 
     public function findLastVisit()
     {
-        return array_pop($this->findSortedVisitsForTopic());
+        $sorted_visits = $this->findSortedVisitsForTopic();
+        return array_pop($sorted_visits);
     }
 
     /**

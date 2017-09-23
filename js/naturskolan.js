@@ -57,7 +57,7 @@ $(document).ready(function(){
 	$editable = $(".editable");
     $('.group-container .editable').change('group', Edit.change);
     $('table.editable :input').not(".datepicker").change("tableInput", Edit.change);
-    $editable.filter(".datepicker").on("changeDate", ["tableInput", "datepicker"] , Edit.change);
+    $editable.find(".datepicker").on("changeDate", ["tableInput", "datepicker"] , Edit.change);
 	$("#group-change-modal input").change("groupModal", Edit.change);
 
 	/**

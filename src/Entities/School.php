@@ -19,13 +19,13 @@ class School
     /** @Column(type="string") */
     protected $Name;
 
-    /** @Column(type="json_array") */
+    /** @Column(type="json_array", nullable=true) */
     protected $GroupNumbers;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $Coordinates;
 
-    /** @Column(type="integer") */
+    /** @Column(type="integer", nullable=true) */
     protected $VisitOrder;
 
     /** @Column(type="integer") */
@@ -86,7 +86,10 @@ class School
         return json_encode($this->getGroupNumbers());
     }
 
-    public function getGroupNumbers(): array
+    /**
+     * @return array|null
+     */
+    public function getGroupNumbers()
     {
         return $this->GroupNumbers;
     }

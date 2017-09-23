@@ -16,12 +16,12 @@ Essentials::activateGlobalFunctions();
 
 $services[] = ['Naturskolan', 'Fridde\Naturskolan'];
 $services[] = ['Router', 'AltoRouter', Essentials::getRoutes(), "/".basename(APP_URL)];
-$services[] = ['InfoLogger', Essentials::getLogger("Info")];
-$services[] = ['ErrorLogger', Essentials::getLogger("Error")];
+//$services[] = ['InfoLogger', Essentials::getLogger("Info")];
+$services[] = ['Logger', Essentials::getLogger()];
 $container = Essentials::registerSharedServices($services);
 
 $em = $container->get('Naturskolan')->ORM->EM;
-Essentials::registerDBLogger($em, Essentials::getLogger("Error"));
+Essentials::registerDBLogger($em, Essentials::getLogger());
 
 setlocale(LC_TIME, 'Swedish');
 /** END OF BOOTSTRAP */
