@@ -61,7 +61,7 @@ class Cookie
         return $this->getSchool()->getId();
     }
 
-    public function setSchool($School){
+    public function setSchool(School $School){
         $this->School = $School;
         $School->addPassword($this);
         return $this;

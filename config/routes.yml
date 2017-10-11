@@ -7,7 +7,7 @@ routes:
    confirmvisit : ['GET','/confirm/[:code]','API#confirmVisit']
    croncounter : ['GET|POST','/cron/[i:counter]?','Cron#run']
    file : ['GET','/file/[:file1]/[:file2]?/[:file3]?','File#include']
-   mail : ['GET|POST','/mail/[:purpose]?','Mail#handleRequest']
+#   mail : ['GET|POST','/mail/[:purpose]?','Mail#handleRequest']
    pwrecover : ['GET','/passwordrecover/[:code]?','API#passwordRecover']
    pwreset : ['GET','/passwordreset','API#passwordReset']
    sandbox : ['GET','/sandbox','File#renderSandbox']

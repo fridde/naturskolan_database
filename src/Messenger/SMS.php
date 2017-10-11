@@ -1,6 +1,7 @@
 <?php
 
-namespace Fridde\Controller;
+
+namespace Fridde\Messenger;
 
 use Fridde\Entities\Message;
 use Fridde\Entities\User;
@@ -8,10 +9,12 @@ use Fridde\Entities\Visit;
 use Fridde\Update;
 use Fridde\ShortMessageService;
 
-class SMSController extends MessageController
+
+class SMS extends AbstractMessage
 {
     protected $text;
     protected $options;
+
     // PREPARE=1; SEND=2; UPDATE=4;
     protected $methods = ["update_received_sms" => 4, "confirm_visit" => 3];
 
@@ -25,40 +28,33 @@ class SMSController extends MessageController
         $SMS = new ShortMessageService($this->options);
 
         if (!empty(DEBUG)) {
-            $result = $SMS->send(SETTINGS["debug"]["mobil"]);
+            return $SMS->send(SETTINGS["debug"]["mobil"]);
         } else {
-            $result = $SMS->send();
+            return $SMS->send();
         }
-
-        // TODO: check if really necessary
-        array_walk_recursive(
-            $result,
-            function (&$i) {
-                $i = addslashes($i);
-            }
-        );
-        echo json_encode($result);
     }
 
     protected function prepareConfirmVisit()
     {
-        $this->options["message"] = $this->getRQ("message");
-        $this->options["to"] = $this->getRQ("receiver");
+        $this->options["message"] = $this->getParam("message");
+        $this->options["to"] = $this->getParam("receiver");
     }
 
     protected function updateReceivedSms()
     {
-        $secret = $this->getRQ("secret");
+        $secret = $this->getParam("secret");
         if ($secret !== SETTINGS["sms_settings"]["smsgateway"]["callback_secret"]) {
             // log error and exit
+            $msg = 'The secret sent by an update request was wrong.';
+            $this->N->log($msg, 'SMS->updateReceivedSms()');
         }
-        $event = strtolower($this->getRQ("event"));
+        $event = strtolower($this->getParam("event"));
         if ($event == "update") {
-            $msg_id = $this->getRQ("id");
+            $msg_id = $this->getParam("id");
             $message = $this->N->ORM->findBy("Message", ["ExtId" => $msg_id]);
             if (!empty($message)) {
                 $e_id = $message->getId();
-                $val = strtolower($this->getRQ("status"));
+                $val = strtolower($this->getParam("status"));
                 (new Update)->updateProperty("Message", $e_id, "Status", $val);
             }
         } elseif ($event == "received") {
@@ -73,7 +69,7 @@ class SMSController extends MessageController
     protected function checkReceivedSmsForConfirmation()
     {
         $return["about_visit"] = false;
-        $contact = $this->getRQ("contact");
+        $contact = $this->getParam("contact");
         $nr = $contact["number"];
         $properties["Status"] = "sent";
         $properties["Carrier"] = "sms";
@@ -85,8 +81,8 @@ class SMSController extends MessageController
             // probably no sms related to the database
             exit("No user from the database.");
         } elseif (count($users) > 1) {
-            $log_msg = 'There seem to be several users with the number '. $nr . '. Check this!';
-            $this->N->log($log_msg, 'SMSController->checkReceivedSmsForConfirmation()');
+            $log_msg = 'There seem to be several users with the number '.$nr.'. Check this!';
+            $this->N->log($log_msg, 'SMS->checkReceivedSmsForConfirmation()');
         } else {
             $user = reset($users);
         }
@@ -97,7 +93,7 @@ class SMSController extends MessageController
         /* @var Visit $n_visit */
         if (empty($n_visit)) {
             $log_msg = 'Received sms from '.$user->getFullName().' without a next visit. Check!';
-            $this->N->log($log_msg, 'SMSController->checkReceivedSmsForConfirmation()');
+            $this->N->log($log_msg, 'SMS->checkReceivedSmsForConfirmation()');
         }
         $message = array_filter(
             $user_messages->toArray(),
@@ -108,11 +104,10 @@ class SMSController extends MessageController
         );
         if (count($message) == 0) {
             $log_msg = 'A user sent a message to you without having been sent a message first. Check this!';
-            $this->N->log($log_msg, 'SMSController->checkReceivedSmsForConfirmation()');
+            $this->N->log($log_msg, 'SMS->checkReceivedSmsForConfirmation()');
         }
 
-        // ready to check!
-        $content = strtolower($this->getRQ("message"));
+        $content = strtolower($this->getParam("message"));
         $content = preg_replace('[^a-zA-Z]', '', $content);
         if (substr($content, 0, 2) == 'ja') {
             $return["about_visit"] = true;
@@ -121,4 +116,5 @@ class SMSController extends MessageController
 
         return $return;
     }
+
 }

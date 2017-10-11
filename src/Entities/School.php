@@ -221,11 +221,13 @@ class School
     /** @PrePersist */
     public function prePersist()
     {
+        $GLOBALS["CONTAINER"]->get("Naturskolan")->setCalendarTo('dirty');
     }
 
     /** @PreUpdate */
     public function preUpdate()
     {
+        $GLOBALS["CONTAINER"]->get("Naturskolan")->setCalendarTo('dirty');
     }
 
     /** @PreRemove */

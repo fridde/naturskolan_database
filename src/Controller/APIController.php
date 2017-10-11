@@ -2,17 +2,19 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Naturskolan;
 use Fridde\Update;
 use GuzzleHttp\Client;
 
 
 class APIController {
 
+    /* @var Naturskolan $N  */
     public $N;
     private $params;
     private $RQ;
 
-    public function __construct($params)
+    public function __construct(array $params)
     {
         $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
         $this->params = $params;
@@ -30,6 +32,7 @@ class APIController {
                 $data["receiver"] = $user->getMail();
                 $data["data"]["fname"] = $user->getFirstName();
                 $data["data"]["password_link"] = $this->N->createPasswordResetUrl($user->getId());
+                $this->N->generateUrl('pwreset');
                 $url = $this->N->createMailUrl("password_reset");
                 $client = new Client();
                 $response = $client->request('POST', $url, ['form_params' => $data]);

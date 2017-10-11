@@ -8,6 +8,7 @@ use Fridde\Entities\Group;
 /**
  * @Entity(repositoryClass="Fridde\Entities\TopicRepository")
  * @Table(name="topics")
+ * @HasLifecycleCallbacks
  */
 class Topic
 {
@@ -40,6 +41,9 @@ class Topic
 
     /** @Column(type="integer", nullable=true) */
     protected $IsLektion;
+
+    /** @Column(type="string", nullable=true) */
+    protected $LastChange;
 
     /** @OneToMany(targetEntity="Visit", mappedBy="Topic")   * */
     protected $Visits;
@@ -193,6 +197,9 @@ class Topic
         $this->IsLektion = (int)$IsLektion;
     }
 
+    public function getLastChange(){return $this->LastChange;}
+    public function setLastChange($LastChange){$this->LastChange = $LastChange;}
+
     public function getVisits()
     {
         return $this->Visits;
@@ -201,11 +208,13 @@ class Topic
     /** @PrePersist */
     public function prePersist()
     {
+        $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
     /** @PreUpdate */
     public function preUpdate()
     {
+        $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
     /** @PreRemove */

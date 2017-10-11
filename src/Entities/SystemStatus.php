@@ -1,9 +1,12 @@
 <?php
 namespace Fridde\Entities;
 
+use Carbon\Carbon;
+
 /**
 * @Entity
 * @Table(name="systemstatus")
+* @HasLifecycleCallbacks
 */
 class SystemStatus
 {
@@ -30,9 +33,14 @@ class SystemStatus
     public function setLastChange($LastChange){$this->LastChange = $LastChange;}
 
     /** @PrePersist */
-    public function prePersist(){}
+    public function prePersist(){
+        $this->setLastChange(Carbon::now()->toIso8601String());
+    }
     /** @PreUpdate */
-    public function preUpdate(){}
+    public function preUpdate()
+    {
+        $this->setLastChange(Carbon::now()->toIso8601String());
+    }
     /** @PreRemove */
     public function preRemove(){}
 

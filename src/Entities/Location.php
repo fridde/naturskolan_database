@@ -1,11 +1,13 @@
 <?php
 namespace Fridde\Entities;
 
+use Carbon\Carbon;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
 * @Entity(repositoryClass="Fridde\Entities\LocationRepository")
 * @Table(name="locations")
+ * @HasLifecycleCallbacks
 */
 class Location
 {
@@ -24,6 +26,9 @@ class Location
     /** @Column(type="integer", nullable=true) */
     protected $BusId;
 
+    /** @Column(type="string", nullable=true) */
+    protected $LastChange;
+
     /** @OneToMany(targetEntity="Topic", mappedBy="Location") */
     protected $Topics;
 
@@ -40,13 +45,23 @@ class Location
     public function setDescription($Description){$this->Description = $Description;}
     public function getBusId(){return $this->BusId;}
     public function setBusId($BusId){$this->BusId = $BusId;}
+    public function getLastChange(){return $this->LastChange;}
+    public function setLastChange($LastChange){$this->LastChange = $LastChange;}
+
+
     public function getTopics(){return $this->Topics;}
     public function addTopic($topic){$this->Topics[] = $topic;}
 
     /** @PrePersist */
-    public function prePersist(){}
+    public function prePersist()
+    {
+        $this->setLastChange(Carbon::now()->toIso8601String());
+    }
     /** @PreUpdate */
-    public function preUpdate(){}
+    public function preUpdate()
+    {
+        $this->setLastChange(Carbon::now()->toIso8601String());
+    }
     /** @PreRemove */
     public function preRemove(){}
 

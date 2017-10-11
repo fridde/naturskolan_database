@@ -1,0 +1,64 @@
+{{ include('mail_head.twig') }}
+
+<container class="body-drip">
+
+    <spacer size="16"></spacer>
+
+    <center>
+        <img src="http://placekitten.com/120/120">
+    </center>
+
+    <spacer size="16"></spacer>
+    <row>
+        <columns>
+
+            <h1 class="text-center">Hej {{ DATA.user_fname }}!</h1>
+
+
+            <spacer size="16"></spacer>
+
+            <p class="lead">Vi behöver ditt mobilnummer!</p>
+            <hr/>
+
+            <p>För att kunna nå dig i sista minuten (buss är försenad, sjukdomsfall, etc) behöver vi ett mobilnummer till dig.</p>
+            <p>Vi kommer endast kontakta dig med ärenden angående besöken hos oss och kommer inte att ge ditt nummer vidare.</p>
+            <spacer size="16"></spacer>
+            <center>
+                <button class="success" href="{{ DATA.school_staff_url}}">Uppdatera profil!</button>
+            </center>
+            <spacer size="16"></spacer>
+            <row>
+                <columns large="4">
+                    <a href="http://www.sigtunanaturskola.se/kontakta-oss/">
+                        <center>
+                            <img src="http://lorempixel.com/60/60/cats/Kontakta-oss">
+                        </center>
+                        <h5 class="text-center">Kontakta oss</h5>
+                    </a>
+                    <p class="text-center">Tveka inte att höra av dig till oss!</p>
+
+                </columns>
+                <columns large="4">
+                    <a href="http://www.sigtunanaturskola.se/vanliga-fragor/">
+                        <center>
+                            <img src="http://lorempixel.com/60/60/cats/FAQ">
+                        </center>
+                        <h5 class="text-center">Vanliga frågor</h5>
+                    </a>
+                    <p class="text-center">Läs gärna genom våra vanliga frågor.</p>
+                </columns>
+                <columns large="4">
+                    <a href="{{ DATA.school_url }}">
+                        <center>
+                            <img src="http://lorempixel.com/60/60/cats/Uppgifter">
+                        </center>
+                        <h5 class="text-center">Ändra uppgifter</h5>
+                    </a>
+                    <p class="text-center">Ändra addressuppgifter, kolla upp framtida besök, ändra specialkost med mera.</p>
+                </columns>
+            </row>
+
+            <p><small>Du fick detta mejl för att du eller någon annan har gjort dig ansvarig för minst en grupp som ska besöka Naturskolan. Om detta är ett fel, ber vi dig att meddela detta till oss. Svara i så fall på detta mejl.</small></p>
+        </columns>
+    </row>
+</container>

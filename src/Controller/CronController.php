@@ -9,6 +9,7 @@ use Carbon\Carbon;
 class CronController
 {
 
+    /** @var \Fridde\Naturskolan shortcut for the Naturskolan object in the global container */
     private $N;
     private $params;
     private $CRON_SETTINGS;
@@ -33,7 +34,8 @@ class CronController
         $this->slot_counter = $this->params["counter"] ?? $this->N->getStatus("slot_counter");
         $this->N->log('Slot Counter: ' . $this->slot_counter, 'CronController->run()');
         $this->setSlotTime();
-        foreach (array_keys($this->intervals) as $task_type) {
+        $active_tasks = array_filter($this->N->getCronTaskActivationStatus());
+        foreach (array_keys($active_tasks) as $task_type) {
             if ($this->checkIfRightTime($task_type)) {
                 $task = new Task($task_type);
                 $task->execute();

@@ -258,9 +258,6 @@ class Group
 
     public function setCreatedAt($CreatedAt)
     {
-        if (!is_string($CreatedAt)) {
-            $CreatedAt = $CreatedAt->toIso8601String();
-        }
         $this->CreatedAt = $CreatedAt;
     }
 
@@ -359,7 +356,9 @@ class Group
     /** @PrePersist */
     public function prePersist($event)
     {
-        $this->setCreatedAt(Carbon::now());
+        $now_string = Carbon::now()->toIso8601String();
+        $this->setCreatedAt($now_string);
+        $this->setLastChange($now_string);
     }
 
     /** @PreUpdate */
@@ -367,6 +366,7 @@ class Group
     {
         $trackables = ["User", "Food", "NumberStudents", "Info"];
         (new Update())->logChange($event, $trackables);
+        $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
     /** @PreRemove */

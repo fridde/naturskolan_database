@@ -11,7 +11,7 @@ class AdminController extends BaseController
     public function handleRequest()
     {
         $task_keys = array_keys(Task::TASK_TO_METHOD_MAP);
-        $task_status = $this->N->getCronTasks();
+        $task_status = $this->N->getCronTaskActivationStatus();
         $tasks = [];
         foreach($task_keys as $task_key){
             $task = ["value" => $task_key];

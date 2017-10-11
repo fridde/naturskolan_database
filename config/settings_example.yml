@@ -1,3 +1,4 @@
+# Compare this file with the actual settings file to see if there is an example for items
 Connection_Details:
 
   db_host :  localhost

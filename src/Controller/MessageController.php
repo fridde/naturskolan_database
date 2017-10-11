@@ -2,8 +2,9 @@
 
 namespace Fridde\Controller;
 
-abstract class MessageController {
-
+abstract class MessageController
+{
+    /** @var \Fridde\Naturskolan shortcut for the Naturskolan object in the global container */
     protected $N;
     protected $RQ;
     protected $params;
@@ -20,6 +21,9 @@ abstract class MessageController {
         $this->N = $GLOBALS["CONTAINER"]->get('Naturskolan');
     }
 
+    /**
+     *
+     */
     public function handleRequest()
     {
         $purpose = $this->params["purpose"];
@@ -37,7 +41,8 @@ abstract class MessageController {
             $method_name = $this->toCamelCase($purpose);
             $response = $this->$method_name();
         }
-        echo json_encode($response ?? "");
+        $response = json_encode($response ?? "");
+        echo $response;
     }
 
 
@@ -48,7 +53,6 @@ abstract class MessageController {
         $this->is_legit_request = $request_api_key === $settings_api_key;
         if(! $this->is_legit_request){
             throw new \Exception("No valid api_key found!");
-            exit();
         }
         return $this->is_legit_request;
     }
@@ -58,20 +62,5 @@ abstract class MessageController {
         return $this->RQ[$key] ?? null;
     }
 
-    /**
-     * Converts as string written in *snake_case* to *CamelCase* or *camelCase*
-     * @param  string  $snake_case_string
-     * @param  boolean $ignore_first_letter Should the first letter be converted, too?
-     * @return string The CamelCase string
-     */
-    protected function toCamelCase(string $snake_case_string, bool $ignore_first_letter = false)
-    {
-        $words = explode("_", $snake_case_string);
-        array_walk($words, function(&$word, $i) use ($ignore_first_letter){
-            if($i !== 0 || !$ignore_first_letter){
-                $word = ucfirst($word);
-            }
-        });
-        return implode("", $words);
-    }
+
 }

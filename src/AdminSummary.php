@@ -2,6 +2,11 @@
 
 namespace Fridde;
 
+use Fridde\Entities\Change;
+use Fridde\Entities\School;
+use Fridde\Entities\User;
+use Fridde\Entities\Visit;
+use Fridde\Messenger\Mail;
 use Fridde\Utility as U;
 use Fridde\Entities\Group;
 use Psr\Http\Message\ResponseInterface;
@@ -13,7 +18,7 @@ use Psr\Http\Message\ResponseInterface;
  */
 class AdminSummary
 {
-    /** @var \Fridde\Naturskolan shortcut for the Naturskolan object in the global container */
+    /** @var Naturskolan shortcut for the Naturskolan object in the global container */
     private $N;
 
     /** @var array Contains group changes younger than a certain amount of time.
@@ -56,11 +61,11 @@ class AdminSummary
         if (empty($this->summary)) {
             return null;
         }
-        $data["data"]["errors"] = $this->summary;
-        $data["data"]["labels"] = $this->N->getText(["admin_summary"]);
-        $url = $this->N->generateUrl("mail", ["purpose" => "admin_summary"]);
-
-        return $this->N->sendRequest($url, $data);
+        $params = ['purpose' => 'admin_summary'];
+        $params["data"]["errors"] = $this->summary;
+        $params["data"]["labels"] = $this->N->getText(["admin_summary"]);
+        $mail = new Mail($params);
+        return $mail->buildAndSend();
     }
 
 
@@ -89,7 +94,7 @@ class AdminSummary
         $rows = [];
         $imm_date = Task::getStartDate("immunity");
         $users_with_bad_mob = $this->N->getRepo("User")->findUsersWithBadMobil($imm_date);
-        /* @var $u \Fridde\Entities\User */
+        /* @var User $u */
         foreach ($users_with_bad_mob as $u) {
             $row = $u->getFullName().", ";
             $row .= $u->getSchool()->getName().": ";
@@ -103,7 +108,7 @@ class AdminSummary
     private function formatGroupChange($change, string $property_name)
     {
         $text = "";
-        /* @var $g \Fridde\Entities\Group */
+        /* @var Group $g */
         $g = $change["group"];
 
         $text = $g->getGradeLabel().", ";
@@ -132,11 +137,11 @@ class AdminSummary
         $visits = $this->N->getRepo("Visit")->findFutureVisits();
         $bad_visits = array_filter(
             $visits,
-            function (\Fridde\Entities\Visit $v) {
+            function (Visit $v) {
                 return $v->hasGroup() && !$v->getGroup()->isActive(); //empty groups are okay
             }
         );
-        /* @var $v \Fridde\Entities\Visit */
+        /* @var $v Visit */
         foreach ($bad_visits as $v) {
             $row = "Ogiltigt besök på ";
             $row .= $v->getDate()->toDateString().": ";
@@ -192,7 +197,7 @@ class AdminSummary
     {
         $rows = [];
         $range = Naturskolan::getSetting("admin", "summary", "allowed_group_size");
-        /* @var $g \Fridde\Entities\Group */
+        /* @var Group $g */
         $ill_sized_groups = array_filter(
             $this->N->getRepo("Group")->findActiveGroups(),
             function ($g) use ($range) {
@@ -220,7 +225,7 @@ class AdminSummary
         $rows = [];
         $imm_date = Task::getStartDate("immunity");
         $incomplete_users = $this->N->getRepo("User")->findIncompleteUsers($imm_date);
-        /* @var $u \Fridde\Entities\User */
+        /* @var User $u */
         foreach ($incomplete_users as $u) {
             $row = $u->getFullName().", ";
             $row .= $u->getSchool()->getName().": ";
@@ -242,7 +247,7 @@ class AdminSummary
         $close_date = U::addDuration($no_conf_interval);
         $unconfirmed_visits = $this->N->getRepo("Visit")->findUnconfirmedVisitsUntil($close_date);
 
-        /* @var $visit \Fridde\Entities\Visit */
+        /* @var Visit $visit */
         foreach ($unconfirmed_visits as $visit) {
             $g = $visit->getGroup();
             $u = $g->getUser();
@@ -262,7 +267,7 @@ class AdminSummary
     {
         $rows = [];
         $schools = $this->N->getRepo("School")->findAll();
-        /* @var $school \Fridde\Entities\School */
+        /* @var School $school  */
         foreach ($schools as $school) {
             foreach (Group::getGradeLabels() as $grade_id => $label) {
                 $active = $school->getNrActiveGroupsByGrade($grade_id);
@@ -284,7 +289,7 @@ class AdminSummary
         $rows = [];
 
         $groups = $this->N->getRepo("Group")->findActiveGroups();
-        /* @var $group \Fridde\Entities\Group */
+        /* @var Group $group */
         foreach ($groups as $group) {
             $id = $group->getId();
             $u = $group->getUser();
@@ -309,7 +314,8 @@ class AdminSummary
             foreach ($reasons as $reason) {
                 $reason_texts[] = $this->N->getText(["admin_summary", $reason]);
             }
-            $rows[] = implode(" ", $reason_texts);
+            $row .= implode(" ", $reason_texts);
+            $rows[] = $row;
         }
 
         return $rows;
@@ -332,9 +338,9 @@ class AdminSummary
 
         $crit = [["EntityClass", "Group"], ["in", "Property", ["Food", "NumberStudents", "Info"]]];
         $group_changes = $this->N->getRepo("Change")->findNewChanges($crit);
-        /* @var $change \Fridde\Entities\Change */
+        /* @var Change $change */
         foreach ($group_changes as $change) {
-            /* @var $g \Fridde\Entities\Group */
+            /* @var Group $g */
             $g = $this->N->getRepo("Group")->find($change->getEntityId());
             $next_visit = $g->getNextVisit();
             if (!empty($next_visit) && $next_visit->isBefore($deadline)) {

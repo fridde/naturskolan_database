@@ -22,6 +22,9 @@ class Visit
     /** @Column(type="string") */
     protected $Date;
 
+    /** @Column(type="string", nullable=true) */
+    protected $LastChange;
+
     /** @ManyToOne(targetEntity="Topic", inversedBy="Visits")   * */
     protected $Topic;
 
@@ -107,6 +110,9 @@ class Visit
         }
         $this->Date = $Date;
     }
+
+    public function getLastChange(){return $this->LastChange;}
+    public function setLastChange($LastChange){$this->LastChange = $LastChange;}
 
     /**
      * @return \Fridde\Entities\Topic
@@ -300,11 +306,14 @@ class Visit
     /** @PrePersist */
     public function prePersist()
     {
+        $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
     /** @PreUpdate */
     public function preUpdate($event)
     {
+        $this->setLastChange(Carbon::now()->toIso8601String());
+
         $trackables = ["Group", "Date", "Time"];
         (new Update)->logChange($event, $trackables);
     }

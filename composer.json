@@ -26,7 +26,9 @@
         "symfony/yaml": "3.3.0"
     },
     "require-dev": {
-        "fzaninotto/faker": "1.6"
+        "fzaninotto/faker": "1.6",
+        "filp/whoops": "^2.1",
+        "tracy/tracy": "^2.4"
     },
 	"autoload": {
         "psr-4": { "Fridde\\": "src/" }
