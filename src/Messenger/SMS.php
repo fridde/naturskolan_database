@@ -49,19 +49,19 @@ class SMS extends AbstractMessage
             $this->N->log($msg, 'SMS->updateReceivedSms()');
         }
         $event = strtolower($this->getParam("event"));
-        if ($event == "update") {
+        if ($event === "update") {
             $msg_id = $this->getParam("id");
             $message = $this->N->ORM->findBy("Message", ["ExtId" => $msg_id]);
             if (!empty($message)) {
                 $e_id = $message->getId();
                 $val = strtolower($this->getParam("status"));
-                (new Update)->updateProperty("Message", $e_id, "Status", $val);
+                return (new Update)->updateProperty("Message", $e_id, "Status", $val)->flush();
             }
-        } elseif ($event == "received") {
+        } elseif ($event === "received") {
             $check = $this->checkReceivedSmsForConfirmation();
             if ($check["about_visit"]) {
                 $e_id = $check["visit_id"];
-                (new Update)->updateProperty("Visit", $e_id, "Confirmed", "confirmed");
+                return (new Update)->updateProperty("Visit", $e_id, "Confirmed", true)->flush();
             }
         }
     }

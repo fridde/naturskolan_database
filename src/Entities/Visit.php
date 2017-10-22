@@ -188,11 +188,6 @@ class Visit
         return boolval($this->Confirmed);
     }
 
-    public function getConfirmedOptions()
-    {
-        return [1 => ""];
-    }
-
     public function getConfirmed()
     {
         return $this->Confirmed;
@@ -313,9 +308,6 @@ class Visit
     public function preUpdate($event)
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
-
-        $trackables = ["Group", "Date", "Time"];
-        (new Update)->logChange($event, $trackables);
     }
 
     /** @PreRemove */

@@ -364,11 +364,9 @@ class Group
     /** @PreUpdate */
     public function preUpdate($event)
     {
-        $trackables = ["User", "Food", "NumberStudents", "Info"];
-        (new Update())->logChange($event, $trackables);
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
-
+    
     /** @PreRemove */
     public function preRemove()
     {

@@ -92,7 +92,7 @@ class Update extends DefaultUpdate
             $properties["Date"] = trim($date);
             $this->createNewEntity("Visit", $properties);
         }
-        $this->ORM->EM->flush();
+        $this->flush();
     }
 
     /**
@@ -170,70 +170,14 @@ class Update extends DefaultUpdate
             $method_name = "get".$property_name;
             $properties[$property_name] = call_user_func([$model_entity, $method_name]);
         }
-        $this->createNewEntity($entity_class, $properties);
+        return $this->createNewEntity($entity_class, $properties);
     }
-
-    /**
-     * @param \Doctrine\Common\Persistence\Event\LifecycleEventArgs $event *
-     */
-    public function logNewEntity($event)
-    {
-        $c["EntityClass"] = $this->getClassFromEventObject($event);
-        $c["EntityId"] = $event->getObject()->getId();
-        $this->createNewEntity("Change", $c);
-    }
-
-    /**
-     * Logs a change
-     * @param \Doctrine\ORM\Event\PreUpdateEventArgs $event *
-     */
-    public function logChange($event, array $trackables = [])
-    {
-        /* @var $repo \Fridde\Entities\ChangeRepository */
-        $repo = $this->ORM->getRepository("Change");
-        $c["EntityClass"] = $this->getClassFromEventObject($event);
-        $c["EntityId"] = $event->getObject()->getId();
-
-        $basic_criteria[] = ["isNull", "Processed"];
-        $basic_criteria[] = ["EntityClass", $c["EntityClass"]];
-        $basic_criteria[] = ["EntityId", $c["EntityId"]];
-
-        $common_keys = ["EntityClass", "EntityId", "Property", "OldValue"];
-        foreach ($trackables as $property) {
-            if ($event->hasChangedField($property)) {
-
-                $change_criteria = array_merge($basic_criteria, [["Property", $property]]);
-                $result = $repo->selectAnd($change_criteria);
-                if (empty($result)) {
-                    $c["Property"] = $property;
-                    $old_value = $event->getOldValue($property);
-                    if (is_object($old_value)) {
-                        $old_value = $old_value->getId();
-                    }
-                    $c["OldValue"] = $old_value;
-                    $this->createNewEntity("Change", $c, false);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param \Doctrine\Common\Persistence\Event\LifecycleEventArgs $event
-     * @return mixed
-     */
-    private function getClassFromEventObject($event)
-    {
-        $ec_array = explode('\\', get_class($event->getObject()));
-
-        return array_pop($ec_array);
-    }
-
 
     public function sliderUpdate($entity_class, $entity_id, $property, $value)
     {
         $this->setReturnFromRequest(["sliderId", "sliderLabelId"]);
         $this->setReturn("newValue", $value);
-        $this->updateProperty($entity_class, $entity_id, $property, $value);
+        return $this->updateProperty($entity_class, $entity_id, $property, $value)->flush();
     }
 
     public function updateVisitOrder(array $order)
@@ -241,11 +185,13 @@ class Update extends DefaultUpdate
         foreach ($order as $index => $id) {
             $this->updateProperty("School", $id, "VisitOrder", $index + 1);
         }
+        return $this->flush();
     }
 
     public function confirmVisit(int $visit_id)
     {
-        $this->updateProperty("Visit", $visit_id, "Confirmed", true);
+        return $this->updateProperty("Visit", $visit_id, "Confirmed", true);
+
     }
 
 
@@ -253,7 +199,7 @@ class Update extends DefaultUpdate
     {
         $this->setReturn("groupId", $entity_id);
         $this->setReturn("newName", $value);
-        $this->updateProperty("Group", $entity_id, "Name", $value);
+        $this->updateProperty("Group", $entity_id, "Name", $value)->flush();
     }
 
     /**

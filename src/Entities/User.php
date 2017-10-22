@@ -446,7 +446,6 @@ class User
     /** @PreUpdate */
     public function preUpdate($event)
     {
-        (new Update())->logNewEntity($event);
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
 

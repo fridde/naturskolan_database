@@ -71,7 +71,7 @@ class APIController {
                 $request["visit_id"] = $id;
                 $request["updateMethod"] = "confirmVisit";
                 $update = new Update($request);
-                $return = $update->execute()->getReturn();
+                $return = $update->confirmVisit($id)->flush()->getReturn();
             }
         }
         if($return["success"] ?? false){

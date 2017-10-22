@@ -356,6 +356,7 @@ class AdminSummary
             }
             Task::processChange($change);
         }
+        $this->N->ORM->EM->flush();
         $this->recent_group_changes = $recent_group_changes;
     }
 

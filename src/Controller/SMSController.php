@@ -8,6 +8,7 @@ use Fridde\Entities\Visit;
 use Fridde\Update;
 use Fridde\ShortMessageService;
 
+// TODO: This class contains the same methods as the class SMS. Something is wrong!
 class SMSController extends MessageController
 {
     protected $text;
@@ -50,24 +51,26 @@ class SMSController extends MessageController
     {
         $secret = $this->getRQ("secret");
         if ($secret !== SETTINGS["sms_settings"]["smsgateway"]["callback_secret"]) {
-            // log error and exit
+            $this->N->log('The callback secret didn\'t match with the one in the settings');
         }
         $event = strtolower($this->getRQ("event"));
         if ($event == "update") {
             $msg_id = $this->getRQ("id");
+            /* @var Message $message  */
             $message = $this->N->ORM->findBy("Message", ["ExtId" => $msg_id]);
             if (!empty($message)) {
                 $e_id = $message->getId();
                 $val = strtolower($this->getRQ("status"));
-                (new Update)->updateProperty("Message", $e_id, "Status", $val);
+                return (new Update)->updateProperty("Message", $e_id, "Status", $val)->flush();
             }
         } elseif ($event == "received") {
             $check = $this->checkReceivedSmsForConfirmation();
             if ($check["about_visit"]) {
                 $e_id = $check["visit_id"];
-                (new Update)->updateProperty("Visit", $e_id, "Confirmed", "confirmed");
+                return (new Update)->updateProperty("Visit", $e_id, "Confirmed", true)->flush();
             }
         }
+        return false;
     }
 
     protected function checkReceivedSmsForConfirmation()

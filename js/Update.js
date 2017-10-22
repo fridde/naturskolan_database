@@ -5,10 +5,12 @@ var Update = {
         console.log(data);
 
         var options = {
+            'method': 'POST',
             'data': data,
-            'complete': function(jqXHR){
-                Response.handler(jqXHR, data.onReturn);
-            }
+            'complete': function(jqXHR, status){
+                Response.handler(jqXHR, data.onReturn, status);
+            },
+            'error': Response.logErrorsToConsole
         };
         $.ajax(options);
     },

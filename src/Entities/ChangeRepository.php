@@ -34,4 +34,14 @@ class ChangeRepository extends CustomRepository
 
         return $this->selectAnd($criteria);
     }
+
+    public function changeIsLogged(string $entity_class, $entity_id, string $property_name)
+    {
+        $criteria = [["isNull", "Processed"]];
+        $criteria[] = ["EntityClass", $entity_class];
+        $criteria[] = ["EntityId", $entity_id];
+        $criteria[] = ['Property', $property_name];
+
+        return !empty($this->selectAnd($criteria));
+    }
 }

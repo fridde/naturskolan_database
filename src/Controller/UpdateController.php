@@ -26,7 +26,7 @@ class UpdateController {
         }
         $args = U::pluck($this->RQ, Update::getMethodArgs($update_method));
         call_user_func_array([$update, $update_method], $args);
-
+        $update->flush();
         echo json_encode($update->getReturn());
     }
 

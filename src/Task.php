@@ -147,6 +147,7 @@ class Task
                 if (empty($last_msg) || !$user->hasMobil()) {
                     $msg_carrier = "mail";
                     $response = $this->sendVisitConfirmationMail($v);
+                    echo "";
                 } elseif (!$last_msg->wasSentAfter($annoyance_start)) {
                     $msg_carrier = "sms";
                     $response = $this->sendVisitConfirmationSMS($v);
@@ -154,6 +155,7 @@ class Task
                     $e = 'User ' . $user->getId() . ' has neither mail nor mobile number ';
                     $e .= 'and couldn\'t be contacted to confirm visit. Check this!';
                     $this->N->log($e, 'Task->sendVisitConfirmationMessage()');
+                    continue;
                 }
 
                 $this->logMessage($response, $msg_carrier, $user);
@@ -187,7 +189,7 @@ class Task
                 $msg_props["Content"] = ''; // TODO: Retrieve the message!
             }
 
-            return (new Update)->createNewEntity("Message", $msg_props);
+            return (new Update)->createNewEntity("Message", $msg_props)->flush();
         } else {
             //TODO: log this failed trial to error table or equivalent
         }
@@ -200,7 +202,7 @@ class Task
      * Notice that no check about the validity of the visit is performed here.
      *
      * @param  \Fridde\Entities\Visit $visit The visit that the mail is about
-     * @return ResponseInterface The response object returned by the request
+     * @return array The response object returned by the request
      */
     private function sendVisitConfirmationMail(Visit $visit)
     {
@@ -285,6 +287,7 @@ class Task
             }
             self::processChange($change);
         }
+        $this->N->ORM->EM->flush();
         // ensure that "new" and "removed" exist
         array_walk(
             $user_array,

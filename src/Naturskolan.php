@@ -41,6 +41,9 @@ class Naturskolan
     {
         $this->ORM = new ORM();
         $this->PW = new PW();
+
+        $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber());
+        echo "";
     }
 
     /**

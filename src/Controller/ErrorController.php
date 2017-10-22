@@ -30,7 +30,7 @@ class ErrorController {
 
     private function prepareFourOFour()
     {
-        echo "Visit confirmed!";
+        echo "Visit NOT confirmed!";
     }
 
     private function prepareUndefined()
