@@ -7,7 +7,7 @@ var Update = {
         var options = {
             'method': 'POST',
             'data': data,
-            'complete': function(jqXHR, status){
+            'complete': function (jqXHR, status) {
                 Response.handler(jqXHR, data.onReturn, status);
             },
             'error': Response.logErrorsToConsole
@@ -18,13 +18,18 @@ var Update = {
     lastChange: function (data) {
 
         if (data.success) {
-            var time = moment().format();
-            $(".save-time").attr("data-last-change", time).data("last-change", time);
-            Update.setSaveTimeText();
+            var tr = $('tr[data-id="' + data.old_id + '"]');
             if (data.new_id) {
-                var tr = $('tr[data-id="new#' + data.old_id + '"]');
                 tr.attr("data-id", data.new_id).data("id", data.new_id);
+                tr.removeAttr('data-properties').removeData('properties');
+            } else if (data.old_properties) {
+                var props = JSON.stringify(data.old_properties);
+                tr.attr('data-properties', props).data('properties', props);
+                Update.updateSaveTimeText('Raden sparas när alla obligatoriska uppgifter är med.');
+                return;
             }
+            Update.setSaveTime();
+            Update.updateSaveTimeText();
         } else {
             // console.log(data);
         }
@@ -53,12 +58,22 @@ var Update = {
         }
     },
 
-    setSaveTimeText: function () {
-        var lastChange = $(".save-time").data("last-change");
-        if (lastChange !== undefined && lastChange.length > 0) {
-            $(".save-time").text("Uppgifterna sparades senast " + moment(lastChange).fromNow() + '.');
-            $(".save-time").css("visibility", "visible");
+    setSaveTime: function () {
+        var currentTime = moment().format();
+        $(".save-time").attr("data-last-change", currentTime).data("last-change", currentTime);
+    },
+
+    updateSaveTimeText: function (text) {
+        if (typeof text === 'undefined') {
+            var lastChange = $('.save-time').data("last-change");
+            if (typeof lastChange === 'undefined' || lastChange === '') {
+                return;
+            }
+            text = "Sparades " + moment(lastChange).fromNow() + '.';
         }
+        $(".save-time").text(text);
+        $(".save-time").css("visibility", "visible");
+
     },
 
     passwordCorrect: function (data) {
@@ -77,7 +92,7 @@ var Update = {
         }
     },
 
-    showChange: function() {
+    showChange: function () {
         // TODO: implement this function to show the result of the operation
     },
 

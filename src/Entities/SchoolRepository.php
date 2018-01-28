@@ -9,7 +9,7 @@ class SchoolRepository extends CustomRepository
 
     public function getNaturskolansStaff()
     {
-        return $this->getSchoolStaff("natu");
+        return $this->getSchoolStaff('natu');
     }
 
     public function getSchoolStaff($school_id)
@@ -17,7 +17,7 @@ class SchoolRepository extends CustomRepository
         return $this->find($school_id)->getUsers()->toArray();
     }
 
-    public function getStaffWithNames($school_id = "natu")
+    public function getStaffWithNames($school_id = 'natu')
     {
         $user_names = array_map(function($u){
             return [$u->getId(), $u->getFullName()];
@@ -31,7 +31,7 @@ class SchoolRepository extends CustomRepository
      */
     public function findAllSchoolLabels()
     {
-        $schools_id_name = array_map(function($s){
+        $schools_id_name = array_map(function(School $s){
             return [$s->getId(), $s->getName()];
         }, $this->findAll());
         return array_column($schools_id_name, 1, 0);
@@ -41,7 +41,7 @@ class SchoolRepository extends CustomRepository
     {
         $school_labels = $this->findAllSchoolLabels();
         return array_map(function($id, $label){
-            return ["value" => $id, "label" => $label];
+            return ['value' => $id, 'label' => $label];
         }, array_keys($school_labels), $school_labels);
     }
 

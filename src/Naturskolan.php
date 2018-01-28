@@ -6,9 +6,9 @@
 namespace Fridde;
 
 use Fridde\Entities\SystemStatus;
+use Fridde\Entities\User;
 use Fridde\PasswordHandler as PW;
 use Fridde\Utility as U;
-use Yosymfony\Toml\Toml;
 use Carbon\Carbon;
 use dotzero\Googl;
 use GuzzleHttp\Client;
@@ -27,10 +27,12 @@ class Naturskolan
     private $Googl;
     /** @var \Fridde\PasswordHandler Instance of PasswordHandler */
     private $PW;
+    /* @var Authorization $Auth  */
+    public $Auth;
     /** @var array A text array containing labels and other text bits */
     private $text_array;
     /** @var string the path for the text pieces */
-    private $text_path = "text";
+    private $text_path = 'config/labels.yml';
 
     /**
      * Constructor
@@ -41,9 +43,8 @@ class Naturskolan
     {
         $this->ORM = new ORM();
         $this->PW = new PW();
-
+        $this->Auth = new Authorization($this->ORM, $this->PW);
         $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber());
-        echo "";
     }
 
     /**
@@ -52,7 +53,7 @@ class Naturskolan
      * @param  string $repo The (non-qualified-) name of the class of entities
      * @return mixed The repository
      */
-    public function getRepo($repo)
+    public function getRepo(string $repo)
     {
         return $this->ORM->getRepository($repo);
     }
@@ -241,20 +242,25 @@ class Naturskolan
         return $this->PW->createPassword($school_id);
     }
 
+    public function isAuthorizedFor(string $school_id)
+    {
+        return $this->Auth->getSchooldIdFromCookie() === $school_id;
+    }
+
     /**
      *
      *
-     * @param  \Fridde\Entities\User $user The User object
+     * @param  User $user The User object
      * @return string       The url a user can click to reach the school page
      *                      without writing any password.
      */
-    public function createLoginUrl(\Fridde\Entities\User $user)
+    public function createLoginUrl(User $user, string $page = 'staff', $absolute = true)
     {
         $params["school"] = $user->getSchoolId();
-        $params["page"] = "staff";
+        $params["page"] = $page;
         $params["code"] = $this->PW->createCodeFromInt($user->getId(), "user");
 
-        return $this->generateUrl("school", $params);
+        return $this->generateUrl("school", $params, $absolute);
     }
 
     private function getGoogl()
@@ -269,14 +275,10 @@ class Naturskolan
 
     public function shortenUrl($url)
     {
+        if(DEBUG ?? false){
+            return $url;
+        }
         return $this->getGoogl()->shorten($url);
-    }
-
-    public function createPasswordResetUrl($user_id)
-    {
-        $params["code"] = $this->PW->createCodeFromInt($user_id, "user");
-
-        return $this->generateUrl("pwrecover", $params);
     }
 
     public function getIntFromCode($code, $entropy = "")
@@ -284,11 +286,12 @@ class Naturskolan
         return $this->PW->getIntFromCode($code, $entropy);
     }
 
-    public function createConfirmationUrl($visit_id)
+    public function createConfirmationUrl($visit_id, $absolute = false)
     {
-        $params["code"] = $this->PW->createCodeFromInt($visit_id, "visit");
+        $params['parameters'] = $this->PW->createCodeFromInt($visit_id, "visit");
+        $params['action'] = 'confirmVisit';
 
-        return $this->generateUrl('confirmvisit', $params);
+        return $this->generateUrl('api', $params, $absolute);
     }
 
     /**
@@ -297,9 +300,9 @@ class Naturskolan
      */
     public function checkPassword(string $school_id_password)
     {
-        if (substr($school_id_password, 0, 5) == 'user$') {
+        if (substr($school_id_password, 0, 5) === 'user$') {
             $code = substr($school_id_password, 5);
-            $user_id = $this->getIntFromCode($code, "user");
+            $user_id = $this->Auth->getIntFromCode($code, "user");
             if (!empty($user_id)) {
                 $user = $this->ORM->getRepository("User")->find($user_id);
 
@@ -319,14 +322,16 @@ class Naturskolan
         return $hash;
     }
 
-    public function generateUrl($route_name, $params = [])
+    public function generateUrl($route_name, $params = [], $absolute = false)
     {
         /* @var \AltoRouter $router */
         $router = $GLOBALS["CONTAINER"]->get("Router");
-        $url_end = $router->generate($route_name, $params);
+        $url = $router->generate($route_name, $params);
+        if($absolute && !empty(SETTINGS['debug']['base_path'])){
+            $url = SETTINGS['debug']['base_path'] . $url;
+        }
 
-        return $url_end;
-        //return $_SERVER['HTTP_HOST'] . $url_end;
+        return $url;
     }
 
     /**
@@ -430,33 +435,33 @@ class Naturskolan
 
     private function setTextArrayfromFile($path = null)
     {
-        if (empty($path)) {
-            $path = "text\labels.toml";
-        }
-        $complete_path = BASE_DIR.$path;
-        if (is_readable($complete_path)) {
-            $this->text_array = Toml::Parse($complete_path);
-        } else {
-            throw new \Exception("The file ".$complete_path." could not be read.");
-        }
+        $path = $path ?? $this->text_path;
+        $this->text_array = Settings::getArrayFromFile($path);
+        return $this->text_array;
     }
 
-    public function getText($index, $file_path = null)
+    public function getText(string $index, string $file_path = null)
     {
         if (empty($this->text_array) || !empty($file_path)) {
             $this->setTextArrayfromFile($file_path);
         }
         $text = U::resolve($this->text_array, $index);
         if (!(isset($text) && is_string($text))) {
-            throw new \Exception(
-                "The path given couldn't be resolved to a valid string. The path: ".var_export($index, true)
-            );
+            $e_msg = "The path given couldn't be resolved to a valid string. The path: ";
+            $e_msg .= var_export($index, true);
+            throw new \InvalidArgumentException($e_msg);
         }
 
         return $text;
     }
 
-    public function getReplacedText($index, $replacements = [], $file_path = null)
+    public function getTextArray(string $index = null)
+    {
+        $text = $this->text_array ?? $this->setTextArrayfromFile();
+        return (empty($index) ? $text : U::resolve($text, $index));
+    }
+
+    public function getReplacedText(string $index, array $replacements = [], string $file_path = null)
     {
         $text = $this->getText($index, $file_path);
         $search = $rep = [];

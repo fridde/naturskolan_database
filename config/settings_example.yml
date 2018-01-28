@@ -49,7 +49,7 @@ admin:
   table_menu_items: [Group, Location, School, SystemStatus, Topic, User, Visit]
   summary:
     # who should the summary go to?
-    admin_adress : 'info@example.com'
+    admin_address : 'info@example.com'
     # time before a non-confirmed visit shows up in the mail
     no_confirmation_warning : [5, d]
     # time until the last visit before a warning is issued
@@ -88,7 +88,7 @@ sms_settings:
     project_id : 'abcde12345'
 
 slacker:
-  webhook_url : 'https://hooks.slack.com/services/adress_to_slack_webhook_here'
+  webhook_url : 'https://hooks.slack.com/services/address_to_slack_webhook_here'
   username : 'Bot username here'
   channel : '#channel_here'
 

@@ -3,9 +3,8 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
-
 use Doctrine\Common\Collections\ArrayCollection;
-use Fridde\Update;
+
 
 /**
  * @Entity(repositoryClass="Fridde\Entities\UserRepository")
@@ -58,15 +57,22 @@ class User
     /** @OneToMany(targetEntity="Group", mappedBy="User") */
     protected $Groups;
 
-    const ROLES = [
-        0 => "teacher",
-        1 => "headmaster",
-        2 => "administrator",
-        3 => "stakeholder",
-        4 => "superadmin",
+    public const ROLE_TEACHER = 0;
+
+    public const ROLE_ADMIN = 9;
+
+    public const ROLES = [
+        0 => 'teacher',
+        1 => 'headmaster',
+        2 => 'administrator',
+        3 => 'stakeholder',
+        4 => 'superadmin',
+        5 => 'colleague',
     ];
 
-    const STATUS = [0 => "archived", 1 => "active"];
+    public const ARCHIVED = 0;
+    public const ACTIVE = 1;
+
 
     public function __construct()
     {
@@ -107,12 +113,12 @@ class User
 
     public function getFullName()
     {
-        return $this->FirstName." ".$this->LastName;
+        return $this->FirstName.' '.$this->LastName;
     }
 
     public function getShortName()
     {
-        return $this->FirstName." ".substr($this->LastName, 0, 1);
+        return $this->FirstName.' '.substr($this->LastName, 0, 1);
     }
 
 
@@ -175,7 +181,7 @@ class User
     {
         $school_id = (array)$school_id;
 
-        return in_array($this->getSchool()->getId(), $school_id);
+        return in_array($this->getSchoolId(), $school_id);
     }
 
     public function getRole()
@@ -221,12 +227,22 @@ class User
 
     public function getStatus()
     {
-        return $this->Status;
+        return $this->Status ?? self::ACTIVE;
+    }
+
+    public function getStatusString()
+    {
+        return $this->getStatusOptions()[$this->getStatus()];
     }
 
     public function getStatusOptions()
     {
-        return self::STATUS;
+        return array_flip(
+            [
+                'archived' => self::ARCHIVED,
+                'active' => self::ACTIVE,
+            ]
+        );
     }
 
     public function setStatus($Status)
@@ -236,7 +252,7 @@ class User
 
     public function isActive()
     {
-        return self::STATUS[$this->getStatus()] == "active";
+        return $this->getStatusString() === 'active';
     }
 
     public function getLastChange()
@@ -263,7 +279,7 @@ class User
 
     public function setCreatedAt($CreatedAt)
     {
-        if (!is_string($CreatedAt)) {
+        if ($CreatedAt instanceof Carbon) {
             $CreatedAt = $CreatedAt->toIso8601String();
         }
         $this->CreatedAt = $CreatedAt;
@@ -291,12 +307,11 @@ class User
 
     public function getFilteredMessages($properties, $messages = null)
     {
-        if (empty($messages)) {
-            $messages = $this->Messages;
-        }
+        $messages = $messages ?? $this->getMessages()->toArray();
 
-        return $messages->filter(
-            function ($m) use ($properties) {
+        return array_filter(
+            $messages,
+            function (Message $m) use ($properties) {
                 return $m->checkProperties($properties);
             }
         );
@@ -361,7 +376,7 @@ class User
         $messages = $this->getMessages()->getIterator();
 
         $messages->uasort(
-            function ($a, $b) {
+            function (Message $a, Message $b) {
                 if (empty($a->getTimestamp()) && empty($b->getTimestamp())) {
                     return 0;
                 } elseif (empty($a->getTimestamp())) {
@@ -388,22 +403,22 @@ class User
      */
     public function getLastMessage($properties = null)
     {
-        $msg = $this->Messages;
+        $this->sortMessagesByDate();
         if (!empty($properties)) {
             $msg = $this->getFilteredMessages($properties);
+        } else {
+            $msg = $this->getMessages()->toArray();
         }
-        $msg = $this->sortMessagesByDate($msg);
-        $last_message = $msg->last();
 
-        return ($last_message === false ? null : $last_message);
+        return array_pop($msg);
     }
 
 
     public function lastMessageWasAfter($date, $properties = null)
     {
-        $last_message = $this->getLastMessage();
-        if (!empty($lastMessage)) {
-            return $this->getLastMessage($properties)->wasSentAfter($date);
+        $last_message = $this->getLastMessage($properties);
+        if (!empty($last_message)) {
+            return $last_message->wasSentAfter($date);
         }
 
         return false;
@@ -417,13 +432,13 @@ class User
     public function standardizeMobNr($number = null, $just_check = false)
     {
         $number = !empty($number) ? $number : $this->Mobil;
-        $nr = preg_replace("/[^0-9]/", "", $number);
-        $trim_characters = ["0", "4", "6"]; // we need to trim from left to right order
+        $nr = preg_replace('/[^0-9]/', '', $number);
+        $trim_characters = ['0', '4', '6']; // we need to trim from left to right order
         foreach ($trim_characters as $char) {
             $nr = ltrim($nr, $char);
         }
-        if (in_array(substr($nr, 0, 2), ["70", "72", "73", "76"])) {
-            $nr = "+46".$nr;
+        if (in_array(substr($nr, 0, 2), ['70', '72', '73', '76'])) {
+            $nr = '+46'.$nr;
             $standardized = true;
         } else {
             $nr = $number;
@@ -452,6 +467,24 @@ class User
     /** @PreRemove */
     public function preRemove()
     {
+    }
+
+    public function getNonNullableFieldNames($class_name = self::class)
+    {
+
+        $N = $GLOBALS['CONTAINER']->get('Naturskolan');
+        $table_name = $N->ORM->EM->getClassMetadata($class_name)->getTableName();
+        $columns = $N->ORM->EM->getConnection()->getSchemaManager()->listTableColumns($table_name);
+
+        $return = [];
+        foreach ($columns as $col) {
+            if ($col->getNotnull()) {
+                $return[] = $col->getName();
+            }
+        }
+
+        return $return;
+
     }
 
 

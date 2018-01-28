@@ -5,35 +5,32 @@ namespace Fridde\Controller;
 use Fridde\HTML;
 
 
-class PageController {
-
-    public $N;
-    private $params;
+class PageController extends BaseController
+{
     private $page;
-    private $methods_mapper = ["visit_confirmed" => "VisitConfirmed"];
+    private $methods_mapper = ['visit_confirmed' => 'VisitConfirmed'];
 
     public function __construct($params)
     {
-        $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
-        $this->params = $params;
-        $this->page = $this->params["page"] ?? null;
+        parent::__construct($params);
+        $this->page = $this->params['page'] ?? null;
     }
 
     public function show()
     {
         $method = $this->methods_mapper[$this->page] ?? null;
-        if(empty($method)){
-            $EC = new ErrorController(["type" => "Page not found", "page" => $this->page]);
+        if (empty($method)) {
+            $EC = new ErrorController(['type' => 'Page not found', 'page' => $this->page]);
+
             return $EC->render();
         }
-        $method_name = "prepare" . $method;
+        $method_name = 'prepare'.$method;
         $this->$method_name();
-
-        $H = new HTML();
     }
 
-    private function prepareVisitConfirmed()
+    public function showIndex()
     {
-        echo "Visit confirmed!";
+        $this->setTemplate('index');
+        parent::handleRequest();
     }
 }

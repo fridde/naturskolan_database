@@ -1,16 +1,36 @@
-/*!
- * Start Bootstrap - Freelancer Bootstrap Theme (http://startbootstrap.com)
- * Code licensed under the Apache License v2.0.
- * For details, see http://www.apache.org/licenses/LICENSE-2.0.
- */
 
+/*
+2B3D54
+2C5B61
+247065
+60A65F
+FFEC97
+*/
+
+html,
 body {
+    width: 100vw;
+    background-color: #FFEC97;
     overflow-x: hidden;
-	padding-top: 70px;
     overflow-y: auto;
+    font-family: 'Muli', "Helvetica", Arial, sans-serif;
 }
-@media screen and (max-width: 768px) {
-    body { padding-top: 0px; }
+
+
+div.top-row {
+    background-color: #60A65F;
+}
+
+div.header {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+div.branding {
+    padding: 40px 10px 10px 30px;
+    height: auto;
+    font-family: 'Neucha', cursive;
+    font-size: 3em;
 }
 
 div.set-dates {
@@ -24,7 +44,7 @@ div.set-dates li {
     padding: 2px;
     border-style: solid;
     background-color: #99ffcc;
-
+    cursor: move;
 }
 
 div.set-dates li:nth-child(odd){
@@ -33,11 +53,86 @@ div.set-dates li:nth-child(odd){
 
 div.set-dates li.sortable-disabled {
     background-color: #d1d1e0;
+    cursor: not-allowed;
+}
+
+div.set-colleagues table, div.set-colleagues th, div.set-colleagues td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 5px;
+    color: black;
+    text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
+    font-weight: bold;
+}
+
+div.set-colleagues td.toggle-label {
+    text-align: center;
+    min-width: 40px;
+    cursor: pointer;
+}
+
+div.set-colleagues td.active {
+    border-style: dotted;
+    border-width: thick;
+    border-color: whitesmoke;
+}
+
+div.set-bookings table, div.set-bookings th, div.set-bookings td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding: 5px;
+}
+
+div.set-bookings td.toggle-label {
+    text-align: center;
+    min-width: 40px;
+    cursor: pointer;
+}
+
+div.set-bookings td.toggle-label.not-needed-td {
+    color: darkgray;
+    background-color:grey;
+    cursor: not-allowed;
+}
+
+div.set-bookings td.active {
+    background-color:forestgreen;
+}
+
+div.toolbar {
+    justify-content: flex-end;
+    padding: 15px;
+}
+
+.toolbar div {
+    margin: 10px;
+}
+
+.flexbox {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.center {
+    text-align: center;
+}
+
+button.school-choice {
+    margin: 5px 5px 5px 5px;
 }
 
 .save-time {
     height: 50px;
+    width: 100px;
     visibility: hidden;
+    font-size: x-small;
+}
+
+.admin-panel {
+    width: auto;
+    float: left;
+    margin: 20px;
 }
 
 .input-slider {
@@ -53,6 +148,13 @@ div.set-dates li.sortable-disabled {
     display: none;
 }
 
+div.group-container {
+    margin: 20px 10px 40px 10px;
+    background-color: #ffffcc;
+    padding: 10px;
+    border-radius: 30px;
+}
+
 .group-container h1 i {
     margin-left: 20px;
     font-size: 50%;
@@ -60,6 +162,27 @@ div.set-dates li.sortable-disabled {
 
 .group-container ul.group-visit-list {
     margin-top: 30px;
+    background-color: #d9ffb3;
+    border-radius: 20px;
+    padding: 15px;
+    list-style-type: none;
+}
+
+.group-container ul.group-visit-list span.confirmation-status {
+    font-size: 0.8em;
+    color: red;
+    margin-left: 10px;
+}
+
+.pw-popover {
+    font-size: 200%;
+    color: #ff6600;
+}
+
+.nav-tabs .nav-link {
+    background-color: #eddab6;
+    border-radius: 10px;
+    margin: 3px;
 }
 
 p {
@@ -76,7 +199,7 @@ a:focus,
 a:active,
 a.active {
     outline: 0;
-    color: #18bc9c;
+    color: #2B3D54;
 }
 
 h1,
@@ -86,7 +209,6 @@ h4,
 h5,
 h6 {
     text-transform: uppercase;
-    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-weight: 700;
 }
 
@@ -107,7 +229,6 @@ hr.star-primary:after {
     position: relative;
     top: -.8em;
     padding: 0 .25em;
-    font-family: FontAwesome;
     font-size: 2em;
 }
 
@@ -117,11 +238,11 @@ hr.star-light {
 
 hr.star-light:after {
     color: #fff;
-    background-color: #18bc9c;
+    background-color: #2B3D54;
 }
 
 hr.star-primary {
-    border-color: #2c3e50;
+    border-color: #2B3D54;
 }
 
 hr.star-primary:after {
@@ -139,83 +260,15 @@ label {
     margin: 0 auto;
 }
 
-header {
-    text-align: center;
-    color: #fff;
-    background: #18bc9c;
-}
-
-header .container {
-    padding-top: 100px;
-    padding-bottom: 50px;
-}
-
-header img {
-    display: block;
-    margin: 0 auto 20px;
-}
-
-header .intro-text .name {
-    display: block;
-    text-transform: uppercase;
-    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size: 2em;
-    font-weight: 700;
-}
-
-header .intro-text .skills {
-    font-size: 1.25em;
-    font-weight: 300;
-}
-
-@media(min-width:768px) {
-    header .container {
-        padding-top: 200px;
-        padding-bottom: 100px;
-    }
-
-    header .intro-text .name {
-        font-size: 4.75em;
-    }
-
-    header .intro-text .skills {
-        font-size: 1.75em;
-    }
-}
-
-@media(min-width:768px) {
-    .navbar-fixed-top {
-        padding: 25px 0;
-        -webkit-transition: padding .3s;
-        -moz-transition: padding .3s;
-        transition: padding .3s;
-		clear: both;
-    }
-
-    .navbar-fixed-top .navbar-brand {
-        font-size: 2em;
-        -webkit-transition: all .3s;
-        -moz-transition: all .3s;
-        transition: all .3s;
-    }
-
-    .navbar-fixed-top.navbar-shrink {
-        padding: 10px 0;
-    }
-
-    .navbar-fixed-top.navbar-shrink .navbar-brand {
-        font-size: 1.5em;
-    }
-}
-
 .navbar {
     text-transform: uppercase;
-    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 110%;
+    transition: font-weight 5s ease-in-out;
 }
 
-.navbar a:focus {
-    outline: 0;
+.navbar a:hover {
+    font-weight: 900;
 }
 
 .navbar .navbar-nav {
@@ -252,73 +305,6 @@ section.success a:active,
 section.success a.active {
     outline: 0;
     color: #2c3e50;
-}
-
-@media(max-width:767px) {
-    section {
-        padding: 75px 0;
-    }
-
-    section.first {
-        padding-top: 75px;
-    }
-}
-
-#portfolio .portfolio-item {
-    right: 0;
-    margin: 0 0 15px;
-}
-
-#portfolio .portfolio-item .portfolio-link {
-    display: block;
-    position: relative;
-    margin: 0 auto;
-    max-width: 400px;
-}
-
-#portfolio .portfolio-item .portfolio-link .caption {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    background: rgba(24,188,156,.9);
-    -webkit-transition: all ease .5s;
-    -moz-transition: all ease .5s;
-    transition: all ease .5s;
-}
-
-#portfolio .portfolio-item .portfolio-link .caption:hover {
-    opacity: 1;
-}
-
-#portfolio .portfolio-item .portfolio-link .caption .caption-content {
-    position: absolute;
-    top: 50%;
-    width: 100%;
-    height: 20px;
-    margin-top: -12px;
-    text-align: center;
-    font-size: 20px;
-    color: #fff;
-}
-
-#portfolio .portfolio-item .portfolio-link .caption .caption-content i {
-    margin-top: -12px;
-}
-
-#portfolio .portfolio-item .portfolio-link .caption .caption-content h3,
-#portfolio .portfolio-item .portfolio-link .caption .caption-content h4 {
-    margin: 0;
-}
-
-#portfolio * {
-    z-index: 2;
-}
-
-@media(min-width:767px) {
-    #portfolio .portfolio-item {
-        margin: 0 0 30px;
-    }
 }
 
 .btn-outline {
@@ -360,41 +346,6 @@ section.success a.active {
     resize: none;
 }
 
-.floating-label-form-group label {
-    display: block;
-    z-index: 0;
-    position: relative;
-    top: 2em;
-    margin: 0;
-    font-size: .85em;
-    line-height: 1.764705882em;
-    vertical-align: middle;
-    vertical-align: baseline;
-    opacity: 0;
-    -webkit-transition: top .3s ease,opacity .3s ease;
-    -moz-transition: top .3s ease,opacity .3s ease;
-    -ms-transition: top .3s ease,opacity .3s ease;
-    transition: top .3s ease,opacity .3s ease;
-}
-
-.floating-label-form-group::not(:first-child) {
-    padding-left: 14px;
-    border-left: 1px solid #eee;
-}
-
-.floating-label-form-group-with-value label {
-    top: 0;
-    opacity: 1;
-}
-
-.floating-label-form-group-with-focus label {
-    color: #18bc9c;
-}
-
-form .row:first-child .floating-label-form-group {
-    border-top: 1px solid #eee;
-}
-
 footer {
     color: #fff;
 }
@@ -415,23 +366,6 @@ footer .footer-col {
 footer .footer-below {
     padding: 25px 0;
     background-color: #233140;
-}
-
-.btn-social {
-    display: inline-block;
-    width: 50px;
-    height: 50px;
-    border: 2px solid #fff;
-    border-radius: 100%;
-    text-align: center;
-    font-size: 20px;
-    line-height: 45px;
-}
-
-.btn:focus,
-.btn:active,
-.btn.active {
-    outline: 0;
 }
 
 .scroll-top {
@@ -455,66 +389,19 @@ footer .footer-below {
     outline: 0;
 }
 
-.portfolio-modal .modal-content {
-    padding: 100px 0;
-    min-height: 100%;
-    border: 0;
-    border-radius: 0;
-    text-align: center;
-    background-clip: border-box;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-}
+@media only screen and (max-width: 768px) {
+    body {
+        padding-top: 0px;
+    }
 
-.portfolio-modal .modal-content h2 {
-    margin: 0;
-    font-size: 3em;
-}
+    div.branding {
+        padding: 5px;
+        font-size: 2em;
+    }
 
-.portfolio-modal .modal-content img {
-    margin-bottom: 30px;
-}
-
-.portfolio-modal .modal-content .item-details {
-    margin: 30px 0;
-}
-
-.portfolio-modal .close-modal {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    width: 75px;
-    height: 75px;
-    background-color: transparent;
-    cursor: pointer;
-}
-
-.portfolio-modal .close-modal:hover {
-    opacity: .3;
-}
-
-.portfolio-modal .close-modal .lr {
-    z-index: 1051;
-    width: 1px;
-    height: 75px;
-    margin-left: 35px;
-    background-color: #2c3e50;
-    -webkit-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
-    transform: rotate(45deg);
-}
-
-.portfolio-modal .close-modal .lr .rl {
-    z-index: 1052;
-    width: 1px;
-    height: 75px;
-    background-color: #2c3e50;
-    -webkit-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
-    transform: rotate(90deg);
-}
-
-.portfolio-modal .modal-backdrop {
-    display: none;
-    opacity: 0;
+    nav.navbar {
+        margin: 2px;
+        font-size: 0.8em;
+        padding: 5px;
+    }
 }

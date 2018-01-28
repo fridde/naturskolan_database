@@ -1,0 +1,27 @@
+{%- extends "base.twig" -%}
+
+{%- set colleagues= DATA.colleagues -%}
+
+{% block content %}
+    <div class="visits set-colleagues">
+        <h5>Arbetsfördelning</h5>
+        <table>
+            {% for visit in DATA.visits %}
+                <tr data-id="{{ visit.id }}" style="background-color:#{{ visit.row_color }}">
+                    <td>v {{ visit.weeknum }}</td>
+                    <td>{{ visit.weekday }}</td>
+                    <td>{{ visit.date }}</td>
+                    <td>{{ visit.label }}</td>
+                    {% for c in colleagues %}
+                        {% set td_class = 'toggle-label' %}
+                        {% if c.id in visit.colleagues %}
+                            {% set td_class = td_class ~ ' active' %}
+                        {% endif %}
+                        <td data-colleague-id="{{ c.id }}" class="{{ td_class }}">{{ c.label }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,3 +1,6 @@
+# getStaffPageUrl
+#
+#
 NAV_SETTINGS:
   base:
     - &home
@@ -9,9 +12,12 @@ NAV_SETTINGS:
     - &logout
       label: 'Logga ut'
       url: 'logout'
+    - &groups
+      label: 'Grupper'
+      url: '->getGroupsPageUrl(school_id)'
     - &staff
       label: 'Personal'
-      method: 'getStaffPageUrl'
+      url: '->getStaffPageUrl(school_id)'
     - &contact
       label: 'Kontakt'
       url: 'contact'
@@ -21,31 +27,36 @@ NAV_SETTINGS:
       <<: *home
     -
       label: 'Skolor'
-      children:
-        method: 'getAllSchoolUrls'
+      children: '->getAllSchoolUrls'
     -
       label: 'Verktyg'
       children:
-        items:
-          -
-            label: 'Översikt'
-            url: 'admin'
-          -
-            label: 'Lägg till besöksdatum till tema'
-            url: 'admin/batch/add_dates'
-          -
-            label: 'Fördela besök på grupper'
-            url: 'admin/batch/set_visits'
-          -
-            label: 'Uppdatera önskat antal grupper per skola'
-            url: 'admin/batch/set_group_count'
-          -
-            label: 'Redigera kalendern'
-            url: 'calendar/edit'
+         -
+           label: 'Översikt'
+           url: 'admin'
+         -
+           label: 'Redigera arbetsfördelningen'
+           url: 'admin/batch/set_colleagues'
+         -
+           label: 'Kontrollera bus & mat'
+           url: 'admin/batch/set_bookings'
+         -
+           label: 'Lägg till besöksdatum till tema'
+           url: 'admin/batch/add_dates'
+         -
+           label: 'Fördela besök på grupper'
+           url: 'admin/batch/set_visits'
+         -
+           label: 'Uppdatera önskat antal grupper per skola'
+           url: 'admin/batch/set_group_count'
+         -
+           label: 'Redigera kalendern'
+           url: 'table/Event'
     -
       label: 'Tabeller'
-      children:
-        method: 'getAllTableUrls'
+      children: '->getAllTableUrls'
+    -
+      <<: *groups
     -
       <<: *staff
     -
@@ -54,8 +65,7 @@ NAV_SETTINGS:
     -
       <<: *home
     -
-      label: 'Grupper'
-      method: 'getGroupsPageUrl'
+      <<: *groups
     -
       <<: *staff
     -

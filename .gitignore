@@ -2,7 +2,6 @@ aventyr_kalender.ics
 
 cli-config.php
 composer.lock
-sandbox.php
 settings.yml
 test.php
 
@@ -16,4 +15,5 @@ vendor/
 *.log
 .ftpconfig
 .idea/
-password_calculator.php
+/kalender.ics
+/src/Controller/SandboxController.php

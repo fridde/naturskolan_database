@@ -1,10 +1,15 @@
 var DataTableConfigurator = {
 
     defaultOptions: {
-        dom: 'lft',
+        dom: 'lfBt',
         paging: false,
         fixedHeader: {
             header: true
+        },
+        buttons: {
+            buttons: [
+                'colvis'
+            ]
         }
     },
 
@@ -16,8 +21,7 @@ var DataTableConfigurator = {
                     {
                         text: "Spara besöksordningen",
                         action: function(e, dt, node, config){
-                            var data = ["tableReorder", "School"];
-                            e.data = data;
+                            e.data = ["tableReorder", "School"];
                             return Edit.change(e);
                         }
                     }

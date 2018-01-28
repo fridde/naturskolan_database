@@ -2,10 +2,16 @@
 
 namespace Fridde;
 
+use Carbon\Carbon;
 use Fridde\Entities\Change;
+use Fridde\Entities\ChangeRepository;
+use Fridde\Entities\GroupRepository;
 use Fridde\Entities\School;
+use Fridde\Entities\Topic;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
+use Fridde\Entities\VisitRepository;
+use Fridde\Messenger\AbstractMessageController;
 use Fridde\Messenger\Mail;
 use Fridde\Utility as U;
 use Fridde\Entities\Group;
@@ -28,9 +34,9 @@ class AdminSummary
 
     private $method_translator = [
         "bad_mobil" => "getBadMobileNumbers",
-        "bus_order_outdated" => "getOutdatedBusOrders",
+        "bus_or_food_order_outdated" => "getOutdatedBusOrFoodOrders",
+        'duplicate_mail_addresses' => 'getDuplicateMailAddresses',
         "food_changed" => "getChangedFood",
-        "food_order_outdated" => "getOutdatedFoodOrders",
         "inactive_group_visit" => "getInactiveGroupVisits",
         "info_changed" => "getChangedInfo",
         "nr_students_changed" => "getChangedStudentNrs",
@@ -39,7 +45,8 @@ class AdminSummary
         "user_profile_incomplete" => "getIncompleteUserProfiles",
         "visit_not_confirmed" => "getUnconfirmedVisits",
         "wrong_group_count" => "getWrongGroupCounts",
-        "wrong_group_leader" => "getWrongGroupLeaders"
+        "wrong_group_leader" => "getWrongGroupLeaders",
+        'wrong_visit_order' => 'getWrongVisitOrder'
     ];
 
     /**
@@ -53,7 +60,7 @@ class AdminSummary
     /**
      * Calls compileSummary() and sends the content to the current admin mail address
      *
-     * @return ResponseInterface The response object returned by the request
+     * @return AbstractMessageController The Controller object returned by the request
      */
     public function send()
     {
@@ -63,8 +70,9 @@ class AdminSummary
         }
         $params = ['purpose' => 'admin_summary'];
         $params["data"]["errors"] = $this->summary;
-        $params["data"]["labels"] = $this->N->getText(["admin_summary"]);
+        $params["data"]["labels"] = $this->N->getTextArray("admin_summary");
         $mail = new Mail($params);
+
         return $mail->buildAndSend();
     }
 
@@ -113,7 +121,7 @@ class AdminSummary
 
         $text = $g->getGradeLabel().", ";
         $text .= "Grupp ".($g->getName() ?? '???')." från ".$g->getSchool()->getName();
-        $text .= ", möter oss härnast ";
+        $text .= ", möter oss härnäst ";
         $text .= $g->getNextVisit()->getDate()->toDateString().": ";
         $text .= $property_name;
         $text .= ' ändrades från "'.$change["from"].'" till "'.$change["to"].'"';
@@ -202,6 +210,7 @@ class AdminSummary
             $this->N->getRepo("Group")->findActiveGroups(),
             function ($g) use ($range) {
                 $nr_students = $g->getNumberStudents();
+
                 return $nr_students > 0 && ($nr_students < $range[0] || $nr_students > $range[1]);
             }
         );
@@ -215,9 +224,25 @@ class AdminSummary
         return $rows;
     }
 
-    private function getDuplicateMailAdresses()
+    private function getDuplicateMailAddresses()
     {
-        // Implement this function
+
+        $all_mail_addresses = array_map(
+            function (User $u) {
+                return trim($u->getMail());
+            },
+            $this->N->ORM->getRepository('User')->select(['Status', User::ACTIVE])
+        );
+        $counter = array_count_values($all_mail_addresses);
+
+        return array_keys(
+            array_filter(
+                $counter,
+                function ($count) {
+                    return $count > 1;
+                }
+            )
+        );
     }
 
     private function getIncompleteUserProfiles()
@@ -246,6 +271,12 @@ class AdminSummary
         $no_conf_interval = Naturskolan::getSetting("admin", "summary", "no_confirmation_warning");
         $close_date = U::addDuration($no_conf_interval);
         $unconfirmed_visits = $this->N->getRepo("Visit")->findUnconfirmedVisitsUntil($close_date);
+        $unconfirmed_visits = array_filter(
+            $unconfirmed_visits,
+            function (Visit $v) {
+                return $v->hasGroup();
+            }
+        );
 
         /* @var Visit $visit */
         foreach ($unconfirmed_visits as $visit) {
@@ -265,18 +296,24 @@ class AdminSummary
 
     private function getWrongGroupCounts()
     {
+        $years_to_check = [Carbon::today()->year];
+        $years_to_check[] = Carbon::today()->subMonths(6)->year;
+        $years_to_check = array_unique($years_to_check);
+
         $rows = [];
         $schools = $this->N->getRepo("School")->findAll();
-        /* @var School $school  */
+        /* @var School $school */
         foreach ($schools as $school) {
             foreach (Group::getGradeLabels() as $grade_id => $label) {
-                $active = $school->getNrActiveGroupsByGrade($grade_id);
-                $expected = $school->getGroupNumber($grade_id);
-                if ($expected !== $active) {
-                    $row = $school->getName()." har fel antal grupper i årskurs ";
-                    $row .= $label.". Det finns ";
-                    $row .= $active." grupper, men det borde vara ".$expected.". ";
-                    $rows[] = $row;
+                foreach($years_to_check as $start_year){
+                    $active = $school->getNrActiveGroupsByGradeAndYear($grade_id, $start_year);
+                    $expected = $school->getGroupNumber($grade_id, $start_year);
+                    if ($expected !== $active) {
+                        $row = $school->getName()." har fel antal grupper i årskurs ";
+                        $row .= $label.' och år '. $start_year.'. Det finns ';
+                        $row .= $active." grupper, men det borde vara ".$expected.". ";
+                        $rows[] = $row;
+                    }
                 }
             }
         }
@@ -291,7 +328,6 @@ class AdminSummary
         $groups = $this->N->getRepo("Group")->findActiveGroups();
         /* @var Group $group */
         foreach ($groups as $group) {
-            $id = $group->getId();
             $u = $group->getUser();
             $reasons = [];
             if (empty($u)) {
@@ -308,11 +344,11 @@ class AdminSummary
             }
 
             $row = $group->getGradeLabel().": ";
-            $row .= $group->getName()." från ".$g->getSchool()->getName();
+            $row .= $group->getName()." från ".$group->getSchool()->getName();
             $row .= ". Skäl: ";
             $reason_texts = [];
             foreach ($reasons as $reason) {
-                $reason_texts[] = $this->N->getText(["admin_summary", $reason]);
+                $reason_texts[] = $this->N->getText("admin_summary/".$reason);
             }
             $row .= implode(" ", $reason_texts);
             $rows[] = $row;
@@ -321,14 +357,104 @@ class AdminSummary
         return $rows;
     }
 
-    private function getOutdatedBusOrders()
+    private function getOutdatedBusOrFoodOrders()
     {
-        //TODO: implement this function
+        $rows = [];
+
+        /* @var ChangeRepository $change_repo */
+        $change_repo = $this->N->ORM->getRepository('Change');
+        /* @var VisitRepository $visit_repo */
+        $visit_repo = $this->N->ORM->getRepository('Visit');
+
+        $crit = [['EntityClass', 'Visit']];
+        $crit[] = ['Type', Change::UPDATE];
+        $crit[] = ['in', 'Property', ['Group', 'Topic', 'Time']];
+
+        $visit_changes = $change_repo->findNewChanges($crit);
+        $checked_visits = [];
+
+        /* @var Change $change */
+        foreach ($visit_changes as $change) {
+            /* @var Visit $visit */
+            $visit = $visit_repo->find($change->getEntityId());
+            if (empty($visit)) {
+                throw new \Exception('Visit with id'.$change->getEntityId().'was not available.');
+            }
+            $not_checked = !in_array($visit->getId(), $checked_visits);
+            $in_future = $visit->isInFuture();
+            $check_bus = $visit->needsBus() && $visit->getBusIsBooked();
+            $check_food = $visit->needsFoodOrder() && $visit->getFoodIsBooked();
+
+            if ($not_checked && $in_future) {
+                if ($check_bus || $check_food) {
+                    $row = $visit->getLabel().' har ';
+                    if ($visit->getStatus() === Visit::ARCHIVED) {
+                        $row .= ' tagits bort.';
+                    } else {
+                        $row .= ' förändrats.';
+                    }
+                    $row .= $check_bus ? ' Kontrollera bussbeställning.' : '';
+                    $row .= $check_food ? ' Kontrollera matbeställning.' : '';
+                    $rows[] = $row;
+                    Task::processChange($change);
+                    $checked_visits[] = $visit->getId();
+                }
+            }
+        }
+
+        $crit = [['in', 'EntityClass', ['Topic', 'School']]];
+        $topic_or_location_changes = $change_repo->findNewChanges($crit);
+        foreach ($topic_or_location_changes as $change) {
+            $entity_class = $change->getEntityClass();
+            $property = $change->getProperty();
+            $entity_id = $change->getEntityId();
+            if ($entity_class === 'Topic' && $property === 'Location') {
+                /* @var Topic $topic */
+                $topic = $this->N->ORM->getRepository('Topic')->find($entity_id);
+                $row = $topic->getShortName().' har ändrat plats.';
+                $rows[] = $row;
+            } elseif ($entity_class === 'School' && $property === 'BusRule') {
+                /* @var School $school */
+                $school = $this->N->ORM->getRepository('School')->find($entity_id);
+                $row = $school->getName().' har förändrat sina bussrutiner.';
+                $rows[] = $row;
+            }
+            Task::processChange($change);
+        }
+        $this->N->ORM->EM->flush();
+
+        return $rows;
     }
 
-    private function getOutdatedFoodOrders()
+    private function getWrongVisitOrder()
     {
-        //TODO: implement this function
+        $rows = [];
+        /* @var GroupRepository $group_repo  */
+        $group_repo = $this->N->ORM->getRepository('Group');
+
+        $groups = $group_repo->findActiveGroups();
+        /* @var Group $group  */
+        foreach($groups as $group){
+            $visits = array_values($group->getVisitsAfter()->toArray());
+            $nr_visits = count($visits);
+            if($nr_visits < 2){
+                continue;
+            }
+            /* @var Visit $visit  */
+            foreach(range(0,  $nr_visits - 2) as $key){
+                /* @var Visit $first_visit */
+                $first_visit = $visits[$key];
+                /* @var Visit $second_visit */
+                $second_visit = $visits[$key+1];
+                if($first_visit->getTopic()->getVisitOrder() >= $second_visit->getTopic()->getVisitOrder()){
+                    $row = 'För ' . $group->getName() . ' från ' .$group->getSchool()->getName() .': ';
+                    $row .= $first_visit->getLabel('DT') . ' är före '. $second_visit->getLabel('DT');
+                    $rows[] = $row;
+                }
+            }
+        }
+
+        return $rows;
     }
 
     private function setRecentGroupChanges()

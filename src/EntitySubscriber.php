@@ -21,7 +21,7 @@ class EntitySubscriber implements EventSubscriber
     private $change_repo;
 
     private $changes_to_log = [
-        'Visit' => ['Group', 'Date', 'Time'],
+        'Visit' => ['Group', 'Date', 'Time', 'Topic'],
         'Group' => ['User', 'Food', 'NumberStudents', 'Info'],
     ];
 
@@ -37,9 +37,9 @@ class EntitySubscriber implements EventSubscriber
         $this->change_repo = $this->EM->getRepository(Change::class);
 
 
-        foreach ($this->getLoggableChanges() as $c) {
-            if (!$this->change_repo->changeIsLogged($c[0], $c[1], $c[2])) {
-                $this->logChange(...$c);
+        foreach ($this->getLoggableChanges() as $change) {
+            if (!$this->change_repo->changeIsLogged($change)) {
+                $this->logChange($change);
             }
         }
     }
@@ -47,19 +47,59 @@ class EntitySubscriber implements EventSubscriber
     private function getLoggableChanges()
     {
         $loggable_changes = [];
-        foreach ($this->UoW->getScheduledEntityUpdates() as $entity) {
-            $class_name = $this->getShortClassName($entity);
-            $loggable_properties = $this->changes_to_log[$class_name] ?? [];
-            $change_set = $this->UoW->getEntityChangeSet($entity);
-            $common_properties = array_intersect($loggable_properties, array_keys($change_set));
-            foreach ($common_properties as $property_name) {
-                $change = [$class_name, $entity->getId(), $property_name];
-                $change[] = $change_set[$property_name][0];
-                $loggable_changes[] = $change;
+        $UoW_entities = [
+            'update' => $this->UoW->getScheduledEntityUpdates(),
+            'insertion' => $this->UoW->getScheduledEntityInsertions(),
+            'deletion' => $this->UoW->getScheduledEntityDeletions(),
+        ];
+
+        foreach ($UoW_entities as $change_type => $entity_array) {
+            $change_type_int = constant(Change::class . '::' . strtoupper($change_type));
+            foreach ($entity_array as $entity) {
+                if($change_type_int === Change::INSERTION){
+                    continue;
+                }
+                $class_name = $this->getShortClassName($entity);
+                $entity_id = $entity->getId();
+
+                if($change_type_int === Change::DELETION){
+
+                    $change = new Change();
+                    $change->setType($change_type_int);
+                    $change->setEntityClass($class_name);
+                    $change->setEntityId($entity_id);
+
+                    $loggable_changes[] = $change;
+                } elseif ($change_type_int === Change::UPDATE){
+
+                    $loggable_properties = $this->changes_to_log[$class_name] ?? [];
+                    $change_set = $this->UoW->getEntityChangeSet($entity);
+                    $common_properties = array_intersect($loggable_properties, array_keys($change_set));
+                    foreach ($common_properties as $property_name) {
+                        $change = new Change();
+                        $change->setType($change_type_int);
+                        $change->setEntityClass($class_name);
+                        $change->setEntityId($entity_id);
+                        $change->setProperty($property_name);
+                        $old_value = $this->standardizeOldValue($change_set[$property_name][0]);
+                        $change->setOldValue($old_value);
+
+                        $loggable_changes[] = $change;
+                    }
+                }
             }
         }
 
         return $loggable_changes;
+    }
+
+    private function standardizeOldValue($old_value)
+    {
+        if (is_object($old_value) && method_exists($old_value, 'getId')) {
+            return $old_value->getId();
+        }
+
+        return $old_value;
     }
 
     private function getShortClassName($entity)
@@ -67,15 +107,10 @@ class EntitySubscriber implements EventSubscriber
         return (new \ReflectionClass($entity))->getShortName();
     }
 
-    public function logChange(string $class_name, $entity_id, string $property_name, $old_value)
+    public function logChange(Change $change)
     {
-        $c = new Change();
-        $c->setEntityClass($class_name);
-        $c->setEntityId($entity_id);
-        $c->setProperty($property_name);
-        $c->setOldValue($old_value);
-        $this->EM->persist($c);
+        $this->EM->persist($change);
         $classMetadata = $this->EM->getClassMetadata(Change::class);
-        $this->UoW->computeChangeSet($classMetadata, $c);
+        $this->UoW->computeChangeSet($classMetadata, $change);
     }
 }

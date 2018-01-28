@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {{ include('head.twig') }}
+</head>
+<body>
+<div class="row top-row container-fluid">
+    <div class="col-md"></div>
+    <div class="col-md-6">
+        <div class="header">
+            <div class="branding">
+                Sigtuna Naturskolas besöksområde
+            </div>
+            {{ include('nav.twig') }}
+        </div>
+    </div>
+    <div class="col-md"></div>
+</div>
+
+{%- block toolbar -%}
+    <div class="row">
+        <div class="col-md"></div>
+        <div class="col-md-6 toolbar flexbox">
+            <div class="entry-code" id="show-entry-code">
+                <button type="button" class="btn btn-lg" data-school="{{ DATA.school_id }}" data-toggle="popover">Visa
+                    skolans aktuella lösenord
+                </button>
+            </div>
+            <div class="save-time" data-last-change=""></div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+{%- endblock -%}
+<div class="container-fluid">
+    {%- block content -%}{%- endblock -%}
+</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -5,86 +5,94 @@
 
 namespace Fridde\Controller;
 
+use Doctrine\ORM\EntityManager;
 use Fridde\Entities\Group;
-use Fridde\HTML as H;
+use Fridde\Entities\School;
+use Fridde\Entities\User;
+use Fridde\Entities\Visit;
 use Fridde\Utility as U;
-use Fridde\Controller\LoginController;
 
-class SchoolController
+class SchoolController extends BaseController
 {
-    /** @var \Fridde\Naturskolan */
-    private $N;
-    private $params;
-    /** @var \Fridde\Entities\School */
+    /** @var School $school */
     public $school;
-    /** @var \Fridde\Entities\User */
+    /** @var User $user */
     private $user;
-    private $LoginController;
+    public const PAGE = ['staff' => 'staff', 'groups' => 'groups'];
+
+    public const STAFF_PAGE = 'staff';
+    public const GROUPS_PAGE = 'groups';
 
     public function __construct($params = [])
     {
-        $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
-        $this->params = $params;
-        $this->LoginController = new LoginController($this->params);
-        $this->school = $this->LoginController->getSchoolFromCookie();
-        $this->user = $this->LoginController->checkCode();
+        parent::__construct($params);
+        if (!empty($this->params['school'])) {
+            $this->school = $this->N->getRepo('School')->find($this->params['school']);
+        }
+        $this->user = $this->N->Auth->getUserFromCode($this->params['code'] ?? null);
     }
 
     public function handleRequest()
     {
-        $authorized = false;
-        if (!empty($this->user)) {
-            $this->school = $this->user->getSchool();
-            $authorized = true;
-        } elseif (!empty($this->school)) {
-            if ($this->school->isNaturskolan()) {
-                $authorized = true;
-                $this->school = $this->N->ORM->getRepository("School")
-                    ->find($this->params["school"]);
-            } elseif ($this->school->getId() === $this->params["school"]) {
-                $authorized = true;
-            }
+        if (!$this->isAuthorized()) {
+            $login_controller = new LoginController($this->getParameter());
+            $login_controller->addAction('renderPasswordModal');
+            return $login_controller->handleRequest();
         }
-        if (!$authorized) {
-            return $this->LoginController->checkPassword();
-        }
-        if (empty($this->school)) {
-            echo "The school with the index <" . $this->params["school"] . "> does not exist.";
-            return null;
-        }
-        $page = $this->params["page"] ?? "groups";
-        if ($page == "groups") {
-            $DATA = $this->getAllGroups($this->school);
-            $template = "group_settings";
-        } elseif ($page == "staff") {
-            $DATA = $this->getAllUsers($this->school);
-            $template = "team_list";
+        $page = $this->getParameter('page') ?? self::GROUPS_PAGE;
+
+        if ($page === self::GROUPS_PAGE) {
+            $this->addToDATA($this->getAllGroups($this->school));
+            $this->setTemplate('group_settings');
+        } elseif ($page === self::STAFF_PAGE) {
+            $this->addToDATA($this->getAllUsers($this->school));
+            $this->addToDATA('school_id', $this->school->getId());
+            $this->setTemplate('staff_list');
         } else {
             throw new \Exception("No action was defined for the page variable $page .");
         }
+        $this->addToDATA(['school_id' => $this->school->getId()]);
 
-        $H = new H();
-        $H->setTitle()->addNav();
-        $H->addDefaultJs("index")->addDefaultCss("index")
-            ->setTemplate($template)->setBase();
-
-        $H->addVariable("DATA", $DATA);
-        $H->render();
-
+        parent::handleRequest();
     }
 
-    public function getAllUsers($school)
+    private function isAuthorized()
     {
-        $DATA = ["entity_class" => "User"];
-        $users = $school->getUsers()->toArray();
-        $keys = ["id", "FirstName", "LastName", "Mobil", "Mail"];
-        foreach ($keys as $key) {
-            $DATA["headers"][] = $key;
-            foreach ($users as $i => $user) {
-                $method_name = "get" . ucfirst($key);
-                $DATA["users"][$i][$key] = $user->$method_name();
+        if ($this->N->Auth->getUserRole() === 'admin') {
+            return true;
+        }
+        // user has valid code in url
+        if (!empty($this->user)) {
+            if ($this->user->getSchoolId() === $this->school->getId()) {
+                return true;
             }
         }
+        // compare cookie id with request
+        if (!empty($this->school)) {
+            if ($this->school->getId() === $this->N->Auth->getSchooldIdFromCookie()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getAllUsers(School $school)
+    {
+        $DATA = ['entity_class' => 'User'];
+        $users = $school->getUsers()->toArray();
+        if (empty($users)) {
+            $users[] = new User(); // dummy user
+        }
+        $keys = ['id', 'FirstName', 'LastName', 'Mobil', 'Mail'];
+        foreach ($keys as $key) {
+            $DATA['headers'][] = $key;
+            foreach ($users as $i => $user) {
+                $method_name = 'get'.ucfirst($key);
+                $DATA['users'][$i][$key] = $user->$method_name();
+            }
+        }
+
         return $DATA;
     }
 
@@ -99,50 +107,58 @@ class SchoolController
     public function getAllGroups($school)
     {
         $DATA = [];
-        $DATA["teachers"] = array_map(function ($u) {
-            return ["id" => $u->getId(), "full_name" => $u->getFullName()];
-        }, $school->getUsers()->toArray());
-        $DATA["student_limits"] = SETTINGS["values"]["min_max_students"];
-        $DATA["school_name"] = $school->getName();
+        $DATA['teachers'] = array_map(
+            function (User $u) {
+                return ['id' => $u->getId(), 'full_name' => $u->getFullName()];
+            },
+            $school->getUsers()->toArray()
+        );
+        $DATA['student_limits'] = SETTINGS['values']['min_max_students'];
+        $DATA['school_name'] = $school->getName();
 
-        $groups = $school->getGroups();
         $grades_at_this_school = $school->getGradesAvailable(true);
 
         foreach ($grades_at_this_school as $grade_val => $grade_label) {
-            $groups_current_grade = $groups->filter(function ($g) use ($grade_val) {
-                return $g->isGrade($grade_val);
-            });
-            $tab = ["id" => $grade_val, "grade_label" => $grade_label];
-            $groups_current_grade_formatted = array_map(function (\Fridde\Entities\Group $g) {
-                $r["id"] = $g->getId();
-                $r["name"] = $g->getName();
-                $r["teacher_id"] = $g->getUser()->getId();
-                $r["nr_students"] = $g->getNumberStudents();
-                $r["food"] = $g->getFood();
-                $r["info"] = $g->getInfo();
-                $r["visits"] = array_map(function (\Fridde\Entities\Visit $v) {
-                    $r["id"] = $v->getId();
-                    $r["date"] = $v->getDate()->toDateString();
-                    $r["topic_short_name"] = $v->getTopic()->getShortName();
-                    $r["topic_url"] = $v->getTopic()->getUrl();
-                    $r["confirmed"] = $v->isConfirmed();
-                    $dur = U::addDuration(SETTINGS["values"]["show_confirm_link"]);
-                    if($v->isBefore($dur)){
-                        $r["confirmation_url"] = $this->N->createConfirmationUrl($v->getId());
-                    }
+            $groups_current_grade = $school->getActiveGroupsByGradeAndYear($grade_val, false);
+            $tab = ['id' => $grade_val, 'grade_label' => $grade_label];
+            $groups_current_grade_formatted = array_map(
+                function (Group $g) {
+                    $r['id'] = $g->getId();
+                    $r['name'] = $g->getName();
+                    $r['teacher_id'] = $g->getUser()->getId();
+                    $r['nr_students'] = $g->getNumberStudents();
+                    $r['food'] = $g->getFood();
+                    $r['info'] = $g->getInfo();
+                    $r['visits'] = array_map(
+                        function (Visit $v) {
+                            $r['id'] = $v->getId();
+                            $r['date'] = $v->getDate()->toDateString();
+                            $r['topic_short_name'] = $v->getTopic()->getShortName();
+                            $r['topic_url'] = $v->getTopic()->getUrl();
+                            $r['confirmed'] = $v->isConfirmed();
+                            $dur = U::addDuration(SETTINGS['values']['show_confirm_link']);
+                            if ($v->isInFuture() && $v->isBefore($dur)) {
+                                $r['confirmation_url'] = $this->N->createConfirmationUrl($v->getId());
+                            }
+
+                            return $r;
+                        },
+                        $g->getSortedVisits()->toArray()
+                    );
+
                     return $r;
-                }, $g->getSortedVisits()->toArray());
+                },
+                $groups_current_grade
+            );
 
-                return $r;
-            }, $groups_current_grade->toArray());
+            $group_columns = $this->H::partition($groups_current_grade_formatted); // puts items in two equally large columns
+            $tab['col_left'] = $group_columns[0] ?? [];
+            $tab['col_right'] = $group_columns[1] ?? [];
 
-            $group_columns = H::partition($groups_current_grade_formatted); // puts items in two equally large columns
-            $tab["col_left"] = $group_columns[0] ?? [];
-            $tab["col_right"] = $group_columns[1] ?? [];
-
-            $DATA["tabs"][] = $tab;
+            $DATA['tabs'][] = $tab;
         }
 
         return $DATA;
     }
+
 }

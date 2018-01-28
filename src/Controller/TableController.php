@@ -2,53 +2,64 @@
 
 namespace Fridde\Controller;
 
-class TableController extends BaseController {
-
+class TableController extends BaseController
+{
 
     private $entity_class;
     private $t_settings;
     private $entity_table;
-    private $rows;
+    private $rows = [];
 
-    private $col_order = ["School" => ["first" => ["VisitOrder"]]];
+    private $col_order = ['School' => ['first' => ['VisitOrder']]];
 
     public function view()
     {
-        $this->entity_class = ucfirst($this->params["entity"]);
-        $this->entity_table = $this->N->ORM->getRepository($this->entity_class)->findAll();
+        if (!$this->isAuthorized()) {
+            $login_controller = new LoginController($this->params);
+
+            return $login_controller->renderPasswordModal();
+        }
+
+        $this->entity_class = ucfirst($this->params['entity']);
+
+        $repo = $this->N->ORM->getRepository($this->entity_class);
+        $this->entity_table = $repo->findAll();
+        $full_class_name = $repo->getClassName();
+        if (empty($this->entity_table)) {
+            $this->entity_table[] = new $full_class_name();
+        }
         $this->getTableSettings();
         $this->fillInDefaultSettings();
         $this->retrieveOptions();
         $this->reorderColumns();
         $this->buildRows();
 
-        $DATA["headers"] = array_keys($this->t_settings["columns"]);
-        $DATA["rows"] = $this->rows;
-        $DATA["entity_class"] = $this->entity_class;
-        $DATA["sortable"] = $this->t_settings["sortable"] ?? false;
+        // $this->addToDATA('', );
+        $this->addToDATA('headers', array_keys($this->t_settings['columns']));
+        $this->addToDATA('rows', $this->rows);
+        $this->addToDATA('entity_class', $this->entity_class);
+        $this->addToDATA('sortable', ($this->t_settings['sortable'] ?? false));
+        $this->addToDATA('school_id', $this->N->Auth->getSchooldIdFromCookie());
 
-        $this->H->setTitle()->addNav();
-        $js = ["js.bs.date", "js.bs.date.sv", "js.DT", "js.DT.config"];
-        $css = ["css.bs.date", "css.DT"];
-        $this->H->addDefaultJs("index")->addJs($js)
-        ->addDefaultCss("index")->addCss($css)
-        ->setTemplate("table")->setBase();
+        $this->setTemplate('table');
 
-        $this->H->addVariable("DATA", $DATA);
-        $this->H->render();
+
+        //$this->setJs(['js.bs.date', 'js.bs.date.sv', 'js.DT', 'js.DT.config']);
+        $this->setJs(['js.DT', 'js.DT.config']);
+        //$this->setCss(['css.bs.date', 'css.DT']);
+        $this->setCss(['css.DT']);
+        parent::handleRequest();
     }
 
     private function buildRows()
     {
-        $this->rows = $this->rows ?? [];
-        $entities = $this->entity_table;
-        foreach($this->entity_table as $entity){
+        foreach ($this->entity_table as $entity) {
             $row = [];
-            foreach($this->t_settings["columns"] as $property => $settings){
-                $value_function = explode("#", $settings["value"]);
+            foreach ($this->t_settings['columns'] as $property => $settings) {
+                $value_function = explode('#', $settings['value']);
                 $callback = [$entity, $value_function[0]];
                 $param = $value_function[1] ?? null;
-                $settings["value"] = call_user_func($callback, $param);
+                $settings['value'] = call_user_func($callback, $param);
                 $row[$property] = $settings;
             }
             $this->rows[] = $row;
@@ -58,142 +69,169 @@ class TableController extends BaseController {
     private function getTableSettings()
     {
         $ec = $this->entity_class;
-        $cols = $this->t_settings["columns"] ?? [];
-        $cols["id"]["value"] = "getId";
-        $cols["id"]["type"] = "ignored";
+        $cols = $this->t_settings['columns'] ?? [];
+        $cols['id']['value'] = 'getId';
+        $cols['id']['type'] = 'ignored';
 
-        if(in_array($ec, ["User"])){
-            array_push($cols, "FirstName", "LastName", "Mobil", "Mail");
-            $cols["Role"]["options"] = "getRoleOptions";
-            $cols[] = "Acronym";
+        if (in_array($ec, ['User'])) {
+            array_push($cols, 'FirstName', 'LastName', 'Mobil', 'Mail');
+            $cols['Role']['options'] = 'getRoleOptions';
+            $cols[] = 'Acronym';
         }
 
-        if(in_array($ec, ["Group", "Location", "School"])){
-            $cols[] = "Name";
+        if (in_array($ec, ['Group', 'Location', 'School'])) {
+            $cols[] = 'Name';
         }
 
-        if(in_array($ec, ["Group"])){
-            $cols["User"]["value"] = "getUserId";
-            $cols["User"]["options"] = ["User", "findAllUsersWithSchools"];
-            $cols["StartYear"]["type"] = "integer";
-            $cols["NumberStudents"]["type"] = "integer";
-            $cols["Food"]["type"] = "textarea";
-            $cols["Info"]["type"] = "textarea";
-            $cols["Notes"]["type"] = "textarea";
+        if (in_array($ec, ['Group'])) {
+            $cols['User']['value'] = 'getUserId';
+            $cols['User']['options'] = ['User', 'findAllUsersWithSchools'];
+            $cols['StartYear']['type'] = 'integer';
+            $cols['NumberStudents']['type'] = 'integer';
+            $cols['Food']['type'] = 'textarea';
+            $cols['Info']['type'] = 'textarea';
+            $cols['Notes']['type'] = 'textarea';
         }
-        if(in_array($ec, ["User", "Group"])){
-            $cols["Status"]["options"] = "getStatusOptions";
-            $cols["LastChange"]["type"] = "readonly";
-            $cols["CreatedAt"]["type"] = "readonly";
-        }
-
-        if(in_array($ec, ["User", "Group", "Cookie"])){
-            $cols["School"]["value"] = "getSchoolId";
-            $cols["School"]["options"] = ["School", "findAllSchoolLabels"];
+        if (in_array($ec, ['User', 'Group'])) {
+            $cols['Status']['options'] = 'getStatusOptions';
+            $cols['LastChange']['type'] = 'readonly';
+            $cols['CreatedAt']['type'] = 'readonly';
         }
 
-        if(in_array($ec, ["Topic", "Group"])){
-            $cols["Grade"]["options"] = "getGradeLabels";
+        if (in_array($ec, ['User', 'Group', 'Cookie'])) {
+            $cols['School']['value'] = 'getSchoolId';
+            $cols['School']['options'] = ['School', 'findAllSchoolLabels'];
         }
 
-        if(in_array($ec, ["Topic", "School"])){
-            $cols["VisitOrder"]["type"] = "readonly";
-            $this->t_settings["sortable"] = true;
+        if (in_array($ec, ['Topic', 'Group'])) {
+            $cols['Grade']['options'] = 'getGradeLabels';
         }
 
-        if(in_array($ec, ["Topic"])){
-            array_push($cols, "ShortName", "LongName");
-            $cols["Location"]["value"] = "getLocationId";
-            $cols["Location"]["options"] = ["Location", "findAllLocationLabels"];
-            array_push($cols, "Food", "Url");
-            $cols["IsLektion"]["type"] = "radio";
-            $cols["IsLektion"]["options"] = "getIsLektionOptions";
+        if (in_array($ec, ['Topic', 'School'])) {
+            $cols['VisitOrder']['type'] = 'readonly';
+            $this->t_settings['sortable'] = true;
         }
 
-        if(in_array($ec, ["Location", "School"])){
-            array_push($cols, "Coordinates");
+        if (in_array($ec, ['Topic'])) {
+            array_push($cols, 'ShortName', 'LongName');
+            $cols['Location']['value'] = 'getLocationId';
+            $cols['Location']['options'] = ['Location', 'findAllLocationLabels'];
+            array_push($cols, 'Food', 'Url');
+            $cols['IsLektion']['type'] = 'radio';
+            $cols['IsLektion']['options'] = 'getIsLektionOptions';
         }
 
-        if(in_array($ec, ["Cookie"])){
-            array_push($cols, "Value", "Name");
-            $cols["Rights"]["options"] = "getRightsOptions";
+        if (in_array($ec, ['Location', 'School'])) {
+            $cols[] = 'Coordinates';
         }
 
-        if(in_array($ec, ["School"])){
-            $cols["GroupNumbers"]["value"] = "getGroupNumbersAsString";
-            $cols["GroupNumbers"]["type"] = "readonly";
+        if (in_array($ec, ['Location'])) {
+            $cols['Description']['type'] = 'textarea';
+            $cols['BusId']['type'] = 'readonly';
         }
 
-        if(in_array($ec, ["Visit"])){
-            $cols["Group"]["value"] = "getGroupId";
-            $cols["Group"]["options"] = ["Group", "findAllGroupsWithNameAndSchool"];
-            $cols["Date"]["value"] = "getDateString";
-            $cols["Date"]["type"] = "date";
-            $cols["Topic"]["value"] = "getTopicId";
-            $cols["Topic"]["options"] = ["Topic", "findLabelsForTopics"];
-            $cols["Colleagues"]["value"] = "getColleaguesAsAcronymString";
-            $cols["Colleagues"]["type"] = "readonly";
-            $cols["Confirmed"]["type"] = "checkbox";
-            $cols["Confirmed"]["options"] = "getConfirmedOptions";
-            //$cols["Time"]["type"] = "time";
+        if (in_array($ec, ['Cookie'])) {
+            array_push($cols, 'Value', 'Name');
+            $cols['Rights']['options'] = 'getRightsOptions';
+        }
+
+        if (in_array($ec, ['School'])) {
+            $cols['BusRule']['type'] = 'integer';
+            $cols['GroupNumbers']['value'] = 'getGroupNumbersAsString';
+            $cols['GroupNumbers']['type'] = 'readonly';
+        }
+
+        if (in_array($ec, ['Visit'])) {
+            $cols['Group']['value'] = 'getGroupId';
+            $cols['Group']['options'] = ['Group', 'findAllGroupsWithNameAndSchool'];
+            $cols['Date']['value'] = 'getDateString';
+            $cols['Date']['type'] = 'date';
+            $cols['Topic']['value'] = 'getTopicId';
+            $cols['Topic']['options'] = ['Topic', 'findLabelsForTopics'];
+            $cols['Colleagues']['value'] = 'getColleaguesAsAcronymString';
+            $cols['Colleagues']['type'] = 'readonly';
+            $cols['Confirmed']['type'] = 'checkbox';
+            $cols['Confirmed']['options'] = 'getConfirmedOptions';
+            //$cols['Time']['type'] = 'time';
             // TODO: implement time-picker
-            array_push($cols, "Time");
+            $cols[] = 'Time';
         }
-        $this->t_settings["columns"] = $cols;
+
+        if (in_array($ec, ['Event'])) {
+            $cols[] = 'Title';
+            $cols['StartDate']['type'] = 'date';
+            $cols['StartDate']['value'] = 'getStartDateString';
+            $cols[] = 'StartTime';
+            $cols['EndDate']['type'] = 'date';
+            $cols['EndDate']['value'] = 'getEndDateString';
+            array_push($cols, 'EndTime', 'Description', 'Location');
+        }
+
+        $this->t_settings['columns'] = $cols;
     }
 
     private function reorderColumns()
     {
-        $original_columns = array_keys($this->t_settings["columns"]);
-        $first = $this->col_order[$this->entity_class]["first"] ?? [];
-        $last = $this->col_order[$this->entity_class]["last"] ?? [];
+        $original_columns = array_keys($this->t_settings['columns']);
+        $first = $this->col_order[$this->entity_class]['first'] ?? [];
+        $last = $this->col_order[$this->entity_class]['last'] ?? [];
         $rest = array_diff($original_columns, $first, $last);
 
         $new_order = array_unique(array_merge($first, $rest, $last));
         $new_settings = [];
-        foreach($new_order as $property){
-            $new_settings[$property] = $this->t_settings["columns"][$property];
+        foreach ($new_order as $property) {
+            $new_settings[$property] = $this->t_settings['columns'][$property];
         }
-        $this->t_settings["columns"] = $new_settings;
+        $this->t_settings['columns'] = $new_settings;
     }
 
     private function fillInDefaultSettings()
     {
-        $cols = $this->t_settings["columns"];
+        $cols = $this->t_settings['columns'];
         $return = [];
-        foreach($cols as $key => $value){
-            if(is_integer($key)){
+        foreach ($cols as $key => $value) {
+            if (is_int($key)) {
                 $key = $value;
             }
-            $value =  $cols[$key]["value"] ?? "get" . $key;
-            $options = $cols[$key]["options"] ?? null;
-            $type =  $cols[$key]["type"] ?? null;
+            $value = $cols[$key]['value'] ?? 'get'.$key;
+            $options = $cols[$key]['options'] ?? null;
+            $type = $cols[$key]['type'] ?? null;
 
-            if(empty($type)){
-                $type = empty($options) ? "text" : "select";
+            if (empty($type)) {
+                $type = empty($options) ? 'text' : 'select';
             }
-            $return[$key] = compact("value", "options", "type");
+            $return[$key] = compact('value', 'options', 'type');
         }
-        $this->t_settings["columns"] = $return;
+        $this->t_settings['columns'] = $return;
     }
 
     private function retrieveOptions()
     {
-        $cols = $this->t_settings["columns"];
+        $cols = $this->t_settings['columns'];
 
-        foreach($cols as $name => $val){
-            if(!empty($val["options"])){
-                if(is_array($val["options"])){
-                    $repo = $this->N->ORM->getRepository($val["options"][0]);
-                    $cols[$name]["options"] = call_user_func([$repo, $val["options"][1]]);
-                } elseif (is_string($val["options"])){
+        foreach ($cols as $name => $val) {
+            if (!empty($val['options'])) {
+                if (is_array($val['options'])) {
+                    $repo = $this->N->ORM->getRepository($val['options'][0]);
+                    $cols[$name]['options'] = call_user_func([$repo, $val['options'][1]]);
+                } elseif (is_string($val['options'])) {
                     $entity = $this->N->ORM->getRepository($this->entity_class)->findOneBy([]);
-                    $cols[$name]["options"] = call_user_func([$entity, $val["options"]]);
+                    $cols[$name]['options'] = call_user_func([$entity, $val['options']]);
                 } else {
-                    throw new \Exception("Options could not be retrieved for parameter " . var_export($val["options"], true));
+                    throw new \Exception(
+                        'Options could not be retrieved for parameter '.var_export($val['options'], true)
+                    );
                 }
             }
         }
-        $this->t_settings["columns"] = $cols;
+        $this->t_settings['columns'] = $cols;
     }
+
+    private function isAuthorized()
+    {
+        if ($this->N->Auth->getUserRole() === 'admin') {
+            return true;
+        }
+    }
+
 }

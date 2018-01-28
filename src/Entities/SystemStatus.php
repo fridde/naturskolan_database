@@ -19,8 +19,8 @@ class SystemStatus
     /** @Column(type="string", nullable=true) */
     protected $LastChange;
 
-    const CLEAN = "clean";
-    const DIRTY = "dirty";
+    const CLEAN = 'clean';
+    const DIRTY = 'dirty';
 
 
     public function getId(){return $this->id;}

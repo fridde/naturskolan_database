@@ -5,6 +5,8 @@ namespace Fridde\Entities;
 use Carbon\Carbon;
 use Fridde\Entities\Group;
 use Doctrine\Common\Collections\ArrayCollection;
+use Fridde\Utility;
+use Monolog\Handler\Curl\Util;
 
 /**
  * @Entity(repositoryClass="Fridde\Entities\SchoolRepository")
@@ -59,16 +61,7 @@ class School
 
     public function getIdAsInteger()
     {
-        $int = "";
-        $all_letters = array_merge(range("a", "z"), ["åäö"]);
-        $d = (int)(log(max(array_keys($all_letters)), 10) + 1);
-        $id_array = preg_split('//u', $this->getId(), -1, PREG_SPLIT_NO_EMPTY);
-        foreach ($id_array as $ch) {
-            $id = array_search(strtolower($ch), $all_letters);
-            $int .= str_pad($id, $d, "0", STR_PAD_LEFT);
-        }
-
-        return intval($int);
+        return Utility::stringToInt($this->getId());
     }
 
     public function getName()
@@ -94,12 +87,12 @@ class School
         return $this->GroupNumbers;
     }
 
-    public function getGroupNumber($grade, $start_year = null)
+    public function getGroupNumber($grade, int $start_year = null)
     {
         $start_year = $start_year ?? Carbon::today()->year;
         $groupNumbers = $this->getGroupNumbers();
 
-        return $groupNumbers[$start_year][$grade];
+        return $groupNumbers[$start_year][$grade] ?? 0;
     }
 
     public function setGroupNumbers(array $GroupNumbers)
@@ -153,7 +146,7 @@ class School
 
     public function getGroups()
     {
-        return $this->Groups;
+        return $this->Groups->toArray();
     }
 
     public function getHashes()
@@ -181,18 +174,30 @@ class School
         $this->Users->add($User);
     }
 
-    public function getActiveGroupsByGrade($grade)
+    /**
+     * @param $grade
+     * @param mixed $start_year If null, the current year is assumed. If false, all years are included
+     * @return array
+     */
+    public function getActiveGroupsByGradeAndYear($grade, $start_year = null)
     {
-        return $this->getGroups()->filter(
-            function ($g) use ($grade) {
-                return $g->getGrade() == $grade && $g->isActive();
+        $start_year = $start_year ?? Carbon::today()->year;
+
+        return array_filter(
+            $this->getGroups(),
+            function (Group $g) use ($grade, $start_year) {
+                $cond1 = $start_year !== false ? $g->getStartYear() == $start_year : true;
+                $cond2 = $g->getGrade() == $grade;
+                $cond3 = $g->isActive();
+
+                return $cond1 && $cond2 && $cond3;
             }
         );
     }
 
     public function hasGrade($grade)
     {
-        return !$this->getActiveGroupsByGrade($grade)->isEmpty();
+        return ! empty($this->getActiveGroupsByGradeAndYear($grade, false));
     }
 
     public function getGradesAvailable($withLabels = false)
@@ -208,26 +213,26 @@ class School
         return $withLabels ? $available_grades : array_keys($available_grades);
     }
 
-    public function getNrActiveGroupsByGrade($grade)
+    public function getNrActiveGroupsByGradeAndYear($grade, $start_year = null)
     {
-        return count($this->getActiveGroupsByGrade($grade));
+        return count($this->getActiveGroupsByGradeAndYear($grade, $start_year));
     }
 
     public function isNaturskolan()
     {
-        return $this->getId() == "natu";
+        return $this->getId() == 'natu';
     }
 
     /** @PrePersist */
     public function prePersist()
     {
-        $GLOBALS["CONTAINER"]->get("Naturskolan")->setCalendarTo('dirty');
+        $GLOBALS['CONTAINER']->get('Naturskolan')->setCalendarTo('dirty');
     }
 
     /** @PreUpdate */
     public function preUpdate()
     {
-        $GLOBALS["CONTAINER"]->get("Naturskolan")->setCalendarTo('dirty');
+        $GLOBALS['CONTAINER']->get('Naturskolan')->setCalendarTo('dirty');
     }
 
     /** @PreRemove */

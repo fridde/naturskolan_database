@@ -2,9 +2,11 @@
 
 namespace Fridde;
 
-use \Eluceo\iCal\Component\Calendar as Cal;
-use \Eluceo\iCal\Component\Event;
-use \Carbon\Carbon;
+use Eluceo\iCal\Component\Calendar as Cal;
+use Eluceo\iCal\Component\Event;
+use Carbon\Carbon;
+use Fridde\Entities\User;
+use Fridde\Entities\Visit;
 
 class Calendar
 {
@@ -12,7 +14,7 @@ class Calendar
     private $ORM;
 
     public $formatted_array;
-    public $file_name = "aventyr_kalender.ics";
+    public $file_name = "kalender.ics";
 
     function __construct()
     {
@@ -32,27 +34,26 @@ class Calendar
 
     public function rebuild()
     {
-
         $cal_settings = $this->settings["calendar"];
         $visits = $this->ORM->getRepository("Visit")->findAll();
 
         $cal = [];
 
         foreach ($visits as $visit) {
-            /* @var \Fridde\Entities\Visit $visit */
+            /* @var Visit $visit */
             $topic = $visit->getTopic();
             $date = $visit->getDate(); // is already Carbon
             $start_DT = $date->copy();
             $end_DT = $date->copy();
 
-            if(! $visit->hasGroup()){ // i.e. is an extra visit for backup-purposes
+            if (!$visit->hasGroup()) { // i.e. is an extra visit for backup-purposes
                 $row["whole_day"] = true;
                 $row["start_date_time"] = $start_DT->toIso8601String();
                 $row["end_date_time"] = $end_DT->toIso8601String();
-                $title = 'Reservtillfälle för ' . $topic->getShortName();
+                $title = 'Reservtillfälle för '.$topic->getShortName();
                 $row["title"] = $title;
                 $cal[] = $row;
-                continue ;
+                continue;
             }
 
             $group = $visit->getGroup();
@@ -84,21 +85,10 @@ class Calendar
             $row["whole_day"] = false;
 
             $title = "";
-            $colleagues = $visit->getColleagues()->toArray();
-            if (!empty($colleagues)) {
-                $acronyms = array_map(
-                    function ($u) {
-                        return $u->getAcronym();
-                    },
-                    $colleagues
-                );
-                $title .= "[".implode('+', $acronyms)."]";
+            if ($visit->hasColleagues()) {
+                $title .= "[".$visit->getColleaguesAsAcronymString()."] ";
             }
-
-            $title .= $topic->getShortName()." med ";
-            $title .= $group->getGradeLabel()." från ";
-            $title .= $school->getName()." ";
-            $title .= "(".$group->getName().", ".$teacher->getShortName().")";
+            $title .= $visit->getLabel('TGSU');
             //temadag med åk från skola (klass, lärare)
             $row["title"] = $title;
             $row["location"] = $location->getName();
@@ -142,15 +132,19 @@ class Calendar
                 $event->setNoTime(true);
             }
             $event->setSummary($row["title"]);
-            if(!empty($row["description"])){
+            if (!empty($row["description"])) {
                 $event->setDescription(implode("\r\n", $row["description"]));
             }
-            if(!empty($row["location"])){
+            if (!empty($row["location"])) {
                 $event->setLocation($row["location"]);
             }
 
             $event->setUseTimezone(true);
             $cal->addComponent($event);
+        }
+
+        foreach ($this->ORM->getRepository('Event')->getEvents() as $ievent) {
+            $cal->addComponent($ievent);
         }
 
         return $cal->render();

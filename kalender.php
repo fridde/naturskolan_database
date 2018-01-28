@@ -1,0 +1,1 @@
+<?phpheader('Content-type: text/calendar; charset=utf-8');header('Content-Disposition: attachment; filename=kalender.ics');echo file_get_contents("kalender.ics");

@@ -1,39 +1,53 @@
 {# expects nav_items to exist #}
-<nav class="navbar navbar-toggleable-md">
+<div>
+    <nav class="navbar navbar-toggleable-md">
+        <ul class="nav">
+            {% set ROLE = getRole() %}
+            {% for item in getNavItems(ROLE) %}
+                {# logic part starts here #}
 
-    <a class="navbar-brand" href="#">
-        {#
-        <img src="database_logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
-        #}
-    </a>
-    <ul class="nav">
-        {% for item in nav_items %}
-            {# logic part starts here #}
-            {% set item_class, link_class, has_children = 'nav-item', 'nav-link', false %}
-            {% if item.children|length > 0 %}
-                {% set item_class = item_class ~ ' dropdown' %}
-                {% set link_class = link_class ~ ' dropdown-toggle' %}
-                {% set has_children = true %}
-            {% endif %}
-            {% if loop.first %}
-                {% set link_class = link_class ~ " active" %}
-            {% endif %}
-            {# logic part ends here #}
-
-            <li class="{{ item_class }}">
-                <a href="{{ item.url }}" class="{{ link_class }}"{% if has_children %} data-toggle="dropdown"{% endif %}>
-                    {{- item.label -}}
-                </a>
-                {% if has_children %}
-                    <div class="dropdown-menu">
-                    {% for subitem in item.children %}
-                        <a class="dropdown-item" href="{{ subitem.url }}">{{ subitem.label }}</a>
-                    {% endfor %}
-                    </div>
+                {% set item_class, link_class, has_children = 'nav-item', 'nav-link', false %}
+                {% if item.children is method %}
+                    {% set children = getChildrenUsingMethod(item) %}
+                {% else %}
+                    {% set children = item.children %}
                 {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
 
-</nav>
+                {% if children|length > 0 %}
+                    {% set item_class = item_class ~ ' dropdown' %}
+                    {% set link_class = link_class ~ ' dropdown-toggle' %}
+                    {% set has_children = true %}
+                {% endif %}
+                {% if loop.first %}
+                    {% set link_class = link_class ~ " active" %}
+                {% endif %}
+                {# logic part ends here #}
+
+                <li class="{{ item_class }}">
+                    {% if item.url is method %}
+                        {% set url = getUrlUsingMethod(item, DATA) %}
+                    {% else %}
+                        {% set url = item.url %}
+                    {% endif %}
+                    <a href="{{ url }}"
+                       class="{{ link_class }}"{% if has_children %} data-toggle="dropdown"{% endif %}>
+                        {{- item.label -}}
+                    </a>
+                    {% if has_children %}
+                        <div class="dropdown-menu">
+                            {% for subitem in children %}
+                                {% if subitem.url is method %}
+                                    {% set subitem_url = getUrlUsingMethod(subitem, DATA) %}
+                                {% else %}
+                                    {% set subitem_url = subitem.url %}
+                                {% endif %}
+                                <a class="dropdown-item" href="{{ subitem_url }}">{{ subitem.label }}</a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
+</div>
 

@@ -1,0 +1,37 @@
+{%- extends "base.twig" -%}
+
+{% block content %}
+    <h1>Set bookings for visits</h1>
+    <div class="set-bookings">
+        <table>
+            {% for visit in DATA.visits %}
+                <tr data-id="{{ visit.id }}" style="background-color:#{{ visit.row_color }}">
+                    <td>{{ visit.date }}</td>
+                    <td>{{ visit.label }}</td>
+                    {% set td_food_class, td_bus_class = 'toggle-label', 'toggle-label' %}
+                    {% if not visit.needs_food %}
+                        {% set td_food_class = td_food_class ~ ' not-needed-td' %}
+                    {% endif %}
+                    {% if not visit.needs_bus %}
+                        {% set td_bus_class = td_bus_class ~ ' not-needed-td' %}
+                    {% endif %}
+                    {% if visit.has_food %}
+                        {% set td_food_class = td_food_class ~ ' active' %}
+                    {% endif %}
+                    {% if visit.has_bus %}
+                        {% set td_bus_class = td_bus_class ~ ' active' %}
+                    {% endif %}
+
+                    <td data-booking-type="food" class="{{ td_food_class }}">Mat</td>
+                    <td data-booking-type="bus" class="{{ td_bus_class }}">Buss</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+
+    </div>
+
+{% endblock %}
+
+
+

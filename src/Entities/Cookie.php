@@ -28,14 +28,14 @@ class Cookie
     /** @Column(type="string", nullable=true)  */
     protected $CreatedAt;
 
-    const RIGHTS = [0 => "no_schools", 1 => "school_only", 2 => "all_schools"];
+    const RIGHTS = [0 => 'no_schools', 1 => 'school_only', 2 => 'all_schools'];
 
     public function getId(){return $this->id;}
 
     public static function translate($value, $valueType)
     {
         if(is_string($value)){
-            $constant = constant("self::" . strtoupper($valueType));
+            $constant = constant('self::' . strtoupper($valueType));
             $value = array_search($value, $constant);
         }
         return $value;
@@ -74,7 +74,7 @@ class Cookie
 
     public function setRights($Rights)
     {
-        $this->Rights = self::translate($Rights, "RIGHTS");
+        $this->Rights = self::translate($Rights, 'RIGHTS');
         return $this;
     }
 
@@ -86,7 +86,7 @@ class Cookie
         return $this->CreatedAt;
     }
     public function setCreatedAt($CreatedAt){
-        if(!is_string($CreatedAt) && get_class($CreatedAt) == "Carbon\Carbon"){
+        if(!is_string($CreatedAt) && get_class($CreatedAt) == 'Carbon\Carbon'){
             $CreatedAt = $CreatedAt->toIso8601String();
         }
         $this->CreatedAt = $CreatedAt;

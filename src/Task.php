@@ -4,9 +4,12 @@ namespace Fridde;
 
 use Carbon\Carbon;
 use Fridde\Entities\Change;
+use Fridde\Entities\Group;
+use Fridde\Entities\Message;
 use Fridde\Entities\User;
 use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
+use Fridde\Messenger\AbstractMessageController;
 use Fridde\Messenger\Mail;
 use Fridde\Messenger\SMS;
 use Fridde\Utility as U;
@@ -22,20 +25,8 @@ class Task
 {
     /** @var \Fridde\Naturskolan shortcut for the Naturskolan object in the global container */
     private $N;
-    /** @var string Type of task to perform. Corresponds to index in TASK_TO_METHOD_MAP */
+    /** @var string Type of task to perform. */
     private $type;
-    /** @var string[] Matches task names as they are used outside this class to
-     * methods used inside this class */
-    const TASK_TO_METHOD_MAP = [
-        "calendar_rebuild" => "rebuildCalendar",
-        "backup" => "backupDatabase",
-        "visit_confirmation_message" => "sendVisitConfirmationMessage",
-        "admin_summary" => "sendAdminSummaryMail",
-        "changed_group_leader_mail" => "sendChangedGroupLeaderMail",
-        "new_user_mail" => "sendNewUserMail",
-        "update_profile_reminder" => "sendUpdateProfileReminder",
-        "table_cleanup" => "cleanSQLDatabase",
-    ];
 
     /**
      * The constructor.
@@ -57,8 +48,9 @@ class Task
      */
     public function execute()
     {
-        $function_name = self::TASK_TO_METHOD_MAP[$this->type];
-        $result = $this->$function_name();
+        $function_name = preg_replace('/[^[:alnum:][:space:]]/u', '', $this->type);
+        //$function_name = self::TASK_TO_METHOD_MAP[$this->type];
+        $result = call_user_func([$this, $function_name]);
         $this->N->log("Executed task: ".$this->type, 'Task->execute()');
 
         return $result;
@@ -129,9 +121,10 @@ class Task
      */
     private function sendVisitConfirmationMessage()
     {
+        $subject = 'confirmation';
         $annoyance_start = self::getStartDate("annoyance");
         $search_props["Status"] = ["sent", "received"];
-        $search_props["Subject"] = "confirmation";
+        $search_props["Subject"] = $subject;
 
         $time = Naturskolan::getSetting("user_message", "visit_confirmation_time");
         $deadline = U::addDuration($time);
@@ -144,21 +137,24 @@ class Task
                 $user = $v->getGroup()->getUser();
                 $last_msg = $user->getlastMessage($search_props);
 
-                if (empty($last_msg) || !$user->hasMobil()) {
-                    $msg_carrier = "mail";
-                    $response = $this->sendVisitConfirmationMail($v);
-                    echo "";
+                if (empty($last_msg)) {
+                    if ($user->hasMail()) {
+                        $response = $this->sendVisitConfirmationMail($v);
+                    } elseif ($user->hasMobil()) {
+                        $response = $this->sendVisitConfirmationSMS($v);
+                    } else {
+                        $e = 'User '.$user->getId().' has neither mail nor mobile number ';
+                        $e .= 'and couldn\'t be contacted to confirm visit. Check this!';
+                        $this->N->log($e, 'Task->sendVisitConfirmationMessage()');
+                        continue;
+                    }
                 } elseif (!$last_msg->wasSentAfter($annoyance_start)) {
-                    $msg_carrier = "sms";
                     $response = $this->sendVisitConfirmationSMS($v);
                 } else {
-                    $e = 'User ' . $user->getId() . ' has neither mail nor mobile number ';
-                    $e .= 'and couldn\'t be contacted to confirm visit. Check this!';
-                    $this->N->log($e, 'Task->sendVisitConfirmationMessage()');
                     continue;
                 }
-
-                $this->logMessage($response, $msg_carrier, $user);
+                $msg_carrier = $response->getType();
+                $this->logMessage($response, $msg_carrier, $user, $subject)->flush();
             }
         }
     }
@@ -167,34 +163,45 @@ class Task
     /**
      * Logs a sent mail or sms to the database for later retrieval.
      *
-     * @param  array $response The response array returned by the Messenger
+     * @param  AbstractMessageController $response The response array returned by the Messenger
      * @param  string $msg_carrier How was the message sent? "sms" or "mail" are currently implemented
      * @param  \Fridde\Entities\User $user The user (as object) the message was sent to
-     * @return \Fridde\Update|null The result of the Update-operation as defined in Fridde\Update
+     * @return \Fridde\Update The result of the Update-operation as defined in Fridde\Update
      */
-    private function logMessage($response, $msg_carrier, $user)
+    private function logMessage($response, $msg_carrier, $user, $subject)
     {
-        $success = $msg_carrier === "sms" && empty($response["result"]["fails"]);
-        $success = $success || $msg_carrier === "mail" && !empty($response["success"]);
+        $success = $response->getStatus() === 'success';
 
         if ($success) {
-            $msg_props["User"] = $user->getId(); // TODO: check if this works. should this really be an object?
-            $msg_props["Subject"] = "confirmation";
+            $msg_props["User"] = $user;
+            $msg_props["Subject"] = $subject;
             $msg_props["Carrier"] = $msg_carrier;
             $msg_props["Status"] = "sent";
-            if ($msg_carrier == "sms") {
-                $return = $response["result"]["success"][0];
+            if ($msg_carrier === "sms") {
+                $return = $response->getResponse()["result"]["success"][0];
                 $msg_props["ExtId"] = $return["id"];
                 $msg_props["Status"] = $return["status"];
-                $msg_props["Content"] = ''; // TODO: Retrieve the message!
+                $msg_props["Content"] = $return["message"];
             }
 
-            return (new Update)->createNewEntity("Message", $msg_props)->flush();
+            return (new Update)->createNewEntity("Message", $msg_props);
         } else {
             //TODO: log this failed trial to error table or equivalent
+            return (new Update);
         }
+    }
 
-        return null;
+    private function logMessageArray(array $msg_array, bool $flush = true)
+    {
+        array_walk(
+            $msg_array,
+            function ($msg) {
+                $this->logMessage(...$msg);
+            }
+        );
+        if ($flush) {
+            $this->N->ORM->EM->flush();
+        }
     }
 
     /**
@@ -209,25 +216,23 @@ class Task
         $v = $visit;
         $params = ['purpose' => 'confirm_visit'];
         $params["receiver"] = $v->getGroup()->getUser()->getMail();
-        $data["user_fname"] = $v->getGroup()->getUser()->getFirstName();
-        $data["confirmation_url"] = $this->N->createConfirmationUrl($v->getId());
-        $school_id = $v->getGroup()->getSchoolId();
-        $data["school_url"] = $this->N->generateUrl("school", ["school" => $school_id]);
-        $info["date"] = $v->getDateString();
-        $info["date_string"] = $v->getDate()->formatLocalized("%e %B");
-        $info["group_name"] = $v->getGroup()->getName();
-        $info["topic_name"] = $v->getTopic()->getLongestName();
-        $info["topic_url"] = $v->getTopic()->getUrl();
-        $info["food_type"] = $v->getTopic()->getFood();
-        $info["food_instructions"] = $v->getTopic()->getFoodInstructions(true);
 
-        $data["visit_info"] = $info;
+        $data["fname"] = $v->getGroup()->getUser()->getFirstName();
+        $school_id = $v->getGroup()->getSchoolId();
+        $absolute = ! empty(DEBUG);
+        $data["school_url"] = $this->N->generateUrl("school", ["school" => $school_id], $absolute);
+        $visit_info["confirmation_url"] = $this->N->createConfirmationUrl($v->getId(), $absolute);
+        $visit_info["date_string"] = $v->getDate()->formatLocalized("%e %B");
+        $visit_info["group_name"] = $v->getGroup()->getName();
+        $visit_info["topic_label"] = $v->getTopic()->getLongestName();
+        $visit_info["topic_url"] = $v->getTopic()->getUrl();
+
+        $data["visit"] = $visit_info;
         $params["data"] = $data;
 
         $mail = new Mail($params);
 
         return $mail->buildAndSend();
-
     }
 
     /**
@@ -240,7 +245,7 @@ class Task
     private function sendVisitConfirmationSMS(Visit $visit)
     {
         $params = ['purpose' => 'confirm_visit'];
-        $params["receiver"] = $visit->getGroup()->getUser()->getMobil();
+        $params["receiver"] = $visit->getGroup()->getUser()->getStandardizedMobil();
         $rep["date_string"] = $visit->getDate()->formatLocalized("%e %B");
         $rep["fname"] = $visit->getGroup()->getUser()->getFirstName();
         $msg = $this->N->getReplacedText(["sms", "confirm_visit"], $rep);
@@ -254,7 +259,7 @@ class Task
     /**
      * Calls compileAdminSummaryMail() and sends the content to the current admin mail address
      *
-     * @return ResponseInterface The response object returned by the request
+     * @return AbstractMessageController The Controller object returned by the request
      */
     private function sendAdminSummaryMail()
     {
@@ -266,84 +271,114 @@ class Task
     /**
      * Informs group leaders via email that they have gained or lost one or more groups.
      *
-     * @return ResponseInterface The response object returned by the request
+     * @return void
      */
     private function sendChangedGroupLeaderMail()
     {
+        $subject = 'changed_groups';
         $crit = [["EntityClass", "Group"], ["Property", "User"]];
         $user_changes = $this->N->getRepo("Change")->findNewChanges($crit);
         $user_array = [];
         foreach ($user_changes as $change) {
             /* @var Change $change */
-            /** @var Entities\Group $group */
+            /** @var Group $group */
             $group = $this->N->getRepo("Group")->find($change->getEntityId());
             $new_value = $group->getUserId();
-            $old_value = $change->getOldValue();
+            $old_value = (int) $change->getOldValue();
             if ($new_value != $old_value) {
                 if (!empty($old_value)) {
                     $user_array[$old_value]["removed"][] = $group->getId();
                 }
                 $user_array[$new_value]["new"][] = $group->getId();
             }
-            self::processChange($change);
         }
-        $this->N->ORM->EM->flush();
-        // ensure that "new" and "removed" exist
+        // ensure that "new", "removed", 'rest' exist
         array_walk(
             $user_array,
             function (&$u) {
-                $u += array_fill_keys(["removed", "new"], []);
+                $u += array_fill_keys(['removed', 'new', 'rest'], []);
             }
         );
-        $url = $this->N->generateUrl("mail", ["type" => "changed_groups_for_user"]);
-        /** @var Entities\User $user */
-        foreach ($user_array as $user_id => $group_changes) {
+        $messages = [];
+        /** @var User $user */
+        foreach ($user_array as $user_id => $g_changes) {
             $user = $this->N->getRepo("User")->find($user_id);
             $params = ['purpose' => 'changed_groups_for_user'];
             if ($user->hasMail()) {
                 $params["receiver"] = $user->getMail();
-                list($new, $removed) = [$group_changes["new"], $group_changes["removed"]];
-                $all = $user->getGroupIdArray();
-                $rest = array_diff($all, $new, $removed);
-                $params["data"]["groups"] = compact("new", "removed", "rest");
-                $params["data"]["user_fname"] = $user->getFirstName();
-                $school_url = $this->N->generateUrl("school", ["school" => $user->getSchoolId()]);
-                $params["data"]["school_url"] = $school_url;
-                $mail = new Mail($params);
-                $mail->buildAndSend();
 
+                $all = $user->getGroupIdArray();
+                $g_changes['rest'] = array_diff($all, $g_changes["new"], $g_changes["removed"]);
+
+                $params["data"]["groups"] = $g_changes;
+                $params["data"]["user_fname"] = $user->getFirstName();
+
+                $school_url = $this->N->generateUrl("school", ["school" => $user->getSchoolId()], true);
+                $params["data"]["school_url"] = $school_url;
+
+                $mail = new Mail($params);
+                $response = $mail->buildAndSend();
+
+                $messages[] = [$response, 'mail', $user, $subject];
             } else {
-                $msg = 'User '.$user->getFullName().' has no mailadress. Check this!';
+                $msg = 'User '.$user->getFullName().' has no mailaddress. Check this!';
                 $this->N->log($msg, 'Task->sendChangedGroupLeaderMail()');
             }
         }
+        array_walk(
+            $user_changes,
+            function ($change) {
+                self::processChange($change);
+            }
+        );
+        $this->logMessageArray($messages);
+        $this->N->ORM->EM->flush();
     }
 
     private function sendNewUserMail()
     {
-        // TODO: check also for unprocessed new group assignments in "changes"
-        $new_user_changes = $this->N->ORM->N->getRepository("Change")->findChangesWithNewUser();
-        foreach ($new_user_changes as $change) {
+        $subject = 'welcome_new_user';
+        $sent_welcome_messages = $this->N->getRepo('Message')->getSentWelcomeMessages();
+        $welcomed_user_ids = array_map(
+            function (Message $m) {
+                return $m->getUser()->getId();
+            },
+            $sent_welcome_messages
+        );
+        $users_without_welcome = array_filter(
+            $this->N->getRepo('User')->findActiveUsers(),
+            function (User $u) use ($welcomed_user_ids) {
+                return !in_array($u->getId(), $welcomed_user_ids);
+            }
+        );
+        $messages = [];
+        foreach ($users_without_welcome as $user) {
             /* @var User $user */
-            $user = $this->N->ORM->N->getRepository("User")->find($change->getEntityId());
-            $params = ['purpose' => 'welcome_new_user'];
+            $params = ['purpose' => $subject];
             if ($user->hasMail()) {
                 $data["user"]["fname"] = $user->getFirstName();
                 $data["user"]["has_mobil"] = $user->hasMobil();
                 $data["password"] = $this->N->createPassword($user->getSchoolId());
-                $data["groups"] = $user->getGroupIdArray();
-                $data["school_url"] = $this->N->generateUrl("school", ["school" => $user->getSchoolId()]);
+                $data["groups"] = $user->getGroups()->toArray();
+                $data["school_url"] = $this->N->generateUrl("school", ["school" => $user->getSchoolId()], true);
+                $data['school_login_url'] = $this->N->createLoginUrl($user);
 
                 $params["data"] = $data;
                 $params["receiver"] = $user->getMail();
                 $mail = new Mail($params);
-                $mail->buildAndSend();
-                // TODO: remove in production
+
+                $response = $mail->buildAndSend();
+
+                $messages[] = [$response, 'mail', $user, $subject];
+                // TODO: remove following line in production if implementation has not changed
                 //self::processChange($change);
             } else {
+                echo "";
                 // TODO: log this somewhere and inform admin
             }
         }
+        $this->logMessageArray($messages);
+        $this->N->ORM->EM->flush();
 
     }
 
@@ -361,14 +396,15 @@ class Task
      */
     private function sendUpdateProfileReminder()
     {
-        $annoyance_start = $this->getStartDate("annoyance");
-        $imm_start = $this->getStartDate("immunity");
+        $subject = Message::SUBJECT_PROFILE_UPDATE;
+        $annoyance_start = self::getStartDate("annoyance");
+        $imm_start = self::getStartDate("immunity");
         /* @var UserRepository $user_repo */
         $user_repo = $this->N->getRepo("User");
         $incomplete_users = $user_repo->findIncompleteUsers($imm_start);
 
-        $msg_props["Status"] = ["sent", "received"];
-        $msg_props["Subject"] = "profile_update";
+        $msg_props["Status"] = [Message::STATUS_SENT, Message::STATUS_RECEIVED];
+        $msg_props["Subject"] = $subject;
         $incomplete_users = array_filter(
             $incomplete_users,
             function ($u) use ($annoyance_start, $msg_props) {
@@ -377,8 +413,8 @@ class Task
                 return $u->hasGroups() && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
             }
         );
-        $returns = [];
-        /* @var \Fridde\Entities\User $user */
+        $messages = [];
+        /* @var User $user */
         foreach ($incomplete_users as $user) {
             $params = ['purpose' => 'update_profile_reminder'];
             $data = ['user_fname' => $user->getFirstName()];
@@ -388,15 +424,14 @@ class Task
             if ($carrier === 'sms') {
                 $params["receiver"] = $user->getMobil();
                 $long_url = $this->N->createLoginUrl($user);
-                $short_url = $this->N->shortenUrl($long_url);
-                $rep["login_url"] = explode('//', $short_url)[1];
-                $msg = $this->N->getReplacedText(["sms", "update_profile"], $rep);
+                $rep["login_url"] = $this->N->shortenUrl($long_url);
+                $msg = $this->N->getReplacedText('sms/update_profile', $rep);
                 $params["message"] = $msg;
                 $sms = new SMS($params);
                 $return = $sms->buildAndSend();
             } elseif ($carrier === 'mail') {
                 $carrier = 'mail';
-                $p = ['school', ['school' => $user->getSchoolId()]];
+                $p = ['school', ['school' => $user->getSchoolId()], true];
                 $data['school_url'] = $this->N->generateUrl(...$p);
                 $params["receiver"] = $user->getMail();
                 $params['data'] = $data;
@@ -408,10 +443,12 @@ class Task
                 $this->N->log($e_text, 'Task->sendUpdateProfileReminder()');
                 $return = null;
             }
-            $this->logMessage($return, $carrier, $user);
-            $returns[] = $return;
+            $messages[] = [$return, $carrier, $user, $subject];
         }
-        return $returns;
+
+        $this->logMessageArray($messages);
+
+        return $messages;
     }
 
     /**

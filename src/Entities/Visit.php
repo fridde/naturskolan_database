@@ -35,12 +35,26 @@ class Visit
     protected $Colleagues;
 
     /** @Column(type="integer") */
-    protected $Confirmed = 0;
+    protected $Confirmed = self::UNCONFIRMED;
 
     /** @Column(type="string", nullable=true) */
     protected $Time;
 
-    const STATUS = [0 => "unconfirmed", 1 => "confirmed"];
+    /** @Column(type="integer") */
+    protected $Status = self::ACTIVE;
+
+    /** @Column(type="integer", nullable=true) */
+    protected $BusIsBooked;
+
+    /** @Column(type="integer", nullable=true) */
+    protected $FoodIsBooked;
+
+    public const AUTO_CREATED = ['Confirmed', 'Status'];
+
+    public const ARCHIVED = 0;
+    public const ACTIVE = 1;
+    public const UNCONFIRMED = 0;
+    public const CONFIRMED = 1;
 
     public function __construct()
     {
@@ -103,16 +117,23 @@ class Visit
      */
     public function setDate($Date, string $input_format = 'Y-m-d')
     {
-        if($Date instanceof Carbon){
-           $Date = $Date->toDateString();
+        if ($Date instanceof Carbon) {
+            $Date = $Date->toDateString();
         } else {
             $Date = Carbon::createFromFormat($input_format, $Date)->toDateString(); // validates, too
         }
         $this->Date = $Date;
     }
 
-    public function getLastChange(){return $this->LastChange;}
-    public function setLastChange($LastChange){$this->LastChange = $LastChange;}
+    public function getLastChange()
+    {
+        return $this->LastChange;
+    }
+
+    public function setLastChange($LastChange)
+    {
+        $this->LastChange = $LastChange;
+    }
 
     /**
      * @return \Fridde\Entities\Topic
@@ -132,9 +153,14 @@ class Visit
         $this->Topic = $Topic;
     }
 
+    public function hasColleagues()
+    {
+        return !empty($this->getColleagues()->toArray());
+    }
+
     public function getColleagues()
     {
-        return $this->Colleagues ?? [];
+        return $this->Colleagues;
     }
 
     public function getColleaguesIdArray()
@@ -147,24 +173,27 @@ class Visit
         );
     }
 
-    public function getColleaguesIdAsString()
-    {
-        return implode(",", $this->getColleaguesIdArray());
-    }
-
-    public function addColleague($Colleague)
+    public function addColleague(User $Colleague)
     {
         $this->Colleagues->add($Colleague);
         $Colleague->addVisit($this);
     }
 
-    public function setColleagues($colleagues)
+    public function setColleagues(array $colleagues)
     {
-        // TODO: implement this function
-
+        $this->Colleagues = new ArrayCollection();
+        foreach ($colleagues as $c) {
+            if (empty($c) && $c !== 0) { // horrible hack because the POST from work_schedule removes any empty array, so a falsy value has to be added, that should be ignored here
+                continue;
+            }
+            if (!$c instanceof User && !is_null($c)) {
+                $c = $GLOBALS['CONTAINER']->get('Naturskolan')->ORM->getRepository('User')->find($c);
+            }
+            $this->addColleague($c);
+        }
     }
 
-    public function removeColleague($Colleague)
+    public function removeColleague(User $Colleague)
     {
         $this->Colleagues->removeElement($Colleague);
         $Colleague->removeVisit($this);
@@ -173,7 +202,7 @@ class Visit
     public function getColleaguesAsAcronymString()
     {
         return implode(
-            ',',
+            '+',
             array_map(
                 function ($col) {
                     return $col->getAcronym() ?: $col->getId();
@@ -185,17 +214,22 @@ class Visit
 
     public function isConfirmed()
     {
-        return boolval($this->Confirmed);
+        return (bool)$this->Confirmed;
     }
 
     public function getConfirmed()
     {
-        return $this->Confirmed;
+        return $this->Confirmed ?? self::UNCONFIRMED;
     }
 
     public function setConfirmed($Confirmed)
     {
-        $this->Confirmed = intval($Confirmed);
+        $this->Confirmed = (int)$Confirmed;
+    }
+
+    public function getConfirmedOptions()
+    {
+        return [1 => '']; // This is necessary to create the yes or no checkbox
     }
 
     public function getTime()
@@ -224,46 +258,63 @@ class Visit
 
     public function timeStringToArray($time_string)
     {
-        $parts = explode("-", $time_string);
+        $parts = explode('-', $time_string);
         $parts = preg_replace('%\D%', '', $parts); // remove all non-digits
         $parts = array_map(
             function ($v) {
-                $v = str_pad($v, 4, "0", STR_PAD_LEFT); // "730" becomes "0730"
-                $h_and_m["hh"] = substr($v, 0, 2);
-                $h_and_m["mm"] = substr($v, 2, 2);
+                $v = str_pad($v, 4, '0', STR_PAD_LEFT); // '730' becomes '0730'
+                $h_and_m['hh'] = substr($v, 0, 2);
+                $h_and_m['mm'] = substr($v, 2, 2);
 
                 return $h_and_m;
             },
             $parts
         );
-        $return["start"] = $parts[0];
-        $return["end"] = $parts[1] ?? null;
+        $return['start'] = $parts[0];
+        $return['end'] = $parts[1] ?? null;
 
         return $return;
     }
 
-    private function isBeforeOrAfter($date, $beforeOrAfter = "after")
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->Status ?? self::ACTIVE;
+    }
+
+    /**
+     * @param mixed $Status
+     */
+    public function setStatus($Status)
+    {
+        $this->Status = $Status;
+    }
+
+
+    private function isBeforeOrAfter($date, $beforeOrAfter = 'after')
     {
         if (is_string($date)) {
             $date = new Carbon($date);
         }
-        if ($beforeOrAfter == "before") {
+        if ($beforeOrAfter === 'before') {
             return $this->getDate()->lte($date);
-        } elseif ($beforeOrAfter == "after") {
+        } elseif ($beforeOrAfter === 'after') {
             return $this->getDate()->gte($date);
         } else {
-            throw new \Exception("The comparison ".$beforeOrAfter." is not defined.");
+            throw new \Exception('The comparison '.$beforeOrAfter.' is not defined.');
         }
     }
 
     public function isAfter($date)
     {
-        return $this->isBeforeOrAfter($date, "after");
+        return $this->isBeforeOrAfter($date, 'after');
     }
 
     public function isBefore($date)
     {
-        return $this->isBeforeOrAfter($date, "before");
+        return $this->isBeforeOrAfter($date, 'before');
     }
 
     public function isInFuture()
@@ -288,15 +339,83 @@ class Visit
         return $bus_rule & $location_value; // bitwise AND !
     }
 
-    public function needsFood()
+    public function needsFoodOrder()
     {
         if (!$this->hasGroup()) {
             return false;
         }
 
-        return $this->getTopic()->getFoodInstructions() === 0;
-
+        return $this->getTopic()->getFoodOrder() !== 0;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getBusIsBooked()
+    {
+        return (bool)$this->BusIsBooked;
+    }
+
+    /**
+     * @param mixed $BusIsBooked
+     */
+    public function setBusIsBooked($BusIsBooked)
+    {
+        $this->BusIsBooked = (int)$BusIsBooked;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFoodIsBooked()
+    {
+        return (bool)$this->FoodIsBooked;
+    }
+
+    /**
+     * @param mixed $FoodIsBooked
+     */
+    public function setFoodIsBooked($FoodIsBooked)
+    {
+        $this->FoodIsBooked = (int)$FoodIsBooked;
+    }
+
+    public function getLabel(string $pattern = 'DTGSU')
+    {
+        $label = '';
+        $topic_name = $this->getTopic()->getShortName();
+        $has_group = $this->hasGroup();
+
+        $include_date = strpos($pattern, 'D') !== false;
+        $include_topic = strpos($pattern, 'T') !== false;
+        $include_group = strpos($pattern, 'G') !== false;
+        $include_school = strpos($pattern, 'S') !== false;
+        $include_user = strpos($pattern, 'U') !== false;
+
+        if ($include_date) {
+            $label .= '['.$this->getDateString().'] ';
+        }
+        if ($include_topic) {
+            if ($has_group) {
+                $label .= $topic_name;
+            } else {
+                $label .= 'Reservtillfälle: '.$topic_name;
+            }
+        }
+
+        if ($include_group && $has_group) {
+            $label .= ' med '.$this->getGroup()->getName();
+        }
+        if($include_school && $has_group){
+            $label .= ' från ' . $this->getGroup()->getSchool()->getName();
+        }
+        if ($include_user && $has_group && $this->getGroup()->hasUser()) {
+            $label .= ' ('.$this->getGroup()->getUser()->getShortName().')';
+        }
+
+        return $label;
+    }
+
 
     /** @PrePersist */
     public function prePersist()

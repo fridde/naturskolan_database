@@ -23,7 +23,7 @@ class Location
     /** @Column(type="string", nullable=true) */
     protected $Description;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="integer", unique=true) @GeneratedValue */
     protected $BusId;
 
     /** @Column(type="string", nullable=true) */

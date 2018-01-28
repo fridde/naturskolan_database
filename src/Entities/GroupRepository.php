@@ -8,17 +8,17 @@ class GroupRepository extends CustomRepository
 
     public function findActiveGroups($grade = null)
     {
-        $criteria = ["Status" => 1];
+        $criteria = ['Status', Group::ACTIVE];
         if(!empty($grade)){
-            $criteria["Grade"] = $grade;
+            $criteria[] = ['Grade', $grade];
         }
-        return $this->findBy($criteria);
+        return $this->select($criteria);
     }
 
     public function findGroupsInGrade($grade = null)
     {
         if(!empty($grade)){
-            return $this->select(["Grade", $grade]);
+            return $this->select(['Grade', $grade]);
         }
         return $this->findAll();
     }
@@ -26,8 +26,8 @@ class GroupRepository extends CustomRepository
     public function findAllGroupsWithNameAndSchool()
     {
         $groups_id_name_school = array_map(function($g){
-            $label = "[" . $g->getGradeLabel() . "] " . $g->getName();
-            $label .= ", " . mb_strtoupper($g->getSchoolId());
+            $label = '[' . $g->getGradeLabel() . '] ' . $g->getName();
+            $label .= ', ' . mb_strtoupper($g->getSchoolId());
             return [$g->getId(), $label];
         }, $this->findActiveGroups());
         return array_column($groups_id_name_school, 1, 0);
@@ -62,14 +62,25 @@ class GroupRepository extends CustomRepository
 
     public function findGroupsOlderThan($date)
     {
-        $criteria = ["lt", "CreatedAt", $date->toIso8601String()];
+        $criteria = ['lt', 'CreatedAt', $date->toIso8601String()];
         return $this->select($criteria);
     }
 
     public function findGroupsWithoutName()
     {
-        $criteria = [["isNull", "Name"], ["eq", "Name", ""]];
+        $criteria = [['isNull', 'Name'], ['eq', 'Name', '']];
         return $this->selectOr($criteria);
+    }
+
+    public function sortByVisitOrder(array $groups)
+    {
+        usort(
+            $groups,
+            function (Group $g1, Group $g2) {
+                return $g1->compareVisitOrder($g2);
+            }
+        );
+        return $groups;
     }
 
 }

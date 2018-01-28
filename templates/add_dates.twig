@@ -1,9 +1,10 @@
-{%- extends "admin_area.twig" -%}
+{%- extends "base.twig" -%}
 
 {%- set topics = DATA.topics -%}
 
 {% block content %}
     <select class="date-lines">
+        <option value="multiple">Flera teman samtidigt</option>
         {% for topic in topics %}
             <option value="{{ topic.id }}">{{ topic.label }}</option>
         {% endfor %}

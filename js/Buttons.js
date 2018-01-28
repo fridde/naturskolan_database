@@ -1,7 +1,7 @@
 $(document).ready(function () {
 
 
-    function cleanLines(text){
+    function cleanLines(text) {
         var lines = text.split(/\r|\n|;/).map(function (i) {
             return i.trim();
         }).filter(function (i) {
@@ -62,9 +62,15 @@ $(document).ready(function () {
         var textarea = $("textarea.date-lines");
         textarea.val(cleanLines(textarea.val()));
         var lines = textarea.val().split(/\r|\n/);
+        var topic_id = $('select.date-lines').val();
+        var update_method = "addDates";
+        if (topic_id === "multiple") {
+            update_method = 'addDatesForMultipleTopics';
+        }
+
         var data = {
-            updateMethod: "addDates",
-            topic_id: $('select.date-lines').val(),
+            updateMethod: update_method,
+            topic_id: topic_id,
             dates: lines,
             onReturn: "datesAdded"
         };
@@ -87,17 +93,6 @@ $(document).ready(function () {
         Update.send(data);
     });
 
-    $("#add-row-btn").click(function () {
-        // TODO: What if no row available, i.e. no user exists for this school?
-        var oldRow = $(".editable tbody tr:last");
-        var newRow = oldRow.clone(true);
-        var newId = "new#" + (oldRow.attr("data-id") || oldRow.data("id"));
-        newRow.attr("data-id", newId).data("id", newId);
-        newRow.hide();
-        oldRow.after(newRow);
-        newRow.show(1000);
-        newRow.find(":input").val('').removeAttr('value');
-    });
 
     /**
      * ###################
@@ -110,7 +105,7 @@ $(document).ready(function () {
         var dataId = h1.closest(".group-container").attr("data-entity-id");
         var inputField = h1.children('input');
         if (event.type === 'click' || event.type === 'dblclick') {
-            h1.children("span, i").hide();
+            h1.children("span, i, svg").hide();
             inputField.val(h1.children('span').text());
             inputField.show().focus();
 
@@ -123,13 +118,31 @@ $(document).ready(function () {
                 onReturn: "groupNameChanged"
             };
             Update.send(data);
-            h1.children("span, i").show();
+            h1.children("span, i, svg").show();
         } else {
             console.log('The event.type ' + event.type + ' has no implementation');
         }
     };
 
-    $(".group-container h1 span").dblclick(toggleGroupNameField);
+    var addRow = function () {
+        var oldRow = $(".editable tbody tr:last");
+        var newRow = oldRow.clone(true);
+        newRow.hide();
+        var tempId = '#' + Math.random().toString(36).substring(2, 6);
+        newRow.attr("data-id", tempId).data("id", tempId);
+        newRow.find(":input").val('').removeAttr('value').removeAttr('id');
+        newRow.data('properties', undefined).removeProp('data-properties');
+        newRow.find(':input.datepicker').datepicker("destroy").datepicker(Settings.datepickerOptions);
+        oldRow.after(newRow);
+        if (!oldRow.is(':visible')) { // was only dummy row
+            oldRow.remove();
+        }
+        newRow.removeAttr('hidden');
+        newRow.show(1000);
+    };
+
+    $("#add-row-btn").click(addRow);
+    $(".group-container h1").on('dblclick click', toggleGroupNameField);
     $(".group-container h1 i").click(toggleGroupNameField);
     $(".group-container input.group-name-input").focusout(toggleGroupNameField);
 
@@ -137,6 +150,15 @@ $(document).ready(function () {
         var data = {
             updateMethod: "createMissingGroups",
             grade: $('#missingGroups select[name="grade"]').val(),
+            onReturn: 'showStatus'
+        };
+        Update.send(data);
+    });
+
+    $('#fill-empty-group-names button').click(function () {
+        var data = {
+            updateMethod: "fillEmptyGroupNames",
+            grade: $('#fill-empty-group-names select[name="grade"]').val(),
             onReturn: 'showStatus'
         };
         Update.send(data);
@@ -150,6 +172,77 @@ $(document).ready(function () {
             onReturn: 'lastChange'
         };
         Update.send(data);
-    })
+    });
+
+
+    /**
+     * MODALS
+     */
+
+    var $login_modal_submit = $('#login_modal_submit');
+    $login_modal_submit.click(function () {
+        var data = {
+            updateMethod: "checkPassword",
+            password: $("[name='password']").val(),
+            onReturn: 'passwordCorrect'
+        };
+        Update.send(data);
+    });
+    var predefined_pw = $('#login-modal input[name="password"]').val();
+    if (typeof predefined_pw === "string" && predefined_pw !== '') {
+        $login_modal_submit[0].click();
+    }
+
+    $('#forgot-pw-btn').click(function () {
+        $('#login-modal').modal('hide');
+        $pw_modal = $('#password-modal').modal('show');
+
+        $('#password-modal').show();
+    });
+
+    $('#forgotten_password_submit').click(function(){
+        modal_id = '#password-modal';
+        var mail = $(modal_id + ' input[name="mailaddress"]').val();
+        $.ajax({
+            url: 'api/sendPasswordRecoverMail/' + mail,
+            method: 'POST',
+            success: function (data) {
+                if(data.status === 'success'){
+                    $(modal_id + ' .modal-header').html('<h4>Vi har skickat ett mejl med en länk till din adress</h4>');
+                    $(modal_id + ' .modal-body').html('<p>Kolla både inkorg och spamkorg</p>');
+                    $(modal_id + ' .modal-footer').html('<button class="close" data-dismiss="modal"><span>X Stäng</span></button>');
+                } else {
+                    $(modal_id + ' .modal-header').html('<h4>Vi kunde tyvärr inte hitta din adress</h4>');
+                    $(modal_id + ' .modal-body').html('<p>Tyvärr finns din adress inte med bland våra aktiva medlemmar. Kolla med din administratör eller be en registrerad kollega att ge dig lösenordet.</p>');
+                    $(modal_id + ' .modal-footer').html('<button class="close" data-dismiss="modal" ><span>X Stäng</span></button>');
+
+                }
+            }
+        });
+
+
+    });
+
+    $('button.go-to-groups').click(function () {
+        window.location.replace($(this).data('url'));
+    });
+
+    $('div#show-entry-code button').popover({
+        html: true,
+        trigger: 'hover click',
+        placement: 'bottom',
+        content: function(){
+            var content_id = "content-id-" + $.now();
+
+            $.ajax({
+                url: 'api/getPassword/' + $(this).data('school'),
+                method: 'POST'
+            }).done(function(data){
+                $('#' + content_id).html(data.password);
+            });
+            return '<div class="pw-popover" id="' + content_id + '">Laddar...</div>';
+        }
+    });
+
 
 });

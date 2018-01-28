@@ -8,6 +8,7 @@ namespace Fridde;
 use Fridde\Entities\Group;
 use Fridde\Entities\Cookie;
 use Carbon\Carbon;
+use Fridde\Entities\School;
 
 
 /**
@@ -18,20 +19,18 @@ class Update extends DefaultUpdate
     /** @var Naturskolan $N */
     protected $N;
 
-    /** @var array $syncables */
-    protected $syncables = ["User" => ["School"]];
-
     /** @var array $object_required */
     protected $object_required = [
         "User" => ["School"],
         "Group" => ["User"],
-        'Visit' => ['Group'],
+        'Visit' => ['Group', 'Topic'],
     ];
 
     /* @var array */
-    const METHOD_ARGUMENTS = [
+    public const METHOD_ARGUMENTS = [
         "checkPassword" => ["password"],
         "addDates" => ["topic_id", "dates"],
+        'addDatesForMultipleTopics' => ['dates'],
         "setVisits" => ["value"],
         "setCookie" => ["school", "url"],
         "removeCookie" => ["hash"],
@@ -43,6 +42,7 @@ class Update extends DefaultUpdate
         "batchSetGroupCount" => ['group_numbers', "start_year"],
         'changeTaskActivation' => ['task_name', 'status'],
         'createMissingGroups' => ['grade'],
+        'fillEmptyGroupNames' => ['grade'],
     ];
 
     /**
@@ -84,13 +84,44 @@ class Update extends DefaultUpdate
      * Expects $RQ["entity_id"] to contain the id of the topic and $RQ["value"] to be
      * the date array in the format ["YYYY-MM-DD", "YYYY-MM-DD", ...]
      */
-    public function addDates(int $topic_id, array $dates = [])
+    public function addDates(int $topic_id, array $dates = [], $flush = true)
     {
+        $pattern = '/^\d{4}-\d{2}-\d{2}$/';
         $topic = $this->findById("Topic", $topic_id);
         $properties = ["Topic" => $topic];
-        foreach ($dates as $date) {
-            $properties["Date"] = trim($date);
-            $this->createNewEntity("Visit", $properties);
+        foreach ($dates as $date_string) {
+            $date_string = trim($date_string);
+            if(substr_count($date_string, ':') === 1){
+                list(,$date) = explode(':', $date_string);
+            } else {
+                $date = $date_string;
+            }
+            if(preg_match($pattern, $date) !== 1){
+                throw new \Exception('The date' . $date . 'didn\'t match ISO 8601.');
+            }
+            $properties["Date"] = $date;
+            $this->createNewEntity("Visit", $properties, false);
+        }
+        if($flush){
+            $this->flush();
+        }
+    }
+
+    public function addDatesForMultipleTopics(array $dates = [])
+    {
+        $dates_by_topic = [];
+        foreach($dates as $topic_date_string){
+            $topic_date_array = explode(':', $topic_date_string);
+            if(count($topic_date_array) !== 2){
+                $this->addError('The string "' . $topic_date_string . '" has an invalid format.');
+                return;
+            }
+            list($topic_id, $date) = $topic_date_array;
+            $dates_by_topic[$topic_id][] = $date;
+        }
+
+        foreach($dates_by_topic as $topic_id => $date_array){
+            $this->addDates($topic_id, $date_array, false);
         }
         $this->flush();
     }
@@ -158,25 +189,11 @@ class Update extends DefaultUpdate
     }
 
 
-    public function createNewEntityFromModel(string $entity_class, string $property, $value, $model_entity_id)
-    {
-        $syncables = ["User" => ["School"]];
-
-        $model_entity = $this->ORM->getRepository($entity_class)->find($model_entity_id);
-        $properties = [$property => $value];
-
-        $properties_to_sync = $syncables[$entity_class] ?? [];
-        foreach ($properties_to_sync as $property_name) {
-            $method_name = "get".$property_name;
-            $properties[$property_name] = call_user_func([$model_entity, $method_name]);
-        }
-        return $this->createNewEntity($entity_class, $properties);
-    }
-
     public function sliderUpdate($entity_class, $entity_id, $property, $value)
     {
         $this->setReturnFromRequest(["sliderId", "sliderLabelId"]);
         $this->setReturn("newValue", $value);
+
         return $this->updateProperty($entity_class, $entity_id, $property, $value)->flush();
     }
 
@@ -185,6 +202,7 @@ class Update extends DefaultUpdate
         foreach ($order as $index => $id) {
             $this->updateProperty("School", $id, "VisitOrder", $index + 1);
         }
+
         return $this->flush();
     }
 
@@ -208,13 +226,10 @@ class Update extends DefaultUpdate
      */
     public function createMissingGroups(string $grade, int $start_year = null)
     {
-        $start_year = $start_year ?? Carbon::today()->year;
         $all_schools = $this->N->getRepo("School")->findAll();
         /* @var \Fridde\Entities\School $school */
         foreach ($all_schools as $school) {
-            $crit = [["Status", 1], ["Grade", $grade], ["StartYear", $start_year]];
-            $matching_groups = $this->N->getRepo("Group")->select($crit);
-            $actual_count = count($matching_groups);
+            $actual_count = $school->getActiveGroupsByGradeAndYear($grade, $start_year);
             $expected_count = $school->getGroupNumber($grade, $start_year);
             $diff = $expected_count - $actual_count;
 
@@ -235,6 +250,26 @@ class Update extends DefaultUpdate
         $this->ORM->EM->flush();
     }
 
+    public function fillEmptyGroupNames(string $grade, int $start_year = null)
+    {
+        $start_year = $start_year ?? Carbon::today()->year;
+        $criteria = [['Grade', $grade], ['StartYear', $start_year]];
+        $groups = $this->N->ORM->getRepository('Group')->selectAnd($criteria);
+        $groups_without_name = array_filter(
+            $groups,
+            function (Group $g) {
+                return !$g->hasName();
+            }
+        );
+        array_walk(
+            $groups_without_name,
+            function (Group &$g) {
+                $g->setName();
+            }
+        );
+        $this->N->ORM->EM->flush();
+    }
+
     /**
      * @param array $group_numbers An array of strings where each string contains 3
      *        comma-separated values: The school_id, the grade and the new number of groups
@@ -245,7 +280,7 @@ class Update extends DefaultUpdate
         $start_year = $start_year ?? Carbon::today()->year;
         foreach ($group_numbers as $school_grade_nr) {
             list($school_id, $grade, $nr) = $school_grade_nr;
-            /* @var \Fridde\Entities\School $school */
+            /* @var School $school */
             $school = $this->N->getRepo("School")->find($school_id);
             $school->setGroupNumber($grade, $nr, $start_year);
         }
@@ -254,7 +289,9 @@ class Update extends DefaultUpdate
 
     public function changeTaskActivation(string $task_name, $status)
     {
-        $status = intval(in_array($status, [1, "true", true], true));
+        $status = (int) in_array($status, [1, "true", true], true);
         $this->N->setCronTask($task_name, $status);
     }
+
+
 }

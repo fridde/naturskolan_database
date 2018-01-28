@@ -13,14 +13,14 @@ class UpdateController {
     public function __construct($params)
     {
         $this->params = $params;
-        $encoding = $this->params["encoding"] ?? null;
+        $encoding = $this->params['encoding'] ?? null;
         $this->RQ = getRequest($encoding);
     }
 
     public function handleRequest()
     {
         $update = new Update($this->RQ);
-        $update_method = $this->RQ["updateMethod"] ?? $this->RQ["update_method"] ?? null;
+        $update_method = $this->RQ['updateMethod'] ?? $this->RQ['update_method'] ?? null;
         if(empty($update_method)){
             throw new \InvalidArgumentException('Missing updateMethod in $_REQUEST');
         }

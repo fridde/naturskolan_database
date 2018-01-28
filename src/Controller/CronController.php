@@ -6,12 +6,8 @@ use Fridde\Utility as U;
 use Fridde\Task;
 use Carbon\Carbon;
 
-class CronController
+class CronController extends BaseController
 {
-
-    /** @var \Fridde\Naturskolan shortcut for the Naturskolan object in the global container */
-    private $N;
-    private $params;
     private $CRON_SETTINGS;
     private $delay;
     private $slot_duration;
@@ -21,18 +17,17 @@ class CronController
 
     public function __construct(array $params)
     {
-        $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
-        $this->params = $params;
-        $this->CRON_SETTINGS = SETTINGS["cronjobs"];
-        $this->delay = $this->CRON_SETTINGS["delay"];
-        $this->slot_duration = $this->CRON_SETTINGS["slot_duration"];
-        $this->intervals = $this->CRON_SETTINGS["intervals"];
+        parent::__construct($params);
+        $this->CRON_SETTINGS = SETTINGS['cronjobs'];
+        $this->delay = $this->CRON_SETTINGS['delay'];
+        $this->slot_duration = $this->CRON_SETTINGS['slot_duration'];
+        $this->intervals = $this->CRON_SETTINGS['intervals'];
     }
 
     public function run()
     {
-        $this->slot_counter = $this->params["counter"] ?? $this->N->getStatus("slot_counter");
-        $this->N->log('Slot Counter: ' . $this->slot_counter, 'CronController->run()');
+        $this->slot_counter = $this->params['counter'] ?? $this->N->getStatus('slot_counter');
+        $this->N->log('Slot Counter: '.$this->slot_counter, 'CronController->run()');
         $this->setSlotTime();
         $active_tasks = array_filter($this->N->getCronTaskActivationStatus());
         foreach (array_keys($active_tasks) as $task_type) {
@@ -42,19 +37,19 @@ class CronController
             }
         }
         $this->resetIfMonday();
-        $this->N->setStatus("slot_counter", $this->slot_counter + 1);
+        $this->N->setStatus('slot_counter', $this->slot_counter + 1);
     }
 
     public function executeTask()
     {
-        $task_type = $this->params["type"];
+        $task_type = $this->params['type'];
         $task = new Task($task_type);
         $task->execute(true); // ignores task activation in SystemStatus
     }
 
     public function resetIfMonday()
     {
-        $has_gone_one_day = U::divideDuration($this->slot_time, [1, "d"]) > 1.0;
+        $has_gone_one_day = U::divideDuration($this->slot_time, [1, 'd']) > 1.0;
         $is_monday = Carbon::today()->dayOfWeek === 1;
         if ($has_gone_one_day && $is_monday) {
             $this->slot_counter = 0;
@@ -63,8 +58,11 @@ class CronController
 
     private function setSlotTime()
     {
-        $adj_delay = U::adjustInterval($this->delay, $this->slot_duration);
-        $delay_count = U::divideDuration($adj_delay, $this->slot_duration);
+        $delay_count = 0.0;
+        if(empty(DEBUG)){
+            $adj_delay = U::adjustInterval($this->delay, $this->slot_duration);
+            $delay_count = U::divideDuration($adj_delay, $this->slot_duration);
+        }
         $value = ($this->slot_counter - $delay_count) * $this->slot_duration[0];
         $unit = $this->slot_duration[1];
         $this->slot_time = [$value, $unit];

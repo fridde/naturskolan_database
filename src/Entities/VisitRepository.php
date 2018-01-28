@@ -1,4 +1,5 @@
 <?php
+
 namespace Fridde\Entities;
 
 use Fridde\CustomRepository;
@@ -11,6 +12,16 @@ class VisitRepository extends CustomRepository
         return $this->findFutureVisitsUntil(null);
     }
 
+    public function getVisitsWithoutGroup()
+    {
+        return array_filter(
+            $this->findAll(),
+            function (Visit $v) {
+                return !$v->hasGroup();
+            }
+        );
+    }
+
     /**
      *
      * @param  Carbon|null $until The date after which visits are not included.
@@ -20,13 +31,13 @@ class VisitRepository extends CustomRepository
      */
     public function findFutureVisitsUntil(Carbon $until = null)
     {
-        if(!empty($until) && is_string($until)){
+        if (!empty($until) && is_string($until)) {
             $until = new Carbon($until);
         }
-        $all_visits = $this->findAll();
-        $methods[] = ["isAfter", true, [Carbon::today()]];
-        if(!empty($until)){
-            $methods[] = ["isBefore", true, [$until]];
+
+        $methods[] = ['isAfter', true, [Carbon::today()]];
+        if (!empty($until)) {
+            $methods[] = ['isBefore', true, [$until]];
         }
 
         $filtered_visits = $this->findViaMultipleMethods($methods);
@@ -37,21 +48,25 @@ class VisitRepository extends CustomRepository
     public function findLastVisit()
     {
         $sorted_visits = $this->findSortedVisitsForTopic();
+
         return array_pop($sorted_visits);
     }
 
     /**
-    * [findUnconfirmedVisitsUntil description]
-    *
-    * @param  Carbon|null $until The date after which visits are not included.
-    *                                   If omitted, all future visits are returned.
-    * @return array
-    */
+     * [findUnconfirmedVisitsUntil description]
+     *
+     * @param  Carbon|null $until The date after which visits are not included.
+     *                                   If omitted, all future visits are returned.
+     * @return array
+     */
     public function findUnconfirmedVisitsUntil(Carbon $until = null)
     {
-        return array_filter($this->findFutureVisits($until), function($v){
-            return !$v->isConfirmed();
-        });
+        return array_filter(
+            $this->findFutureVisitsUntil($until),
+            function ($v) {
+                return !$v->isConfirmed();
+            }
+        );
     }
 
     /**
@@ -63,19 +78,24 @@ class VisitRepository extends CustomRepository
      */
     public function findSortedVisitsForTopic(Topic $topic = null)
     {
-        if(!empty($topic)){
-            $visits = $this->select(["Topic", $topic]);
+        if (!empty($topic)) {
+            $visits = $this->select(['Topic', $topic]);
         } else {
             $visits = $this->findAll();
         }
+
         return $this->sortVisits($visits);
     }
 
-    public function sortVisits($visits)
+    public function sortVisits(array $visits)
     {
-        usort($visits, function($v1, $v2){
-            return $v1->getDate()->lte($v2->getDate()) ? -1 : 1;
-        });
+        usort(
+            $visits,
+            function ($v1, $v2) {
+                return $v1->getDate()->lte($v2->getDate()) ? -1 : 1;
+            }
+        );
+
         return $visits;
     }
 

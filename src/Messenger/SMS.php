@@ -10,57 +10,72 @@ use Fridde\Update;
 use Fridde\ShortMessageService;
 
 
-class SMS extends AbstractMessage
+class SMS extends AbstractMessageController
 {
+    /* @var string $type */
+    protected $type = 'sms';
     protected $text;
     protected $options;
+    protected $response;
+
 
     // PREPARE=1; SEND=2; UPDATE=4;
-    protected $methods = ["update_received_sms" => 4, "confirm_visit" => 3];
-
-    public function __construct($params = [])
-    {
-        parent::__construct($params);
-    }
+    protected $methods = [
+        "update_received_sms" => 4,
+        "confirm_visit" => 3,
+        'update_profile_reminder' => 3,
+    ];
 
     public function send()
     {
         $SMS = new ShortMessageService($this->options);
 
         if (!empty(DEBUG)) {
-            return $SMS->send(SETTINGS["debug"]["mobil"]);
+            $SMS->send(SETTINGS["debug"]["mobil"]);
         } else {
-            return $SMS->send();
+            $SMS->send();
         }
+        $this->setStatus($SMS->status);
+        $this->setResponse($SMS->response);
+
+        return $this;
     }
 
     protected function prepareConfirmVisit()
     {
-        $this->options["message"] = $this->getParam("message");
-        $this->options["to"] = $this->getParam("receiver");
+        $this->options["message"] = $this->getParameter("message");
+        $this->options["to"] = $this->getParameter("receiver");
+    }
+
+    protected function prepareUpdateProfileReminder()
+    {
+        $this->options["message"] = $this->getParameter("message");
+        $this->options["to"] = $this->getParameter("receiver");
     }
 
     protected function updateReceivedSms()
     {
-        $secret = $this->getParam("secret");
+        $secret = $this->getParameter("secret");
         if ($secret !== SETTINGS["sms_settings"]["smsgateway"]["callback_secret"]) {
             // log error and exit
             $msg = 'The secret sent by an update request was wrong.';
             $this->N->log($msg, 'SMS->updateReceivedSms()');
         }
-        $event = strtolower($this->getParam("event"));
+        $event = strtolower($this->getParameter("event"));
         if ($event === "update") {
-            $msg_id = $this->getParam("id");
+            $msg_id = $this->getParameter("id");
             $message = $this->N->ORM->findBy("Message", ["ExtId" => $msg_id]);
             if (!empty($message)) {
                 $e_id = $message->getId();
-                $val = strtolower($this->getParam("status"));
+                $val = strtolower($this->getParameter("status"));
+
                 return (new Update)->updateProperty("Message", $e_id, "Status", $val)->flush();
             }
         } elseif ($event === "received") {
             $check = $this->checkReceivedSmsForConfirmation();
             if ($check["about_visit"]) {
                 $e_id = $check["visit_id"];
+
                 return (new Update)->updateProperty("Visit", $e_id, "Confirmed", true)->flush();
             }
         }
@@ -69,7 +84,7 @@ class SMS extends AbstractMessage
     protected function checkReceivedSmsForConfirmation()
     {
         $return["about_visit"] = false;
-        $contact = $this->getParam("contact");
+        $contact = $this->getParameter("contact");
         $nr = $contact["number"];
         $properties["Status"] = "sent";
         $properties["Carrier"] = "sms";
@@ -107,7 +122,7 @@ class SMS extends AbstractMessage
             $this->N->log($log_msg, 'SMS->checkReceivedSmsForConfirmation()');
         }
 
-        $content = strtolower($this->getParam("message"));
+        $content = strtolower($this->getParameter("message"));
         $content = preg_replace('[^a-zA-Z]', '', $content);
         if (substr($content, 0, 2) == 'ja') {
             $return["about_visit"] = true;
@@ -116,5 +131,17 @@ class SMS extends AbstractMessage
 
         return $return;
     }
+
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    public function setResponse($response)
+    {
+        $this->response = $response;
+    }
+
+
 
 }

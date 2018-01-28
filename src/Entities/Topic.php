@@ -34,7 +34,7 @@ class Topic
     protected $Food;
 
     /** @Column(type="integer", nullable=true) */
-    protected $FoodInstructions;
+    protected $FoodOrder;
 
     /** @Column(type="string", nullable=true) */
     protected $Url;
@@ -50,7 +50,11 @@ class Topic
 
     // byo means "bring your own" and means in this context that the group
     // provides for their own food
-    const FOOD_INSTRUCTION_TYPES = [0 => "provided", 1 => "byo", 2 => "irrelevant"];
+    public const FOOD_ORDER_TYPES = [
+        0 => 'no_order_needed',
+        1 => 'order_from_kitchen',
+        2 => 'notify_kitchen',
+    ];
 
     public function __construct()
     {
@@ -149,21 +153,21 @@ class Topic
         $this->Food = $Food;
     }
 
-    public function getFoodInstructions($as_string = false)
+    public function getFoodOrder($as_string = false)
     {
         if ($as_string) {
-            return self::FOOD_INSTRUCTION_TYPES[$this->FoodInstructions] ?? null;
+            return self::FOOD_ORDER_TYPES[$this->FoodOrder] ?? null;
         }
 
-        return $this->FoodInstructions;
+        return $this->FoodOrder;
     }
 
-    public function setFoodInstructions($FoodInstructions)
+    public function setFoodOrder($FoodOrder)
     {
-        if (is_string($FoodInstructions)) {
-            $FoodInstructions = array_search($FoodInstructions, self::FOOD_INSTRUCTION_TYPES);
+        if (is_string($FoodOrder)) {
+            $FoodOrder = array_search($FoodOrder, self::FOOD_ORDER_TYPES);
         }
-        $this->FoodInstructions = $FoodInstructions;
+        $this->FoodOrder = $FoodOrder;
     }
 
 
@@ -189,7 +193,7 @@ class Topic
 
     public function getIsLektionOptions()
     {
-        return [0 => "No", 1 => "Yes"];
+        return [0 => 'No', 1 => 'Yes'];
     }
 
     public function setIsLektion($IsLektion)
@@ -197,8 +201,15 @@ class Topic
         $this->IsLektion = (int)$IsLektion;
     }
 
-    public function getLastChange(){return $this->LastChange;}
-    public function setLastChange($LastChange){$this->LastChange = $LastChange;}
+    public function getLastChange()
+    {
+        return $this->LastChange;
+    }
+
+    public function setLastChange($LastChange)
+    {
+        $this->LastChange = $LastChange;
+    }
 
     public function getVisits()
     {

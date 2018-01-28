@@ -1,31 +1,27 @@
 # keys will be parsed as the name of the route
+# the default action is handleRequest()
 routes:
-   admin : ['GET','/admin/[:action]?','Admin#handleRequest']
-   batch : ['GET','/admin/batch/[:operation]/[:filter]?','Batch#handleRequest']
-   checkcookie : ['GET','/','Login#checkCookie']
+   admin : ['GET','/admin/[:action]?','Admin']
+   api : ['GET|POST','/api/[:action]/[**:parameters]?', API]
+   batch : ['GET','/admin/batch/[:action]/[**:parameters]?','Batch']
+   #checkcookie : ['GET','/','Login#checkCookie']
    checkpw : ['GET','/login/[:password]?','Login#checkPassword']
-   confirmvisit : ['GET','/confirm/[:code]','API#confirmVisit']
    croncounter : ['GET|POST','/cron/[i:counter]?','Cron#run']
    file : ['GET','/file/[:file1]/[:file2]?/[:file3]?','File#include']
-#   mail : ['GET|POST','/mail/[:purpose]?','Mail#handleRequest']
+
+   logout: ['GET', '/logout', 'Login#logout']
+   #mail : ['GET|POST','/mail/[:purpose]?','Mail#handleRequest']
    pwrecover : ['GET','/passwordrecover/[:code]?','API#passwordRecover']
-   pwreset : ['GET','/passwordreset','API#passwordReset']
-   sandbox : ['GET','/sandbox','File#renderSandbox']
-   school : ['GET|POST','/skola/[a:school]/[a:page]?/[:code]?','School#handleRequest']  # changing this affects Navigation::getStaffPageUrl()
-   sms : ['GET|POST','/sms/[:purpose]?/[:encoding]?','SMS#handleRequest']
+   school : ['GET|POST','/skola/[a:school]/[a:page]?/[:code]?','School']  # changing this affects Navigation::getStaffPageUrl()
+   sandbox: ['GET|POST','/sandbox/[:action]/[**:parameters]?', 'Sandbox']
+   sms : ['GET|POST','/sms/[:purpose]?/[:encoding]?','SMS']
    table : ['GET','/table/[a:entity]','Table#view']
    task : ['GET','/task/[:type]','Cron#executeTask']
-   update : ['POST','/update','Update#handleRequest']
-   view : ['GET','/view/[:page]','View#handleRequest']
-# - ['','','']
-#120 = ['','','']
-#130 = ['','','']
-#140 = ['','','']
-#150 = ['','','']
-#160 = ['','','']
-#170 = ['','','']
-#180 = ['','','']
-#190 = ['','','']
+   update : ['POST','/update','Update']
+   view : ['GET','/view/[:page]','View']
+   index: ['GET','/[**]?','Page#showIndex']
+
+
 #200 = ['GET', '[**:url]', 'Error#notFound']
 
 # ['','','']

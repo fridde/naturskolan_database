@@ -13,6 +13,9 @@ class Change
     /** @Id @Column(type="integer") @GeneratedValue    */
     protected $id;
 
+    /** @Column(type="integer")    */
+    protected $Type;
+
     /** @Column(type="string") */
     protected $EntityClass;
 
@@ -31,8 +34,42 @@ class Change
     /** @Column(type="string") */
     protected $Timestamp;
 
+    public const DELETION = -1;
+    public const UPDATE = 0;
+    public const INSERTION = 1;
+
     public function getId(){return $this->id;}
     public function setId($id){$this->id = $id;}
+
+    /**
+     * @return integer
+     */
+    public function getType()
+    {
+        return $this->Type;
+    }
+
+    /**
+     * @param mixed $Type
+     */
+    public function setType(int $Type)
+    {
+        $this->Type = $Type;
+    }
+
+    public function typeToString(int $type)
+    {
+        $types = [
+            'deletion' => self::DELETION,
+            'update' => self::UPDATE,
+            'insertion' => self::INSERTION
+        ];
+
+        return array_search($type, $types, true) ?: null;
+    }
+
+
+
     public function getEntityClass(){return $this->EntityClass;}
     public function setEntityClass($EntityClass){$this->EntityClass = $EntityClass;}
     public function getEntityId(){return $this->EntityId;}

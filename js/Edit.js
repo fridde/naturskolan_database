@@ -26,27 +26,30 @@ var Edit = {
             case "tableInput":
 
                 data.entity_class = $(this).closest("table").data("entity");
-                var entity_id = $(this).closest("tr").data("id").toString().split('#');
-                if (entity_id[0] === 'new') {
-                    data.updateMethod = 'createNewEntityFromModel';
-                    data.model_entity_id = entity_id[1];
-                } else {
-                    data.updateMethod = "updateProperty";
-                    data.entity_id = entity_id[0];
-                }
+                data.entity_id = $(this).closest("tr").data("id");
                 data.property = $(this).prop("name").split('#').shift();
                 if ($(this).attr("type") === "radio") {
                     data.value = $(this)
                         .closest("tr").find("[name='" + $(this).attr("name") + "']:checked")
                         .val();
-                } else if (specialInfo === "datepicker") {
-                    if (event.dates.length > 1) {
-                        data.value = event.dates;
-                    } else {
-                        data.value = event.format();
-                    }
                 } else {
                     data.value = $(this).val();
+                }
+
+                if (data.entity_id.toString().substring(0,1) === '#') {  // i.e. is a new object
+                    data.return = {'old_id': data.entity_id};
+                    data.updateMethod = 'createNewEntity';
+                    data.properties = {};
+                    if(typeof $(".additional-information").data() !== 'undefined'){
+                        data.properties = $(".additional-information").data().defaultProperties;
+                    }
+                    if(typeof $(this).closest("tr").data('properties') !== 'undefined'){
+                        var props = JSON.parse($(this).closest("tr").data('properties'));
+                        Object.assign(data.properties, props);
+                    }
+                    data.properties[data.property] = data.value;
+                } else {
+                    data.updateMethod = "updateProperty";
                 }
                 // setting the new data-order and data-search for DataTables
                 $(this).data("search", data.value).data("order", data.value)
@@ -80,11 +83,35 @@ var Edit = {
                 // TODO: Implement this in html/js
                 break;
 
+            case "work_schedule":
+                $(this).toggleClass('active');
+                var $tr = $(this).closest('tr');
+                data.updateMethod = "updateProperty";
+                data.entity_class = "Visit";
+                data.entity_id = $tr.data("id");
+                data.property = "Colleagues";
+                data.value = $.map($tr.find('td.active'), function(td){
+                    return $(td).data('colleague-id');
+                });
+                data.value.push(null); // to ensure that it's not empty
+
+                break;
+
+            case 'food_bus_bookings':
+                $(this).toggleClass('active');
+                var $tr = $(this).closest('tr');
+                data.updateMethod = "updateProperty";
+                data.entity_class = "Visit";
+                data.entity_id = $tr.data("id");
+                data.property = $(this).data('booking-type') === 'food' ? 'FoodIsBooked' : 'BusIsBooked';
+                data.value = $(this).hasClass('active') ? 1 : 0;
+                break;
+
 
         }
 
-        if ($(this).prop("type") == "checkbox") {
-            data.property = $(this).prop("name");
+        if ($(this).prop("type") === "checkbox") {
+            data.property = $(this).prop("name").split('#').shift();
             if (data.property.endsWith('[]')) {
                 data.property = data.property.slice(0, -2);
             }
@@ -96,7 +123,7 @@ var Edit = {
             data.value = valueArray.join();
         }
 
-        if (["Food", "Mobil"].indexOf(data.property) != -1) {
+        if (["Food", "Mobil"].indexOf(data.property) !== -1) {
             Tooltip.check(this, data);
         }
 

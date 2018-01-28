@@ -44,7 +44,7 @@ class Group
     protected $Notes;
 
     /** @Column(type="integer") */
-    protected $Status;
+    protected $Status = self::ACTIVE;
 
     /** @Column(type="string", nullable=true) */
     protected $LastChange;
@@ -55,12 +55,13 @@ class Group
     /** @OneToMany(targetEntity="Visit", mappedBy="Group")     * */
     protected $Visits;
 
+    public const ARCHIVED = 0;
+    public const ACTIVE = 1;
+
     public function __construct()
     {
         $this->Visits = new ArrayCollection();
     }
-
-    const STATUS = [0 => "inactive", 1 => "active"];
 
     public function getId()
     {
@@ -75,15 +76,15 @@ class Group
     public function setName($Name = null)
     {
         if (empty($Name)) {
-            $alias_names = \Fridde\Naturskolan::getSetting("defaults", "placeholder", "animals");
-            $Name = "Grupp ".$alias_names[mt_rand(0, count($alias_names) - 1)];
+            $alias_names = \Fridde\Naturskolan::getSetting('defaults', 'placeholder', 'animals');
+            $Name = 'Grupp '.$alias_names[mt_rand(0, count($alias_names) - 1)];
         }
         $this->Name = trim($Name);
     }
 
     public function hasName()
     {
-        return $this->has("Name");
+        return $this->has('Name');
     }
 
     /**
@@ -155,7 +156,7 @@ class Group
 
     public function isGrade($Grade)
     {
-        return $this->getGrade() === strval($Grade);
+        return $this->getGrade() === (string)$Grade;
     }
 
     public function getStartYear()
@@ -163,9 +164,9 @@ class Group
         return $this->StartYear;
     }
 
-    public function setStartYear()
+    public function setStartYear(int $StartYear)
     {
-        $this->StartYear = func_get_arg(0);
+        $this->StartYear = $StartYear;
     }
 
     public function getNumberStudents()
@@ -173,9 +174,9 @@ class Group
         return $this->NumberStudents;
     }
 
-    public function setNumberStudents()
+    public function setNumberStudents(int $NumberStudents)
     {
-        $this->NumberStudents = func_get_arg(0);
+        $this->NumberStudents = $NumberStudents;
     }
 
     public function getFood()
@@ -183,9 +184,9 @@ class Group
         return $this->Food;
     }
 
-    public function setFood()
+    public function setFood(string $Food)
     {
-        $this->Food = func_get_arg(0);
+        $this->Food = $Food;
     }
 
     public function getInfo()
@@ -200,7 +201,7 @@ class Group
 
     public function hasInfo()
     {
-        return $this->has("Info");
+        return $this->has('Info');
     }
 
     public function getNotes()
@@ -215,7 +216,7 @@ class Group
 
     public function hasNotes()
     {
-        return $this->has("Notes");
+        return $this->has('Notes');
     }
 
     public function getStatus()
@@ -225,20 +226,22 @@ class Group
 
     public function getStatusOptions()
     {
-        return self::STATUS;
+        return array_flip(
+            [
+                'archived' => self::ARCHIVED,
+                'active' => self::ACTIVE,
+            ]
+        );
     }
 
-    public function setStatus($Status)
+    public function setStatus(int $Status)
     {
-        if (is_string($Status)) {
-            $Status = array_search(strtolower($Status), self::STATUS);
-        }
         $this->Status = $Status;
     }
 
     public function isActive()
     {
-        return self::STATUS[$this->getStatus()] === "active";
+        return $this->getStatus() === self::ACTIVE;
     }
 
     public function getLastChange()
@@ -276,13 +279,16 @@ class Group
         return $this->getVisitsAfter(Carbon::today());
     }
 
-    public function getVisitsAfter($date, $ordered = true)
+    public function getVisitsAfter($date = null, $ordered = true)
     {
+
         if ($ordered) {
             $this->sortVisits();
         }
         if (is_string($date)) {
             $date = new Carbon($date);
+        } elseif (empty($date)) {
+            $date = Carbon::today();
         }
 
         return $this->getVisits()->filter(
@@ -366,7 +372,7 @@ class Group
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
-    
+
     /** @PreRemove */
     public function preRemove()
     {

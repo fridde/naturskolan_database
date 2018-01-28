@@ -7,7 +7,7 @@ class ChangeRepository extends CustomRepository
 {
     public function findNewChanges($criteria = [])
     {
-        $criteria[] = ["isNull", "Processed"];
+        $criteria[] = ['isNull', 'Processed'];
         return $this->select($criteria);
     }
 
@@ -17,7 +17,7 @@ class ChangeRepository extends CustomRepository
      */
     public function findChangesOlderThan($date)
     {
-        $criteria = ["lt", "Timestamp", $date->toIso8601String()];
+        $criteria = ['lt', 'Timestamp', $date->toIso8601String()];
         return $this->select($criteria);
     }
 
@@ -28,19 +28,21 @@ class ChangeRepository extends CustomRepository
      */
     public function findChangesWithNewUser()
     {
-        $criteria[] = ["isNull", "Processed"];
-        $criteria[] = ["eq", "EntityClass", "User"];
-        $criteria[] = ["isNull", "Property"];
+        $criteria[] = ['isNull', 'Processed'];
+        $criteria[] = ['eq', 'EntityClass', 'User'];
+        $criteria[] = ['isNull', 'Property'];
 
         return $this->selectAnd($criteria);
     }
 
-    public function changeIsLogged(string $entity_class, $entity_id, string $property_name)
+    public function changeIsLogged(Change $change)
     {
-        $criteria = [["isNull", "Processed"]];
-        $criteria[] = ["EntityClass", $entity_class];
-        $criteria[] = ["EntityId", $entity_id];
-        $criteria[] = ['Property', $property_name];
+        //string $entity_class, $entity_id, string $property_name
+        $criteria = [['isNull', 'Processed']];
+        $criteria[] = ['Type', $change->getType()];
+        $criteria[] = ['EntityClass', $change->getEntityClass()];
+        $criteria[] = ['EntityId', $change->getEntityId()];
+        $criteria[] = ['Property', $change->getProperty()];
 
         return !empty($this->selectAnd($criteria));
     }
