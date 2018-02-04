@@ -17,8 +17,8 @@ if(SETTINGS['environment'] === 'dev'){
 }
 Essentials::activateGlobalFunctions();
 
-$services[] = ['Naturskolan', 'Fridde\Naturskolan'];
-$base_url = "/" . basename(APP_URL);
+$services[] = ['Naturskolan', \Fridde\Naturskolan::class];
+$base_url = '/' . basename(APP_URL);
 $services[] = ['Router', 'AltoRouter', Essentials::getRoutes(), $base_url];
 $services[] = ['Logger', Essentials::getLogger()];
 $container = Essentials::registerSharedServices($services);

@@ -24,9 +24,9 @@ class Authorization
 
     public function getSchoolFromCookie()
     {
-        $hash_string = $_COOKIE["Hash"] ?? null;
+        $hash_string = $_COOKIE['Hash'] ?? null;
         if (!empty($hash_string)) {
-            $cookie = $this->ORM->getRepository("Cookie")->findByHash($hash_string);
+            $cookie = $this->ORM->getRepository('Cookie')->findByHash($hash_string);
 
             return empty($cookie) ? null : $cookie->getSchool();
         }
@@ -39,7 +39,6 @@ class Authorization
      *
      * @param bool $ignore_empty_results
      * @return \Fridde\Entities\School|null
-     * @throws \Exception
      */
     public function getSchooldIdFromCookie()
     {
@@ -48,6 +47,12 @@ class Authorization
         return empty($school) ? null : $school->getId();
     }
 
+    /**
+     * Returns the user that matches a given code
+     *
+     * @param string $code
+     * @return \Fridde\Entities\User
+     */
     public function getUserFromCode(string $code = null)
     {
         if (empty($code)) {
@@ -55,7 +60,7 @@ class Authorization
         }
         $user_id = $this->PW->getIntFromCode($code);
         if (!empty($user_id)) {
-            return $this->ORM->getRepository("User")->find($user_id);
+            return $this->ORM->getRepository('User')->find($user_id);
         }
 
         return null;
@@ -64,12 +69,12 @@ class Authorization
     public function getUserRole()
     {
         $school_id = $this->getSchooldIdFromCookie();
-        if ($school_id === "natu") {
-            return "admin";
+        if ($school_id === 'natu') {
+            return 'admin';
         } elseif (!empty($school_id)) {
-            return "user";
+            return 'user';
         }
-        return "guest";
+        return 'guest';
     }
 
     private function checkPassword()

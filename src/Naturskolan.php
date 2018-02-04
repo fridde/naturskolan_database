@@ -84,7 +84,7 @@ class Naturskolan
      */
     public function getStatus($id)
     {
-        $status = $this->ORM->getRepository("SystemStatus")->find($id);
+        $status = $this->ORM->find('SystemStatus', $id);
         if (!empty($status)) {
             return $status->getValue();
         }
@@ -92,12 +92,18 @@ class Naturskolan
         return null;
     }
 
-    public function setStatus($id, $value, bool $flush_after = true)
+    public function setStatus(string $id, string $value, bool $flush_after = true)
     {
+        $status = $this->ORM->find('SystemStatus', $id);
+        if(empty($status)){
+            $status = new SystemStatus();
+            $status->setId($id);
+        }
+        $status->setValue($value);
+        $this->ORM->EM->persist($status);
+
         if($flush_after){
-            $this->setAndFlush("SystemStatus", $id, $value);
-        } else {
-            $this->set("SystemStatus", $id, $value);
+            $this->ORM->EM->flush();
         }
 
     }
@@ -106,10 +112,10 @@ class Naturskolan
      * Shorthand function to set a value for a certain entity in a certain repository.
      *
      * @param mixed $requests The function takes either 3-4 arguments corresponding to
-     *                        $repo, $id, $value and $attribute_name (with default "Value").
+     *                        $repo, $id, $value and $attribute_name (with default 'Value').
      *                        Or it takes ONE array which in itself consists of one or more
      *                        arrays with each exactly 3-4 elements. The elements can either
-     *                        be in right order or indexed with "repo", "id", "value" and "att_name".
+     *                        be in right order or indexed with 'repo', 'id', 'value' and 'att_name'.
      *
      * @return void
      */
@@ -122,17 +128,17 @@ class Naturskolan
         }
 
         foreach ($requests as $args) {
-            $repo = $args[0] ?? $args["repo"];
-            $id = $args[1] ?? $args["id"];
-            $value = $args[2] ?? $args["value"];
-            $attribute_name = $args[3] ?? ($args["att_name"] ?? "Value");
+            $repo = $args[0] ?? $args['repo'];
+            $id = $args[1] ?? $args['id'];
+            $value = $args[2] ?? $args['value'];
+            $attribute_name = $args[3] ?? ($args['att_name'] ?? 'Value');
             $e = $this->ORM->getRepository($repo)->find($id);
-            $method = "set".$attribute_name;
+            $method = 'set'.$attribute_name;
             if (!empty($e)) {
                 $e->$method($value);
             } else {
-                $msg = "No entity of the class <".$repo."> with the id <";
-                $msg .= $id."> could be found.";
+                $msg = 'No entity of the class <'.$repo.'> with the id <';
+                $msg .= $id.'> could be found.';
                 throw new \Exception($msg);
             }
         }
@@ -155,7 +161,7 @@ class Naturskolan
         switch ($shorthand) {
 
             default:
-                throw new \Exception("The parameter ".$shorthand." is not defined.");
+                throw new \Exception('The parameter '.$shorthand.' is not defined.');
                 break;
         }
     }
@@ -168,7 +174,7 @@ class Naturskolan
 
         if($new_status === SystemStatus::CLEAN){
             $now_string = Carbon::now()->toIso8601String();
-            $this->set("SystemStatus", "calendar.last_rebuild", $now_string);
+            $this->set('SystemStatus', 'calendar.last_rebuild', $now_string);
         }
         if($flush_after){
             $this->ORM->EM->flush();
@@ -178,12 +184,15 @@ class Naturskolan
     /**
      * Check to see if calendar should be updated.
      *
-     * @return boolean Returns true if the value for calendar.status in SystemStatus is "dirty"
+     * @return boolean Returns true if the value for calendar.status in SystemStatus is 'dirty'
      */
     public function calendarIsDirty()
     {
         $trackables = ['Group', 'Location', 'Topic', 'User', 'Visit'];
         $now_string = $this->getStatus('calendar.last_rebuild');
+        if(empty($now_string)){
+            return true;
+        }
         $selector = ['gt', 'LastChange', $now_string];
 
         foreach($trackables as $entity_type){
@@ -201,12 +210,12 @@ class Naturskolan
      *
      * @return null|integer[] An array which each task name as index and either 0 or 1 as
      *                        deactivated or activated. Fridde\Task assumes a task as
-     *                        "activated" if not present in this array.
+     *                        'activated' if not present in this array.
      *
      */
     public function getCronTaskActivationStatus()
     {
-        $val = $this->getStatus("cron_tasks.activation");
+        $val = $this->getStatus('cron_tasks.activation');
         if (!empty($val)) {
             return json_decode($val, true);
         }
@@ -218,7 +227,7 @@ class Naturskolan
     {
         $cron_tasks = $this->getCronTaskActivationStatus() ?? [];
         $cron_tasks[$task_name] = $status;
-        $this->setStatus("cron_tasks.activation", json_encode($cron_tasks));
+        $this->setStatus('cron_tasks.activation', json_encode($cron_tasks));
     }
 
     /**
@@ -228,7 +237,8 @@ class Naturskolan
      */
     public function getLastRebuild()
     {
-        return new Carbon($this->getStatus("calendar.last_rebuild"));
+        $last_rebuild = $this->getStatus('calendar.last_rebuild');
+        return (empty($last_rebuild) ? null : new Carbon($last_rebuild));
     }
 
     /**
@@ -256,17 +266,17 @@ class Naturskolan
      */
     public function createLoginUrl(User $user, string $page = 'staff', $absolute = true)
     {
-        $params["school"] = $user->getSchoolId();
-        $params["page"] = $page;
-        $params["code"] = $this->PW->createCodeFromInt($user->getId(), "user");
+        $params['school'] = $user->getSchoolId();
+        $params['page'] = $page;
+        $params['code'] = $this->PW->createCodeFromInt($user->getId(), 'user');
 
-        return $this->generateUrl("school", $params, $absolute);
+        return $this->generateUrl('school', $params, $absolute);
     }
 
     private function getGoogl()
     {
         if (empty($this->Googl)) {
-            $api_key = SETTINGS["sms_settings"]["google_api_key"];
+            $api_key = SETTINGS['sms_settings']['google_api_key'];
             $this->Googl = new Googl($api_key);
         }
 
@@ -281,14 +291,14 @@ class Naturskolan
         return $this->getGoogl()->shorten($url);
     }
 
-    public function getIntFromCode($code, $entropy = "")
+    public function getIntFromCode($code, $entropy = '')
     {
         return $this->PW->getIntFromCode($code, $entropy);
     }
 
     public function createConfirmationUrl($visit_id, $absolute = false)
     {
-        $params['parameters'] = $this->PW->createCodeFromInt($visit_id, "visit");
+        $params['parameters'] = $this->PW->createCodeFromInt($visit_id, 'visit');
         $params['action'] = 'confirmVisit';
 
         return $this->generateUrl('api', $params, $absolute);
@@ -300,13 +310,11 @@ class Naturskolan
      */
     public function checkPassword(string $school_id_password)
     {
-        if (substr($school_id_password, 0, 5) === 'user$') {
+        if (0 === strpos($school_id_password, 'user$')) {
             $code = substr($school_id_password, 5);
-            $user_id = $this->Auth->getIntFromCode($code, "user");
-            if (!empty($user_id)) {
-                $user = $this->ORM->getRepository("User")->find($user_id);
-
-                return $user->getSchool()->getId();
+            $user = $this->Auth->getUserFromCode($code);
+            if (!empty($user)) {
+                return $user->getSchoolId();
             }
         } else {
             return $this->PW->passwordToSchoolId($school_id_password);
@@ -316,16 +324,15 @@ class Naturskolan
     public function createHash()
     {
         $hash_string = password_hash(microtime(), PASSWORD_DEFAULT);
-        $hash_array = explode("$", $hash_string);
-        $hash = implode("", array_slice($hash_array, 3));
+        $hash_array = explode('$', $hash_string);
 
-        return $hash;
+        return implode('', array_slice($hash_array, 3));
     }
 
-    public function generateUrl($route_name, $params = [], $absolute = false)
+    public function generateUrl($route_name, array $params = [], bool $absolute = false)
     {
         /* @var \AltoRouter $router */
-        $router = $GLOBALS["CONTAINER"]->get("Router");
+        $router = $GLOBALS['CONTAINER']->get('Router');
         $url = $router->generate($route_name, $params);
         if($absolute && !empty(SETTINGS['debug']['base_path'])){
             $url = SETTINGS['debug']['base_path'] . $url;
@@ -341,16 +348,16 @@ class Naturskolan
      * @param bool $debug
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function sendRequest(string $url, $post_data = [], $use_api_key = true, $debug = false)
+    public function sendRequest(string $url, array $post_data = [], bool $use_api_key = true, bool $debug = false)
     {
-        $options = ["json" => $post_data, "cookies" => null, "debug" => false];
+        $options = ['json' => $post_data, 'cookies' => null, 'debug' => false];
 
         if ($use_api_key) {
             $options['json']['api_key'] = $this->getApiKey();
         }
-        if ($debug || ($GLOBALS["debug"] ?? false)) {
+        if ($debug || ($GLOBALS['debug'] ?? false)) {
             $options['cookies'] = CookieJar::fromArray(['XDEBUG_SESSION' => 'xdebug.api'], 'localhost');
-            $options['json']["XDEBUG_SESSION_START"] = "api";
+            $options['json']['XDEBUG_SESSION_START'] = 'api';
             $options['debug'] = true;
             $url .= '?XDEBUG_SESSION_START=api';
         }
@@ -362,7 +369,7 @@ class Naturskolan
 
     public function getApiKey()
     {
-        return SETTINGS["values"]["api_key"] ?? null;
+        return SETTINGS['values']['api_key'] ?? null;
     }
 
     public function getClient($new_client = false)
@@ -380,38 +387,38 @@ class Naturskolan
      *
      * [Description]
      *
-     * @param array $unformatted_array multi-array where every row comprises one row from a certain table. Each row should at least contain "id", and the needed columns
+     * @param array $unformatted_array multi-array where every row comprises one row from a certain table. Each row should at least contain 'id', and the needed columns
      *
      * @return array $return_array contains array of formatted strings using the id as keys
      */
-    public function format($unformatted_array, $type = "")
+    public function format($unformatted_array, $type = '')
     {
         $format = function ($v, $k) use ($type) {
             switch ($type) {
 
-                case "User":
-                    $r = $v->getFullName().", ".$v->getSchool()->getName();
+                case 'User':
+                    $r = $v->getFullName().', '.$v->getSchool()->getName();
                     break;
 
-                case "Group":
+                case 'Group':
                     $r = $v->hasName() ? $v->getName() : $v->getPlaceholderName();
-                    $r .= ", ".$v->getSchool->getName();
+                    $r .= ', '.$v->getSchool->getName();
                     break;
 
-                case "Topic":
-                    $r = $v->getGrade().".".$v->getVisitOrder();
-                    $r .= " ".$v->getShortName();
+                case 'Topic':
+                    $r = $v->getGrade().'.'.$v->getVisitOrder();
+                    $r .= ' '.$v->getShortName();
                     break;
 
-                case "Colleague":
+                case 'Colleague':
                     $r = $v->getAcronym();
                     break;
 
-                case "School":
+                case 'School':
                     $r = $v->getName();
                     break;
 
-                case "Location":
+                case 'Location':
                     $r = $v->getName();
                     break;
 
@@ -447,7 +454,7 @@ class Naturskolan
         }
         $text = U::resolve($this->text_array, $index);
         if (!(isset($text) && is_string($text))) {
-            $e_msg = "The path given couldn't be resolved to a valid string. The path: ";
+            $e_msg = 'The path given couldn\'t be resolved to a valid string. The path: ';
             $e_msg .= var_export($index, true);
             throw new \InvalidArgumentException($e_msg);
         }
@@ -479,7 +486,7 @@ class Naturskolan
      */
     public function log(string $msg, string $source = null)
     {
-        $GLOBALS["CONTAINER"]->get('Logger')->addInfo($msg, ['source' => $source]);
+        $GLOBALS['CONTAINER']->get('Logger')->addInfo($msg, ['source' => $source]);
     }
 
 }

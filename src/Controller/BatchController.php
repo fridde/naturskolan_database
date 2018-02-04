@@ -197,6 +197,7 @@ class BatchController extends BaseController
             },
             $future_visits
         );
+        $DATA['school_id'] = 'natu';
         $this->addToDATA($DATA);
         $this->setTemplate('set_colleagues');
     }

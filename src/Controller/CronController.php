@@ -26,7 +26,7 @@ class CronController extends BaseController
 
     public function run()
     {
-        $this->slot_counter = $this->params['counter'] ?? $this->N->getStatus('slot_counter');
+        $this->slot_counter = $this->params['counter'] ?? ($this->N->getStatus('slot_counter') ?? 0);
         $this->N->log('Slot Counter: '.$this->slot_counter, 'CronController->run()');
         $this->setSlotTime();
         $active_tasks = array_filter($this->N->getCronTaskActivationStatus());

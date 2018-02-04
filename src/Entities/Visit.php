@@ -30,7 +30,7 @@ class Visit
 
     /** This is the owning side. The visit has many colleagues (=users)
      * @ManyToMany(targetEntity="User", inversedBy="Visits")
-     * @JoinTable(name="Colleagues_Visits")
+     * @JoinTable(name="colleagues_visits")
      */
     protected $Colleagues;
 

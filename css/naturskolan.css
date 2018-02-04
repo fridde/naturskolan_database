@@ -265,6 +265,7 @@ label {
     font-weight: 600;
     font-size: 110%;
     transition: font-weight 5s ease-in-out;
+    overflow: visible;
 }
 
 .navbar a:hover {

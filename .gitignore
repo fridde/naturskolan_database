@@ -17,3 +17,4 @@ vendor/
 .idea/
 /kalender.ics
 /src/Controller/SandboxController.php
+/config/settings_prod.yml

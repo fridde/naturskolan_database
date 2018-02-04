@@ -20,8 +20,8 @@ class PasswordHandler
 
     public function __construct()
     {
-        $this->settings = $GLOBALS["SETTINGS"]["values"];
-        $this->salt = $this->settings["pw_salt"];
+        $this->settings = SETTINGS['values'];
+        $this->salt = $this->settings['pw_salt'];
         $this->alphabet = array_merge([''], range('a', 'z'), ['å', 'ä', 'ö']);
     }
 
@@ -72,18 +72,18 @@ class PasswordHandler
         $ini_string = $this->addSalt($school_id);
         $school_int = $this->stringToInt($school_id);
         $dig_sum = $this->digitSum($school_int);
-        $year = (int) date("y");
+        $year = (int) date('y');
         $numbers = [$dig_sum, $year];
 
         return $school_id . self::PW_DELIMITER . $this->encode($ini_string, $numbers);
     }
 
-    public function createCodeFromInt(int $int, string $entropy = "")
+    public function createCodeFromInt(int $int, string $entropy = '')
     {
         return $this->encode($this->addSalt($entropy), [$int], $this->long_code_length);
     }
 
-    public function getIntFromCode(string $code, string $entropy = "")
+    public function getIntFromCode(string $code, string $entropy = '')
     {
         $ini_string = $this->addSalt($entropy);
         $numbers = $this->decode($ini_string, $code, $this->long_code_length);
@@ -91,16 +91,16 @@ class PasswordHandler
         return $numbers[0] ?? null;
     }
 
-    private function addSalt(string $string = "")
+    private function addSalt(string $string = '')
     {
-        return $string.$this->settings["pw_salt"];
+        return $string.$this->settings['pw_salt'];
     }
 
-    private function stringToInt(string $string, string $type = "ascii")
+    private function stringToInt(string $string, string $type = 'ascii')
     {
-        if ($type === "md5") {
+        if ($type === 'md5') {
             return base_convert(md5($string), 16, 10);
-        } elseif ($type === "ascii") {
+        } elseif ($type === 'ascii') {
             $base = count($this->alphabet);
             $id_array = preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
             $int = 0;
@@ -109,7 +109,7 @@ class PasswordHandler
                 $int += $id * ($base ** $exponent);
             }
 
-            return intval($int);
+            return (int) $int;
         }
     }
 
@@ -131,8 +131,8 @@ class PasswordHandler
 
     private function getYears()
     {
-        $current_year = intval(date("y"));
-        $val = $this->settings["school_pw_validity"];
+        $current_year = (int) date('y');
+        $val = $this->settings['school_pw_validity'];
 
         return range($current_year, $current_year - $val + 1);
     }
