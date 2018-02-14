@@ -16,6 +16,14 @@ class PageController extends BaseController
         $this->page = $this->params['page'] ?? null;
     }
 
+    public function handleRequest()
+    {
+        if(empty($this->params['url'])){
+            $this->setTemplate('index');
+        }
+        parent::handleRequest();
+    }
+
     public function show()
     {
         $method = $this->methods_mapper[$this->page] ?? null;
@@ -28,9 +36,11 @@ class PageController extends BaseController
         $this->$method_name();
     }
 
-    public function showIndex()
+
+    public function showError()
     {
-        $this->setTemplate('index');
-        parent::handleRequest();
+        http_response_code(404);
+        echo 'The url ' . implode('/', $this->getParameter()) . ' could not be resolved';
+        die();
     }
 }

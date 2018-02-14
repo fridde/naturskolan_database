@@ -18,3 +18,5 @@ vendor/
 /kalender.ics
 /src/Controller/SandboxController.php
 /config/settings_prod.yml
+/deployment/deployment.ini
+/templates/sandbox.twig

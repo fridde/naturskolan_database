@@ -2,6 +2,8 @@
 
 namespace Fridde\Controller;
 
+use Fridde\HTML;
+
 class TableController extends BaseController
 {
 
@@ -45,9 +47,11 @@ class TableController extends BaseController
 
 
         //$this->setJs(['js.bs.date', 'js.bs.date.sv', 'js.DT', 'js.DT.config']);
-        $this->setJs(['js.DT', 'js.DT.config']);
+        $this->setJs('DT', HTML::INC_ABBREVIATION);
+        $this->setJs('js/DT_config', HTML::INC_ADDRESS);
+
         //$this->setCss(['css.bs.date', 'css.DT']);
-        $this->setCss(['css.DT']);
+        $this->setCss(['DT']);
         parent::handleRequest();
     }
 
@@ -74,7 +78,9 @@ class TableController extends BaseController
         $cols['id']['type'] = 'ignored';
 
         if (in_array($ec, ['User'])) {
-            array_push($cols, 'FirstName', 'LastName', 'Mobil', 'Mail');
+            array_push($cols, 'FirstName', 'LastName');
+            $cols['Mobil']['type'] = 'tel';
+            $cols['Mail']['type'] = 'email';
             $cols['Role']['options'] = 'getRoleOptions';
             $cols[] = 'Acronym';
         }

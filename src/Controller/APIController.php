@@ -49,15 +49,15 @@ class APIController extends BaseController
         }
     }
 
-    public function sendPasswordRecoverMail(string $mail_address)
+    public function sendPasswordRecoverMail(string $mail_adress)
     {
         $this->setReturnType('json');
-        $mail_address = trim($mail_address);
+        $mail_adress = trim($mail_adress);
         /* @var User $user  */
-        $user = $this->N->ORM->getRepository('User')->findOneBy(['Mail' => $mail_address]);
+        $user = $this->N->ORM->getRepository('User')->findOneBy(['Mail' => $mail_adress]);
 
         if(empty($user) || !$user->isActive()){
-            $this->addToDATA('errors', ['No active user with this address could be found']);
+            $this->addToDATA('errors', ['No active user with this adress could be found']);
             // TODO: Log this and return
             return;
         }
@@ -67,7 +67,7 @@ class APIController extends BaseController
         $data['school_url'] = $this->N->generateUrl('school', ['school' => $user->getSchoolId()]);
         $params = ['purpose' => 'password_recover'];
         $params['data'] = $data;
-        $params['receiver'] = $mail_address;
+        $params['receiver'] = $mail_adress;
 
         $mail = new Mail($params);
         $response = $mail->buildAndSend();

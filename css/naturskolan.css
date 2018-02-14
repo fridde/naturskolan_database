@@ -11,8 +11,8 @@ html,
 body {
     width: 100vw;
     background-color: #FFEC97;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow-x: visible;
+    overflow-y: visible;
     font-family: 'Muli', "Helvetica", Arial, sans-serif;
 }
 
@@ -21,10 +21,11 @@ div.top-row {
     background-color: #60A65F;
 }
 
+
 div.header {
-    display: flex;
-    flex-wrap: wrap;
+
 }
+
 
 div.branding {
     padding: 40px 10px 10px 30px;
@@ -250,14 +251,20 @@ hr.star-primary:after {
     background-color: #fff;
 }
 
-label {
+
+.group-container label {
 	padding-top: 3px;
 	display: block;
 	clear: both;
 }
 
+
 .img-centered {
     margin: 0 auto;
+}
+
+.navbar-wrapper {
+    display: block;
 }
 
 .navbar {

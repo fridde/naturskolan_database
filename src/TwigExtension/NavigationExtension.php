@@ -65,7 +65,7 @@ class NavigationExtension extends TwigBaseExtension
             return false;
         }
 
-        return count(explode(self::METHOD_DELIMITER, $element_to_test)) >= 2;
+        return substr_count($element_to_test, self::METHOD_DELIMITER) >= 1;
     }
 
     public function getRole()
@@ -94,8 +94,9 @@ class NavigationExtension extends TwigBaseExtension
         return call_user_func([$this, $method_name]);
     }
 
-    public function getUrlUsingMethod(array $item, $data_array = [])
+    public function getUrlUsingMethod(array $item, $data_array = null)
     {
+        $data_array = $data_array ?? [];
         $method_and_args = explode(self::METHOD_DELIMITER, $item['url'])[1];
         $m_and_a = $this->extractMethodAndArgs($method_and_args);
         $method = $m_and_a['method'];
@@ -107,7 +108,7 @@ class NavigationExtension extends TwigBaseExtension
         return call_user_func_array([$this, $method], $args);
     }
 
-    private function extractMethodAndArgs($method_and_args)
+    private function extractMethodAndArgs(string $method_and_args): array
     {
         $left_pos = strpos($method_and_args, '(');
         $right_pos = strrpos($method_and_args, ')');
@@ -129,8 +130,8 @@ class NavigationExtension extends TwigBaseExtension
 
         return array_map(
             function ($table) {
-                $r["label"] = $table;
-                $r["url"] = $this->Router->generate('table', ['entity' => $table]);
+                $r['label'] = $table;
+                $r['url'] = $this->Router->generate('table', ['entity' => $table]);
 
                 return $r;
             },
@@ -139,20 +140,23 @@ class NavigationExtension extends TwigBaseExtension
     }
 
 
-    public function getGroupsPageUrl(string $school_id)
+    public function getGroupsPageUrl(string $school_id = null)
     {
         return $this->getSchoolPageUrl($school_id, 'groups');
     }
 
-    public function getStaffPageUrl($school_id)
+    public function getStaffPageUrl(string $school_id = null)
     {
         return $this->getSchoolPageUrl($school_id, 'staff');
     }
 
-    public function getSchoolPageUrl($school_id, string $page = 'groups')
+    public function getSchoolPageUrl(string $school_id = null, string $page = 'groups')
     {
-        $params["school"] = $school_id;
-        $params["page"] = $page;
+        if(empty($school_id)){
+            return null;
+        }
+        $params['school'] = $school_id;
+        $params['page'] = $page;
 
         return $this->Router->generate('school', $params);
     }
@@ -165,8 +169,8 @@ class NavigationExtension extends TwigBaseExtension
 
         return array_map(
             function ($id, $label) {
-                $r["label"] = $label;
-                $r["url"] = $this->Router->generate('school', ['school' => $id]);
+                $r['label'] = $label;
+                $r['url'] = $this->Router->generate('school', ['school' => $id]);
 
                 return $r;
             },
@@ -179,7 +183,7 @@ class NavigationExtension extends TwigBaseExtension
 
     private static function getNavSettings(string $key = null)
     {
-        return SETTINGS["NAV_SETTINGS"][$key] ?? SETTINGS["NAV_SETTINGS"];
+        return SETTINGS['NAV_SETTINGS'][$key] ?? SETTINGS['NAV_SETTINGS'];
     }
 
 }

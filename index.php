@@ -44,7 +44,7 @@ if ($match) {
     exit();
 } else {
     header($_SERVER["SERVER_PROTOCOL"].' 404 Not Found');
-    echo "No match found. Requested url: ".PHP_EOL;
+    echo 'No match found. Requested url: '.PHP_EOL;
     var_dump($request_url);
     exit();
 }

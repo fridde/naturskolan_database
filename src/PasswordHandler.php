@@ -21,7 +21,6 @@ class PasswordHandler
     public function __construct()
     {
         $this->settings = SETTINGS['values'];
-        $this->salt = $this->settings['pw_salt'];
         $this->alphabet = array_merge([''], range('a', 'z'), ['å', 'ä', 'ö']);
     }
 

@@ -23,12 +23,14 @@
         "guzzlehttp/guzzle": "6.2",
         "hashids/hashids": "2.0",
         "dotzero/googl": "0.2.0",
-        "symfony/yaml": "3.3.0"
+        "symfony/yaml": "4.0.4",
+        "dg/ftp-deployment": "^2.7"
     },
     "require-dev": {
         "fzaninotto/faker": "1.6",
         "filp/whoops": "^2.1",
-        "tracy/tracy": "^2.4"
+        "tracy/tracy": "^2.4",
+        "codeception/codeception": "^2.3"
     },
 	"autoload": {
         "psr-4": { "Fridde\\": "src/" }

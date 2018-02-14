@@ -77,9 +77,4 @@ class Authorization
         return 'guest';
     }
 
-    private function checkPassword()
-    {
-
-
-    }
 }

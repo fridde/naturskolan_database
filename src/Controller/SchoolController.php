@@ -84,7 +84,7 @@ class SchoolController extends BaseController
         if (empty($users)) {
             $users[] = new User(); // dummy user
         }
-        $keys = ['id', 'FirstName', 'LastName', 'Mobil', 'Mail'];
+        $keys = ['id', 'FirstName', 'LastName', 'Mobil', 'Mail', 'Acronym'];
         foreach ($keys as $key) {
             $DATA['headers'][] = $key;
             foreach ($users as $i => $user) {

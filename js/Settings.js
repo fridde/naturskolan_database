@@ -1,5 +1,3 @@
-
-
 var Settings = {
 
     datepickerOptions : {

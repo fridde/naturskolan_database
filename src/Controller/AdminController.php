@@ -22,7 +22,7 @@ class AdminController extends BaseController
         $this->addToDATA('tasks', $tasks);
         $this->addToDATA('grades', Group::getGradeLabels());
         $this->addToDATA('school_id', 'natu');
-        $this->setTemplate('admin_area');
+        $this->setTemplate('admin_area_overview');
         parent::handleRequest();
     }
 }

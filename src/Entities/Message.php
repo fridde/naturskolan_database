@@ -86,7 +86,7 @@ class Message
         return $this->Carrier;
     }
 
-    public function setCarrier(int $Carrier)
+    public function setCarrier($Carrier)
     {
         $this->Carrier = $Carrier;
     }

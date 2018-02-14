@@ -41,7 +41,7 @@ admin:
   table_menu_items: [Event, Group, Location, School, Topic, User, Visit]
   summary:
     # who should the summary go to?
-    admin_address : '???'
+    admin_adress : '???'
     # time before a non-confirmed visit shows up in the mail
     no_confirmation_warning : [5, d]
     # time until the last visit before a warning is issued

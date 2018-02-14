@@ -15,6 +15,12 @@ use Fridde\Utility;
 class BatchController extends BaseController
 {
 
+    public function handleRequest()
+    {
+        $this->addToDATA('school_id', 'natu');
+        parent::handleRequest();
+    }
+
     /**
      * @route admin/batch/
      */
@@ -197,7 +203,6 @@ class BatchController extends BaseController
             },
             $future_visits
         );
-        $DATA['school_id'] = 'natu';
         $this->addToDATA($DATA);
         $this->setTemplate('set_colleagues');
     }
@@ -219,7 +224,6 @@ class BatchController extends BaseController
                 return $v->needsBus() || $v->needsFoodOrder();
             }
         );
-
 
         $this->addToDATA(
             'visits',

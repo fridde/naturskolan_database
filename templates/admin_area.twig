@@ -10,39 +10,4 @@
 {% endblock %}
 
 
-{%- block content -%}
-    <div class="admin-panel" id="missingGroups">
-        <button class=".btn-primary">Lägg till resterande grupper</button>
-        <select name="grade">
-            {% for value, label in DATA.grades %}
-                <option value="{{ value }}">{{ label }}</option>
-            {% endfor %}
-        </select>
-        <div class="result-box">
-
-        </div>
-    </div>
-    <div class="admin-panel" id="fill-empty-group-names">
-        <button class=".btn-primary">Fyll tomma gruppnamn med djurnamn</button>
-        <select name="grade">
-            {% for value, label in DATA.grades %}
-                <option value="{{ value }}">{{ label }}</option>
-            {% endfor %}
-        </select>
-        <div class="result-box">
-
-        </div>
-    </div>
-    <div class="admin-panel" id="cron-task-activation">
-        {% for task in DATA.tasks %}
-            <div class="checkbox">
-                <label><input type="checkbox" name="{{ task.value }}"{% if task.status %} checked {% endif %}>
-                    {{ task.label }}
-                </label>
-            </div>
-        {% endfor %}
-        <div class="result-box">
-
-        </div>
-    </div>
-{%- endblock -%}
+{%- block content -%}{%- endblock -%}

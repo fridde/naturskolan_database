@@ -123,7 +123,7 @@ class Task
      */
     private function sendVisitConfirmationMessage()
     {
-        $subject = 'confirmation';
+        $subject = Message::SUBJECT_CONFIRMATION;
         $annoyance_start = self::getStartDate('annoyance');
         $search_props['Status'] = ['sent', 'received'];
         $search_props['Subject'] = $subject;
@@ -178,11 +178,11 @@ class Task
             $msg_props['User'] = $user;
             $msg_props['Subject'] = $subject;
             $msg_props['Carrier'] = $msg_carrier;
-            $msg_props['Status'] = 'sent';
+            $msg_props['Status'] = Message::STATUS_SENT;
             if ($msg_carrier === 'sms') {
                 $return = $response->getResponse()['result']['success'][0];
                 $msg_props['ExtId'] = $return['id'];
-                $msg_props['Status'] = $return['status'];
+                $msg_props['Status'] = $return['status']; // TODO: Convert this to an int
                 $msg_props['Content'] = $return['message'];
             }
 
@@ -323,7 +323,7 @@ class Task
 
                 $messages[] = [$response, 'mail', $user, $subject];
             } else {
-                $msg = 'User '.$user->getFullName().' has no mailaddress. Check this!';
+                $msg = 'User '.$user->getFullName().' has no mailadress. Check this!';
                 $this->N->log($msg, 'Task->sendChangedGroupLeaderMail()');
             }
         }

@@ -14,7 +14,7 @@ class BaseController
     protected $N;
     /* @var array $params */
     protected $params;
-    /* @var string $action */
+    /* @var array $action */
     protected $actions;
     /* @var array $REQ  */
     protected $REQ;
@@ -29,7 +29,7 @@ class BaseController
     protected $defaultCss = 'index';
     protected $js = [];
     protected $css = [];
-    protected $template = 'index';
+    protected $template;
 
 
     public function __construct(array $params = [])
@@ -74,6 +74,11 @@ class BaseController
 
     public function renderAsHtml()
     {
+        if(empty($this->getTemplate())){
+            $this->setTemplate('error');
+            $this->addToDATA('url', implode('/', $this->getParameter()));
+        }
+
         $this->H->setTitle($this->getTitle());
         $this->H->addDefaultJs($this->getDefaultJs())
             ->addDefaultCss($this->getDefaultCss())
@@ -227,6 +232,11 @@ class BaseController
         $this->js = $js;
     }
 
+    public function addJs($js, $type = HTML::INC_ABBREVIATION)
+    {
+        $this->js[] = [$js, $type];
+    }
+
     /**
      * @return array
      */
@@ -246,7 +256,7 @@ class BaseController
     /**
      * @return string
      */
-    public function getTemplate(): string
+    public function getTemplate()
     {
         return $this->template;
     }

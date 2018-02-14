@@ -1,4 +1,4 @@
-{%- extends "base.twig" -%}
+{%- extends "admin_area.twig" -%}
 
 {%- set headers, rows, entity_class = DATA.headers, DATA.rows, DATA.entity_class -%}
 
@@ -56,7 +56,7 @@
                         #}
                     {%- elseif cell.type == "date" -%}
                         <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
-                            <input type="text"  class="datepicker" name="{{ property_name }}"
+                            <input class="datepicker" name="{{ property_name }}"
                                    value="{{ cell.value }}">
                         </td>
                     {%- elseif cell.type == "" -%}

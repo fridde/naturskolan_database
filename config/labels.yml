@@ -14,7 +14,7 @@ admin_summary:
   not_teacher : "Ledaren är inte lärare."
   wrong_school : "Ledaren går på en annan skola."
   bus_or_food_order_outdated : 'Inaktuella buss- eller matbeställningar'
-  duplicate_mail_addresses: 'Dessa mejladresser finns mer än en gång'
+  duplicate_mail_adresses: 'Dessa mejladresser finns mer än en gång'
   wrong_visit_order: 'Besök i fel ordning'
 
 sms:

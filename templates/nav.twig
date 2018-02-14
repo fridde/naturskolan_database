@@ -1,5 +1,5 @@
 {# expects nav_items to exist #}
-<div>
+<div class="navbar-wrapper">
     <nav class="navbar navbar-toggleable-md">
         <ul class="nav">
             {% set ROLE = getRole() %}
@@ -29,10 +29,12 @@
                     {% else %}
                         {% set url = item.url %}
                     {% endif %}
-                    <a href="{{ url }}"
-                       class="{{ link_class }}"{% if has_children %} data-toggle="dropdown"{% endif %}>
-                        {{- item.label -}}
-                    </a>
+                    {% if url %}
+                        <a href="{{ url }}"
+                           class="{{ link_class }}"{% if has_children %} data-toggle="dropdown"{% endif %}>
+                            {{- item.label -}}
+                        </a>
+                    {% endif %}
                     {% if has_children %}
                         <div class="dropdown-menu">
                             {% for subitem in children %}
@@ -41,7 +43,9 @@
                                 {% else %}
                                     {% set subitem_url = subitem.url %}
                                 {% endif %}
-                                <a class="dropdown-item" href="{{ subitem_url }}">{{ subitem.label }}</a>
+                                {% if subitem_url %}
+                                    <a class="dropdown-item" href="{{ subitem_url }}">{{ subitem.label }}</a>
+                                {% endif %}
                             {% endfor %}
                         </div>
                     {% endif %}

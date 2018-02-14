@@ -35,7 +35,7 @@ class AdminSummary
     private $method_translator = [
         "bad_mobil" => "getBadMobileNumbers",
         "bus_or_food_order_outdated" => "getOutdatedBusOrFoodOrders",
-        'duplicate_mail_addresses' => 'getDuplicateMailAddresses',
+        'duplicate_mail_adresses' => 'getDuplicateMailAdresses',
         "food_changed" => "getChangedFood",
         "inactive_group_visit" => "getInactiveGroupVisits",
         "info_changed" => "getChangedInfo",
@@ -224,16 +224,16 @@ class AdminSummary
         return $rows;
     }
 
-    private function getDuplicateMailAddresses()
+    private function getDuplicateMailAdresses()
     {
 
-        $all_mail_addresses = array_map(
+        $all_mail_adresses = array_map(
             function (User $u) {
                 return trim($u->getMail());
             },
             $this->N->ORM->getRepository('User')->select(['Status', User::ACTIVE])
         );
-        $counter = array_count_values($all_mail_addresses);
+        $counter = array_count_values($all_mail_adresses);
 
         return array_keys(
             array_filter(

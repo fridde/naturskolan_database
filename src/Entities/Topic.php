@@ -50,6 +50,10 @@ class Topic
 
     // byo means "bring your own" and means in this context that the group
     // provides for their own food
+    public const FOOD_NONE = 0;
+    public const FOOD_ORDER = 1;
+    public const FOOD_NOTIFY = 2;
+
     public const FOOD_ORDER_TYPES = [
         0 => 'no_order_needed',
         1 => 'order_from_kitchen',
@@ -153,20 +157,13 @@ class Topic
         $this->Food = $Food;
     }
 
-    public function getFoodOrder($as_string = false)
+    public function getFoodOrder()
     {
-        if ($as_string) {
-            return self::FOOD_ORDER_TYPES[$this->FoodOrder] ?? null;
-        }
-
         return $this->FoodOrder;
     }
 
-    public function setFoodOrder($FoodOrder)
+    public function setFoodOrder(int $FoodOrder)
     {
-        if (is_string($FoodOrder)) {
-            $FoodOrder = array_search($FoodOrder, self::FOOD_ORDER_TYPES);
-        }
         $this->FoodOrder = $FoodOrder;
     }
 

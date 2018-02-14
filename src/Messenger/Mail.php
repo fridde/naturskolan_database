@@ -5,23 +5,24 @@ namespace Fridde\Messenger;
 
 
 use Fridde\Entities\Group;
+use Fridde\Entities\Message;
 use Fridde\HTML;
 use Fridde\Mailer;
 
 class Mail extends AbstractMessageController
 {
-    /* @var string $type */
-    protected $type = 'mail';
+    /* @var int $type */
+    protected $type = Message::CARRIER_MAIL;
     /* @var \Fridde\Mailer $Mailer */
     protected $Mailer;
     // PREPARE=1; SEND=2; UPDATE=4;
     protected $methods = [
-        "admin_summary" => 3,
-        "password_recover" => 3,
-        "confirm_visit" => 3,
-        "update_profile_reminder" => 3,
-        "changed_groups_for_user" => 3,
-        "welcome_new_user" => 3,
+        'admin_summary' => 3,
+        'password_recover' => 3,
+        'confirm_visit' => 3,
+        'update_profile_reminder' => 3,
+        'changed_groups_for_user' => 3,
+        'welcome_new_user' => 3,
     ];
 
     public function __construct($params = [])
@@ -43,10 +44,10 @@ class Mail extends AbstractMessageController
     public function send()
     {
         $body = $this->createMailBody();
-        $this->Mailer->set("body", $body);
+        $this->Mailer->set('body', $body);
 
         if (!empty(DEBUG)) {
-            $result = $this->Mailer->sendAway(SETTINGS["debug"]["mail"]);
+            $result = $this->Mailer->sendAway(SETTINGS['debug']['mail']);
         } else {
             $result = $this->Mailer->sendAway();
         }
@@ -63,68 +64,68 @@ class Mail extends AbstractMessageController
 
     protected function prepareAdminSummary()
     {
-        $this->setTemplate("admin_summary");
-        $receiver = SETTINGS["admin"]["summary"]["admin_address"];
-        $this->Mailer->set("receiver", $receiver);
-        $this->Mailer->set("subject", "Dagliga sammanfattningen av databasen");
+        $this->setTemplate('admin_summary');
+        $receiver = SETTINGS['admin']['summary']['admin_adress'];
+        $this->Mailer->set('receiver', $receiver);
+        $this->Mailer->set('subject', 'Dagliga sammanfattningen av databasen');
 
-        $this->addToDATA($this->getParameter("data"));
+        $this->addToDATA($this->getParameter('data'));
     }
 
     protected function preparePasswordRecover()
     {
-        $this->setTemplate("password_recover");
-        $this->Mailer->set("receiver", $this->getParameter("receiver"));
-        $this->Mailer->set("subject", "Naturskolan: Återställning av lösenord");
+        $this->setTemplate('password_recover');
+        $this->Mailer->set('receiver', $this->getParameter('receiver'));
+        $this->Mailer->set('subject', 'Naturskolan: Återställning av lösenord');
         $this->Mailer->set('SMTPDebug', 0);
-        $this->addToDATA($this->getParameter("data"));
+        $this->addToDATA($this->getParameter('data'));
     }
 
     protected function prepareUpdateProfileReminder()
     {
-        $this->setTemplate("incomplete_profile");
-        $this->Mailer->set("receiver", $this->getParameter("receiver"));
-        $this->Mailer->set("subject", "Vi behöver mer information från dig!");
+        $this->setTemplate('incomplete_profile');
+        $this->Mailer->set('receiver', $this->getParameter('receiver'));
+        $this->Mailer->set('subject', 'Vi behöver mer information från dig!');
 
-        $this->addToDATA($this->getParameter("data"));
+        $this->addToDATA($this->getParameter('data'));
     }
 
     protected function prepareConfirmVisit()
     {
-        $this->setTemplate("confirm_visit");
-        $this->Mailer->set("receiver", $this->getParameter("receiver"));
-        $this->Mailer->set("subject", "Bekräfta ditt besök!");
-        $this->addAsVar($this->getParameter("data"));
+        $this->setTemplate('confirm_visit');
+        $this->Mailer->set('receiver', $this->getParameter('receiver'));
+        $this->Mailer->set('subject', 'Bekräfta ditt besök!');
+        $this->addAsVar($this->getParameter('data'));
     }
 
     protected function prepareChangedGroupsForUser()
     {
-        $DATA = $this->getParameter("data");
+        $DATA = $this->getParameter('data');
         array_walk_recursive(
-            $DATA["groups"],
+            $DATA['groups'],
             function (&$g_id) {
-                $group = $this->N->ORM->getRepository("Group")->find($g_id);
-                $g = ["group_id" => $g_id];
-                $g["name"] = $group->getName();
-                $g["grade"] = $group->getGradeLabel();
+                $group = $this->N->ORM->getRepository('Group')->find($g_id);
+                $g = ['group_id' => $g_id];
+                $g['name'] = $group->getName();
+                $g['grade'] = $group->getGradeLabel();
                 $g_id = $g;
             }
         );
-        $groups = $DATA["groups"];
-        $this->setTemplate("changed_groups");
-        $this->Mailer->set("receiver", $this->getParameter("receiver"));
-        $has_removed = !empty($groups["removed"]);
-        $has_new = !empty($groups["new"]);
+        $groups = $DATA['groups'];
+        $this->setTemplate('changed_groups');
+        $this->Mailer->set('receiver', $this->getParameter('receiver'));
+        $has_removed = !empty($groups['removed']);
+        $has_new = !empty($groups['new']);
         if ($has_removed && $has_new) {
-            $subject = "Grupperna du förvaltar har ändrats";
+            $subject = 'Grupperna du förvaltar har ändrats';
         } elseif ($has_removed) {
-            $subject = "Antal grupper du förvaltar har minskat.";
+            $subject = 'Antal grupper du förvaltar har minskat.';
         } elseif ($has_new) {
-            $subject = "Antal grupper du förvaltar har ökat.";
+            $subject = 'Antal grupper du förvaltar har ökat.';
         } else {
-            throw new \Exception("There were no groups given for this user.");
+            throw new \Exception('There were no groups given for this user.');
         }
-        $this->Mailer->set("subject", $subject);
+        $this->Mailer->set('subject', $subject);
         $this->addToDATA($DATA);
     }
 
@@ -136,19 +137,19 @@ class Mail extends AbstractMessageController
      */
     protected function prepareWelcomeNewUser()
     {
-        $DATA = $this->getParameter("data");
+        $DATA = $this->getParameter('data');
         array_walk(
-            $DATA["groups"],
+            $DATA['groups'],
             function (Group &$group) {
-                $g = ["name" => $group->getName()];
-                $g["grade"] = $group->getGradeLabel();
+                $g = ['name' => $group->getName()];
+                $g['grade'] = $group->getGradeLabel();
                 $group = $g;
             }
         );
 
-        $this->setTemplate("new_user_welcome");
-        $this->Mailer->set("receiver", $this->getParameter("receiver"));
-        $this->Mailer->set("subject", "Välkommen i Naturskolans databas");
+        $this->setTemplate('new_user_welcome');
+        $this->Mailer->set('receiver', $this->getParameter('receiver'));
+        $this->Mailer->set('subject', 'Välkommen i Naturskolans databas');
         $this->addToDATA($DATA);
     }
 }

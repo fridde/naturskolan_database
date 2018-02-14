@@ -200,14 +200,14 @@ $(document).ready(function () {
         $('#password-modal').show();
     });
 
-    $('#forgotten_password_submit').click(function(){
-        modal_id = '#password-modal';
-        var mail = $(modal_id + ' input[name="mailaddress"]').val();
+    $('#forgotten_password_submit').click(function () {
+        var modal_id = '#password-modal';
+        var mail = $(modal_id + ' input[name="mailadress"]').val();
         $.ajax({
             url: 'api/sendPasswordRecoverMail/' + mail,
             method: 'POST',
             success: function (data) {
-                if(data.status === 'success'){
+                if (data.status === 'success') {
                     $(modal_id + ' .modal-header').html('<h4>Vi har skickat ett mejl med en länk till din adress</h4>');
                     $(modal_id + ' .modal-body').html('<p>Kolla både inkorg och spamkorg</p>');
                     $(modal_id + ' .modal-footer').html('<button class="close" data-dismiss="modal"><span>X Stäng</span></button>');
@@ -231,18 +231,27 @@ $(document).ready(function () {
         html: true,
         trigger: 'hover click',
         placement: 'bottom',
-        content: function(){
+        content: function () {
             var content_id = "content-id-" + $.now();
 
             $.ajax({
                 url: 'api/getPassword/' + $(this).data('school'),
                 method: 'POST'
-            }).done(function(data){
+            }).done(function (data) {
                 $('#' + content_id).html(data.password);
             });
             return '<div class="pw-popover" id="' + content_id + '">Laddar...</div>';
         }
     });
 
+    $('input[name="hide-password"]').click(function () {
+        var $input = $(this);
+        var $password_field = $('input[name="password"]');
+        var $type = 'text';
+        if ($input.is(':checked')) {
+            $type = 'password';
+        }
+        $password_field.attr('type', $type);
+    });
 
 });

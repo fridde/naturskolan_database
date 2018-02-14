@@ -13,13 +13,13 @@ routes:
    #mail : ['GET|POST','/mail/[:purpose]?','Mail#handleRequest']
    pwrecover : ['GET','/passwordrecover/[:code]?','API#passwordRecover']
    school : ['GET|POST','/skola/[a:school]/[a:page]?/[:code]?','School']  # changing this affects Navigation::getStaffPageUrl()
-   sandbox: ['GET|POST','/sandbox/[:action]/[**:parameters]?', 'Sandbox']
+   sandbox: ['GET|POST','/sandbox/[:action]?/[**:parameters]?', 'Sandbox']
    sms : ['GET|POST','/sms/[:purpose]?/[:encoding]?','SMS']
    table : ['GET','/table/[a:entity]','Table#view']
    task : ['GET','/task/[:type]','Cron#executeTask']
    update : ['POST','/update','Update']
    view : ['GET','/view/[:page]','View']
-   index: ['GET','/[**]?','Page#showIndex']
+   default: ['GET','/[**:url]?','Page']
 
 
 #200 = ['GET', '[**:url]', 'Error#notFound']

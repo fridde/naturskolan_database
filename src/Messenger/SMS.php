@@ -12,8 +12,8 @@ use Fridde\ShortMessageService;
 
 class SMS extends AbstractMessageController
 {
-    /* @var string $type */
-    protected $type = 'sms';
+    /* @var int $type */
+    protected $type = Message::CARRIER_SMS;
     protected $text;
     protected $options;
     protected $response;

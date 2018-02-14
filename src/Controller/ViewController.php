@@ -15,7 +15,7 @@ class ViewController extends BaseController {
 
         $page = $this->params['page'];
         $method = $this->page_translations[$page] ?? 'nothingFound';
-        $this->setAction($method);
+        $this->addAction($method);
         parent::handleRequest();
     }
 
@@ -65,7 +65,7 @@ class ViewController extends BaseController {
             $visit = $v;
         });
 
-        $DATA = $collection;
+
         $this->addToDATA($collection);
         $this->addToDATA('locations', $locations);
         $this->setTemplate('bus_order');
@@ -100,7 +100,7 @@ class ViewController extends BaseController {
         foreach($visits as $visit){
             $date = $visit->getDate();
             $index = $index_day->diffInDays($date);
-            $date_str = utf8_encode($date->formatLocalized('%a, %e %b'));
+            $date_str = $date->formatLocalized('%a, %e %b');
             $date_strings[$index] = $date_str;
             $w_nr = $date->weekOfYear;
             $calendar[$w_nr][$index][] = $visit;
