@@ -2,9 +2,6 @@
 
 namespace Fridde\Controller;
 
-use Fridde\HTML;
-
-
 class PageController extends BaseController
 {
     private $page;
