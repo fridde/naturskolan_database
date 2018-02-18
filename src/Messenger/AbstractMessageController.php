@@ -28,7 +28,7 @@ class AbstractMessageController extends BaseController
 
     protected function setActionsFromPurpose()
     {
-        $purpose = $this->params["purpose"] ?? null;
+        $purpose = $this->params['purpose'] ?? null;
         $method_value = $this->methods[$purpose] ?? 0 ;
 
         if($method_value & self::PREPARE){

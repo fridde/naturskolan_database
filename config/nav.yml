@@ -52,6 +52,12 @@ NAV_SETTINGS:
          -
            label: 'Redigera kalendern'
            url: 'table/Event'
+         -
+           label: 'Boka buss'
+           url: 'view/bus_order'
+         -
+           label: 'Beställ mat'
+           url: 'view/food_order'
     -
       label: 'Tabeller'
       children: '->getAllTableUrls'

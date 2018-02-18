@@ -6,13 +6,10 @@ namespace Fridde\Messenger;
 
 use Fridde\Entities\Group;
 use Fridde\Entities\Message;
-use Fridde\HTML;
 use Fridde\Mailer;
 
 class Mail extends AbstractMessageController
 {
-    /* @var int $type */
-    protected $type = Message::CARRIER_MAIL;
     /* @var \Fridde\Mailer $Mailer */
     protected $Mailer;
     // PREPARE=1; SEND=2; UPDATE=4;
@@ -28,6 +25,7 @@ class Mail extends AbstractMessageController
     public function __construct($params = [])
     {
         parent::__construct($params);
+        $this->setType(Message::CARRIER_MAIL);
         $this->Mailer = new Mailer();
     }
 
@@ -46,11 +44,9 @@ class Mail extends AbstractMessageController
         $body = $this->createMailBody();
         $this->Mailer->set('body', $body);
 
-        if (!empty(DEBUG)) {
-            $result = $this->Mailer->sendAway(SETTINGS['debug']['mail']);
-        } else {
-            $result = $this->Mailer->sendAway();
-        }
+        $debug_mail = SETTINGS['debug']['mail'] ?? null;
+        $result = $this->Mailer->sendAway($debug_mail );
+
 
         if ($result === false) {
             $this->setStatus('failure');

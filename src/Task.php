@@ -137,7 +137,7 @@ class Task
         foreach ($unconfirmed_visits as $v) {
             if ($v->hasGroup()) {
                 $user = $v->getGroup()->getUser();
-                $last_msg = $user->getlastMessage($search_props);
+                $last_msg = $user->getLastMessage($search_props);
 
                 if (empty($last_msg)) {
                     if ($user->hasMail()) {

@@ -13,7 +13,7 @@ Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl();
 Settings::setSettings();
 if(SETTINGS['environment'] === 'dev'){
-    Essentials::activateDebug(["no_tracy"]);
+    Essentials::activateDebug(["tracy"]);
 }
 Essentials::activateGlobalFunctions();
 

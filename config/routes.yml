@@ -2,15 +2,12 @@
 # the default action is handleRequest()
 routes:
    admin : ['GET','/admin/[:action]?','Admin']
-   api : ['GET|POST','/api/[:action]/[**:parameters]?', API]
+   api : ['GET|POST','/api/[:action]/[**:parameters]?', 'API']
    batch : ['GET','/admin/batch/[:action]/[**:parameters]?','Batch']
-   #checkcookie : ['GET','/','Login#checkCookie']
    checkpw : ['GET','/login/[:password]?','Login#checkPassword']
    croncounter : ['GET|POST','/cron/[i:counter]?','Cron#run']
    file : ['GET','/file/[:file1]/[:file2]?/[:file3]?','File#include']
-
    logout: ['GET', '/logout', 'Login#logout']
-   #mail : ['GET|POST','/mail/[:purpose]?','Mail#handleRequest']
    pwrecover : ['GET','/passwordrecover/[:code]?','API#passwordRecover']
    school : ['GET|POST','/skola/[a:school]/[a:page]?/[:code]?','School']  # changing this affects Navigation::getStaffPageUrl()
    sandbox: ['GET|POST','/sandbox/[:action]?/[**:parameters]?', 'Sandbox']

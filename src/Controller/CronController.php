@@ -44,7 +44,7 @@ class CronController extends BaseController
     {
         $task_type = $this->params['type'];
         $task = new Task($task_type);
-        $task->execute(true); // ignores task activation in SystemStatus
+        $task->execute(); // ignores task activation in SystemStatus
     }
 
     public function resetIfMonday()

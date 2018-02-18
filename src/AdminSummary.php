@@ -33,19 +33,19 @@ class AdminSummary
     private $recent_group_changes;
 
     private $method_translator = [
-        "bad_mobil" => "getBadMobileNumbers",
-        "bus_or_food_order_outdated" => "getOutdatedBusOrFoodOrders",
+        'bad_mobil' => 'getBadMobileNumbers',
+        'bus_or_food_order_outdated' => 'getOutdatedBusOrFoodOrders',
         'duplicate_mail_adresses' => 'getDuplicateMailAdresses',
-        "food_changed" => "getChangedFood",
-        "inactive_group_visit" => "getInactiveGroupVisits",
-        "info_changed" => "getChangedInfo",
-        "nr_students_changed" => "getChangedStudentNrs",
-        "soon_last_visit" => "getLoomingLastVisit",
-        "too_many_students" => "getWrongStudentNumbers",
-        "user_profile_incomplete" => "getIncompleteUserProfiles",
-        "visit_not_confirmed" => "getUnconfirmedVisits",
-        "wrong_group_count" => "getWrongGroupCounts",
-        "wrong_group_leader" => "getWrongGroupLeaders",
+        'food_changed' => 'getChangedFood',
+        'inactive_group_visit' => 'getInactiveGroupVisits',
+        'info_changed' => 'getChangedInfo',
+        'nr_students_changed' => 'getChangedStudentNrs',
+        'soon_last_visit' => 'getLoomingLastVisit',
+        'too_many_students' => 'getWrongStudentNumbers',
+        'user_profile_incomplete' => 'getIncompleteUserProfiles',
+        'visit_not_confirmed' => 'getUnconfirmedVisits',
+        'wrong_group_count' => 'getWrongGroupCounts',
+        'wrong_group_leader' => 'getWrongGroupLeaders',
         'wrong_visit_order' => 'getWrongVisitOrder'
     ];
 
@@ -54,7 +54,7 @@ class AdminSummary
      */
     public function __construct()
     {
-        $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
+        $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
     }
 
     /**
@@ -69,8 +69,8 @@ class AdminSummary
             return null;
         }
         $params = ['purpose' => 'admin_summary'];
-        $params["data"]["errors"] = $this->summary;
-        $params["data"]["labels"] = $this->N->getTextArray("admin_summary");
+        $params['data']['errors'] = $this->summary;
+        $params['data']['labels'] = $this->N->getTextArray('admin_summary');
         $mail = new Mail($params);
 
         return $mail->buildAndSend();
@@ -100,13 +100,13 @@ class AdminSummary
     private function getBadMobileNumbers()
     {
         $rows = [];
-        $imm_date = Task::getStartDate("immunity");
-        $users_with_bad_mob = $this->N->getRepo("User")->findUsersWithBadMobil($imm_date);
-        /* @var User $u */
+        $imm_date = Task::getStartDate('immunity');
+        $users_with_bad_mob = $this->N->getRepo('User')->findUsersWithBadMobil($imm_date);
+        /* @var User[] $users_with_bad_mob */
         foreach ($users_with_bad_mob as $u) {
-            $row = $u->getFullName().", ";
-            $row .= $u->getSchool()->getName().": ";
-            $row .= "Mobil: ".$u->hasMobil();
+            $row = $u->getFullName().', ';
+            $row .= $u->getSchool()->getName().': ';
+            $row .= 'Mobil: '.$u->getMobil();
             $rows[] = $row;
         }
 
@@ -115,16 +115,16 @@ class AdminSummary
 
     private function formatGroupChange($change, string $property_name)
     {
-        $text = "";
+        $text = '';
         /* @var Group $g */
-        $g = $change["group"];
+        $g = $change['group'];
 
-        $text = $g->getGradeLabel().", ";
-        $text .= "Grupp ".($g->getName() ?? '???')." från ".$g->getSchool()->getName();
-        $text .= ", möter oss härnäst ";
-        $text .= $g->getNextVisit()->getDate()->toDateString().": ";
+        $text = $g->getGradeLabel().', ';
+        $text .= 'Grupp '.($g->getName() ?? '???').' från '.$g->getSchool()->getName();
+        $text .= ', möter oss härnäst ';
+        $text .= $g->getNextVisit()->getDate()->toDateString().': ';
         $text .= $property_name;
-        $text .= ' ändrades från "'.$change["from"].'" till "'.$change["to"].'"';
+        $text .= ' ändrades från "'.$change['from'].'" till "'.$change['to'].'"';
 
         return $text;
     }
@@ -133,16 +133,16 @@ class AdminSummary
     {
         return array_map(
             function ($change) {
-                return $this->formatGroupChange($change, "Specialkost");
+                return $this->formatGroupChange($change, 'Specialkost');
             },
-            $this->getRecentGroupChangesFor("Food")
+            $this->getRecentGroupChangesFor('Food')
         );
     }
 
     private function getInactiveGroupVisits()
     {
         $rows = [];
-        $visits = $this->N->getRepo("Visit")->findFutureVisits();
+        $visits = $this->N->getRepo('Visit')->findFutureVisits();
         $bad_visits = array_filter(
             $visits,
             function (Visit $v) {
@@ -151,11 +151,11 @@ class AdminSummary
         );
         /* @var $v Visit */
         foreach ($bad_visits as $v) {
-            $row = "Ogiltigt besök på ";
-            $row .= $v->getDate()->toDateString().": ";
-            $row .= $v->getGroup()->getName()." från ";
+            $row = 'Ogiltigt besök på ';
+            $row .= $v->getDate()->toDateString().': ';
+            $row .= $v->getGroup()->getName().' från ';
             $row .= $v->getGroup()->getSchool()->getName();
-            $row .= ", ".$v->getGroup()->getGradeLabel();
+            $row .= ', '.$v->getGroup()->getGradeLabel();
             $rows[] = $row;
         }
 
@@ -166,9 +166,9 @@ class AdminSummary
     {
         return array_map(
             function ($change) {
-                return $this->formatGroupChange($change, "Information från läraren");
+                return $this->formatGroupChange($change, 'Information från läraren');
             },
-            $this->getRecentGroupChangesFor("Info")
+            $this->getRecentGroupChangesFor('Info')
         );
     }
 
@@ -176,21 +176,21 @@ class AdminSummary
     {
         return array_map(
             function ($change) {
-                return $this->formatGroupChange($change, "Antal elever");
+                return $this->formatGroupChange($change, 'Antal elever');
             },
-            $this->getRecentGroupChangesFor("NumberStudents")
+            $this->getRecentGroupChangesFor('NumberStudents')
         );
     }
 
     private function getLoomingLastVisit()
     {
-        $days_left_interval = Naturskolan::getSetting("admin", "summary", "soon_last_visit");
+        $days_left_interval = Naturskolan::getSetting('admin', 'summary', 'soon_last_visit');
         $last_visit_deadline = U::addDuration($days_left_interval);
-        $last_visit = $this->N->getRepo("Visit")->findLastVisit();
+        $last_visit = $this->N->getRepo('Visit')->findLastVisit();
         if (empty($last_visit) || $last_visit->getDate()->lte($last_visit_deadline)) {
-            $text = "Snart är sista planerade mötet med eleverna. Börja planera nästa termin!";
-            $text .= " Sista möte: ";
-            $text .= empty($last_visit) ? "Inga fler besök." : $last_visit->getDate()->toDateString();
+            $text = 'Snart är sista planerade mötet med eleverna. Börja planera nästa termin!';
+            $text .= ' Sista möte: ';
+            $text .= empty($last_visit) ? 'Inga fler besök.' : $last_visit->getDate()->toDateString();
 
             return $text;
         }
@@ -204,10 +204,10 @@ class AdminSummary
     private function getWrongStudentNumbers()
     {
         $rows = [];
-        $range = Naturskolan::getSetting("admin", "summary", "allowed_group_size");
+        $range = Naturskolan::getSetting('admin', 'summary', 'allowed_group_size');
         /* @var Group $g */
         $ill_sized_groups = array_filter(
-            $this->N->getRepo("Group")->findActiveGroups(),
+            $this->N->getRepo('Group')->findActiveGroups(),
             function ($g) use ($range) {
                 $nr_students = $g->getNumberStudents();
 
@@ -215,9 +215,9 @@ class AdminSummary
             }
         );
         foreach ($ill_sized_groups as $g) {
-            $row = $g->getName().", ".$g->getGradeLabel().", ";
-            $row .= "från ".$g->getSchool()->getName();
-            $row .= " har ".$g->getNumberStudents()." elever.";
+            $row = $g->getName().', '.$g->getGradeLabel().', ';
+            $row .= 'från '.$g->getSchool()->getName();
+            $row .= ' har '.$g->getNumberStudents().' elever.';
             $rows[] = $row;
         }
 
@@ -248,14 +248,14 @@ class AdminSummary
     private function getIncompleteUserProfiles()
     {
         $rows = [];
-        $imm_date = Task::getStartDate("immunity");
-        $incomplete_users = $this->N->getRepo("User")->findIncompleteUsers($imm_date);
+        $imm_date = Task::getStartDate('immunity');
+        $incomplete_users = $this->N->getRepo('User')->findIncompleteUsers($imm_date);
         /* @var User $u */
         foreach ($incomplete_users as $u) {
-            $row = $u->getFullName().", ";
-            $row .= $u->getSchool()->getName().": ";
-            $row .= "Mobil: ".($u->hasMobil() ? $u->getMobil() : '???').", ";
-            $row .= "Mejl: ".($u->hasMail() ? $u->getMail() : '???').", ";
+            $row = $u->getFullName().', ';
+            $row .= $u->getSchool()->getName().': ';
+            $row .= 'Mobil: '.($u->hasMobil() ? $u->getMobil() : '???').', ';
+            $row .= 'Mejl: '.($u->hasMail() ? $u->getMail() : '???').', ';
             $rows[] = $row;
         }
 
@@ -268,9 +268,9 @@ class AdminSummary
     private function getUnconfirmedVisits()
     {
         $rows = [];
-        $no_conf_interval = Naturskolan::getSetting("admin", "summary", "no_confirmation_warning");
+        $no_conf_interval = Naturskolan::getSetting('admin', 'summary', 'no_confirmation_warning');
         $close_date = U::addDuration($no_conf_interval);
-        $unconfirmed_visits = $this->N->getRepo("Visit")->findUnconfirmedVisitsUntil($close_date);
+        $unconfirmed_visits = $this->N->getRepo('Visit')->findUnconfirmedVisitsUntil($close_date);
         $unconfirmed_visits = array_filter(
             $unconfirmed_visits,
             function (Visit $v) {
@@ -282,12 +282,12 @@ class AdminSummary
         foreach ($unconfirmed_visits as $visit) {
             $g = $visit->getGroup();
             $u = $g->getUser();
-            $row = $visit->getDate()->toDateString().": ";
-            $row .= $visit->getTopic()->getShortName()." med ";
-            $row .= ($g->getName() ?? '???')." från ";
-            $row .= $g->getSchool()->getName().". Lärare: ";
-            $row .= $u->getFullName().", ";
-            $row .= $u->getMobil().", ".$u->getMail();
+            $row = $visit->getDate()->toDateString().': ';
+            $row .= $visit->getTopic()->getShortName().' med ';
+            $row .= ($g->getName() ?? '???').' från ';
+            $row .= $g->getSchool()->getName().'. Lärare: ';
+            $row .= $u->getFullName().', ';
+            $row .= $u->getMobil().', '.$u->getMail();
             $rows[] = $row;
         }
 
@@ -301,7 +301,7 @@ class AdminSummary
         $years_to_check = array_unique($years_to_check);
 
         $rows = [];
-        $schools = $this->N->getRepo("School")->findAll();
+        $schools = $this->N->getRepo('School')->findAll();
         /* @var School $school */
         foreach ($schools as $school) {
             foreach (Group::getGradeLabels() as $grade_id => $label) {
@@ -309,9 +309,9 @@ class AdminSummary
                     $active = $school->getNrActiveGroupsByGradeAndYear($grade_id, $start_year);
                     $expected = $school->getGroupNumber($grade_id, $start_year);
                     if ($expected !== $active) {
-                        $row = $school->getName()." har fel antal grupper i årskurs ";
+                        $row = $school->getName().' har fel antal grupper i årskurs ';
                         $row .= $label.' och år '. $start_year.'. Det finns ';
-                        $row .= $active." grupper, men det borde vara ".$expected.". ";
+                        $row .= $active.' grupper, men det borde vara '.$expected.'. ';
                         $rows[] = $row;
                     }
                 }
@@ -325,17 +325,17 @@ class AdminSummary
     {
         $rows = [];
 
-        $groups = $this->N->getRepo("Group")->findActiveGroups();
+        $groups = $this->N->getRepo('Group')->findActiveGroups();
         /* @var Group $group */
         foreach ($groups as $group) {
             $u = $group->getUser();
             $reasons = [];
             if (empty($u)) {
-                $reasons["nonexistent"] = true;
+                $reasons['nonexistent'] = true;
             } else {
-                $reasons["inactive"] = !$u->isActive();
-                $reasons["not_teacher"] = !$u->isRole("teacher");
-                $reasons["wrong_school"] = $u->getSchool()->getId() !== $group->getSchool()->getId();
+                $reasons['inactive'] = !$u->isActive();
+                $reasons['not_teacher'] = !$u->isRole('teacher');
+                $reasons['wrong_school'] = $u->getSchool()->getId() !== $group->getSchool()->getId();
 
             }
             $reasons = array_keys(array_filter($reasons));
@@ -343,14 +343,14 @@ class AdminSummary
                 continue;
             }
 
-            $row = $group->getGradeLabel().": ";
-            $row .= $group->getName()." från ".$group->getSchool()->getName();
-            $row .= ". Skäl: ";
+            $row = $group->getGradeLabel().': ';
+            $row .= $group->getName().' från '.$group->getSchool()->getName();
+            $row .= '. Skäl: ';
             $reason_texts = [];
             foreach ($reasons as $reason) {
-                $reason_texts[] = $this->N->getText("admin_summary/".$reason);
+                $reason_texts[] = $this->N->getText('admin_summary/'.$reason);
             }
-            $row .= implode(" ", $reason_texts);
+            $row .= implode(' ', $reason_texts);
             $rows[] = $row;
         }
 
@@ -380,7 +380,7 @@ class AdminSummary
             if (empty($visit)) {
                 throw new \Exception('Visit with id'.$change->getEntityId().'was not available.');
             }
-            $not_checked = !in_array($visit->getId(), $checked_visits);
+            $not_checked = !in_array($visit->getId(), $checked_visits, false);
             $in_future = $visit->isInFuture();
             $check_bus = $visit->needsBus() && $visit->getBusIsBooked();
             $check_food = $visit->needsFoodOrder() && $visit->getFoodIsBooked();
@@ -459,24 +459,24 @@ class AdminSummary
 
     private function setRecentGroupChanges()
     {
-        $deadline = U::addDuration(Naturskolan::getSetting("admin", "summary", "important_info_changed"));
+        $deadline = U::addDuration(Naturskolan::getSetting('admin', 'summary', 'important_info_changed'));
         $recent_group_changes = [];
 
-        $crit = [["EntityClass", "Group"], ["in", "Property", ["Food", "NumberStudents", "Info"]]];
-        $group_changes = $this->N->getRepo("Change")->findNewChanges($crit);
+        $crit = [['EntityClass', 'Group'], ['in', 'Property', ['Food', 'NumberStudents', 'Info']]];
+        $group_changes = $this->N->getRepo('Change')->findNewChanges($crit);
         /* @var Change $change */
         foreach ($group_changes as $change) {
             /* @var Group $g */
-            $g = $this->N->getRepo("Group")->find($change->getEntityId());
+            $g = $this->N->getRepo('Group')->find($change->getEntityId());
             $next_visit = $g->getNextVisit();
             if (!empty($next_visit) && $next_visit->isBefore($deadline)) {
                 $att = $change->getProperty();
-                $method = "get".$att;
+                $method = 'get'.$att;
                 $old_value = $change->getOldValue();
                 $new_value = $g->$method();
                 if ($old_value !== $new_value) {
-                    $return = ["from" => $old_value, "to" => $new_value];
-                    $return["group"] = $g;
+                    $return = ['from' => $old_value, 'to' => $new_value];
+                    $return['group'] = $g;
                     $recent_group_changes[$att][] = $return;
                 }
             }

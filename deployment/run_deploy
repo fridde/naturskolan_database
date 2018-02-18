@@ -1,11 +1,13 @@
 #!/bin/bash
-set -x
-trap read debug
+
 #Variable names
 PROJECT_NAME=naturskolan_database
 PROJECT_PATH=~/$PROJECT_NAME
 STAGING_PATH=/cygdrive/d/staging/$PROJECT_NAME
 GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
+
+set -x
+trap read debug
 
 cd $STAGING_PATH/../
 chmod -R 0777 $PROJECT_NAME

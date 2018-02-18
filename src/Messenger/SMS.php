@@ -12,8 +12,6 @@ use Fridde\ShortMessageService;
 
 class SMS extends AbstractMessageController
 {
-    /* @var int $type */
-    protected $type = Message::CARRIER_SMS;
     protected $text;
     protected $options;
     protected $response;
@@ -21,17 +19,23 @@ class SMS extends AbstractMessageController
 
     // PREPARE=1; SEND=2; UPDATE=4;
     protected $methods = [
-        "update_received_sms" => 4,
-        "confirm_visit" => 3,
+        'update_received_sms' => 4,
+        'confirm_visit' => 3,
         'update_profile_reminder' => 3,
     ];
+
+    public function __construct()
+    {
+        $this->setType(Message::CARRIER_SMS);
+        parent::__construct();
+    }
 
     public function send()
     {
         $SMS = new ShortMessageService($this->options);
 
         if (!empty(DEBUG)) {
-            $SMS->send(SETTINGS["debug"]["mobil"]);
+            $SMS->send(SETTINGS['debug']['mobil']);
         } else {
             $SMS->send();
         }
@@ -43,58 +47,58 @@ class SMS extends AbstractMessageController
 
     protected function prepareConfirmVisit()
     {
-        $this->options["message"] = $this->getParameter("message");
-        $this->options["to"] = $this->getParameter("receiver");
+        $this->options['message'] = $this->getParameter('message');
+        $this->options['to'] = $this->getParameter('receiver');
     }
 
     protected function prepareUpdateProfileReminder()
     {
-        $this->options["message"] = $this->getParameter("message");
-        $this->options["to"] = $this->getParameter("receiver");
+        $this->options['message'] = $this->getParameter('message');
+        $this->options['to'] = $this->getParameter('receiver');
     }
 
     protected function updateReceivedSms()
     {
-        $secret = $this->getParameter("secret");
-        if ($secret !== SETTINGS["sms_settings"]["smsgateway"]["callback_secret"]) {
+        $secret = $this->getParameter('secret');
+        if ($secret !== SETTINGS['sms_settings']['smsgateway']['callback_secret']) {
             // log error and exit
             $msg = 'The secret sent by an update request was wrong.';
             $this->N->log($msg, 'SMS->updateReceivedSms()');
         }
-        $event = strtolower($this->getParameter("event"));
-        if ($event === "update") {
-            $msg_id = $this->getParameter("id");
-            $message = $this->N->ORM->findBy("Message", ["ExtId" => $msg_id]);
+        $event = strtolower($this->getParameter('event'));
+        if ($event === 'update') {
+            $msg_id = $this->getParameter('id');
+            $message = $this->N->ORM->findBy('Message', ['ExtId' => $msg_id]);
             if (!empty($message)) {
                 $e_id = $message->getId();
-                $val = strtolower($this->getParameter("status"));
+                $val = strtolower($this->getParameter('status'));
 
-                return (new Update)->updateProperty("Message", $e_id, "Status", $val)->flush();
+                return (new Update)->updateProperty('Message', $e_id, 'Status', $val)->flush();
             }
-        } elseif ($event === "received") {
+        } elseif ($event === 'received') {
             $check = $this->checkReceivedSmsForConfirmation();
-            if ($check["about_visit"]) {
-                $e_id = $check["visit_id"];
+            if ($check['about_visit']) {
+                $e_id = $check['visit_id'];
 
-                return (new Update)->updateProperty("Visit", $e_id, "Confirmed", true)->flush();
+                return (new Update)->updateProperty('Visit', $e_id, 'Confirmed', true)->flush();
             }
         }
     }
 
     protected function checkReceivedSmsForConfirmation()
     {
-        $return["about_visit"] = false;
-        $contact = $this->getParameter("contact");
-        $nr = $contact["number"];
-        $properties["Status"] = "sent";
-        $properties["Carrier"] = "sms";
-        $properties["Subject"] = "confirmation";
-        $users = $this->N->ORM->getRepository("User")
-            ->findViaMethod("getStandardizedMobil", $nr);
+        $return['about_visit'] = false;
+        $contact = $this->getParameter('contact');
+        $nr = $contact['number'];
+        $properties['Status'] = 'sent';
+        $properties['Carrier'] = 'sms';
+        $properties['Subject'] = 'confirmation';
+        $users = $this->N->ORM->getRepository('User')
+            ->findViaMethod('getStandardizedMobil', $nr);
 
         if (count($users) === 0) {
             // probably no sms related to the database
-            exit("No user from the database.");
+            exit('No user from the database.');
         } elseif (count($users) > 1) {
             $log_msg = 'There seem to be several users with the number '.$nr.'. Check this!';
             $this->N->log($log_msg, 'SMS->checkReceivedSmsForConfirmation()');
@@ -104,7 +108,7 @@ class SMS extends AbstractMessageController
         /* @var User $user */
         $user->sortMessagesByDate();
         $user_messages = $user->getFilteredMessages($properties);
-        $n_visit = $this->N->ORM->getRepository("Group")->getNextVisitForUser($user);
+        $n_visit = $this->N->ORM->getRepository('Group')->getNextVisitForUser($user);
         /* @var Visit $n_visit */
         if (empty($n_visit)) {
             $log_msg = 'Received sms from '.$user->getFullName().' without a next visit. Check!';
@@ -114,7 +118,7 @@ class SMS extends AbstractMessageController
             $user_messages->toArray(),
             function ($m) use ($n_visit) {
                 /* @var Message $m */
-                return $m->getContent("visit_id") == $n_visit->getId();
+                return $m->getContent('visit_id') == $n_visit->getId();
             }
         );
         if (count($message) == 0) {
@@ -122,11 +126,11 @@ class SMS extends AbstractMessageController
             $this->N->log($log_msg, 'SMS->checkReceivedSmsForConfirmation()');
         }
 
-        $content = strtolower($this->getParameter("message"));
+        $content = strtolower($this->getParameter('message'));
         $content = preg_replace('[^a-zA-Z]', '', $content);
         if (substr($content, 0, 2) == 'ja') {
-            $return["about_visit"] = true;
-            $return["visit_id"] = $n_visit->getId();
+            $return['about_visit'] = true;
+            $return['visit_id'] = $n_visit->getId();
         }
 
         return $return;

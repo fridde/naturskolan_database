@@ -47,8 +47,8 @@ class TableController extends BaseController
 
 
         //$this->setJs(['js.bs.date', 'js.bs.date.sv', 'js.DT', 'js.DT.config']);
-        $this->setJs('DT', HTML::INC_ABBREVIATION);
-        $this->setJs('js/DT_config', HTML::INC_ADDRESS);
+        $this->addJs('DT', HTML::INC_ABBREVIATION);
+        $this->addJs('js/DT_config', HTML::INC_ADDRESS);
 
         //$this->setCss(['css.bs.date', 'css.DT']);
         $this->setCss(['DT']);
