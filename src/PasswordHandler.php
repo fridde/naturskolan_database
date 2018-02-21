@@ -12,15 +12,16 @@ class PasswordHandler
     /* @var array $settings */
     private $settings;
     /* @var int $min_length */
-    private $min_length = 3;
+    private $min_length = 6;
     /* @var int $long_code_length */
-    private $long_code_length = 10;
+    private $long_code_length = 12;
     private $alphabet;
     public const PW_DELIMITER = '.';
 
     public function __construct()
     {
         $this->settings = SETTINGS['values'];
+        $this->salt = $this->settings['pw_salt'];
         $this->alphabet = array_merge([''], range('a', 'z'), ['å', 'ä', 'ö']);
     }
 
@@ -57,7 +58,7 @@ class PasswordHandler
 
         $school_int = $this->stringToInt($school_id);
         $right_school = $this->digitSum($school_int) === $numbers[0];
-        $right_year = in_array($numbers[1], $this->getYears());
+        $right_year = in_array($numbers[1], $this->getYears(), false);
         if ($right_school && $right_year) {
             return $school_id;
         }
@@ -66,15 +67,35 @@ class PasswordHandler
 
     }
 
-    public function createPassword(string $school_id)
+    public function checkPasswordForSchool(string $school_id, string $password)
     {
+        $password = trim($password);
+
         $ini_string = $this->addSalt($school_id);
+        $numbers = $this->decode($ini_string, $password);
+
+        if (count($numbers) !== 2) {
+            return false;
+        }
+        $school_int = $this->stringToInt($school_id);
+        $right_school = $this->digitSum($school_int) === $numbers[0];
+        $right_year = in_array($numbers[1], $this->getYears(), false);
+        if ($right_school && $right_year) {
+            return $school_id;
+        }
+
+        return false;
+    }
+
+    public function createPassword(string $school_id, $custom_salt = false)
+    {
+        $ini_string = $this->addSalt($school_id, $custom_salt);
         $school_int = $this->stringToInt($school_id);
         $dig_sum = $this->digitSum($school_int);
         $year = (int) date('y');
         $numbers = [$dig_sum, $year];
 
-        return $school_id . self::PW_DELIMITER . $this->encode($ini_string, $numbers);
+        return $this->encode($ini_string, $numbers);
     }
 
     public function createCodeFromInt(int $int, string $entropy = '')
@@ -90,9 +111,10 @@ class PasswordHandler
         return $numbers[0] ?? null;
     }
 
-    private function addSalt(string $string = '')
+    private function addSalt(string $string = '', $custom_salt = false)
     {
-        return $string.$this->settings['pw_salt'];
+        $salt = $custom_salt === false ? $this->salt : $custom_salt;
+        return $string . $salt;
     }
 
     private function stringToInt(string $string, string $type = 'ascii')
@@ -104,7 +126,7 @@ class PasswordHandler
             $id_array = preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
             $int = 0;
             foreach (array_reverse($id_array) as $exponent => $ch) {
-                $id = array_search(strtolower($ch), $this->alphabet);
+                $id = array_search(strtolower($ch), $this->alphabet, true);
                 $int += $id * ($base ** $exponent);
             }
 

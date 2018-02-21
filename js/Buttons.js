@@ -182,8 +182,9 @@ $(document).ready(function () {
     var $login_modal_submit = $('#login_modal_submit');
     $login_modal_submit.click(function () {
         var data = {
-            updateMethod: "checkPassword",
+            updateMethod: 'checkPassword',
             password: $("[name='password']").val(),
+            school_id: $(".additional-information").data('default-properties').School,
             onReturn: 'passwordCorrect'
         };
         Update.send(data);

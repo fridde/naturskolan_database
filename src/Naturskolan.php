@@ -247,9 +247,9 @@ class Naturskolan
      * @param  string $school_id The id of the school.
      * @return string            The password
      */
-    public function createPassword($school_id)
+    public function createPassword($school_id, $custom_salt = false)
     {
-        return $this->PW->createPassword($school_id);
+        return $this->PW->createPassword($school_id, $custom_salt);
     }
 
     public function isAuthorizedFor(string $school_id)
@@ -308,16 +308,16 @@ class Naturskolan
      * @param string $school_id_password
      * @return string|bool $school_id or false if none is found
      */
-    public function checkPassword(string $school_id_password)
+    public function checkPassword(string $password, $school_id = null)
     {
-        if (0 === strpos($school_id_password, 'user$')) {
-            $code = substr($school_id_password, 5);
+        if (0 === strpos($password, 'user$')) {
+            $code = substr($password, 5);
             $user = $this->Auth->getUserFromCode($code);
             if (!empty($user)) {
                 return $user->getSchoolId();
             }
         } else {
-            return $this->PW->passwordToSchoolId($school_id_password);
+            return $this->PW->checkPasswordForSchool($school_id, $password);
         }
     }
 

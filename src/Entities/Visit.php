@@ -345,7 +345,7 @@ class Visit
             return false;
         }
 
-        return $this->getTopic()->getFoodOrder() !== 0;
+        return $this->getTopic()->getFoodOrder() !== Topic::FOOD_NONE;
     }
 
     /**
