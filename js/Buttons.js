@@ -22,9 +22,9 @@ $(document).ready(function () {
      *
      */
     $(".set-dates button#send").click(function () {
-        lists = [];
+        var lists = [];
         $(Batch.listIdentifier).each(function (i, listobj) {
-            rows = [];
+            var rows = [];
             $(listobj).find("li").each(function (i, itemobj) {
                 rows.push($(itemobj).attr("data-id"));
             });

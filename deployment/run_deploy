@@ -1,54 +1,91 @@
 #!/bin/bash
 
-echo "Have you..."
-echo "1. run filecomparer?"
-echo "2. Committed and pushed all changes inside the toolbox directories?"
-
-read -e yn
-    case $yn in
-        [Yy]* ) ;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer yes or no.";;
-    esac
-
 #Variable names
 PROJECT_NAME=naturskolan_database
 PROJECT_PATH=~/$PROJECT_NAME
+TESTDB_PATH=$PROJECT_PATH/tests/_data/test_db.sql
+TESTING_PATH=~/testing/$PROJECT_NAME
 STAGING_PATH=/cygdrive/d/staging/$PROJECT_NAME
 GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
 
 set -x
 trap read debug
 
+cd ~
+filecomparer
+
+cd ~/toolbox
+gitstatus
+
+trap - debug
+set +x
+
+echo "Have you..."
+echo "1. run filecomparer?"
+echo "2. Committed and pushed all changes inside the toolbox directories?"
+
+while true; do
+    read -e -p "yes or no?  " yn
+    case $yn in
+        [Yy]* ) echo "Well done!"; break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+set -x
+trap read debug
+
 cd $PROJECT_PATH/misc
-php -e export_database.php default
-php -e export_database.php just_data
+php -e export_database.php default > /dev/null
+php -e export_database.php just_data > /dev/null
+php -e export_database.php structure > $TESTDB_PATH
+php -e "$PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
 
 cd $PROJECT_PATH
 
 composer update
 git status
 
+trap - debug
+set +x
 read -p "Is the .gitignore file correctly configured?" yn
     case $yn in
         [Yy]* ) ;;
         [Nn]* ) exit;;
         * ) echo "Please answer yes or no.";;
     esac
+set -x
+trap read debug
 
 git add -A
 git commit -m "More work"
 git push
 
+cd $TESTING_PATH/../
+mv $PROJECT_NAME oldproject_`date '+%Y%m%d_%Hx%Mx%S'`
+delete_old_dirs -e $PROJECT_NAME
+
+git clone --depth 1 $GITHUB_PROJECT
+cd $PROJECT_NAME
+composer install
+
+cd ~/bin_win
+cmd /C start java -jar selenium-server.jar &
+cmd /C start MailHog.exe &
+cd $PROJECT_PATH
+codecept run
+
 cd $STAGING_PATH/../
 chmod -R 0777 $PROJECT_NAME
-mv $PROJECT_NAME oldproject_`date '+%Y%m%d_%H%M%S'`
+mv $PROJECT_NAME oldproject_`date '+%Y%m%d_%Hx%Mx%S'`
+delete_old_dirs -e $PROJECT_NAME
 
 git clone --depth 1 $GITHUB_PROJECT
 cd $PROJECT_NAME
 composer install --no-dev
 
 cp $PROJECT_PATH/deployment/deployment.ini $STAGING_PATH/deployment/deployment.ini
-cp $PROJECT_PATH/config/settings_prod.yml $STAGING_PATH/config/settings.yml
+cp $PROJECT_PATH/config/settings_prod.yml $STAGING_PATH/config/settings_local.yml
 
 ./vendor/bin/deployment deployment/deployment.ini

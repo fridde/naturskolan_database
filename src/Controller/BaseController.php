@@ -16,9 +16,9 @@ class BaseController
     protected $params;
     /* @var array $action */
     protected $actions;
-    /* @var array $REQ  */
+    /* @var array $REQ */
     protected $REQ;
-    /* @var string $return_type  */
+    /* @var string $return_type */
     protected $return_type = 'html';
     /** @var \Fridde\HTML A Html object to build the page */
     protected $H;
@@ -32,16 +32,26 @@ class BaseController
     protected $template;
 
 
-    public function __construct(array $params = [])
+    public function __construct(array $params = [], $slim = false)
     {
-        $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
-        $this->REQ = $_REQUEST ?? [];
+        $this->slimConstruct($params);
+        if ($slim) {
+            return ;
+        }
         $args = [$this->N->Auth];
         $args[] = $GLOBALS['CONTAINER']->get('Router');
         $args[] = $this->N->ORM;
         $extension = new NavigationExtension(...$args);
         $this->H = new HTML(null, [$extension]);
         $this->setTitle(SETTINGS['defaults']['title'] ?? null);
+        $this->params = $params;
+        $this->addAction($this->getParameter('action'));
+    }
+
+    public function slimConstruct(array $params = [])
+    {
+        $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
+        $this->REQ = $_REQUEST ?? [];
         $this->params = $params;
         $this->addAction($this->getParameter('action'));
     }
@@ -57,12 +67,12 @@ class BaseController
             call_user_func_array([$this, $method], $params);
         }
 
-        if($this->getReturnType() === 'html'){
+        if ($this->getReturnType() === 'html') {
             return $this->renderAsHtml();
-        } elseif ($this->getReturnType() === 'json'){
+        } elseif ($this->getReturnType() === 'json') {
             $this->returnAsJson();
         } else {
-            throw new \Exception('The return type '. $this->getReturnType() . ' is not defined.');
+            throw new \Exception('The return type '.$this->getReturnType().' is not defined.');
         }
     }
 
@@ -74,7 +84,7 @@ class BaseController
 
     public function renderAsHtml()
     {
-        if(empty($this->getTemplate())){
+        if (empty($this->getTemplate())) {
             $this->setTemplate('error');
             $this->addToDATA('url', implode('/', $this->getParameter()));
         }
@@ -142,7 +152,7 @@ class BaseController
         $this->DATA = $DATA;
     }
 
-    public function addToDATA($key_or_array = [], ...$args)
+    public function addToDATA($key_or_array, ...$args)
     {
         if (is_string($key_or_array)) {
             $array = [$key_or_array => $args[0]];
@@ -190,7 +200,7 @@ class BaseController
     public function addAsVar($key_or_array, $value = null)
     {
         $variables = $this->getTWIGVariables() ?? [];
-        if(is_array($key_or_array)){
+        if (is_array($key_or_array)) {
             $variables = array_merge($variables, $key_or_array);
         } else {
             $variables[$key_or_array] = $value;
@@ -341,18 +351,62 @@ class BaseController
     public function translateActionToMethod($action)
     {
         $method = $action;
-        if(method_exists($this, $method)){
+        if (method_exists($this, $method)) {
             return $method;
         }
         $method = $this->ActionTranslator[$action] ?? null;
-        if(!empty($method)){
+        if (!empty($method)) {
             return $method;
         }
         $method = Utility::toCamelCase($action);
-        if(method_exists($this, $method)){
+        if (method_exists($this, $method)) {
             return $method;
         }
+
         return null;
+    }
+
+    public function getRequest($content_type = null)
+    {
+        $possible_content_types = ["json", "urlencoded"];
+        if (empty($content_type) && function_exists("getallheaders")) {
+            $req_headers = getallheaders();
+            $content_type = $req_headers['Content-Type'] ?? "";
+        }
+        $content_types = array_filter(
+            $possible_content_types,
+            function ($ct) use ($content_type) {
+                return strpos($content_type, $ct) !== false;
+            }
+        );
+        if (count($content_types) > 1) {
+            throw new \Exception("This was a weird content-type: ".$content_type);
+        }
+        if (empty($content_types)) {
+            return $_REQUEST;
+        }
+        $defined_CT = array_shift($content_types);
+
+        if ($defined_CT == "json") {
+            $string = file_get_contents("php://input");
+            json_decode($string, true);
+            $is_valid = json_last_error() == JSON_ERROR_NONE;
+            if (strlen($string) > 0 && $is_valid) {
+                return json_decode($string, true);
+            } else {
+                return null;
+            }
+        } elseif ($defined_CT == "urlencoded") {
+            return $_REQUEST;
+        }
+    }
+
+    public function getFromRequest($key = null)
+    {
+        if(empty($key)){
+            return $this->REQ;
+        }
+        return $this->REQ[$key] ?? null;
     }
 
 

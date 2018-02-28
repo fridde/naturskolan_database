@@ -1,5 +1,18 @@
 var Response = {
 
+    callbackTranslator: {
+        passwordCorrect: Update.passwordCorrect,
+        lastChange: Update.lastChange,
+        setAndReload: Cookie.setAndReload,
+        removeRow: Update.removeRow,
+        reloadPage: Update.reloadPage,
+        sliderChanged: Update.setSliderLabel,
+        datesAdded: Update.reloadPage, // TODO: Maybe exchange this for a better feedback
+        groupNameChanged: Update.groupName,
+        removeCookie: Cookie.removeHashAndReload,
+        showStatus: Update.showChange
+    },
+
     handler: function (jqXHR, onReturn, status) {
         console.log('Ajax request status: ' + status);
         if (status === 'success') {
@@ -54,19 +67,6 @@ var Response = {
         console.log(textStatus);
         console.log(errorThrown);
         console.log(jqXHR.responseText);
-    },
-
-    callbackTranslator: {
-        passwordCorrect: Update.passwordCorrect,
-        lastChange: Update.lastChange,
-        setAndReload: Cookie.setAndReload,
-        removeRow: Update.removeRow,
-        reloadPage: Update.reloadPage,
-        sliderChanged: Update.setSliderLabel,
-        datesAdded: Update.reloadPage, // TODO: Maybe exchange this for a better feedback
-        groupNameChanged: Update.groupName,
-        removeCookie: Cookie.removeHashAndReload,
-        showStatus: Update.showChange
     }
 
 };

@@ -12,10 +12,12 @@ old_files/
 tests/
 vendor/
 *.log
-.ftpconfig
 .idea/
 /kalender.ics
 /src/Controller/SandboxController.php
-/config/settings_prod.yml
 /deployment/deployment.ini
 /templates/sandbox.twig
+/config/settings_prod.yml
+/config/settings_default.yml
+/config/settings_local.yml
+/config/settings_test.yml

@@ -12,7 +12,6 @@ Settings::setSettings();
 if(SETTINGS['environment'] === 'dev'){
     Essentials::activateDebug(['tracy']);
 }
-Essentials::activateGlobalFunctions();
 
 $services[] = ['Naturskolan', \Fridde\Naturskolan::class];
 $base_url = '/' . basename(APP_URL);
