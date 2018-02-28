@@ -12,8 +12,7 @@ modules:
         - Asserts
         - \Helper\Acceptance
         - WebDriver:
-            #url: 'http://localhost/testing/naturskolan_database'
-            url: 'http://localhost/naturskolan_database'
+            url: 'http://localhost/testing/naturskolan_database'
             window_size: false # disabled in ChromeDriver
             port: 4444
             browser: chrome
