@@ -1,0 +1,27 @@
+# Codeception Test Suite Configuration
+#
+# Suite for acceptance tests.
+# Perform tests in browser using the WebDriver or PhpBrowser.
+# If you need both WebDriver and PHPBrowser tests - create a separate suite.
+
+actor: AcceptanceTester
+modules:
+    enabled:
+        #- PhpBrowser:
+        #    url: http://localhost/naturskolan_database
+        - Asserts
+        - \Helper\Acceptance
+        - WebDriver:
+            #url: 'http://localhost/testing/naturskolan_database'
+            url: 'http://localhost/naturskolan_database'
+            window_size: false # disabled in ChromeDriver
+            port: 4444
+            browser: chrome
+            capabilities:
+                chromeOptions: # additional chrome options
+        - Db:
+            dsn: 'mysql:host=localhost;dbname=ndb_test'
+            user: 'root'
+            password: ''
+            dump: 'tests/_data/test_db.sql'
+            populate: true
