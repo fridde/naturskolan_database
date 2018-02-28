@@ -9,7 +9,6 @@ backup/*
 docs/
 misc/
 old_files/
-tests/
 vendor/
 *.log
 .idea/
@@ -21,3 +20,11 @@ vendor/
 /config/settings_default.yml
 /config/settings_local.yml
 /config/settings_test.yml
+
+/tests/_data/test_data.ods
+/tests/_output/*
+/tests/manual_testing.md
+/tests/ods_to_sql.php
+/tests/method_stubs.php
+/tests/table_filler.php
+/tests/sample_data/

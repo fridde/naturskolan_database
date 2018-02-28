@@ -86,15 +86,17 @@ if [ $SKIP -lt 4 ]; then
 
     git clone --depth 1 $GITHUB_PROJECT
     cd $PROJECT_NAME
-    composer install
+    composer install --no-suggest
+    cp $PROJECT_PATH/config/settings_{default,test}.yml ./config/
+    mv ./config/settings_{test,local}.yml
 fi
 
 if [ $SKIP -lt 5 ]; then
     cd ~/bin_win
     cmd /C start java -jar selenium-server.jar &
     cmd /C start MailHog.exe &
-    cd $PROJECT_PATH
-    codecept run
+    cd $TESTING_PATH
+    ./vendor/bin/codecept run
 fi
 
 if [ $SKIP -lt 6 ]; then
@@ -105,7 +107,7 @@ if [ $SKIP -lt 6 ]; then
 
     git clone --depth 1 $GITHUB_PROJECT
     cd $PROJECT_NAME
-    composer install --no-dev
+    composer install --no-dev --no-suggest
 fi
 
 if [ $SKIP -lt 7 ]; then
