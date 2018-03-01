@@ -1,5 +1,5 @@
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-03-01_182126.sql. Don't forget to add users_colleagues.sql
--- Created at 1.3.2018 18:21 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-03-01_201320.sql. Don't forget to add users_colleagues.sql
+-- Created at 1.3.2018 20:13 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -130,7 +130,7 @@ CREATE TABLE `log` (
   KEY `channel` (`channel`(191)) USING HASH,
   KEY `level` (`level`) USING HASH,
   KEY `time` (`time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -249,8 +249,8 @@ CREATE TABLE `visits` (
 -- THE END
 
 
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-03-01_182126.sql. Don't forget to add users_colleagues.sql
--- Created at 1.3.2018 18:21 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-03-01_201320.sql. Don't forget to add users_colleagues.sql
+-- Created at 1.3.2018 20:13 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -381,7 +381,7 @@ CREATE TABLE `log` (
   KEY `channel` (`channel`(191)) USING HASH,
   KEY `level` (`level`) USING HASH,
   KEY `time` (`time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- --------------------------------------------------------
