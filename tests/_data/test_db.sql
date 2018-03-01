@@ -1,5 +1,5 @@
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-03-01_201320.sql. Don't forget to add users_colleagues.sql
--- Created at 1.3.2018 20:13 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-01_203408.sql. Don't forget to add users_colleagues.sql
+-- Created at 1.3.2018 20:34 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -114,23 +114,18 @@ CREATE TABLE `locations` (
   UNIQUE KEY `UNIQ_17E64ABA85232B9E` (`BusId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+INSERT INTO `locations` (`id`, `Name`, `Coordinates`, `Description`, `BusId`, `LastChange`) VALUES
+(1,	'Annan Plats',	'',	'',	0,	NULL),
+(2,	'Flottvik',	'59.605797,17.768605',	'',	1,	NULL),
+(3,	'Näsudden',	'59.600585,17.767853',	'',	2,	NULL),
+(4,	'Skogen',	'59.626083,17.771278',	'',	3,	NULL),
+(5,	'Garnsviken',	'59.621426,17.734659',	'',	4,	NULL),
+(6,	'Konsthall Märsta',	'59.617297,17.723661',	'',	5,	NULL),
+(7,	'Museum Sigtuna',	'59.617297,17.723661',	'',	6,	NULL),
+(8,	'Skolan',	'',	'',	7,	NULL);
+
 
 -- --------------------------------------------------------
-
-DROP TABLE IF EXISTS `log`;
-
-CREATE TABLE `log` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `channel` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `level` int(11) DEFAULT NULL,
-  `message` longtext COLLATE utf8mb4_unicode_ci,
-  `time` int(10) unsigned DEFAULT NULL,
-  `source` text COLLATE utf8mb4_unicode_ci,
-  PRIMARY KEY (`id`),
-  KEY `channel` (`channel`(191)) USING HASH,
-  KEY `level` (`level`) USING HASH,
-  KEY `time` (`time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -166,6 +161,31 @@ CREATE TABLE `schools` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+INSERT INTO `schools` (`id`, `Name`, `GroupNumbers`, `Coordinates`, `VisitOrder`, `BusRule`) VALUES
+('anna',	'Annan skola',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0}}',	'',	22,	0),
+('berg',	'Bergius',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.620758,17.857049',	3,	7),
+('cent',	'Centralskolan',	'{\"2017\":{\"2\":2,\"5\":1,\"fbk\":0},\"2016\":{\"2\":2,\"5\":1},\"2018\":{\"2\":1}}',	'59.623361,17.854833',	1,	7),
+('edda',	'Eddaskolan',	'{\"2017\":{\"2\":2,\"5\":0,\"fbk\":0},\"2016\":{\"2\":2,\"5\":0},\"2018\":{\"2\":2}}',	'59.61297,17.826379',	5,	7),
+('ekil',	'Ekillaskolan',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.625404,17.846261',	2,	7),
+('gala',	'Galaxskolan',	'{\"2017\":{\"2\":2,\"5\":2,\"fbk\":0},\"2016\":{\"2\":2,\"5\":2},\"2018\":{\"2\":2}}',	'59.612196,17.811947',	16,	7),
+('gert',	'S:ta Gertruds skola',	'{\"2017\":{\"2\":2,\"5\":3,\"fbk\":0},\"2016\":{\"2\":2,\"5\":3},\"2018\":{\"2\":3}}',	'59.623818,17.751047',	11,	7),
+('gsar',	'Grundsärskolan',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0}}',	'',	21,	7),
+('jose',	'Josefinaskolan',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.628129,17.782695',	4,	7),
+('natu',	'Naturskolan',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0}}',	'59.605797,17.768605',	23,	0),
+('norr',	'Norrbackaskolan',	'{\"2017\":{\"2\":2,\"5\":2,\"fbk\":0},\"2016\":{\"2\":2,\"5\":2},\"2018\":{\"2\":2}}',	'59.634418,17.851555',	6,	7),
+('oden',	'Odensala skola',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.665704,17.845369',	7,	79),
+('olof',	'S:t Olofs skola',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.621024,17.724982',	9,	7),
+('pers',	'S:t Pers skola',	'{\"2017\":{\"2\":3,\"5\":3,\"fbk\":0},\"2016\":{\"2\":3,\"5\":3},\"2018\":{\"2\":3}}',	'59.61553,17.716579',	10,	7),
+('rabg',	'Råbergsskolan',	'{\"2017\":{\"2\":2,\"5\":2,\"fbk\":0},\"2016\":{\"2\":2,\"5\":2},\"2018\":{\"2\":2}}',	'59.579675,17.890483',	8,	127),
+('saga',	'Sagaskolan',	'{\"2017\":{\"2\":2,\"5\":0,\"fbk\":0},\"2016\":{\"2\":2,\"5\":0},\"2018\":{\"2\":2}}',	'59.619174,17.829329',	12,	7),
+('satu',	'Sätunaskolan',	'{\"2017\":{\"2\":2,\"5\":2,\"fbk\":0},\"2016\":{\"2\":2,\"5\":2},\"2018\":{\"2\":2}}',	'59.631093,17.85645',	18,	7),
+('shoj',	'Steningehöjdens skola',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.625468,17.795426',	15,	7),
+('skep',	'Skepptuna skola',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.70681,18.111307',	14,	127),
+('sshl',	'Sigtunaskolan Humanistiska Läroverket',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.615083,17.709029',	13,	7),
+('ting',	'Tingvallaskolan',	'{\"2017\":{\"2\":1,\"5\":2,\"fbk\":0},\"2016\":{\"2\":1,\"5\":2},\"2018\":{\"2\":2}}',	'59.626631,17.828393',	19,	7),
+('vals',	'Valstaskolan',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.61706,17.828409',	20,	7),
+('vari',	'Väringaskolan',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.622441,17.725464',	17,	7);
+
 
 -- --------------------------------------------------------
 
@@ -199,6 +219,27 @@ CREATE TABLE `topics` (
   KEY `IDX_91F6463980D1AE59` (`Location_id`),
   CONSTRAINT `FK_91F6463980D1AE59` FOREIGN KEY (`Location_id`) REFERENCES `locations` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `topics` (`id`, `Grade`, `VisitOrder`, `ShortName`, `LongName`, `Food`, `FoodOrder`, `Url`, `IsLektion`, `LastChange`, `Location_id`) VALUES
+(1,	'2',	1,	'Universum',	'',	'Varm mat',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-1-universum/',	0,	NULL,	2),
+(2,	'2',	2,	'Vårvandring',	'Liv',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-2-liv-varvandring/',	0,	NULL,	4),
+(3,	'2',	3,	'Forntidsdag',	'Människor',	'Pastasallad',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-3-manniskor/',	0,	NULL,	3),
+(4,	'2',	4,	'BergLuftVatten',	'Berg, luft och vatten',	'Varm mat',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-4-berg-luft-och-vatten/',	0,	NULL,	2),
+(5,	'2',	5,	'Teknikdag',	'Teknik',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-5-teknik/',	0,	NULL,	6),
+(6,	'2',	6,	'Höstvandring',	'Liv',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-6-liv-hostvandring/',	0,	NULL,	4),
+(7,	'2',	7,	'Finallektion',	'Avslutning',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/lektion-2-avslutning/',	0,	NULL,	8),
+(8,	'5',	1,	'Evolutionsdag',	'Evolution',	'Mackor & Frukt',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-1-evolution/',	0,	NULL,	5),
+(9,	'5',	2,	'Medeltidsdag',	'',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-2-teknikutveckling/',	0,	NULL,	7),
+(10,	'5',	3,	'Energidag',	'',	'Varm mat',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-3-energiomvandlingar/',	0,	NULL,	2),
+(11,	'5',	4,	'Vintervandring',	'',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-4-kretslopp-vintervandring/',	0,	NULL,	4),
+(12,	'5',	5,	'Kemidag',	'',	'Varm mat',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-5-kemiska-reaktioner/',	0,	NULL,	2),
+(13,	'5',	6,	'Lösningar',	'',	'Matlådor',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-6-losningar/',	0,	NULL,	4),
+(14,	'fbk',	1,	'Matlagning',	'',	'Gryttillbehör',	1,	'',	0,	NULL,	4),
+(15,	'fbk',	2,	'Fiske',	'',	'',	0,	'',	0,	NULL,	7),
+(16,	'fbk',	3,	'Hantverk',	'',	'',	0,	'',	0,	NULL,	3),
+(17,	'fbk',	4,	'Skogsvandring',	'',	'',	1,	'',	0,	NULL,	4),
+(18,	'fbk',	5,	'Experiment',	'',	'',	0,	'',	0,	NULL,	2),
+(19,	'fbk',	6,	'Teknik&Konst',	'',	'',	0,	'',	0,	NULL,	6);
 
 
 -- --------------------------------------------------------
@@ -249,8 +290,8 @@ CREATE TABLE `visits` (
 -- THE END
 
 
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-03-01_201320.sql. Don't forget to add users_colleagues.sql
--- Created at 1.3.2018 20:13 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-01_203408.sql. Don't forget to add users_colleagues.sql
+-- Created at 1.3.2018 20:34 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -365,23 +406,18 @@ CREATE TABLE `locations` (
   UNIQUE KEY `UNIQ_17E64ABA85232B9E` (`BusId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+INSERT INTO `locations` (`id`, `Name`, `Coordinates`, `Description`, `BusId`, `LastChange`) VALUES
+(1,	'Annan Plats',	'',	'',	0,	NULL),
+(2,	'Flottvik',	'59.605797,17.768605',	'',	1,	NULL),
+(3,	'Näsudden',	'59.600585,17.767853',	'',	2,	NULL),
+(4,	'Skogen',	'59.626083,17.771278',	'',	3,	NULL),
+(5,	'Garnsviken',	'59.621426,17.734659',	'',	4,	NULL),
+(6,	'Konsthall Märsta',	'59.617297,17.723661',	'',	5,	NULL),
+(7,	'Museum Sigtuna',	'59.617297,17.723661',	'',	6,	NULL),
+(8,	'Skolan',	'',	'',	7,	NULL);
+
 
 -- --------------------------------------------------------
-
-DROP TABLE IF EXISTS `log`;
-
-CREATE TABLE `log` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `channel` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `level` int(11) DEFAULT NULL,
-  `message` longtext COLLATE utf8mb4_unicode_ci,
-  `time` int(10) unsigned DEFAULT NULL,
-  `source` text COLLATE utf8mb4_unicode_ci,
-  PRIMARY KEY (`id`),
-  KEY `channel` (`channel`(191)) USING HASH,
-  KEY `level` (`level`) USING HASH,
-  KEY `time` (`time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -417,6 +453,31 @@ CREATE TABLE `schools` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+INSERT INTO `schools` (`id`, `Name`, `GroupNumbers`, `Coordinates`, `VisitOrder`, `BusRule`) VALUES
+('anna',	'Annan skola',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0}}',	'',	22,	0),
+('berg',	'Bergius',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.620758,17.857049',	3,	7),
+('cent',	'Centralskolan',	'{\"2017\":{\"2\":2,\"5\":1,\"fbk\":0},\"2016\":{\"2\":2,\"5\":1},\"2018\":{\"2\":1}}',	'59.623361,17.854833',	1,	7),
+('edda',	'Eddaskolan',	'{\"2017\":{\"2\":2,\"5\":0,\"fbk\":0},\"2016\":{\"2\":2,\"5\":0},\"2018\":{\"2\":2}}',	'59.61297,17.826379',	5,	7),
+('ekil',	'Ekillaskolan',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.625404,17.846261',	2,	7),
+('gala',	'Galaxskolan',	'{\"2017\":{\"2\":2,\"5\":2,\"fbk\":0},\"2016\":{\"2\":2,\"5\":2},\"2018\":{\"2\":2}}',	'59.612196,17.811947',	16,	7),
+('gert',	'S:ta Gertruds skola',	'{\"2017\":{\"2\":2,\"5\":3,\"fbk\":0},\"2016\":{\"2\":2,\"5\":3},\"2018\":{\"2\":3}}',	'59.623818,17.751047',	11,	7),
+('gsar',	'Grundsärskolan',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0}}',	'',	21,	7),
+('jose',	'Josefinaskolan',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.628129,17.782695',	4,	7),
+('natu',	'Naturskolan',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0}}',	'59.605797,17.768605',	23,	0),
+('norr',	'Norrbackaskolan',	'{\"2017\":{\"2\":2,\"5\":2,\"fbk\":0},\"2016\":{\"2\":2,\"5\":2},\"2018\":{\"2\":2}}',	'59.634418,17.851555',	6,	7),
+('oden',	'Odensala skola',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.665704,17.845369',	7,	79),
+('olof',	'S:t Olofs skola',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.621024,17.724982',	9,	7),
+('pers',	'S:t Pers skola',	'{\"2017\":{\"2\":3,\"5\":3,\"fbk\":0},\"2016\":{\"2\":3,\"5\":3},\"2018\":{\"2\":3}}',	'59.61553,17.716579',	10,	7),
+('rabg',	'Råbergsskolan',	'{\"2017\":{\"2\":2,\"5\":2,\"fbk\":0},\"2016\":{\"2\":2,\"5\":2},\"2018\":{\"2\":2}}',	'59.579675,17.890483',	8,	127),
+('saga',	'Sagaskolan',	'{\"2017\":{\"2\":2,\"5\":0,\"fbk\":0},\"2016\":{\"2\":2,\"5\":0},\"2018\":{\"2\":2}}',	'59.619174,17.829329',	12,	7),
+('satu',	'Sätunaskolan',	'{\"2017\":{\"2\":2,\"5\":2,\"fbk\":0},\"2016\":{\"2\":2,\"5\":2},\"2018\":{\"2\":2}}',	'59.631093,17.85645',	18,	7),
+('shoj',	'Steningehöjdens skola',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.625468,17.795426',	15,	7),
+('skep',	'Skepptuna skola',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.70681,18.111307',	14,	127),
+('sshl',	'Sigtunaskolan Humanistiska Läroverket',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.615083,17.709029',	13,	7),
+('ting',	'Tingvallaskolan',	'{\"2017\":{\"2\":1,\"5\":2,\"fbk\":0},\"2016\":{\"2\":1,\"5\":2},\"2018\":{\"2\":2}}',	'59.626631,17.828393',	19,	7),
+('vals',	'Valstaskolan',	'{\"2017\":{\"2\":0,\"5\":0,\"fbk\":0},\"2016\":{\"2\":0,\"5\":0},\"2018\":{\"2\":0}}',	'59.61706,17.828409',	20,	7),
+('vari',	'Väringaskolan',	'{\"2017\":{\"2\":1,\"5\":1,\"fbk\":0},\"2016\":{\"2\":1,\"5\":1},\"2018\":{\"2\":1}}',	'59.622441,17.725464',	17,	7);
+
 
 -- --------------------------------------------------------
 
@@ -450,6 +511,27 @@ CREATE TABLE `topics` (
   KEY `IDX_91F6463980D1AE59` (`Location_id`),
   CONSTRAINT `FK_91F6463980D1AE59` FOREIGN KEY (`Location_id`) REFERENCES `locations` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `topics` (`id`, `Grade`, `VisitOrder`, `ShortName`, `LongName`, `Food`, `FoodOrder`, `Url`, `IsLektion`, `LastChange`, `Location_id`) VALUES
+(1,	'2',	1,	'Universum',	'',	'Varm mat',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-1-universum/',	0,	NULL,	2),
+(2,	'2',	2,	'Vårvandring',	'Liv',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-2-liv-varvandring/',	0,	NULL,	4),
+(3,	'2',	3,	'Forntidsdag',	'Människor',	'Pastasallad',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-3-manniskor/',	0,	NULL,	3),
+(4,	'2',	4,	'BergLuftVatten',	'Berg, luft och vatten',	'Varm mat',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-4-berg-luft-och-vatten/',	0,	NULL,	2),
+(5,	'2',	5,	'Teknikdag',	'Teknik',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-5-teknik/',	0,	NULL,	6),
+(6,	'2',	6,	'Höstvandring',	'Liv',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-6-liv-hostvandring/',	0,	NULL,	4),
+(7,	'2',	7,	'Finallektion',	'Avslutning',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/lektion-2-avslutning/',	0,	NULL,	8),
+(8,	'5',	1,	'Evolutionsdag',	'Evolution',	'Mackor & Frukt',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-1-evolution/',	0,	NULL,	5),
+(9,	'5',	2,	'Medeltidsdag',	'',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-2-teknikutveckling/',	0,	NULL,	7),
+(10,	'5',	3,	'Energidag',	'',	'Varm mat',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-3-energiomvandlingar/',	0,	NULL,	2),
+(11,	'5',	4,	'Vintervandring',	'',	'',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-4-kretslopp-vintervandring/',	0,	NULL,	4),
+(12,	'5',	5,	'Kemidag',	'',	'Varm mat',	1,	'http://www.sigtunanaturskola.se/aventyren/dag-5-kemiska-reaktioner/',	0,	NULL,	2),
+(13,	'5',	6,	'Lösningar',	'',	'Matlådor',	2,	'http://www.sigtunanaturskola.se/aventyren/dag-6-losningar/',	0,	NULL,	4),
+(14,	'fbk',	1,	'Matlagning',	'',	'Gryttillbehör',	1,	'',	0,	NULL,	4),
+(15,	'fbk',	2,	'Fiske',	'',	'',	0,	'',	0,	NULL,	7),
+(16,	'fbk',	3,	'Hantverk',	'',	'',	0,	'',	0,	NULL,	3),
+(17,	'fbk',	4,	'Skogsvandring',	'',	'',	1,	'',	0,	NULL,	4),
+(18,	'fbk',	5,	'Experiment',	'',	'',	0,	'',	0,	NULL,	2),
+(19,	'fbk',	6,	'Teknik&Konst',	'',	'',	0,	'',	0,	NULL,	6);
 
 
 -- --------------------------------------------------------
