@@ -21,9 +21,9 @@ trap read debug
 if [ $SKIP -lt 1 ]; then
     echo 'Backup DB and export to test-DB'
     cd $PROJECT_PATH/misc
-    php -e export_database.php default > /dev/null
+    php -e export_database.php default > $TESTDB_PATH
     php -e export_database.php just_data > /dev/null
-    php -e export_database.php structure > $TESTDB_PATH
+    php -e export_database.php structure > /dev/null
     php -e "$PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
 fi
 
