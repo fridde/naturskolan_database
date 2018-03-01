@@ -1,5 +1,5 @@
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-02-28_213708.sql. Don't forget to add users_colleagues.sql
--- Created at 28.2.2018 21:37 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-03-01_182126.sql. Don't forget to add users_colleagues.sql
+-- Created at 1.3.2018 18:21 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -20,7 +20,7 @@ CREATE TABLE `changes` (
   `Processed` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Timestamp` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=208 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -52,7 +52,7 @@ CREATE TABLE `cookies` (
   PRIMARY KEY (`id`),
   KEY `IDX_BF55EBDC41DBC54D` (`School_id`),
   CONSTRAINT `FK_BF55EBDC41DBC54D` FOREIGN KEY (`School_id`) REFERENCES `schools` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -130,7 +130,7 @@ CREATE TABLE `log` (
   KEY `channel` (`channel`(191)) USING HASH,
   KEY `level` (`level`) USING HASH,
   KEY `time` (`time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -249,8 +249,8 @@ CREATE TABLE `visits` (
 -- THE END
 
 
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-02-28_213708.sql. Don't forget to add users_colleagues.sql
--- Created at 28.2.2018 21:37 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_structure_2018-03-01_182126.sql. Don't forget to add users_colleagues.sql
+-- Created at 1.3.2018 18:21 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -271,7 +271,7 @@ CREATE TABLE `changes` (
   `Processed` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `Timestamp` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=208 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -303,7 +303,7 @@ CREATE TABLE `cookies` (
   PRIMARY KEY (`id`),
   KEY `IDX_BF55EBDC41DBC54D` (`School_id`),
   CONSTRAINT `FK_BF55EBDC41DBC54D` FOREIGN KEY (`School_id`) REFERENCES `schools` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -381,7 +381,7 @@ CREATE TABLE `log` (
   KEY `channel` (`channel`(191)) USING HASH,
   KEY `level` (`level`) USING HASH,
   KEY `time` (`time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -567,5 +567,6 @@ INSERT INTO users (id, FirstName, LastName, Mobil, Mail, Role, Acronym, Status, 
 (54, 'Ann-Catrin', 'Enbacka', 735466989, 'ann-catrin.enbacka@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
 (55, 'Annika', 'Rosell Hazelius', 704243814, 'annika.rosell@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
 (56, 'Shara', 'Hassan', NULL, 'Shara.hassan@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'ting'),
-(57, 'Charlotta', 'Waltin', '072-8576664', 'charlotta.waltin@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'ting');
+(57, 'Charlotta', 'Waltin', '072-8576664', 'charlotta.waltin@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'ting'),
+(58, 'Heinz', 'Krumbichel', '072-569878', 'heinz@aol.com', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers');
 
