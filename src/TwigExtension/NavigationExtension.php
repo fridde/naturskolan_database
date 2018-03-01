@@ -161,7 +161,7 @@ class NavigationExtension extends TwigBaseExtension
         return $this->Router->generate('school', $params);
     }
 
-    public function getAllSchoolUrls($ignored_schools = [])
+    public function getAllSchoolUrls(array $ignored_schools = [])
     {
         /* @var \Fridde\Entities\School[] $school_labels */
         $school_labels = $this->ORM->getRepository('School')->findAllSchoolLabels();

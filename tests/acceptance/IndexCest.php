@@ -67,10 +67,10 @@ class IndexCest
     {
     }
 
-    // tests
+
     public function UserIsThere(AcceptanceTester $I)
     {
-        $I->seeInDatabase('users', ['FirstName' => 'Friedrich']);
+        $I->seeInDatabase('users', ['FirstName' => 'Heinz', 'LastName' => 'Krumbichel']);
     }
 
     public function frontpageWorksForVisitor(AcceptanceTester $I)

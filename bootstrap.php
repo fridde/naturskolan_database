@@ -7,14 +7,15 @@ use Fridde\Settings;
 
 /** START OF BOOTSTRAP  */
 Essentials::setBaseDir(__DIR__);
-Essentials::setAppUrl();
+Essentials::setAppUrl(__DIR__);
 Settings::setSettings();
 if(SETTINGS['environment'] === 'dev'){
     Essentials::activateDebug(['tracy']);
 }
 
 $services[] = ['Naturskolan', \Fridde\Naturskolan::class];
-$base_url = '/' . basename(APP_URL);
+
+$base_url = rtrim(parse_url(APP_URL, PHP_URL_PATH), '/');
 $services[] = ['Router', 'AltoRouter', Essentials::getRoutes(), $base_url];
 $services[] = ['Logger', Essentials::getLogger()];
 $container = Essentials::registerSharedServices($services);
