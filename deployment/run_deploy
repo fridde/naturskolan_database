@@ -28,6 +28,11 @@ if [ $SKIP -lt 1 ]; then
 fi
 
 if [ $SKIP -lt 2 ]; then
+    echo 'Copying changed files from the testing folder to the repo'
+    cp $TESTING_PATH/tests/acceptance/* $PROJECT_PATH/tests/acceptance/
+fi
+
+if [ $SKIP -lt 3 ]; then
     echo 'Synchronizing the work in vendor with the toolbox'
     cd ~
     filecomparer
@@ -37,7 +42,7 @@ if [ $SKIP -lt 2 ]; then
     echo 'If some repos have to be pushed, use Win+Alt+X to open a new split window.'
 fi
 
-if [ $SKIP -lt 3 ]; then
+if [ $SKIP -lt 4 ]; then
     trap - debug
     set +x
 
@@ -79,11 +84,12 @@ if [ $SKIP -lt 3 ]; then
     git push
 fi
 
-if [ $SKIP -lt 4 ]; then
+if [ $SKIP -lt 5 ]; then
     cd $TESTING_PATH/../
+    tar cf oldproject_`date '+%Y%m%d_%Hx%Mx%S'`.tar $PROJECT_NAME
     chmod -R 0777 $PROJECT_NAME
-    mv  $PROJECT_NAME oldproject_`date '+%Y%m%d_%Hx%Mx%S'`
-    delete_old_dirs -e $PROJECT_NAME
+    rm -rf $PROJECT_NAME
+    delete_old_files
 
     git clone --depth 1 $GITHUB_PROJECT
     cd $PROJECT_NAME
@@ -92,26 +98,27 @@ if [ $SKIP -lt 4 ]; then
     mv ./config/settings_{test,local}.yml
 fi
 
-if [ $SKIP -lt 5 ]; then
+if [ $SKIP -lt 6 ]; then
     cd ~/bin_win
     cmd /C start java -jar selenium-server.jar &
     cmd /C start MailHog.exe &
     cd $TESTING_PATH
-    ./vendor/bin/codecept run
+    ./vendor/bin/codecept run --steps
 fi
 
-if [ $SKIP -lt 6 ]; then
+if [ $SKIP -lt 7 ]; then
     cd $STAGING_PATH/../
+    tar cf oldproject_`date '+%Y%m%d_%Hx%Mx%S'`.tar $PROJECT_NAME
     chmod -R 0777 $PROJECT_NAME
-    mv $PROJECT_NAME oldproject_`date '+%Y%m%d_%Hx%Mx%S'`
-    delete_old_dirs -e $PROJECT_NAME
+    rm -rf $PROJECT_NAME
+    delete_old_files
 
     git clone --depth 1 $GITHUB_PROJECT
     cd $PROJECT_NAME
     composer install --no-dev --no-suggest
 fi
 
-if [ $SKIP -lt 7 ]; then
+if [ $SKIP -lt 8 ]; then
     cp $PROJECT_PATH/deployment/deployment.ini $STAGING_PATH/deployment/deployment.ini
     cp $PROJECT_PATH/config/settings_prod.yml $STAGING_PATH/config/settings_local.yml
 
