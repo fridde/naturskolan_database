@@ -171,7 +171,7 @@ class User
         return $this->getSchool()->getId();
     }
 
-    public function setSchool($School)
+    public function setSchool(School $School)
     {
         $this->School = $School;
         $School->addUser($this);
@@ -181,7 +181,7 @@ class User
     {
         $school_id = (array)$school_id;
 
-        return in_array($this->getSchoolId(), $school_id);
+        return in_array($this->getSchoolId(), $school_id, true);
     }
 
     public function getRole()
