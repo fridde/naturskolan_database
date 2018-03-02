@@ -5,6 +5,8 @@ use Codeception\Util\Locator;
 
 class IndexCest
 {
+    public const BASE = '/testing/naturskolan_database';
+
     public static $schools_on_frontpage = [
         'berg' => 'Bergius',
         'cent' => 'Centralskolan',
@@ -109,12 +111,11 @@ class IndexCest
         $I->wantTo('Be rejected using a bad password');
         $I->amOnPage('/');
         $I->resetCookie('Hash');
-        $link = Locator::find('a', ['href' => '/naturskolan_database/skola/pers']);
+        $link = Locator::find('a', ['href' => self::BASE . '/skola/pers']);
         $I->seeElement($link);
         $I->click($link);
         $I->wait(3);
         $I->see('Ange skolans lösenord');
-        //$I->seeInPageSource('Ange skolans lösenord');
         $I->makeScreenshot('login_modal');
         $hide_pw_cb = Locator::find('input', ['name' => 'hide-password', 'type' => 'checkbox']);
         $hidden_pw_field = Locator::find('input', ['name' => 'password', 'type' => 'password']);
@@ -153,7 +154,7 @@ class IndexCest
         $I->wantTo('Enter with a valid password');
         $I->amOnPage('/');
         $I->resetCookie('Hash');
-        $link = Locator::find('a', ['href' => '/naturskolan_database/skola/pers']);
+        $link = Locator::find('a', ['href' => self::BASE . '/skola/pers']);
         $I->click($link);
         $I->wait(3);
         $hidden_pw_field = Locator::find('input', ['name' => 'password', 'type' => 'password']);

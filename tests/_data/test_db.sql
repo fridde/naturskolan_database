@@ -1,5 +1,5 @@
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-01_203408.sql. Don't forget to add users_colleagues.sql
--- Created at 1.3.2018 20:34 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-02_135222.sql. Don't forget to add users_colleagues.sql
+-- Created at 2.3.2018 13:52 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -52,7 +52,7 @@ CREATE TABLE `cookies` (
   PRIMARY KEY (`id`),
   KEY `IDX_BF55EBDC41DBC54D` (`School_id`),
   CONSTRAINT `FK_BF55EBDC41DBC54D` FOREIGN KEY (`School_id`) REFERENCES `schools` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -290,8 +290,8 @@ CREATE TABLE `visits` (
 -- THE END
 
 
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-01_203408.sql. Don't forget to add users_colleagues.sql
--- Created at 1.3.2018 20:34 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-02_135222.sql. Don't forget to add users_colleagues.sql
+-- Created at 2.3.2018 13:52 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -344,7 +344,7 @@ CREATE TABLE `cookies` (
   PRIMARY KEY (`id`),
   KEY `IDX_BF55EBDC41DBC54D` (`School_id`),
   CONSTRAINT `FK_BF55EBDC41DBC54D` FOREIGN KEY (`School_id`) REFERENCES `schools` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -586,7 +586,8 @@ INSERT INTO changes (id, Type, EntityClass, EntityId, Property, OldValue, Proces
 (1, 5, '2017-12-02', 22, 2, 12, 12, 99);
 
 INSERT INTO cookies (id, Name, Value, Rights, CreatedAt, School_id)  VALUES 
-(NULL, 'Hash', 'xGvueTHZ9FRoqyceP25WIO1xQU8rpDl9b4kl02pM4nqrLnQEOUXiK', 1, '2018-02-21T13:33:45+01:00', 'natu');
+(NULL, 'Hash', 'xGvueTHZ9FRoqyceP25WIO1xQU8rpDl9b4kl02pM4nqrLnQEOUXiK', 1, '2018-02-21T13:33:45+01:00', 'natu'),
+(NULL, 'Hash', 'IhKWKA9lROo3oDwR3tV/2.fwu9yzPyKDRf3swEg1sHh5BKYV2bQ9K', 1, '2018-02-21T13:33:45+01:00', 'pers');
 
 INSERT INTO events (id, StartDate, StartTime, EndDate, EndTime, Title, Description, Location, LastChange)  VALUES 
 (NULL, '1-Aug-18 1:00:00', '10:15:00', NULL, NULL, 'Äta jordgubbar', 'Vilda bär bör ätas tidigt i augusti', 'Stadsskogen', NULL),
@@ -603,52 +604,20 @@ INSERT INTO users (id, FirstName, LastName, Mobil, Mail, Role, Acronym, Status, 
 (4, 'Per', 'Snöbohm', '070-6552365', 'Per.Snobohm@sigtuna.se', 2, 'P', 1, '2018-01-16T23:00:35+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
 (5, 'Martin', 'Lindén', '070-7235567', 'martin.linden@edu.sigtuna.se', 2, 'M', 1, '2018-01-16T23:00:39+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
 (6, 'Johan', 'Lindell', '073-4039803', 'johan.lindell@edu.sigtuna.se', 2, 'Jo', 1, '2018-01-16T23:00:44+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
-(10, 'Emelie', 'Eriksson', '070-9644833', 'emelie.k.eriksson@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'cent'),
 (11, 'Maud', 'Färnström', '0735411294', 'maud.farnstrom@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gala'),
-(12, 'Ingela', 'Sandenskog', NULL, 'ingela.sandenskog@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
 (13, 'Jonas', 'Malik', NULL, 'Jonas.malik@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
-(14, 'Madeleine', 'Eldelöv', '0731544991', 'madeleine.eldelov@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'satu'),
 (16, 'Jeanette', 'Lindberg', '0702709759', 'jeanette.lindberg@varingaskolan.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'vari'),
-(17, 'Sofie', 'Johansson', '0736312547', 'sofie.johansson@josefinaskolan.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'jose'),
-(18, 'Sara', 'Skatt', '0735398218', 'sara.skatt@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'oden'),
-(19, 'Annica', 'Brink Bodingh', '0735301980', 'annica.brink@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'skep'),
-(20, 'Bruna', 'Kulich', '0707777525', 'bruna.kulich@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'rabg'),
-(21, 'Mathias', 'Härling', '0739817072', 'mathias.harling@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'rabg'),
-(22, 'Ingrid', 'Bergh', '070-2171233', 'ingrid.bergh@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
 (23, 'Natallia', 'Rizell', '0725306255', 'natallia.rizell@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
 (24, 'Emelie', 'Forslöf', '072-3658089', 'emelie.forslof@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
-(25, 'Jessica', 'Fjäll', '0705222208', 'jessica.fjall@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'ting'),
-(26, 'Malena', 'Nyberg', '0738368368', 'malena.nyberg@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'ting'),
-(27, 'Pernilla', 'Sjödin', '0704200655', 'pernilla.sjodin@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gala'),
-(28, 'Caroline', 'Nyström Avander', '070-24485 77', 'Caroline.nystrom@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
-(29, 'Hanna', 'Persson', '0703648453', 'Hanna.c.persson@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
-(30, 'Anna', 'Björkegren', '0739182197 (privat mobil)', 'Anna.bjorkegren@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
-(31, 'Noopur', 'Parekh Nordberg', '0737085829', 'noopur.parekh@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'shoj'),
-(32, 'Britt-Marie', 'Nilsson', '073-5014288', 'britt-marie.nilsson@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gala'),
-(33, 'Gunilla', 'Brånn', '0731525956', 'gunilla.brann@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gala'),
-(34, 'Erika', 'Engdahl', 706311186, 'erika.levin@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'satu'),
-(35, 'Josephine', 'Edlund', 730442026, 'josephine.edlund@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'satu'),
-(36, 'Ellinor', 'Stålfors', 731835292, 'ellinor.stalfors@varingaskolan.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'vari'),
-(37, 'Monica', 'Morenius', 707310206, 'monica.morenius@josefinaskolan.nu', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'jose'),
-(38, 'Yvonne', 'Sundberg', '070-3641630', 'Yvonne.sundberg@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'oden'),
-(39, 'Anna-Karin', 'Mases Wangler', 707960204, 'annakarin.wangler@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'skep'),
-(40, 'Malin', 'Mårtensson', '0707 56 58 88', 'malin.martensson@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'shoj'),
 (41, 'Andrea', 'Muniz Malinen', 736004101, 'andrea.malinen@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
 (42, 'Aynas', 'Selim', 739632396, 'aynas.selim@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
 (43, 'Marie', 'Kling', '0707-409495', 'marie.kling@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
 (44, 'Sofia', 'Haegermark Lundin', 705256320, 'sofia.haegermark@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
-(45, 'Katherine', 'Contreras Torrico', 708795227, 'katherine.contreras@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
 (46, 'Katalin', 'Lundmark', 706871681, 'katalin.lundmark@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'saga'),
-(47, 'Nermin', 'Türkmen', '070 984 57 45', 'nermin.turkmen@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'saga'),
 (48, 'Cecilia', 'Lavenius', 737330204, 'cecilia.lavenius@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'rabg'),
-(49, 'Sara', 'Eriksson', '073-6200912', 'sara.i.eriksson@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'rabg'),
 (50, 'Medhanite', 'Sissaye', NULL, 'medhanite.sissaye@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'cent'),
-(51, 'Katarina', 'Stenman', 702735279, 'katarina.stenman@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'edda'),
 (52, 'Christine', 'Habra', 723505888, 'christine.habra@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'edda'),
-(53, 'Annette', 'Åhman', '0731-54 25 85', 'annette.ahman@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
 (54, 'Ann-Catrin', 'Enbacka', 735466989, 'ann-catrin.enbacka@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
-(55, 'Annika', 'Rosell Hazelius', 704243814, 'annika.rosell@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
 (56, 'Shara', 'Hassan', NULL, 'Shara.hassan@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'ting'),
-(57, 'Charlotta', 'Waltin', '072-8576664', 'charlotta.waltin@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'ting'),
 (58, 'Heinz', 'Krumbichel', '072-569878', 'heinz@aol.com', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers');
 
