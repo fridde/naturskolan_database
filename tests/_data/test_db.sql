@@ -1,5 +1,5 @@
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-02_135222.sql. Don't forget to add users_colleagues.sql
--- Created at 2.3.2018 13:52 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-02_192422.sql. Don't forget to add users_colleagues.sql
+-- Created at 2.3.2018 19:24 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -52,7 +52,7 @@ CREATE TABLE `cookies` (
   PRIMARY KEY (`id`),
   KEY `IDX_BF55EBDC41DBC54D` (`School_id`),
   CONSTRAINT `FK_BF55EBDC41DBC54D` FOREIGN KEY (`School_id`) REFERENCES `schools` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -261,7 +261,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   KEY `IDX_1483A5E941DBC54D` (`School_id`),
   CONSTRAINT `FK_1483A5E941DBC54D` FOREIGN KEY (`School_id`) REFERENCES `schools` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -290,8 +290,8 @@ CREATE TABLE `visits` (
 -- THE END
 
 
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-02_135222.sql. Don't forget to add users_colleagues.sql
--- Created at 2.3.2018 13:52 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-02_192422.sql. Don't forget to add users_colleagues.sql
+-- Created at 2.3.2018 19:24 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -344,7 +344,7 @@ CREATE TABLE `cookies` (
   PRIMARY KEY (`id`),
   KEY `IDX_BF55EBDC41DBC54D` (`School_id`),
   CONSTRAINT `FK_BF55EBDC41DBC54D` FOREIGN KEY (`School_id`) REFERENCES `schools` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------
@@ -553,7 +553,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   KEY `IDX_1483A5E941DBC54D` (`School_id`),
   CONSTRAINT `FK_1483A5E941DBC54D` FOREIGN KEY (`School_id`) REFERENCES `schools` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
 -- --------------------------------------------------------

@@ -20,7 +20,7 @@ class Update extends DefaultUpdate
     protected $N;
 
     /** @var array $object_required */
-    static protected $object_required = [
+    protected $object_required = [
         'User' => ['School'],
         'Group' => ['User'],
         'Visit' => ['Group', 'Topic'],
