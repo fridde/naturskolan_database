@@ -11,7 +11,7 @@ done
 PROJECT_NAME=naturskolan_database
 PROJECT_PATH=~/$PROJECT_NAME
 TESTDB_PATH=$PROJECT_PATH/tests/_data/test_db.sql
-TESTING_PATH=~/testing/$PROJECT_NAME
+TESTING_PATH=~/testing
 STAGING_PATH=/cygdrive/d/staging/$PROJECT_NAME
 GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
 
@@ -29,7 +29,7 @@ fi
 
 if [ $SKIP -lt 2 ]; then
     echo 'Copying changed files from the testing folder to the repo'
-    cp $TESTING_PATH/tests/acceptance/* $PROJECT_PATH/tests/acceptance/
+    cp $TESTING_PATH/$PROJECT_NAME/tests/acceptance/* $PROJECT_PATH/tests/acceptance/
 fi
 
 if [ $SKIP -lt 3 ]; then
@@ -85,7 +85,7 @@ if [ $SKIP -lt 4 ]; then
 fi
 
 if [ $SKIP -lt 5 ]; then
-    cd $TESTING_PATH/../
+    cd $TESTING_PATH
     tar cf oldproject_`date '+%Y%m%d_%Hx%Mx%S'`.tar $PROJECT_NAME
     chmod -R 0777 $PROJECT_NAME
     rm -rf $PROJECT_NAME
@@ -99,10 +99,12 @@ if [ $SKIP -lt 5 ]; then
 fi
 
 if [ $SKIP -lt 6 ]; then
+    trap - debug ; set +x
     cd ~/bin_win
     cmd /C start java -jar selenium-server.jar &
     cmd /C start MailHog.exe &
-    cd $TESTING_PATH
+    cd $TESTING_PATH/$PROJECT_NAME
+    set -x ; trap read debug
     ./vendor/bin/codecept run --steps
 fi
 
