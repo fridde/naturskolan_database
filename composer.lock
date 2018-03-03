@@ -972,12 +972,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/html.git",
-                "reference": "3575462e40093c243b175de5ec1692a79fc5a412"
+                "reference": "464ce81654b7ce6dccd874529bd517e89f97a128"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/html/zipball/3575462e40093c243b175de5ec1692a79fc5a412",
-                "reference": "3575462e40093c243b175de5ec1692a79fc5a412",
+                "url": "https://api.github.com/repos/fridde/html/zipball/464ce81654b7ce6dccd874529bd517e89f97a128",
+                "reference": "464ce81654b7ce6dccd874529bd517e89f97a128",
                 "shasum": ""
             },
             "require": {
@@ -1001,7 +1001,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-03-02T12:58:58+00:00"
+            "time": "2018-03-03T11:05:07+00:00"
         },
         {
             "name": "fridde/mailer",
@@ -1045,12 +1045,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/orm.git",
-                "reference": "70296beae1713a6bf05c979ed273e22bd82f1d43"
+                "reference": "52c3e121dbf79ac0fea52a18aa8a4e64e413df12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/orm/zipball/70296beae1713a6bf05c979ed273e22bd82f1d43",
-                "reference": "70296beae1713a6bf05c979ed273e22bd82f1d43",
+                "url": "https://api.github.com/repos/fridde/orm/zipball/52c3e121dbf79ac0fea52a18aa8a4e64e413df12",
+                "reference": "52c3e121dbf79ac0fea52a18aa8a4e64e413df12",
                 "shasum": ""
             },
             "require": {
@@ -1074,7 +1074,7 @@
                 }
             ],
             "description": "A simple wrapper for Doctrine's data wrapper. A wrapper wrapper!",
-            "time": "2018-03-02T12:59:48+00:00"
+            "time": "2018-03-02T18:31:37+00:00"
         },
         {
             "name": "fridde/slacker",
