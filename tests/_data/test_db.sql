@@ -1,5 +1,5 @@
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-02_192422.sql. Don't forget to add users_colleagues.sql
--- Created at 2.3.2018 19:24 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-03_150555.sql. Don't forget to add users_colleagues.sql
+-- Created at 3.3.2018 15:05 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -290,8 +290,8 @@ CREATE TABLE `visits` (
 -- THE END
 
 
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-02_192422.sql. Don't forget to add users_colleagues.sql
--- Created at 2.3.2018 19:24 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-03_150556.sql. Don't forget to add users_colleagues.sql
+-- Created at 3.3.2018 15:05 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -592,6 +592,14 @@ INSERT INTO cookies (id, Name, Value, Rights, CreatedAt, School_id)  VALUES
 INSERT INTO events (id, StartDate, StartTime, EndDate, EndTime, Title, Description, Location, LastChange)  VALUES 
 (NULL, '1-Aug-18 1:00:00', '10:15:00', NULL, NULL, 'Äta jordgubbar', 'Vilda bär bör ätas tidigt i augusti', 'Stadsskogen', NULL),
 (NULL, '20-Sep-18 1:00:00', NULL, NULL, NULL, 'Ett heldagsevenemang i det gröna', 'Ta med mat och varma drycker', 'Halland', NULL);
+
+INSERT INTO groups (id, Name, Grade, StartYear, NumberStudents, Food, Info, Notes, Status, LastChange, CreatedAt, User_id, School_id)  VALUES 
+(13, '5C', '5', 2017, 26, 'inga', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 22, 'pers'),
+(14, '5a', '5', 2017, 27, 'Några ej fläsk/halal.', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 23, 'pers'),
+(15, '5b', '5', 2017, 26, 'Halal, fisk-allergi', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 24, 'pers'),
+(44, '2A', '2', 2018, 27, 'minus mjölkprotein x 1..... glutenfritt x 1....inga nötter...', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 53, 'pers'),
+(45, '2B', '2', 2018, 25, '1 (ägg, mjölk), och 1 halal', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 54, 'pers'),
+(46, '2C', '2', 2018, 24, '1 elev laktosintolerant', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 55, 'pers');
 
 INSERT INTO systemstatus (id, Value, LastChange)  VALUES 
 ('cron_tasks.activation', '{"send_admin_summary_mail":1,"send_visit_confirmation_message":0,"rebuild_calendar":0,"send_new_user_mail":0,"send_update_profile_reminder":0}', '2018-02-18T22:18:23+01:00'),

@@ -283,21 +283,5 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="PHARS">
-        <CLASSES>
-          <root url="phar://$USER_HOME$/AppData/Roaming/Composer/vendor/twig/twig/test/Twig/Tests/Loader/Fixtures/phar/phar-sample.phar/" />
-          <root url="phar://$USER_HOME$/AppData/Roaming/Composer/vendor/phpdocumentor/fileset/tests/data/test.phar/" />
-          <root url="phar://$USER_HOME$/AppData/Roaming/Composer/vendor/phar-io/manifest/tests/_fixture/test.phar/" />
-          <root url="phar://$USER_HOME$/AppData/Roaming/Composer/vendor/phpunit/phpunit/tests/_files/phpunit-example-extension/tools/phpunit.d/phpunit-example-extension-1.0.1.phar/" />
-        </CLASSES>
-        <SOURCES>
-          <root url="phar://$USER_HOME$/AppData/Roaming/Composer/vendor/twig/twig/test/Twig/Tests/Loader/Fixtures/phar/phar-sample.phar/" />
-          <root url="phar://$USER_HOME$/AppData/Roaming/Composer/vendor/phpdocumentor/fileset/tests/data/test.phar/" />
-          <root url="phar://$USER_HOME$/AppData/Roaming/Composer/vendor/phar-io/manifest/tests/_fixture/test.phar/" />
-          <root url="phar://$USER_HOME$/AppData/Roaming/Composer/vendor/phpunit/phpunit/tests/_files/phpunit-example-extension/tools/phpunit.d/phpunit-example-extension-1.0.1.phar/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
   </component>
 </module>
