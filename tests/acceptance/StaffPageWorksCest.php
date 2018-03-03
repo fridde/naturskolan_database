@@ -9,7 +9,6 @@ class StaffPageWorksCest
     public const BASE = '/testing/naturskolan_database';
 
     public static $st_pers_pw = 'ev2Hae';
-
     public static $st_pers_hash = 'IhKWKA9lROo3oDwR3tV/2.fwu9yzPyKDRf3swEg1sHh5BKYV2bQ9K';
 
 
