@@ -12,6 +12,8 @@ old_files/
 vendor/
 *.log
 .idea/workspace.xml
+.idea/naturskolan_database.iml
+
 /kalender.ics
 /src/Controller/SandboxController.php
 /deployment/deployment.ini
