@@ -11,8 +11,7 @@ misc/
 old_files/
 vendor/
 *.log
-.idea/workspace.xml
-.idea/naturskolan_database.iml
+.idea/
 
 /kalender.ics
 /src/Controller/SandboxController.php
