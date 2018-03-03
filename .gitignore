@@ -12,6 +12,8 @@ old_files/
 vendor/
 *.log
 .idea/workspace.xml
+.idea/naturskolan_database.iml
+
 /kalender.ics
 /src/Controller/SandboxController.php
 /deployment/deployment.ini
@@ -21,7 +23,7 @@ vendor/
 /config/settings_local.yml
 /config/settings_test.yml
 
-/tests/_data/test_data.ods
+/tests/_data/*test_data.ods
 /tests/_output/*
 /tests/manual_testing.md
 /tests/ods_to_sql.php
