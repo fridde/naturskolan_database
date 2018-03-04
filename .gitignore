@@ -22,7 +22,7 @@ vendor/
 /config/settings_local.yml
 /config/settings_test.yml
 
-/tests/_data/*test_data.ods
+/tests/_data/*
 /tests/_output/*
 /tests/manual_testing.md
 /tests/ods_to_sql.php
