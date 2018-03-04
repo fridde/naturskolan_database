@@ -10,8 +10,8 @@ done
 #Variable names
 PROJECT_NAME=naturskolan_database
 PROJECT_PATH=~/$PROJECT_NAME
-TESTDB_PATH=$PROJECT_PATH/tests/_data/test_db.sql
 TESTING_PATH=~/testing
+TESTDB_PATH=$TESTING_PATH/$PROJECT_NAME/tests/_data/test_db.sql
 STAGING_PATH=/cygdrive/d/staging
 GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
 
