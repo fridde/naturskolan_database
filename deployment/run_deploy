@@ -52,7 +52,7 @@ if [ $SKIP -lt 3 ]; then
     cd ~/toolbox
 
     gitstatus
-    echo 'Enter the names of the packages that you will to commit.'
+    echo 'Enter the names of the packages that you will commit.'
     read P_NAMES
     set_package_date -a fridde -p "$P_NAMES"
     echo 'If some repos have to be pushed, use Win+Alt+X to open a new split window.'
@@ -114,12 +114,7 @@ if [ $SKIP -lt 5 ]; then
     cd $TESTING_PATH
     delete_old_files
     tar cf backup_`date '+%Y%m%d_%Hx%Mx%S'`.tar $PROJECT_NAME
-    # chmod -R 0777 $PROJECT_NAME
-    # rm -rf $PROJECT_NAME
 
-
-
-    # git clone --depth 1 $GITHUB_PROJECT
     cd $PROJECT_NAME
     git pull
     composer install --no-suggest
@@ -128,7 +123,7 @@ if [ $SKIP -lt 5 ]; then
 fi
 
 if [ $SKIP -lt 6 ]; then
-    echo 'Setting up local environment'
+    echo 'Setting up local testing environment'
     trap - debug ; set +x
     cd ~/bin_win
     cmd /C start java -jar selenium-server.jar &

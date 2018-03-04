@@ -1,5 +1,5 @@
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-03_150555.sql. Don't forget to add users_colleagues.sql
--- Created at 3.3.2018 15:05 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-04_125637.sql. Don't forget to add users_colleagues.sql
+-- Created at 4.3.2018 12:56 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -290,8 +290,8 @@ CREATE TABLE `visits` (
 -- THE END
 
 
--- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-03_150556.sql. Don't forget to add users_colleagues.sql
--- Created at 3.3.2018 15:05 using David Grudl MySQL Dump Utility
+-- Find the exported database at D:\Dropbox\scripts\naturskolan_database\misc\SQL_data\naturskolan_export_default_2018-03-04_125637.sql. Don't forget to add users_colleagues.sql
+-- Created at 4.3.2018 12:56 using David Grudl MySQL Dump Utility
 -- MySQL Server: 5.5.5-10.1.19-MariaDB
 -- Database: naturskolan
 
@@ -597,35 +597,64 @@ INSERT INTO groups (id, Name, Grade, StartYear, NumberStudents, Food, Info, Note
 (13, '5C', '5', 2017, 26, 'inga', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 22, 'pers'),
 (14, '5a', '5', 2017, 27, 'Några ej fläsk/halal.', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 23, 'pers'),
 (15, '5b', '5', 2017, 26, 'Halal, fisk-allergi', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 24, 'pers'),
-(44, '2A', '2', 2018, 27, 'minus mjölkprotein x 1..... glutenfritt x 1....inga nötter...', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 53, 'pers'),
+(44, '2A', '2', 2018, 27, 'minus mjölk x 1..... gluten x 1....inga nötter...', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 53, 'pers'),
 (45, '2B', '2', 2018, 25, '1 (ägg, mjölk), och 1 halal', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 54, 'pers'),
-(46, '2C', '2', 2018, 24, '1 elev laktosintolerant', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 55, 'pers');
+(46, '2C', '2', 2018, 24, '1 elev tål ej falukorv', NULL, 'NULL', 1, '2018-02-24T22:01:20+01:00', '2018-01-01T12:00:00+01:00', 55, 'pers');
 
 INSERT INTO systemstatus (id, Value, LastChange)  VALUES 
 ('cron_tasks.activation', '{"send_admin_summary_mail":1,"send_visit_confirmation_message":0,"rebuild_calendar":0,"send_new_user_mail":0,"send_update_profile_reminder":0}', '2018-02-18T22:18:23+01:00'),
 ('slot_counter', 97, '2018-02-18T22:03:27+01:00');
 
 INSERT INTO users (id, FirstName, LastName, Mobil, Mail, Role, Acronym, Status, LastChange, CreatedAt, School_id)  VALUES 
-(1, 'Friedrich', 'Hehl', '073-6665275', 'friedrich.hehl@sigtuna.se', 2, 'F', 1, '2018-01-16T23:00:26+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
-(2, 'Jan-Erik', 'Haggarsson', '070-3897485', 'Jan-Erik.Haggarsson@sigtuna.se', 2, 'Ja', 1, '2018-01-16T23:00:30+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
-(3, 'Ludvig', 'Wellander', '070-3471533', 'Skafferiet@edu.sigtuna.se', 2, 'L', 1, '2018-01-16T23:00:32+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
-(4, 'Per', 'Snöbohm', '070-6552365', 'Per.Snobohm@sigtuna.se', 2, 'P', 1, '2018-01-16T23:00:35+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
-(5, 'Martin', 'Lindén', '070-7235567', 'martin.linden@edu.sigtuna.se', 2, 'M', 1, '2018-01-16T23:00:39+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
-(6, 'Johan', 'Lindell', '073-4039803', 'johan.lindell@edu.sigtuna.se', 2, 'Jo', 1, '2018-01-16T23:00:44+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
-(11, 'Maud', 'Färnström', '0735411294', 'maud.farnstrom@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gala'),
-(13, 'Jonas', 'Malik', NULL, 'Jonas.malik@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
-(16, 'Jeanette', 'Lindberg', '0702709759', 'jeanette.lindberg@varingaskolan.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'vari'),
-(23, 'Natallia', 'Rizell', '0725306255', 'natallia.rizell@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
-(24, 'Emelie', 'Forslöf', '072-3658089', 'emelie.forslof@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
-(41, 'Andrea', 'Muniz Malinen', 736004101, 'andrea.malinen@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
-(42, 'Aynas', 'Selim', 739632396, 'aynas.selim@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
-(43, 'Marie', 'Kling', '0707-409495', 'marie.kling@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
-(44, 'Sofia', 'Haegermark Lundin', 705256320, 'sofia.haegermark@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
-(46, 'Katalin', 'Lundmark', 706871681, 'katalin.lundmark@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'saga'),
-(48, 'Cecilia', 'Lavenius', 737330204, 'cecilia.lavenius@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'rabg'),
-(50, 'Medhanite', 'Sissaye', NULL, 'medhanite.sissaye@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'cent'),
-(52, 'Christine', 'Habra', 723505888, 'christine.habra@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'edda'),
-(54, 'Ann-Catrin', 'Enbacka', 735466989, 'ann-catrin.enbacka@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
-(56, 'Shara', 'Hassan', NULL, 'Shara.hassan@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'ting'),
-(58, 'Heinz', 'Krumbichel', '072-569878', 'heinz@aol.com', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers');
+(1, 'Frank', 'Häll', '071-8414155', 'vel@edu.sigtuna.se', 2, 'F', 1, '2018-01-16T23:00:26+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
+(2, 'Jan-Ove', 'Hallkvist', '073-7736058', 'eleifend.Cras@edu.sigtuna.se', 2, 'Ja', 1, '2018-01-16T23:00:30+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
+(3, 'Lars', 'Wellpapp', '077-4120147', 'non.nisi.Aenean@edu.sigtuna.se', 2, 'L', 1, '2018-01-16T23:00:32+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
+(4, 'Peter', 'Snöskoter', '074-0545033', 'non.magna@edu.sigtuna.se', 2, 'P', 1, '2018-01-16T23:00:35+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
+(5, 'Markus', 'Linszén', '072-2191185', 'nunc.interdum@edu.sigtuna.se', 2, 'M', 1, '2018-01-16T23:00:39+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
+(6, 'Jonas', 'Lindersberg', '075-0590505', 'arcu@edu.sigtuna.se', 2, 'Jo', 1, '2018-01-16T23:00:44+01:00', '2018-01-10T14:53:04+01:00', 'natu'),
+(11, 'Elena', 'Staffansson', '076-9555010', 'Nullam.suscipit@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gala'),
+(13, 'Sanna', 'Håkansson', '072-4682743', 'pulvinar.arcu@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
+(16, 'Christian', 'Andersson', '074-1371138', 'faucibus@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'vari'),
+(23, 'Tomas', 'Samuelsson', '078-6661898', 'Nulla@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
+(24, 'Anna', 'Svensson', '074-2257145', 'ipsum.leo@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
+(41, 'Kristian', 'Degersberg', '078-1491681', 'ante@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
+(42, 'Henrik', 'Carlsson', '079-2009997', 'eget.massa.Suspendisse@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'norr'),
+(43, 'Erica', 'Karlsson', '078-2409299', 'nulla.Integer@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
+(44, 'Sara', 'Andersson', '078-9905014', 'at.auctor@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'gert'),
+(46, 'Erika', 'Ericsson', '077-0566606', 'odio@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'saga'),
+(48, 'Sara', 'Bodin', '077-3025282', 'libero.dui.nec@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'rabg'),
+(50, 'Märta', 'Rilven', '079-5378024', 'nec.mauris@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'cent'),
+(52, 'Peter', 'Samuelsson', '079-2650873', 'eu.odio@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'edda'),
+(54, 'Pär', 'Hedin', '079-3129414', 'pellentesque.Sed.dictum@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers'),
+(56, 'Stefan', 'Eriksson', '074-2021103', 'Proin.sed.turpis@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'ting'),
+(58, 'Anna', 'Rågwall', '071-6611082', 'In.lorem.Donec@edu.sigtuna.se', 0, 'NULL', 1, 'NULL', '2018-01-01T12:00:00+01:00', 'pers');
+
+INSERT INTO visits (id, Date, LastChange, Confirmed, Time, Status, BusIsBooked, FoodIsBooked, Group_id, Topic_id)  VALUES 
+(10, '2017-09-05', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 13, 8),
+(11, '2017-09-05', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 14, 8),
+(12, '2017-09-06', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 15, 8),
+(34, '2017-10-17', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 13, 9),
+(35, '2017-10-18', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 15, 9),
+(40, '2017-10-26', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 14, 9),
+(58, '2017-12-05', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 14, 10),
+(59, '2017-12-06', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 13, 10),
+(60, '2017-12-06', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 15, 10),
+(85, '2018-01-30', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 15, 11),
+(87, '2018-01-31', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 13, 11),
+(88, '2018-01-31', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 14, 11),
+(102, '2018-02-16', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 44, 1),
+(103, '2018-02-19', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 45, 1),
+(104, '2018-02-20', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 46, 1),
+(142, '2018-04-11', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 15, 12),
+(144, '2018-04-12', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 13, 12),
+(145, '2018-04-12', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 14, 12),
+(150, '2018-04-13', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 44, 2),
+(151, '2018-04-13', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 45, 2),
+(152, '2018-04-16', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 46, 2),
+(189, '2018-05-31', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 15, 13),
+(191, '2018-06-01', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 14, 13),
+(193, '2018-06-04', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 13, 13),
+(198, '2018-06-07', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 44, 3),
+(199, '2018-06-08', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 45, 3),
+(200, '2018-06-11', '2018-02-24T22:01:20+01:00', 0, 'NULL', 0, 'NULL', 'NULL', 46, 3);
 
