@@ -166,7 +166,7 @@ class IndexCest
         $I->checkMultiple('canSee', self::$user_nav_items, ['.nav']);
         $hash = $I->grabCookie('Hash');
         $I->assertNotEmpty($hash);
-        $I->wait(10);
+        $I->wait(3);
         $I->seeInDatabase('cookies', ['Name' => 'Hash', 'School_id' => 'pers', 'Value' => $hash]);
     }
 
