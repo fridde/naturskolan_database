@@ -1,5 +1,8 @@
 <?php
 
+use Carbon\Carbon;
+use Symfony\Component\Yaml\Yaml;
+
 
 /**
  * Inherited Methods
@@ -24,12 +27,32 @@ class AcceptanceTester extends \Codeception\Actor
      * Define custom actions here
      */
 
-    public function checkMultiple(string $function_name, array $elements = [], $default_args = [])
+    private $settings;
+
+    public function get(...$keys)
+    {
+        if(empty($this->settings)){
+            $this->settings = Yaml::parseFile(__DIR__ .'/../acceptance/settings.yml');
+        }
+        $array = $this->settings;
+        foreach ($keys as $key) {
+            $array = &$array[$key];
+        }
+        return ($array ?? null);
+    }
+
+
+    public function checkMultiple(string $function_name, array $elements = [], array $default_args = [])
     {
         foreach($elements as $element){
             $element = (array) $element;
             $element += $default_args;
             call_user_func_array([$this, $function_name], $element);
         }
+    }
+
+    public function setTestDate()
+    {
+        Carbon::setTestNow(Carbon::parse($this->get('test_date')));
     }
 }

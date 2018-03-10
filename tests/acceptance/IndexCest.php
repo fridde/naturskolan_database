@@ -2,116 +2,65 @@
 
 
 use Codeception\Util\Locator;
+use AcceptanceTester as A;
 
 class IndexCest
 {
-    public const BASE = '/testing/naturskolan_database';
-
-    public static $schools_on_frontpage = [
-        'berg' => 'Bergius',
-        'cent' => 'Centralskolan',
-        'edda' => 'Eddaskolan',
-        'ekil' => 'Ekillaskolan',
-        'gala' => 'Galaxskolan',
-        'gert' => 'S:ta Gertruds skola',
-        'gsar' => 'Grundsärskolan',
-        'jose' => 'Josefinaskolan',
-        'norr' => 'Norrbackaskolan',
-        'oden' => 'Odensala skola',
-        'olof' => 'S:t Olofs skola',
-        'pers' => 'S:t Pers skola',
-        'rabg' => 'Råbergsskolan',
-        'saga' => 'Sagaskolan',
-        'satu' => 'Sätunaskolan',
-        'shoj' => 'Steningehöjdens skola',
-        'skep' => 'Skepptuna skola',
-        'sshl' => 'Sigtunaskolan Humanistiska Läroverket',
-        'ting' => 'Tingvallaskolan',
-        'vals' => 'Valstaskolan',
-        'vari' => 'Väringaskolan',
-    ];
-
-    public static $schools_not_on_frontpage = [
-        'anna' => 'Annan skola',
-        'natu' => 'Naturskolan',
-    ];
-
-    public static $natu_cookie = 'xGvueTHZ9FRoqyceP25WIO1xQU8rpDl9b4kl02pM4nqrLnQEOUXiK';
-
-    public static $admin_nav_items = [
-        'skolor',
-        'verktyg',
-        'tabeller',
-    ];
-
-    public static $user_nav_items = [
-        'grupper',
-        'personal',
-        'hjälp',
-        'kontakt',
-        'logga ut',
-    ];
-
-    public static $visitor_nav_items = [
-        'hjälp',
-        'kontakt',
-    ];
-
-    public static $st_pers_pw = 'ev2Hae';
-
-    public static $galax_pw = '4oEUWA';
-
-    public function _before(AcceptanceTester $I)
+    public function _before(A $I)
     {
+        $I->setTestDate();
     }
 
-    public function _after(AcceptanceTester $I)
+    public function _after(A $I)
     {
     }
 
 
-    public function UserIsThere(AcceptanceTester $I)
+    public function UserIsThere(A $I)
     {
         $I->seeInDatabase('users', ['FirstName' => 'Heinz', 'LastName' => 'Krumbichel']);
     }
 
-    public function frontpageWorksForVisitor(AcceptanceTester $I)
+    public function frontpageWorksForVisitor(A $I)
     {
         $I->amOnPage('/');
         $I->wait(2);
         $I->makeScreenshot('frontpage_visitor');
-        foreach (self::$schools_on_frontpage as $index => $school_name) {
+        $schools_on_fp = $I->get('schools','frontpage') ?? [];
+        foreach ($schools_on_fp as $index => $school_name) {
             $I->see($school_name, '.flexbox');
             $I->canSeeInSource($index, '.flexbox');
         }
-        foreach (self::$schools_not_on_frontpage as $index => $school_name) {
+        $schools_not_on_frontpage = $I->get('schools','not_on_frontpage') ?? [];
+        foreach ($schools_not_on_frontpage as $index => $school_name) {
             $I->cantSee($school_name, '.flexbox');
         }
         $I->seeInTitle('Sigtuna Naturskolans databas');
         $I->cantSee('Logga ut', '.nav');
     }
 
-    public function frontpageWorksForAdmin(AcceptanceTester $I)
+    public function frontpageWorksForAdmin(A $I)
     {
         $I->amOnPage('/');
         $I->makeScreenshot('frontpage_admin');
-        $I->checkMultiple('cantSee', self::$admin_nav_items, ['.nav']);
+        $admin_nav_items = $I->get('nav_items','admin');
+        $I->checkMultiple('cantSee', $admin_nav_items, ['.nav']);
 
-        $I->setCookie('Hash', self::$natu_cookie);
+        $I->setCookie('Hash', $I->get('natu','hash'));
         $I->reloadPage();
-        foreach (self::$admin_nav_items as $item) {
+        foreach ($admin_nav_items as $item) {
             $I->see($item, '.nav');
         }
         $I->see('Logga ut', '.nav');
     }
 
     // codecept run acceptance IndexCest:userCanLogin
-    public function userCantLoginWithBadPW(AcceptanceTester $I)
+    public function userCantLoginWithBadPW(A $I)
     {
         $I->wantTo('Be rejected using a bad password');
         $I->amOnPage('/');
         $I->resetCookie('Hash');
-        $link = Locator::find('a', ['href' => self::BASE . '/skola/pers']);
+        $link = Locator::find('a', ['href' => $I->get('BASE') . '/skola/pers']);
         $I->seeElement($link);
         $I->click($link);
         $I->wait(3);
@@ -135,39 +84,56 @@ class IndexCest
 
         $login_button = Locator::find('button', ['id' => 'login_modal_submit']);
         $I->click($login_button);
-        $exclusive_items = array_diff(self::$user_nav_items, self::$visitor_nav_items);
+        $user_nav_items = $I->get('nav_items','user');
+        $visitor_nav_items = $I->get('nav_items','visitor');
+
+        $exclusive_items = array_diff($user_nav_items, $visitor_nav_items);
 
         //TODO: Change to a better test as soon as there is a better response
         $I->checkMultiple('cantSee', $exclusive_items, ['.navbar']);
 
         $I->wantTo('Enter a valid pw, but for wrong school');
-        $I->fillField($visible_pw_field, self::$galax_pw);
+        $I->fillField($visible_pw_field, $I->get('gala', 'pw'));
         $I->click($login_button);
         $I->checkMultiple('cantSee', $exclusive_items, ['.navbar']);
-        $I->checkMultiple('canSee', self::$visitor_nav_items, ['.navbar']);
+        $I->checkMultiple('canSee', $I->get('nav_items','visitor'), ['.navbar']);
 
 
     }
 
-    public function userCanLogin(AcceptanceTester $I)
+    public function userCanLogin(A $I)
     {
         $I->wantTo('Enter with a valid password');
         $I->amOnPage('/');
         $I->resetCookie('Hash');
-        $link = Locator::find('a', ['href' => self::BASE . '/skola/pers']);
+        $link = Locator::find('a', ['href' => $I->get('BASE') . '/skola/pers']);
         $I->click($link);
         $I->wait(3);
         $hidden_pw_field = Locator::find('input', ['name' => 'password', 'type' => 'password']);
-        $I->fillField($hidden_pw_field, self::$st_pers_pw);
+        $I->fillField($hidden_pw_field, $I->get('st_per', 'pw'));
         $login_button = Locator::find('button', ['id' => 'login_modal_submit']);
         $I->click($login_button);
         $I->wait(3);
-
-        $I->checkMultiple('canSee', self::$user_nav_items, ['.nav']);
+        $user_nav_items = $I->get('nav_items', 'user');
+        $I->checkMultiple('canSee', $user_nav_items, ['.nav']);
         $hash = $I->grabCookie('Hash');
         $I->assertNotEmpty($hash);
         $I->wait(3);
         $I->seeInDatabase('cookies', ['Name' => 'Hash', 'School_id' => 'pers', 'Value' => $hash]);
+    }
+
+    // codecept run acceptance IndexCest:userCanLogout --steps
+    public function userCanLogout(A $I)
+    {
+        $I->wantTo('Logout and not be able to enter');
+        $I->amOnPage('/');
+        $I->setCookie('Hash', $I->get('st_per', 'hash'));
+        $I->amOnPage('/skola/pers');
+
+        $I->click('//a[@href="logout"]');
+        $I->wait(2);
+        $I->dontSeeCookie('Hash');
+        $I->dontSeeInCurrentUrl('skola/pers');
     }
 
 

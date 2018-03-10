@@ -4,45 +4,26 @@
 use Carbon\Carbon;
 use Codeception\Util\Locator;
 
+use AcceptanceTester as A;
+
 class SchoolPageCest
 {
-    public const BASE = '/testing/naturskolan_database';
-
-    public static $st_pers_pw = 'ev2Hae';
-    public static $st_pers_hash = 'IhKWKA9lROo3oDwR3tV/2.fwu9yzPyKDRf3swEg1sHh5BKYV2bQ9K';
-
-    public static $items_visible_on_group_page = [
-        '2A',
-        '2B',
-        '2C',
-        'Ansvarig lärare',
-        'Specialkost',
-        'Information om gruppen'
-    ];
-
-    public static $teachers_st_per = [
-        'Tomas Samuelsson',
-        'Anna Svensson',
-        'Pär Hedin',
-        'Anna Rågwall'
-    ];
-
-
-    public function _before(AcceptanceTester $I)
+    public function _before(A $I)
     {
         $I->amOnPage('/');
-        $I->setCookie('Hash', self::$st_pers_hash);
+        $I->setCookie('Hash', $I->get('st_per', 'hash'));
         $I->amOnPage('/skola/pers');
+        $I->setTestDate();
     }
 
-    public function _after(AcceptanceTester $I)
+    public function _after(A $I)
     {
     }
 
 
-    public function canChangeFields(AcceptanceTester $I)
+    public function canChangeFields(A $I)
     {
-        $staff_link = Locator::find('a', ['href' => self::BASE.'/skola/pers/staff']);
+        $staff_link = Locator::find('a', ['href' => $I->get('BASE').'/skola/pers/staff']);
         $I->seeElement($staff_link);
         $I->click($staff_link);
         $I->waitForText('Lägg till person');
@@ -55,12 +36,12 @@ class SchoolPageCest
         $I->wait(3);
         $I->seeInDatabase('users', ['FirstName' => 'Albus']);
 
-        $last_change = $I->grabFromDatabase('users', 'LastChange', ['id' => 58]);
+        $last_change = $I->grabFromDatabase('users', 'LastChange', ['id' => 102]);
         $I->wantToTest('Has LastChange been updated?');
         $I->assertTrue(Carbon::parse($last_change)->gt(Carbon::now()->subMinute()));
     }
 
-    public function passwordIsRevealed(AcceptanceTester $I)
+    public function passwordIsRevealed(A $I)
     {
         $places = [null, '/skola/pers/staff', '/skola/pers/groups'];
         foreach ($places as $place) {
@@ -70,23 +51,23 @@ class SchoolPageCest
             $pw_reveal_btn = Locator::find('button', ['data-school' => 'pers']);
             $I->seeElement($pw_reveal_btn);
             $I->click($pw_reveal_btn);
-            $I->waitForText(self::$st_pers_pw, 10);
-            $I->see(self::$st_pers_pw);
+            $I->waitForText($I->get('st_per','pw'), 10);
+            $I->see($I->get('st_per','pw'));
         }
     }
 
-    public function rowIsAdded(AcceptanceTester $I)
+    public function rowIsAdded(A $I)
     {
         $I->amOnPage('/skola/pers/staff');
         $row_btn = Locator::find('button', ['id' => 'add-row-btn']);
         $I->canSeeElement($row_btn);
         $I->click($row_btn);
         $I->wait(3);
-        $row_path = 'table[data-entity="User"] tbody tr';
+        $row_path = '//table[@data-entity="User"]//tbody//tr';
         $rows = $I->grabMultiple($row_path);
-        $I->assertCount(5, $rows);
+        $I->assertCount(6, $rows);
         $num_users_before = $I->grabNumRecords('users');
-        $I->fillField('//table[@data-entity="User"]//tbody//tr[last()]//input[@name="FirstName"]', 'Ronald');
+        $I->fillField($I->get('paths', 'last_staff_row'), 'Ronald');
         $I->clickWithLeftButton(null, 0, -50);
         $I->wait(3);
         $I->seeInDatabase('users', ['FirstName' => 'Ronald']);
@@ -95,19 +76,34 @@ class SchoolPageCest
     }
 
     // codecept run acceptance SchoolPageCest:groupPageWorks --steps
-    public function groupPageWorks(AcceptanceTester $I)
+    public function groupPageWorks(A $I)
     {
         $I->amOnPage('/skola/pers/groups');
 
 
-        $I->checkMultiple('see', self::$items_visible_on_group_page);
+        $I->checkMultiple('see', $I->get('st_per', 'items_visible_on_group_page'));
 
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 53]);
-        $teacher_for_2a_field_path = '//div[@data-entity-id="44"]//select[@name="User"]';
+        $teacher_for_2a_field_path = $I->get('paths','teacher_for_2a');
         $I->seeElement($teacher_for_2a_field_path);
         $I->seeOptionIsSelected($teacher_for_2a_field_path, 'Tomas Samuelsson');
-        $I->checkMultiple('seeInSource', self::$teachers_st_per);
-        $I->dontSeeInSource('Stefan Eriksson');
+        $I->checkMultiple('seeInSource', $I->get('st_per', 'teachers'));
+        $I->dontSeeInPageSource('Stefan Eriksson');
+        $I->selectOption($teacher_for_2a_field_path, 'Anna Svensson');
+        $I->clickWithLeftButton(null,-50,0);
+        $I->wait(2);
+        $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 24]);
+
+
+        $visits_for_2a = ['2018-02-16', 'Universum', '2018-04-13', 'Vårvandring', '2018-06-07', 'Forntidsdag'];
+        //
+        $visit_locator_for_2a = $I->get('paths', 'visits_for_2a');
+        $I->checkMultiple('see', $visits_for_2a, [$visit_locator_for_2a]);
+        
+        $I->cantSee('5A');
+        $I->click('//a[@href="#tab_5"]');
+        $I->wait(2);
+        $I->canSee('5A');
     }
 
 }
