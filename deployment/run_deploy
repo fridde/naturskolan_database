@@ -25,23 +25,23 @@ if [ $SKIP -lt 1 ]; then
     php -e export_database.php just_data > /dev/null
     php -e export_database.php structure > /dev/null
     php -e "$PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
+    cd SQL_data
+    delete_old_files
+
 fi
 
 if [ $SKIP -lt 2 ]; then
 
-    if [ -d $TESTING_PATH/$PROJECT_NAME ]; then
-        cd $TESTING_PATH/$PROJECT_NAME
-        git status
-        echo 'Proceed if your .gitignore file is configured correctly!'
-        git add -A
-        git commit -m 'Continue more testing'
-        git push
-        echo 'Pulling repo changes into dev area'
-        cd $PROJECT_PATH
-        git pull
-    fi
-    # echo 'Copying changed files from the testing folder to the repo'
-    # cp $TESTING_PATH/$PROJECT_NAME/tests/acceptance/* $PROJECT_PATH/tests/acceptance/
+   cd $TESTING_PATH/$PROJECT_NAME
+   git status
+   echo 'Proceed if your .gitignore file is configured correctly!'
+   git add -A
+   git commit -m 'Continue more testing'
+   git push
+   echo 'Pulling repo changes into dev area'
+   cd $PROJECT_PATH
+   git pull
+
 fi
 
 if [ $SKIP -lt 3 ]; then
@@ -113,7 +113,7 @@ fi
 if [ $SKIP -lt 5 ]; then
     cd $TESTING_PATH
     delete_old_files
-    tar cf backup_`date '+%Y%m%d_%Hx%Mx%S'`.tar $PROJECT_NAME
+    tar cf backup_`date '+%Y%m%d_%H%M%S'`.tar $PROJECT_NAME
 
     cd $PROJECT_NAME
     git pull
@@ -130,7 +130,7 @@ if [ $SKIP -lt 6 ]; then
     cmd /C start MailHog.exe &
     cd $TESTING_PATH/$PROJECT_NAME
     set -x ; trap read debug
-    ./vendor/bin/codecept run --steps
+    ./vendor/bin/codecept run -f --steps
 fi
 
 if [ $SKIP -lt 7 ]; then
