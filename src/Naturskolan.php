@@ -465,7 +465,7 @@ class Naturskolan
         return $this->text_array;
     }
 
-    public function getText(string $index, string $file_path = null)
+    public function getText($index, string $file_path = null)
     {
         if (empty($this->text_array) || !empty($file_path)) {
             $this->setTextArrayfromFile($file_path);
@@ -486,7 +486,7 @@ class Naturskolan
         return (empty($index) ? $text : U::resolve($text, $index));
     }
 
-    public function getReplacedText(string $index, array $replacements = [], string $file_path = null)
+    public function getReplacedText($index, array $replacements = [], string $file_path = null)
     {
         $text = $this->getText($index, $file_path);
         $search = $rep = [];

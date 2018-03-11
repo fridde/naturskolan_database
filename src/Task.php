@@ -13,6 +13,7 @@ use Fridde\Messenger\AbstractMessageController;
 use Fridde\Messenger\Mail;
 use Fridde\Messenger\SMS;
 use Fridde\Utility as U;
+use Fridde\Timing as T;
 
 
 /**
@@ -70,19 +71,18 @@ class Task
      */
     private function rebuildCalendar()
     {
-        $last_rebuild = $this->N->getLastRebuild();
+        $last_rebuild = $this->N->getLastRun('rebuild_calendar');
         if(empty($last_rebuild)){
             $too_old = true;
         } else {
             $max_age = SETTINGS['cronjobs']['max_calendar_age'];
-            $too_old = U::subDuration($max_age)->gt($last_rebuild);
+            $too_old = T::longerThanSince($max_age, $last_rebuild);
         }
 
         $is_dirty = $this->N->calendarIsDirty();
         if ($is_dirty || $too_old) {
             $cal = new Calendar();
             $cal->save();
-            $this->N->setStatus('calendar.last_rebuild', Carbon::now()->toIso8601String());
             $this->N->log('Actually recalculated calendar', 'Task->rebuildCalendar()');
         } else {
             $this->N->log('No calendar recalculation needed', 'Task->rebuildCalendar()');
@@ -116,9 +116,7 @@ class Task
         $translator = ['immunity' => 'immunity_time', 'annoyance' => 'annoyance_interval'];
         $setting = $translator[strtolower($type)];
         $t = SETTINGS['user_message'][$setting];
-        $days = U::convertDuration($t, 'd');
-
-        return Carbon::today()->subDays($days);
+        return T::subDuration($t);
     }
 
     /**
@@ -135,7 +133,7 @@ class Task
         $search_props['Subject'] = $subject;
 
         $time = Naturskolan::getSetting('user_message', 'visit_confirmation_time');
-        $deadline = U::addDuration($time);
+        $deadline = T::addDuration($time);
 
         /* @var \Fridde\Entities\Visit[] $unconfirmed_visits */
         $unconfirmed_visits = $this->N->getRepo('Visit')->findUnconfirmedVisitsUntil($deadline);

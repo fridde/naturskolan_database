@@ -2,15 +2,12 @@
 
 namespace Fridde\Controller;
 
-use Fridde\Utility as U;
+use Fridde\Timing as T;
 use Fridde\Task;
-use Carbon\Carbon;
 
 class CronController extends BaseController
 {
     private $intervals;
-
-
 
     public function __construct(array $params)
     {
@@ -46,10 +43,7 @@ class CronController extends BaseController
         if(empty($last_completion)){
             return true;
         }
-        $interval = $this->intervals[$task_type];
-        $in_seconds = (float) $interval[0] * self::$interval_factors[$interval[1]];
-
-        return Carbon::now()->gte($last_completion->addSeconds($in_seconds));
+        return T::longerThanSince($this->intervals[$task_type], $last_completion);
     }
 
 

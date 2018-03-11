@@ -46,13 +46,17 @@ fi
 if [ $SKIP -lt 3 ]; then
     echo 'Synchronizing the work in vendor with the toolbox'
     cd ~
-    filecomparer
+    
+	filecomparer
 
+	trap - debug; set +x
     cd ~/toolbox
-
+	echo "Checking git status..."
     gitstatus
     echo 'Enter the names of the packages that you will commit.'
     read P_NAMES
+	
+	set -x; trap read debug
     set_package_date -a fridde -p "$P_NAMES"
     echo 'If some repos have to be pushed, use Win+Alt+X to open a new split window.'
 fi
@@ -73,19 +77,21 @@ if [ $SKIP -lt 4 ]; then
         esac
     done
 
-    set -x; trap read debug
+    #set -x; trap read debug
 
     echo 'Update own composer packages and push changes'
     cd ~/toolbox
     while true; do
-        compare_package_date
+        echo "Checking if packages specified in updates.txt are updated..."
+		compare_package_date
         read -e -p "Updated?  " answer
         case $answer in
-            [Yy]* ) echo ""; break;;
-            * ) echo "Trying again";;
+            [Yy]* ) break;;
+            * ) ;;
         esac
     done
 
+	set -x; trap read debug
     cd $PROJECT_PATH
     composer update fridde/*
     composer install
@@ -132,7 +138,7 @@ if [ $SKIP -lt 7 ]; then
     echo 'Creating the local staging copy...'
     cd $STAGING_PATH
     delete_old_files
-    tar cf backup_`date '+%Y%m%d_%Hx%Mx%S'`.tar $PROJECT_NAME
+    tar cf backup_$(date '+%Y%m%d_%Hx%Mx%S').tar $PROJECT_NAME
     chmod -R 0777 $PROJECT_NAME && rm -rf $PROJECT_NAME
 
     git clone --depth 1 $GITHUB_PROJECT
@@ -147,6 +153,3 @@ if [ $SKIP -lt 8 ]; then
 
     ./vendor/bin/deployment deployment/deployment.ini
 fi
-
-
-

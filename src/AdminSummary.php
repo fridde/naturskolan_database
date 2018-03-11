@@ -13,9 +13,9 @@ use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Fridde\Messenger\AbstractMessageController;
 use Fridde\Messenger\Mail;
-use Fridde\Utility as U;
+use Fridde\Timing as T;
 use Fridde\Entities\Group;
-use Psr\Http\Message\ResponseInterface;
+
 
 /**
  * This class compiles a summary of the state of the system and the database and informs
@@ -27,12 +27,14 @@ class AdminSummary
     /** @var Naturskolan shortcut for the Naturskolan object in the global container */
     private $N;
 
+    private $summary;
+
     /** @var array Contains group changes younger than a certain amount of time.
      *              This is a temporary variable to avoid reproducing the table.
      */
     private $recent_group_changes;
 
-    private $method_translator = [
+    private static $method_translator = [
         'bad_mobil' => 'getBadMobileNumbers',
         'bus_or_food_order_outdated' => 'getOutdatedBusOrFoodOrders',
         'duplicate_mail_adresses' => 'getDuplicateMailAdresses',
@@ -87,7 +89,7 @@ class AdminSummary
     private function compileSummary()
     {
         $summary = [];
-        foreach ($this->method_translator as $error_type => $method_name) {
+        foreach (self::$method_translator as $error_type => $method_name) {
             $summary[$error_type] = $this->$method_name();
         }
 
@@ -184,8 +186,8 @@ class AdminSummary
 
     private function getLoomingLastVisit()
     {
-        $days_left_interval = Naturskolan::getSetting('admin', 'summary', 'soon_last_visit');
-        $last_visit_deadline = U::addDuration($days_left_interval);
+        $time_left = Naturskolan::getSetting('admin', 'summary', 'soon_last_visit');
+        $last_visit_deadline = T::addDuration($time_left);
         $last_visit = $this->N->getRepo('Visit')->findLastVisit();
         if (empty($last_visit) || $last_visit->getDate()->lte($last_visit_deadline)) {
             $text = 'Snart är sista planerade mötet med eleverna. Börja planera nästa termin!';
@@ -269,7 +271,7 @@ class AdminSummary
     {
         $rows = [];
         $no_conf_interval = Naturskolan::getSetting('admin', 'summary', 'no_confirmation_warning');
-        $close_date = U::addDuration($no_conf_interval);
+        $close_date = T::addDuration($no_conf_interval);
         $unconfirmed_visits = $this->N->getRepo('Visit')->findUnconfirmedVisitsUntil($close_date);
         $unconfirmed_visits = array_filter(
             $unconfirmed_visits,
@@ -459,7 +461,7 @@ class AdminSummary
 
     private function setRecentGroupChanges()
     {
-        $deadline = U::addDuration(Naturskolan::getSetting('admin', 'summary', 'important_info_changed'));
+        $deadline = T::addDuration(Naturskolan::getSetting('admin', 'summary', 'important_info_changed'));
         $recent_group_changes = [];
 
         $crit = [['EntityClass', 'Group'], ['in', 'Property', ['Food', 'NumberStudents', 'Info']]];

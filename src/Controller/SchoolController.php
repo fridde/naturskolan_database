@@ -5,12 +5,11 @@
 
 namespace Fridde\Controller;
 
-use Doctrine\ORM\EntityManager;
 use Fridde\Entities\Group;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
-use Fridde\Utility as U;
+use Fridde\Timing as T;
 
 class SchoolController extends BaseController
 {
@@ -136,7 +135,7 @@ class SchoolController extends BaseController
                             $r['topic_short_name'] = $v->getTopic()->getShortName();
                             $r['topic_url'] = $v->getTopic()->getUrl();
                             $r['confirmed'] = $v->isConfirmed();
-                            $dur = U::addDuration(SETTINGS['values']['show_confirm_link']);
+                            $dur = T::addDuration(SETTINGS['values']['show_confirm_link']);
                             if ($v->isInFuture() && $v->isBefore($dur)) {
                                 $r['confirmation_url'] = $this->N->createConfirmationUrl($v->getId());
                             }

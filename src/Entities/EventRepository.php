@@ -4,7 +4,7 @@ namespace Fridde\Entities;
 
 use Fridde\CustomRepository;
 use Eluceo\iCal\Component\Event as IcalEvent;
-use Fridde\Utility as U;
+use Fridde\Timing as T;
 
 class EventRepository extends CustomRepository
 {
@@ -21,7 +21,7 @@ class EventRepository extends CustomRepository
             if (!$ev->isWholeDay()) {
                 $start_date_time->setTime($ev->getStartHour(), $ev->getStartMinute());
                 if(!$ev->hasEndTime()){
-                    $end_date_time = U::addDuration($this->getStandardDuration(), $start_date_time);
+                    $end_date_time = T::addDuration($this->getStandardDuration(), $start_date_time);
                 } else {
                     $end_date_time->setTime($ev->getEndHour(), $ev->getEndMinute());
                 }
