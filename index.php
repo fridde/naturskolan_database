@@ -16,9 +16,10 @@ if ($match) {
     $method = $class_and_method[1] ?? $default_controller_method;
     call_user_func([$object, $method]);
     exit();
-} else {
-    header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
-    echo 'No match found. Requested url: '.PHP_EOL;
-    echo $request_url;
-    exit();
 }
+
+header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
+echo 'No match found. Requested url: '.PHP_EOL;
+echo $request_url;
+exit();
+

@@ -1045,12 +1045,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/orm.git",
-                "reference": "52c3e121dbf79ac0fea52a18aa8a4e64e413df12"
+                "reference": "04927f3fbd7ef93d25379f844f012df9cc08e4a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/orm/zipball/52c3e121dbf79ac0fea52a18aa8a4e64e413df12",
-                "reference": "52c3e121dbf79ac0fea52a18aa8a4e64e413df12",
+                "url": "https://api.github.com/repos/fridde/orm/zipball/04927f3fbd7ef93d25379f844f012df9cc08e4a2",
+                "reference": "04927f3fbd7ef93d25379f844f012df9cc08e4a2",
                 "shasum": ""
             },
             "require": {
@@ -1074,7 +1074,7 @@
                 }
             ],
             "description": "A simple wrapper for Doctrine's data wrapper. A wrapper wrapper!",
-            "time": "2018-03-02T18:31:37+00:00"
+            "time": "2018-03-11T14:03:36+00:00"
         },
         {
             "name": "fridde/slacker",
