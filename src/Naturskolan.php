@@ -189,11 +189,11 @@ class Naturskolan
     public function calendarIsDirty()
     {
         $trackables = ['Group', 'Location', 'Topic', 'User', 'Visit'];
-        $now_string = $this->getStatus('calendar.last_rebuild');
-        if(empty($now_string)){
+        $last_rebuild = $this->getStatus('calendar.last_rebuild');
+        if(empty($last_rebuild)){
             return true;
         }
-        $selector = ['gt', 'LastChange', $now_string];
+        $selector = ['gt', 'LastChange', $last_rebuild];
 
         foreach($trackables as $entity_type){
             if(count($this->ORM->getRepository($entity_type)->select([$selector])) > 0){

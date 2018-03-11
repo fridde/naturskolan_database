@@ -386,16 +386,22 @@ class Visit
         $topic_name = $this->getTopic()->getShortName();
         $has_group = $this->hasGroup();
 
-        $include_date = strpos($pattern, 'D') !== false;
-        $include_topic = strpos($pattern, 'T') !== false;
-        $include_group = strpos($pattern, 'G') !== false;
-        $include_school = strpos($pattern, 'S') !== false;
-        $include_user = strpos($pattern, 'U') !== false;
+        $include = [
+            'date' => 'D',
+            'topic' => 'T',
+            'group' => 'G',
+            'school' => 'S',
+            'user' => 'U',
+        ];
 
-        if ($include_date) {
+        array_walk($include, function (&$v) use ($pattern){
+            $v = strpos($pattern, $v) !== false;
+        });
+
+        if ($include['date']) {
             $label .= '['.$this->getDateString().'] ';
         }
-        if ($include_topic) {
+        if ($include['topic']) {
             if ($has_group) {
                 $label .= $topic_name;
             } else {
@@ -403,13 +409,13 @@ class Visit
             }
         }
 
-        if ($include_group && $has_group) {
+        if ($has_group && $include['group']) {
             $label .= ' med '.$this->getGroup()->getName();
         }
-        if($include_school && $has_group){
+        if($has_group && $include['school']){
             $label .= ' från ' . $this->getGroup()->getSchool()->getName();
         }
-        if ($include_user && $has_group && $this->getGroup()->hasUser()) {
+        if ($has_group && $include['user'] && $this->getGroup()->hasUser()) {
             $label .= ' ('.$this->getGroup()->getUser()->getShortName().')';
         }
 

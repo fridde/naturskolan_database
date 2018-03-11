@@ -9,7 +9,7 @@ use Fridde\Settings;
 Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl(__DIR__);
 Settings::setSettings();
-if(SETTINGS['environment'] === 'dev'){
+if(in_array(SETTINGS['environment'], ['dev','test'])){
     Essentials::activateDebug(['tracy']);
 }
 
@@ -25,5 +25,8 @@ Essentials::registerDBLogger($em, Essentials::getLogger());
 
 setlocale(LC_TIME, 'swedish');
 \Carbon\Carbon::setUtf8(true);
+if(SETTINGS['environment'] === 'test'){
+    Carbon::setTestNow(Carbon::parse(SETTINGS['debug']['test_date']));
+}
 
 /** END OF BOOTSTRAP */

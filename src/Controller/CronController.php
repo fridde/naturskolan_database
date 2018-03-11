@@ -8,7 +8,6 @@ use Carbon\Carbon;
 
 class CronController extends BaseController
 {
-    private $CRON_SETTINGS;
     private $delay;
     private $slot_duration;
     private $intervals;
@@ -18,10 +17,10 @@ class CronController extends BaseController
     public function __construct(array $params)
     {
         parent::__construct($params);
-        $this->CRON_SETTINGS = SETTINGS['cronjobs'];
-        $this->delay = $this->CRON_SETTINGS['delay'];
-        $this->slot_duration = $this->CRON_SETTINGS['slot_duration'];
-        $this->intervals = $this->CRON_SETTINGS['intervals'];
+        $cron_settings = SETTINGS['cronjobs'];
+        $this->delay = $cron_settings['delay'];
+        $this->slot_duration = $cron_settings['slot_duration'];
+        $this->intervals = $cron_settings['intervals'];
     }
 
     public function run()
@@ -58,11 +57,9 @@ class CronController extends BaseController
 
     private function setSlotTime()
     {
-        $delay_count = 0.0;
-        if(empty(DEBUG)){
-            $adj_delay = U::adjustInterval($this->delay, $this->slot_duration);
-            $delay_count = U::divideDuration($adj_delay, $this->slot_duration);
-        }
+        $adj_delay = U::adjustInterval($this->delay, $this->slot_duration);
+        $delay_count = U::divideDuration($adj_delay, $this->slot_duration);
+
         $value = ($this->slot_counter - $delay_count) * $this->slot_duration[0];
         $unit = $this->slot_duration[1];
         $this->slot_time = [$value, $unit];
