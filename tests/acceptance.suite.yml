@@ -10,6 +10,7 @@ modules:
         #- PhpBrowser:
         #    url: http://localhost/naturskolan_database
         - Asserts
+        - Filesystem
         - \Helper\Acceptance
         - WebDriver:
             url: 'http://localhost/testing/naturskolan_database'
