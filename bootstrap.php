@@ -4,6 +4,7 @@ require __DIR__.'/vendor/autoload.php';
 
 use Fridde\Essentials;
 use Fridde\Settings;
+use Carbon\Carbon;
 
 /** START OF BOOTSTRAP  */
 Essentials::setBaseDir(__DIR__);
@@ -24,7 +25,7 @@ $em = $container->get('Naturskolan')->ORM->EM;
 Essentials::registerDBLogger($em, Essentials::getLogger());
 
 setlocale(LC_TIME, 'swedish');
-\Carbon\Carbon::setUtf8(true);
+Carbon::setUtf8(true);
 if(SETTINGS['environment'] === 'test'){
     Carbon::setTestNow(Carbon::parse(SETTINGS['debug']['test_date']));
 }

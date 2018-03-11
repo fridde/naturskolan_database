@@ -114,7 +114,7 @@ fi
 if [ $SKIP -lt 5 ]; then
     cd $TESTING_PATH
     delete_old_files
-    tar cf backup_@`date '+%Y%m%d_%H%M%S'`.tar $PROJECT_NAME
+    tar cf backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
 
     cd $PROJECT_NAME
     git pull
