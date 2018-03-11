@@ -48,10 +48,16 @@ class Task
     public function execute()
     {
         $function_name = preg_replace('/[^[:alnum:][:space:]]/u', '', $this->type);
-        $result = call_user_func([$this, $function_name]);
+        try {
+            call_user_func([$this, $function_name]);
+        } catch (\Exception $e){
+            $msg = 'Failed task: '.$this->type;
+            $msg .= '. Error message: ' . $e->getMessage();
+            $this->N->log($msg, 'Task->execute()');
+            return false;
+        }
         $this->N->log('Executed task: '.$this->type, 'Task->execute()');
-
-        return $result;
+        return true;
 
     }
 

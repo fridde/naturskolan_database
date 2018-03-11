@@ -15,8 +15,7 @@ TESTDB_PATH=$TESTING_PATH/$PROJECT_NAME/tests/_data/test_db.sql
 STAGING_PATH=/cygdrive/d/staging
 GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
 
-set -x
-trap read debug
+set -x; trap read debug
 
 if [ $SKIP -lt 1 ]; then
     echo 'Backup DB and export to test-DB'
@@ -59,8 +58,7 @@ if [ $SKIP -lt 3 ]; then
 fi
 
 if [ $SKIP -lt 4 ]; then
-    trap - debug
-    set +x
+    trap - debug; set +x
 
     echo "Have you..."
     echo "1. run filecomparer?"
@@ -75,8 +73,7 @@ if [ $SKIP -lt 4 ]; then
         esac
     done
 
-    set -x
-    trap read debug
+    set -x; trap read debug
 
     echo 'Update own composer packages and push changes'
     cd ~/toolbox
@@ -94,16 +91,14 @@ if [ $SKIP -lt 4 ]; then
     composer install
     git status
 
-    trap - debug
-    set +x
+    trap - debug; set +x
     read -p "Is the .gitignore file correctly configured?  " yn
         case $yn in
             [Yy]* ) ;;
             [Nn]* ) exit;;
             * ) echo "Please answer yes or no.";;
         esac
-    set -x
-    trap read debug
+    set -x ; trap read debug
 
     git add -A
     git commit -m "More work"

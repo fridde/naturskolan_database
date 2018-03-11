@@ -8,35 +8,29 @@ use Carbon\Carbon;
 
 class CronController extends BaseController
 {
-    private $delay;
-    private $slot_duration;
     private $intervals;
-    private $slot_counter;
-    private $slot_time;
+
+
 
     public function __construct(array $params)
     {
         parent::__construct($params);
         $cron_settings = SETTINGS['cronjobs'];
-        $this->delay = $cron_settings['delay'];
-        $this->slot_duration = $cron_settings['slot_duration'];
         $this->intervals = $cron_settings['intervals'];
     }
 
     public function run()
     {
-        $this->slot_counter = $this->params['counter'] ?? ($this->N->getStatus('slot_counter') ?? 0);
-        $this->N->log('Slot Counter: '.$this->slot_counter, 'CronController->run()');
-        $this->setSlotTime();
         $active_tasks = array_filter($this->N->getCronTaskActivationStatus());
         foreach (array_keys($active_tasks) as $task_type) {
             if ($this->checkIfRightTime($task_type)) {
                 $task = new Task($task_type);
-                $task->execute();
+                $success = $task->execute();
+                if($success){
+                    $this->N->setLastRun($task_type);
+                }
             }
         }
-        $this->resetIfMonday();
-        $this->N->setStatus('slot_counter', $this->slot_counter + 1);
     }
 
     public function executeTask()
@@ -46,32 +40,16 @@ class CronController extends BaseController
         $task->execute(); // ignores task activation in SystemStatus
     }
 
-    public function resetIfMonday()
-    {
-        $has_gone_one_day = U::divideDuration($this->slot_time, [1, 'd']) > 1.0;
-        $is_monday = Carbon::today()->dayOfWeek === 1;
-        if ($has_gone_one_day && $is_monday) {
-            $this->slot_counter = 0;
-        }
-    }
-
-    private function setSlotTime()
-    {
-        $adj_delay = U::adjustInterval($this->delay, $this->slot_duration);
-        $delay_count = U::divideDuration($adj_delay, $this->slot_duration);
-
-        $value = ($this->slot_counter - $delay_count) * $this->slot_duration[0];
-        $unit = $this->slot_duration[1];
-        $this->slot_time = [$value, $unit];
-    }
-
     private function checkIfRightTime(string $task_type)
     {
+        $last_completion = $this->N->getLastRun($task_type);
+        if(empty($last_completion)){
+            return true;
+        }
         $interval = $this->intervals[$task_type];
-        $interval = U::adjustInterval($interval, $this->slot_duration);
-        $mod = fmod(U::divideDuration($this->slot_time, $interval), 1.0);
+        $in_seconds = (float) $interval[0] * self::$interval_factors[$interval[1]];
 
-        return $mod === 0.0;
+        return Carbon::now()->gte($last_completion->addSeconds($in_seconds));
     }
 
 

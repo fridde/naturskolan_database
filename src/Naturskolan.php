@@ -109,6 +109,24 @@ class Naturskolan
     }
 
     /**
+     * @param string $task
+     * @return null|Carbon
+     */
+    public function getLastRun(string $task)
+    {
+        $last_run = $this->getStatus('last_run.' . $task);
+        if(!empty($last_run)){
+            return Carbon::parse($last_run);
+        }
+        return null;
+    }
+
+    public function setLastRun(string $task)
+    {
+       $this->setStatus('last_run.'. $task, Carbon::now()->toIso8601String());
+    }
+
+    /**
      * Shorthand function to set a value for a certain entity in a certain repository.
      *
      * @param mixed $requests The function takes either 3-4 arguments corresponding to
