@@ -29,11 +29,22 @@ paths:
     last_staff_row: '//table[@data-entity="User"]//tbody//tr[last()]//input[@name="FirstName"]'
     teacher_for_2a: '//div[@data-entity-id="44"]//select[@name="User"]'
     visits_for_2a: '//div[@data-entity-id="44"]//ul[@class="group-visit-list"]'
+    rebuild_calendar_cb: '//input[@name="rebuild_calendar"]'
 
 nav_items:
     admin: ['skolor', 'verktyg', 'tabeller']
     user: ['grupper','personal','hjälp','kontakt','logga ut']
     visitor: ['hjälp','kontakt']
+
+cron_items:
+    rebuild_calendar: 'Rebuild Calendar'
+    send_visit_confirmation_message: 'Send Visit Confirmation Message'
+    send_admin_summary_mail: 'Send Admin Summary Mail'
+    send_changed_groupleader_mail: 'Send Changed Groupleader Mail'
+    send_new_user_mail: 'Send New User Mail'
+    send_update_profile_reminder: 'Send Update Profile Reminder'
+    clean_sql_database: 'Clean Sql Database'
+    backup_database: 'Backup Database'
 
 schools:
     frontpage:
@@ -61,5 +72,4 @@ schools:
     not_on_frontpage:
         anna: 'Annan skola'
         natu: 'Naturskolan'
-        
         

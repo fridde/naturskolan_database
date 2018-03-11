@@ -71,7 +71,7 @@ class CronCest
         $I->wait(2);
 
         $I->seeFileFound('kalender.ics', __DIR__ . '/../../');
-        $last_rebuild = $I->grabFromDatabase('systemstatus', 'Value', ['id' => 'calendar.last_rebuild']);
-        
+        $last_rebuild = $I->grabFromDatabase('systemstatus', 'Value', ['id' => 'last_run.rebuild_calendar']);
+        var_dump($last_rebuild);
     }
 }
