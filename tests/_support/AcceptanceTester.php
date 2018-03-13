@@ -51,6 +51,21 @@ class AcceptanceTester extends \Codeception\Actor
         }
     }
 
+    public function seeInSubject(string $string_of_words)
+    {
+        $word_array = explode(' ', $string_of_words);
+        foreach($word_array as $word){
+            $this->seeInOpenedEmailSubject($word);
+        }
+    }
+
+    public function seeInBody(...$parts)
+    {
+        foreach($parts as $part){
+            $this->seeInOpenedEmailBody($part);
+        }
+    }
+
     public function setTestDate()
     {
         Carbon::setTestNow(Carbon::parse($this->get('test_date')));

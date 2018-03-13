@@ -14,6 +14,7 @@ class CronCest
         $I->amOnPage('/');
         $I->setCookie('Hash', $I->get('natu', 'hash'));
         $I->amOnPage('/admin');
+        $I->deleteAllEmails();
     }
 
     public function _after(A $I)
@@ -47,31 +48,70 @@ class CronCest
         $I->assertSame(0, $newest_status['rebuild_calendar']);
     }
 
-    // codecept run acceptance CronCest:slotCounterWorks --steps
-    public function slotCounterWorks(A $I)
+    private function runTask(A $I, $task)
     {
-        $I->uncheckOption($I->get('paths','rebuild_calendar_cb'));
-        $I->seeInDatabase('systemstatus', ['id' => 'slot_counter', 'Value' => 97]);
+        $I->amOnPage('/admin');
+        $cron_tasks = array_keys($I->get('cron_items'));
+        foreach($cron_tasks as $cron_task){
+            $path = '//input[@name="' . $cron_task . '"]';
+            if($cron_task === $task){
+                $I->checkOption($path);
+            } else {
+                $I->uncheckOption($path);
+            }
 
+        }
         $I->amOnPage('/cron/');
         $I->wait(2);
-        $I->seeInDatabase('systemstatus', ['id' => 'slot_counter', 'Value' => 98]);
-
     }
 
     // codecept run acceptance CronCest:calendarGetsRebuild --steps
     public function calendarGetsRebuild(A $I)
     {
-        $I->checkOption($I->get('paths','rebuild_calendar_cb'));
         $cal_path = __DIR__ . '/../../kalender.ics';
         if(file_exists($cal_path)){
             $I->deleteFile($cal_path);
         }
-        $I->amOnPage('/cron/');
-        $I->wait(2);
-
+        $this->runTask($I, 'rebuild_calendar');
         $I->seeFileFound('kalender.ics', __DIR__ . '/../../');
+        $I->seeInDatabase('systemstatus', ['id' => 'last_run.rebuild_calendar']);
+    }
+
+
+    // codecept run acceptance CronCest:calendarDoesntGetRebuild --steps
+    public function calendarDoesntGetRebuild(A $I)
+    {
+        $cal_path = __DIR__ . '/../../kalender.ics';
+        $path_args = ['kalender.ics', __DIR__ . '/../../'];
+        $last_run = ['systemstatus', ['Value' => null], ['id' => 'last_run.rebuild_calendar']];
+        $this->runTask($I, 'rebuild_calendar');
+        if(file_exists($cal_path)){
+            $I->deleteFile($cal_path);
+        }
+        $this->runTask($I, 'rebuild_calendar');
+        $I->dontSeeFileFound(...$path_args);
         $last_rebuild = $I->grabFromDatabase('systemstatus', 'Value', ['id' => 'last_run.rebuild_calendar']);
-        var_dump($last_rebuild);
+        $last_run[1]['Value'] = Carbon::parse($last_rebuild)->subMinutes(10)->toIso8601String();
+        $I->updateInDatabase(...$last_run);
+        $this->runTask($I, 'rebuild_calendar');
+        $I->dontSeeFileFound(...$path_args);
+        $last_run[1]['Value'] = Carbon::parse($last_rebuild)->subMinutes(20)->toIso8601String();
+        $I->updateInDatabase(...$last_run);
+        $this->runTask($I, 'rebuild_calendar');
+        $I->seeFileFound(...$path_args);
+    }
+
+    // codecept run acceptance CronCest:visitConfirmationMessage --steps
+    public function visitConfirmationMessage(A $I)
+    {
+        $this->runTask($I, 'send_visit_confirmation_message');
+        $I->fetchEmails();
+        $I->haveNumberOfUnreadEmails(1);
+        $I->openNextUnreadEmail();
+        $I->seeInSubject('Bekräfta ditt besök');
+        $I->seeInOpenedEmailSender('info@sigtunanaturskola.se');
+        $I->seeInBody('Björn', '2A', '13 mars');
+        $I->seeInOpenedEmailRecipients('krumpf@edu.sigtuna.se');
+
     }
 }
