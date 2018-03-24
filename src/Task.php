@@ -281,7 +281,7 @@ class Task
      */
     private function sendChangedGroupLeaderMail()
     {
-        $subject = 'changed_groups';
+        $subject = Message::SUBJECT_CHANGED_GROUPS;
         $crit = [['EntityClass', 'Group'], ['Property', 'User']];
         $user_changes = $this->N->getRepo('Change')->findNewChanges($crit);
         $user_array = [];
@@ -291,7 +291,7 @@ class Task
             $group = $this->N->getRepo('Group')->find($change->getEntityId());
             $new_value = $group->getUserId();
             $old_value = (int) $change->getOldValue();
-            if ($new_value != $old_value) {
+            if ($new_value !== $old_value) {
                 if (!empty($old_value)) {
                     $user_array[$old_value]['removed'][] = $group->getId();
                 }

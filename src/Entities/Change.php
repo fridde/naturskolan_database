@@ -103,7 +103,7 @@ class Change
 
     public function setTimestamp($Timestamp)
     {
-        if(!is_string($Timestamp)){
+        if($Timestamp instanceof Carbon){
             $Timestamp = $Timestamp->toIso8601String();
         }
         $this->Timestamp = $Timestamp;
