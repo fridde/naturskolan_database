@@ -101,17 +101,49 @@ class CronCest
         $I->seeFileFound(...$path_args);
     }
 
-    // codecept run acceptance CronCest:visitConfirmationMessage --steps
+    // codecept run acceptance CronCest:visitConfirmationMessage --steps -f
     public function visitConfirmationMessage(A $I)
     {
         $this->runTask($I, 'send_visit_confirmation_message');
         $I->fetchEmails();
-        $I->haveNumberOfUnreadEmails(1);
-        $I->openNextUnreadEmail();
-        $I->seeInSubject('Bekräfta ditt besök');
-        $I->seeInOpenedEmailSender('info@sigtunanaturskola.se');
-        $I->seeInBody('Björn', '2A', '13 mars');
-        $I->seeInOpenedEmailRecipients('krumpf@edu.sigtuna.se');
+        $I->haveNumberOfUnreadEmails(2);
+        $mails = [ [
+                'sub' => 'Bekräfta ditt besök',
+                'from' => 'info@sigtunanaturskola.se',
+                'to' => 'krumpf@edu.sigtuna.se',
+                'body' => ['Liv', 'Björn', '2A', '13 mars']
+            ], [
+                'sub' => 'Bekräfta ditt besök',
+                'from' => 'info@sigtunanaturskola.se',
+                'to' => 'kindulaer@edu.sigtuna.se',
+                'body' => ['Universum', 'Alfred', '2C', '2 mars']
+            ]];
 
+        $I->checkMultipleEmails($mails);
+    }
+
+    // codecept run acceptance CronCest:adminSummaryMail --steps -f
+    public function adminSummaryMail(A $I)
+    {
+        $this->runTask($I, 'send_admin_summary_mail');
+        $I->fetchEmails();
+        $I->haveNumberOfUnreadEmails(1);
+
+        $mail = [
+            'sub' => 'Dagliga sammanfattningen av databasen',
+            'from' => 'info@sigtunanaturskola.se',
+            'to' => 'info@sigtunanaturskola.se',
+            'body' => ['Status av databasen', 'Obekräftade besök', '2018-03-02: Universum med 2C från S:t Pers skola']
+        ];
+        $I->checkEmail($mail);
+
+    }
+
+    // codecept run acceptance CronCest:sendChangedGroupleaderMail --steps -f
+    public function sendChangedGroupleaderMail(A $I)
+    {
+        $this->runTask($I, 'send_changed_groupleader_mail');
+        $I->fetchEmails();
+        $I->haveNumberOfUnreadEmails(0);
     }
 }

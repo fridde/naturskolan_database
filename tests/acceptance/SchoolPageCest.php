@@ -14,13 +14,14 @@ class SchoolPageCest
         $I->setCookie('Hash', $I->get('st_per', 'hash'));
         $I->amOnPage('/skola/pers');
         $I->setTestDate();
+        $I->wait(2);
     }
 
     public function _after(A $I)
     {
     }
 
-
+    // codecept run acceptance SchoolPageCest:canChangeFields --steps -f
     public function canChangeFields(A $I)
     {
         $staff_link = Locator::find('a', ['href' => $I->get('BASE').'/skola/pers/staff']);
@@ -41,6 +42,7 @@ class SchoolPageCest
         $I->assertTrue(Carbon::parse($last_change)->gt(Carbon::now()->subMinute()));
     }
 
+    // codecept run acceptance SchoolPageCest:passwordIsRevealed --steps -f
     public function passwordIsRevealed(A $I)
     {
         $places = [null, '/skola/pers/staff', '/skola/pers/groups'];
@@ -55,7 +57,7 @@ class SchoolPageCest
             $I->see($I->get('st_per','pw'));
         }
     }
-
+    // codecept run acceptance SchoolPageCest:rowIsAdded --steps -f
     public function rowIsAdded(A $I)
     {
         $I->amOnPage('/skola/pers/staff');
@@ -65,7 +67,7 @@ class SchoolPageCest
         $I->wait(3);
         $row_path = '//table[@data-entity="User"]//tbody//tr';
         $rows = $I->grabMultiple($row_path);
-        $I->assertCount(6, $rows);
+        $I->assertCount(9, $rows);
         $num_users_before = $I->grabNumRecords('users');
         $I->fillField($I->get('paths', 'last_staff_row'), 'Ronald');
         $I->clickWithLeftButton(null, 0, -50);
@@ -75,7 +77,7 @@ class SchoolPageCest
         $I->assertSame($num_users_after, $num_users_before + 1);
     }
 
-    // codecept run acceptance SchoolPageCest:groupPageWorks --steps
+    // codecept run acceptance SchoolPageCest:groupPageWorks --steps -f
     public function groupPageWorks(A $I)
     {
         $I->amOnPage('/skola/pers/groups');
@@ -86,7 +88,7 @@ class SchoolPageCest
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 53]);
         $teacher_for_2a_field_path = $I->get('paths','teacher_for_2a');
         $I->seeElement($teacher_for_2a_field_path);
-        $I->seeOptionIsSelected($teacher_for_2a_field_path, 'Tomas Samuelsson');
+        $I->seeOptionIsSelected($teacher_for_2a_field_path, 'Björn Rosenström');
         $I->checkMultiple('seeInSource', $I->get('st_per', 'teachers'));
         $I->dontSeeInPageSource('Stefan Eriksson');
         $I->selectOption($teacher_for_2a_field_path, 'Anna Svensson');
