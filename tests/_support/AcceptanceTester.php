@@ -78,20 +78,25 @@ class AcceptanceTester extends \Codeception\Actor
         }
     }
 
-    public function seeInSubject(string $string_of_words)
+    public function seeInSubject(string $subject)
     {
-        $word_array = explode(' ', $string_of_words);
-        foreach ($word_array as $word) {
-            $this->seeInOpenedEmailSubject($word);
+        if(mb_detect_encoding($subject, 'ASCII', true) === false){
+            $subject = str_replace(' ', '_', $subject);
         }
+        $this->seeInOpenedEmailSubject($subject);
+
     }
 
     public function seeInBody(...$parts)
     {
         foreach ($parts as $part) {
+            if(mb_detect_encoding($part, 'ASCII', true) === false){
+                //$part = quoted_printable_encode($part);
+            }
             $this->seeInOpenedEmailBody($part);
         }
     }
+
 
     public function setTestDate()
     {
