@@ -87,7 +87,7 @@ if [ $SKIP -lt 4 ]; then
         read -e -p "Updated?  " answer
         case $answer in
             [Yy]* ) break;;
-            * ) ;;
+            * ) sleep 10 ;;
         esac
     done
 
