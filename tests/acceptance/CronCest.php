@@ -162,5 +162,63 @@ class CronCest
         $I->wait(2);
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
+        // checking that this is due to the mails already being sent and not just because of the systemstatus
+        $I->setTestDate('2018-03-03');
+        $I->amOnPage('/cron/');
+        $I->wait(2);
+        $I->fetchEmails();
+        $I->haveNumberOfUnreadEmails(2);
+        // checking the content
+        $mail = [
+            'sub' => 'Antal grupper du förvaltar har ökat',
+            'from' => 'info@sigtunanaturskola.se',
+            'to' => 'ipsum.leo@edu.sigtuna.se',
+            'body' => [
+                'Ny grupp som du ansvarar för',
+                '5b, åk 5',
+                'Hej Anna',
+                'gjort dig ansvarig för en eller flera grupper',
+                'ändrat ansvaret för nån'
+            ],
+        ];
+        $I->checkEmail($mail);
+        $mail = [
+            'sub' => 'Antal grupper du förvaltar har minskat',
+            'from' => 'info@sigtunanaturskola.se',
+            'to' => 'Nulla@edu.sigtuna.se',
+            'body' => [
+                'Borttagen grupp som du ej längre ansvarar för',
+                '5b, åk 5',
+                'Gruppen som du fortsätter att ansvara för',
+                '5a, åk 5',
+                'Hej Tomas'
+            ],
+        ];
+        $I->checkEmail($mail);
     }
+
+    // codecept run acceptance CronCest:sendNewUserMail --steps -f
+    public function sendNewUserMail(A $I)
+    {
+        $heinz_welcome_mail = ['User_id' => 102, 'Subject' => 1, 'Carrier' => 0, 'Status' => 1];
+        $I->dontSeeInDatabase('messages', $heinz_welcome_mail);
+        $this->runTask($I, 'send_new_user_mail');
+        $I->seeInDatabase('messages', $heinz_welcome_mail);
+        $I->fetchEmails();
+        $I->haveNumberOfUnreadEmails(1);
+        $mail = [
+            'sub' => 'Välkommen i Naturskolans databas',
+            'from' => 'info@sigtunanaturskola.se',
+            'to' => 'heinz.krumbichel@edu.sigtuna.se',
+            'body' => [
+                'Hej Heinz',
+                '5b, åk 5',
+                'Hej Anna',
+                'gjort dig ansvarig för en eller flera grupper',
+                'ändrat ansvaret för nån'
+            ],
+        ];
+        $I->checkEmail($mail);
+    }
+
 }

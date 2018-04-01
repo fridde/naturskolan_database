@@ -88,14 +88,20 @@ class SchoolPageCest
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 53]);
         $teacher_for_2a_field_path = $I->get('paths','teacher_for_2a');
         $I->seeElement($teacher_for_2a_field_path);
-        $I->seeOptionIsSelected($teacher_for_2a_field_path, 'Björn Rosenström');
+        $I->seeOptionIsSelected($teacher_for_2a_field_path, 'Björn Rosenström'); // teacher with id 53
         $I->checkMultiple('seeInSource', $I->get('st_per', 'teachers'));
-        $I->dontSeeInPageSource('Stefan Eriksson');
-        $I->selectOption($teacher_for_2a_field_path, 'Anna Svensson');
+        $I->dontSeeInPageSource('Stefan Eriksson'); // different school
+        $I->selectOption($teacher_for_2a_field_path, 'Anna Svensson'); // teacher with id 24
         $I->clickWithLeftButton(null,-50,0);
         $I->wait(2);
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 24]);
-
+        $I->seeInDatabase('changes', [
+            'EntityClass' => 'Group',
+            'EntityId' => 44,
+            'Property' => 'User',
+            'OldValue' => 53,
+            'Processed' => null
+            ]);
 
         $visits_for_2a = ['2018-02-16', 'Universum', '2018-04-13', 'Vårvandring', '2018-06-07', 'Forntidsdag'];
         //
