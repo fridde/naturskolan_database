@@ -343,7 +343,8 @@ class Task
 
     private function sendNewUserMail()
     {
-        $subject = 'welcome_new_user';
+        $purpose = 'welcome_new_user';
+        $subject = Message::SUBJECT_WELCOME_NEW_USER;
         $sent_welcome_messages = $this->N->getRepo('Message')->getSentWelcomeMessages();
         $welcomed_user_ids = array_map(
             function (Message $m) {
@@ -360,9 +361,9 @@ class Task
         $messages = [];
         foreach ($users_without_welcome as $user) {
             /* @var User $user */
-            $params = ['purpose' => $subject];
+            $params = ['purpose' => $purpose];
             if ($user->hasMail()) {
-                $data['user']['fname'] = $user->getFirstName();
+                $data['fname'] = $user->getFirstName();
                 $data['user']['has_mobil'] = $user->hasMobil();
                 $data['password'] = $this->N->createPassword($user->getSchoolId());
                 $data['groups'] = $user->getGroups()->toArray();
@@ -375,9 +376,7 @@ class Task
 
                 $response = $mail->buildAndSend();
 
-                $messages[] = [$response, 'mail', $user, $subject];
-                // TODO: remove following line in production if implementation has not changed
-                //self::processChange($change);
+                $messages[] = [$response, 'mail', $user, $subject];               
             } else {
                 echo '';
                 // TODO: log this somewhere and inform admin

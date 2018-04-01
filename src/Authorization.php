@@ -58,7 +58,7 @@ class Authorization
         if (empty($code)) {
             return null;
         }
-        $user_id = $this->PW->getIntFromCode($code);
+        $user_id = $this->PW->getIntFromCode($code, 'user');
         if (!empty($user_id)) {
             return $this->ORM->getRepository('User')->find($user_id);
         }

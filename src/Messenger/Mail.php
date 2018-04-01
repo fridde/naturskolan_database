@@ -144,6 +144,7 @@ class Mail extends AbstractMessageController
             }
         );
 
+		$this->addAsVar(['school_url' => $DATA['school_url'], 'fname' => $DATA['fname']]);
         $this->setTemplate('new_user_welcome');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Välkommen i Naturskolans databas');

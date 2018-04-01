@@ -23,6 +23,7 @@ class MessageRepository extends CustomRepository
     {
         $criteria = [['eq', 'Subject', Message::SUBJECT_WELCOME_NEW_USER]];
         $criteria[] = ['eq', 'Status', Message::STATUS_SENT];
+		$criteria[] = ['eq', 'Carrier', Message::CARRIER_MAIL];
         return $this->select($criteria);
     }
 
