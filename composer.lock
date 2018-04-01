@@ -1009,12 +1009,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/mailer.git",
-                "reference": "c456f56b50eab60456423eb3d3ebea2ba07e875d"
+                "reference": "505b2f5f5d62e4040264472757d111504c1b5ee1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/mailer/zipball/c456f56b50eab60456423eb3d3ebea2ba07e875d",
-                "reference": "c456f56b50eab60456423eb3d3ebea2ba07e875d",
+                "url": "https://api.github.com/repos/fridde/mailer/zipball/505b2f5f5d62e4040264472757d111504c1b5ee1",
+                "reference": "505b2f5f5d62e4040264472757d111504c1b5ee1",
                 "shasum": ""
             },
             "require": {
@@ -1037,7 +1037,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-03-13T19:51:28+00:00"
+            "time": "2018-03-30T17:42:58+00:00"
         },
         {
             "name": "fridde/orm",
