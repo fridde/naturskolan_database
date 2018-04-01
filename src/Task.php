@@ -317,7 +317,7 @@ class Task
                 $g_changes['rest'] = array_diff($all, $g_changes['new'], $g_changes['removed']);
 
                 $params['data']['groups'] = $g_changes;
-                $params['data']['user_fname'] = $user->getFirstName();
+                $params['data']['fname'] = $user->getFirstName();
 
                 $school_url = $this->N->generateUrl('school', ['school' => $user->getSchoolId()], true);
                 $params['data']['school_url'] = $school_url;

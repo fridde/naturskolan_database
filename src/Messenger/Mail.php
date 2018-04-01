@@ -110,6 +110,7 @@ class Mail extends AbstractMessageController
         $groups = $DATA['groups'];
         $this->setTemplate('changed_groups');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
+        $this->addAsVar(['school_url' => $DATA['school_url'], 'fname' => $DATA['fname']]);
         $has_removed = !empty($groups['removed']);
         $has_new = !empty($groups['new']);
         if ($has_removed && $has_new) {
