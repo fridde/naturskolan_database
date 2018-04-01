@@ -25,7 +25,7 @@ class CronCest
     public function canSeeAllFields(A $I)
     {
         $fields = $I->get('cron_items');
-        foreach($fields as $index => $label){
+        foreach ($fields as $index => $label) {
             $I->canSee($label);
             $I->seeInSource($index);
         }
@@ -37,7 +37,7 @@ class CronCest
         $status_path = ['systemstatus', 'Value', ['id' => 'cron_tasks.activation']];
         $status = json_decode($I->grabFromDatabase(...$status_path), true);
         $I->assertTrue(empty($status['rebuild_calendar']));
-        $cb_path = $I->get('paths','rebuild_calendar_cb');
+        $cb_path = $I->get('paths', 'rebuild_calendar_cb');
         $I->checkOption($cb_path);
         $I->wait(2);
         $new_status = json_decode($I->grabFromDatabase(...$status_path), true);
@@ -52,9 +52,9 @@ class CronCest
     {
         $I->amOnPage('/admin');
         $cron_tasks = array_keys($I->get('cron_items'));
-        foreach($cron_tasks as $cron_task){
-            $path = '//input[@name="' . $cron_task . '"]';
-            if($cron_task === $task){
+        foreach ($cron_tasks as $cron_task) {
+            $path = '//input[@name="'.$cron_task.'"]';
+            if ($cron_task === $task) {
                 $I->checkOption($path);
             } else {
                 $I->uncheckOption($path);
@@ -68,12 +68,12 @@ class CronCest
     // codecept run acceptance CronCest:calendarGetsRebuild --steps
     public function calendarGetsRebuild(A $I)
     {
-        $cal_path = __DIR__ . '/../../kalender.ics';
-        if(file_exists($cal_path)){
+        $cal_path = __DIR__.'/../../kalender.ics';
+        if (file_exists($cal_path)) {
             $I->deleteFile($cal_path);
         }
         $this->runTask($I, 'rebuild_calendar');
-        $I->seeFileFound('kalender.ics', __DIR__ . '/../../');
+        $I->seeFileFound('kalender.ics', __DIR__.'/../../');
         $I->seeInDatabase('systemstatus', ['id' => 'last_run.rebuild_calendar']);
     }
 
@@ -81,11 +81,11 @@ class CronCest
     // codecept run acceptance CronCest:calendarDoesntGetRebuild --steps
     public function calendarDoesntGetRebuild(A $I)
     {
-        $cal_path = __DIR__ . '/../../kalender.ics';
-        $path_args = ['kalender.ics', __DIR__ . '/../../'];
+        $cal_path = __DIR__.'/../../kalender.ics';
+        $path_args = ['kalender.ics', __DIR__.'/../../'];
         $last_run = ['systemstatus', ['Value' => null], ['id' => 'last_run.rebuild_calendar']];
         $this->runTask($I, 'rebuild_calendar');
-        if(file_exists($cal_path)){
+        if (file_exists($cal_path)) {
             $I->deleteFile($cal_path);
         }
         $this->runTask($I, 'rebuild_calendar');
@@ -107,17 +107,20 @@ class CronCest
         $this->runTask($I, 'send_visit_confirmation_message');
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
-        $mails = [ [
+        $mails = [
+            [
                 'sub' => 'Bekräfta ditt besök',
                 'from' => 'info@sigtunanaturskola.se',
                 'to' => 'krumpf@edu.sigtuna.se',
-                'body' => ['Liv', 'Björn', '2A', '13 mars']
-            ], [
+                'body' => ['Liv', 'Björn', '2A', '13 mars'],
+            ],
+            [
                 'sub' => 'Bekräfta ditt besök',
                 'from' => 'info@sigtunanaturskola.se',
                 'to' => 'kindulaer@edu.sigtuna.se',
-                'body' => ['Universum', 'Alfred', '2C', '2 mars']
-            ]];
+                'body' => ['Universum', 'Alfred', '2C', '2 mars'],
+            ],
+        ];
 
         $I->checkMultipleEmails($mails);
     }
@@ -133,7 +136,16 @@ class CronCest
             'sub' => 'Dagliga sammanfattningen av databasen',
             'from' => 'info@sigtunanaturskola.se',
             'to' => 'info@sigtunanaturskola.se',
-            'body' => ['Status av databasen', 'Obekräftade besök', '2018-03-02: Universum med 2C från S:t Pers skola']
+            'body' => [
+                'Status av databasen',
+                'Felaktiga mobilnummer',
+                'Peter Samuelsson',
+                '071-9638300',
+                'Pär Hedin',
+                '085474218',
+                'Obekräftade besök',
+                '2018-03-02: Universum med 2C från S:t Pers skola',
+            ],
         ];
         $I->checkEmail($mail);
 
@@ -144,6 +156,11 @@ class CronCest
     {
         $this->runTask($I, 'send_changed_groupleader_mail');
         $I->fetchEmails();
-        $I->haveNumberOfUnreadEmails(0);
+        $I->haveNumberOfUnreadEmails(2);
+        //checking that no new mails are sent
+        $I->amOnPage('/cron/');
+        $I->wait(2);
+        $I->fetchEmails();
+        $I->haveNumberOfUnreadEmails(2);
     }
 }
