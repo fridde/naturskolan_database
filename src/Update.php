@@ -174,6 +174,7 @@ class Update extends DefaultUpdate
     public function setCookie(string $school_id, string $url = '', int $rights = Cookie::RIGHTS_SCHOOL_ONLY)
     {
         $hash = $this->N->createHash($school_id);
+        setcookie('Hash', $hash, Carbon::now()->addDays(90)->toCookieString(), '/');
         $cookie = new Cookie();
         $school = $this->N->getRepo('School')->find($school_id);
         $cookie->setValue($hash)->setName('Hash')->setSchool($school);
