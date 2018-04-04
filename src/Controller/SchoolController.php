@@ -33,8 +33,6 @@ class SchoolController extends BaseController
         if (!empty($school_id)){
             $this->school = $this->N->getRepo('School')->find($school_id);
         }
-
-
     }
 
     public function handleRequest()

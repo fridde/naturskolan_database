@@ -340,9 +340,9 @@ class Naturskolan
         }
     }
 
-    public function createHash()
+    public function createHash(string $extra_entropy = '')
     {
-        $hash_string = password_hash(microtime(), PASSWORD_DEFAULT);
+        $hash_string = password_hash(microtime() . $extra_entropy, PASSWORD_DEFAULT);
         $hash_array = explode('$', $hash_string);
 
         return implode('', array_slice($hash_array, 3));
