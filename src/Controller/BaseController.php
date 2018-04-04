@@ -289,6 +289,14 @@ class BaseController
         $this->params[$key] = $value;
     }
 
+    public function hasParameter(string $key = null)
+    {
+        if(empty($key)){
+            return !empty($this->params);
+        }
+        return (null !== $this->getParameter($key));
+    }
+
     /**
      * @return string
      */
