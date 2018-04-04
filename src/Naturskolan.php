@@ -5,6 +5,7 @@
 
 namespace Fridde;
 
+use Fridde\Entities\Cookie;
 use Fridde\Entities\SystemStatus;
 use Fridde\Entities\User;
 use Fridde\PasswordHandler as PW;
@@ -345,6 +346,12 @@ class Naturskolan
         $hash_array = explode('$', $hash_string);
 
         return implode('', array_slice($hash_array, 3));
+    }
+
+    public function setCookieHash(string $school_id, int $rights = Cookie::RIGHTS_SCHOOL_ONLY)
+    {
+        $update = new Update();
+        $update->setCookie($school_id, null, $rights);
     }
 
     public function generateUrl($route_name, array $params = [], bool $absolute = false)

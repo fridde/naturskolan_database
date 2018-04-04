@@ -32,7 +32,7 @@ class CronController extends BaseController
 
     public function executeTask()
     {
-        $task_type = $this->params['type'];
+        $task_type = $this->getParameter('type');
         $task = new Task($task_type);
         $task->execute(); // ignores task activation in SystemStatus
     }

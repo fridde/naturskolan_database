@@ -171,13 +171,13 @@ class Update extends DefaultUpdate
         $this->ORM->EM->flush();
     }
 
-    public function setCookie(string $school_id, string $url)
+    public function setCookie(string $school_id, string $url = '', int $rights = Cookie::RIGHTS_SCHOOL_ONLY)
     {
         $hash = $this->N->createHash();
         $cookie = new Cookie();
         $school = $this->N->getRepo('School')->find($school_id);
         $cookie->setValue($hash)->setName('Hash')->setSchool($school);
-        $cookie->setRights('school_only');
+        $cookie->setRights($rights);
         $this->ORM->save($cookie);
         $this->setReturn('hash', $hash)->setReturn('school', $school->getId())->setReturn('url', $url);
     }
