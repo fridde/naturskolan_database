@@ -26,18 +26,14 @@ class SchoolController extends BaseController
     public function __construct($params = [])
     {
         parent::__construct($params);
+        if($this->hasParameter('code')){
+            $this->setCookieAndRefresh();
+        }
         $school_id = $this->getParameter('school');
-        $code = $this->getParameter('code');
         if (!empty($school_id)){
             $this->school = $this->N->getRepo('School')->find($school_id);
         }
-        if(!empty($code)){
-            $school_id = $this->N->Auth->getUserFromCode($code)->getSchoolId();
-            $this->N->setCookieHash($school_id);
-            $url = $this->N->generateUrl('school', ['school' => $school_id, 'page' => $this->getParameter('page')]);
 
-            Utility::redirect($url);
-        }
 
     }
 
@@ -168,6 +164,17 @@ class SchoolController extends BaseController
         }
 
         return $DATA;
+    }
+
+    private function setCookieAndRefresh()
+    {
+        $code = $this->getParameter('code');
+        $school_id = $this->N->Auth->getUserFromCode($code)->getSchoolId();
+        $this->N->setCookieHash($school_id);
+        $params = ['school' => $school_id, 'page' => $this->getParameter('page')];
+        $url = $this->N->generateUrl('school', $params);
+
+        Utility::redirect($url);
     }
 
 }
