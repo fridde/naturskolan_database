@@ -211,11 +211,7 @@ class CronCest
             'from' => 'info@sigtunanaturskola.se',
             'to' => 'heinz.krumbichel@edu.sigtuna.se',
             'body' => [
-                'Hej Heinz',
-                '5b, åk 5',
-                'Hej Anna',
-                'gjort dig ansvarig för en eller flera grupper',
-                'ändrat ansvaret för nån'
+                'Hej Heinz'
             ],
         ];
         $I->checkEmail($mail);
