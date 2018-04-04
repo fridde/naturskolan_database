@@ -351,7 +351,7 @@ class Naturskolan
     public function setCookieHash(string $school_id, int $rights = Cookie::RIGHTS_SCHOOL_ONLY)
     {
         $update = new Update();
-        $update->setCookie($school_id, null, $rights);
+        $update->setCookie($school_id);
     }
 
     public function generateUrl($route_name, array $params = [], bool $absolute = false)

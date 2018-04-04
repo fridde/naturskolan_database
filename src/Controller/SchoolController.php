@@ -35,6 +35,7 @@ class SchoolController extends BaseController
             $school_id = $this->N->Auth->getUserFromCode($code)->getSchoolId();
             $this->N->setCookieHash($school_id);
             $url = $this->N->generateUrl('school', ['school' => $school_id, 'page' => $this->getParameter('page')]);
+
             Utility::redirect($url);
         }
 
