@@ -355,7 +355,7 @@ class Task
         $users_without_welcome = array_filter(
             $this->N->getRepo('User')->findActiveUsers(),
             function (User $u) use ($welcomed_user_ids) {
-                return !in_array($u->getId(), $welcomed_user_ids);
+                return !in_array($u->getId(), $welcomed_user_ids, false);
             }
         );
         $messages = [];

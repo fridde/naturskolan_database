@@ -44,7 +44,7 @@ class APIController extends BaseController
     {
         $this->setReturnType('json');
         $cookie_school_id = $this->N->Auth->getSchooldIdFromCookie();
-        if($school_id == $cookie_school_id || $this->N->Auth->getUserRole() === 'admin'){
+        if($school_id === $cookie_school_id || $this->N->Auth->getUserRole() === 'admin'){
             $this->addToDATA('password', $this->N->createPassword($school_id));
         }
     }

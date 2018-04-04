@@ -10,6 +10,7 @@ use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 use Fridde\Timing as T;
+use Fridde\Utility;
 
 class SchoolController extends BaseController
 {
@@ -25,10 +26,18 @@ class SchoolController extends BaseController
     public function __construct($params = [])
     {
         parent::__construct($params);
-        if (!empty($this->params['school'])) {
-            $this->school = $this->N->getRepo('School')->find($this->params['school']);
+        $school_id = $this->getParameter('school');
+        $code = $this->getParameter('code');
+        if (!empty($school_id)){
+            $this->school = $this->N->getRepo('School')->find($school_id);
         }
-        $this->user = $this->N->Auth->getUserFromCode($this->params['code'] ?? null);
+        if(!empty($code)){
+            $school_id = $this->N->Auth->getUserFromCode($code)->getSchoolId();
+            $this->N->setCookieHash($school_id);
+            $url = $this->N->generateUrl('school', ['school' => $school_id, 'page' => $this->getParameter('page')]);
+            Utility::redirect($url);
+        }
+
     }
 
     public function handleRequest()

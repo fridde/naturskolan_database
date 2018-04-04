@@ -29,8 +29,6 @@ class Cookie
     /** @Column(type="string", nullable=true) */
     protected $CreatedAt;
 
-    const RIGHTS = [0 => 'no_schools', 1 => 'school_only', 2 => 'all_schools'];
-
     public const RIGHTS_NO_SCHOOLS = 0;
     public const RIGHTS_SCHOOL_ONLY = 1;
     public const RIGHTS_ALL_SCHOOLS = 2;

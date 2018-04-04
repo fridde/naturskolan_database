@@ -44,7 +44,6 @@ class BaseController
         $extension = new NavigationExtension(...$args);
         $this->H = new HTML(null, [$extension]);
         $this->setTitle(SETTINGS['defaults']['title'] ?? null);
-        $this->params = $params;
         $this->addAction($this->getParameter('action'));
     }
 
@@ -60,7 +59,7 @@ class BaseController
     public function handleRequest()
     {
         $actions = $this->getActions();
-        $param_string = $this->params['parameters'] ?? null;
+        $param_string = $this->getParameter('parameters');
         $params = empty($param_string) ? [] : explode('/', $param_string);
         foreach ($actions as $action) {
             $method = $this->translateActionToMethod($action);
