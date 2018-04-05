@@ -2,12 +2,12 @@
 
 namespace Fridde\Controller;
 
+use Carbon\Carbon;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 use Fridde\Messenger\Mail;
-use Fridde\Naturskolan;
 use Fridde\Update;
-use GuzzleHttp\Client;
+
 
 
 class APIController extends BaseController
@@ -74,5 +74,12 @@ class APIController extends BaseController
 
         $this->addToDATA('status', $response->getStatus());
         $this->addToDATA('errors', ($response->getErrors() ?? []));
+    }
+
+    public function updateTestDate(string $date_time)
+    {
+        $date_time = html_entity_decode($date_time);
+        $this->N->setStatus('test.datetime', $date_time);
+        Carbon::setTestNow($date_time);
     }
 }

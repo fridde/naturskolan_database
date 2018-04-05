@@ -66,6 +66,12 @@ class CronCest
         $I->wait(2);
     }
 
+    private function runTaskAgain(A $I, $task)
+    {
+        $I->amOnPage('/cron/');
+        $I->wait(2);
+    }
+
     // codecept run acceptance CronCest:calendarGetsRebuild --steps
     public function calendarGetsRebuild(A $I)
     {
@@ -216,6 +222,31 @@ class CronCest
             ],
         ];
         $I->checkEmail($mail);
+
+        $user_data = [
+            'id' => 103,
+            'FirstName' => 'Ban Ki',
+            'LastName' => 'Moon',
+            'Mail' => 'slindholm0@jiathis.com',
+            'Status' => 0,
+            'School_id' => 'jose'
+        ];
+
+        $I->seeInDatabase('users', $user_data);
+        $I->updateInDatabase('users', ['Status' => 1], ['id' => 103]);
+        // run task again, but only a few hours after
+        $I->setTestDate('2018-03-01T19:00:00+01:00');
+        $this->runTaskAgain($I, 'send_new_user_mail');
+        $I->fetchEmails();
+        // expect no new mail
+        $I->haveNumberOfUnreadEmails(1);
+
+        // run task again much later
+        $I->setTestDate('2018-03-03T12:00:00+01:00');
+        $this->runTaskAgain($I, 'send_new_user_mail');
+        $I->fetchEmails();
+        // expect one new mail
+        $I->haveNumberOfUnreadEmails(2);
     }
 
 }

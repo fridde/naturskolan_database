@@ -361,7 +361,7 @@ class BaseController
         if (method_exists($this, $method)) {
             return $method;
         }
-        $method = $this->ActionTranslator[$action] ?? null;
+        $method = $this->ActionTranslator[$action] ?? null; // has to be implemented in the child class
         if (!empty($method)) {
             return $method;
         }

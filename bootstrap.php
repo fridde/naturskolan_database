@@ -27,7 +27,12 @@ Essentials::registerDBLogger($em, Essentials::getLogger());
 setlocale(LC_TIME, 'swedish');
 Carbon::setUtf8(true);
 if(SETTINGS['environment'] === 'test'){
-    Carbon::setTestNow(Carbon::parse(SETTINGS['debug']['test_date']));
+    /* @var \Fridde\Naturskolan $N  */
+    $N = $container->get('Naturskolan');
+    $test_time = $N->getStatus('test.datetime')
+        ?? (Carbon::parse(SETTINGS['debug']['test_date'])
+            ?? Carbon::now());
+    Carbon::setTestNow($test_time);
 }
 
 /** END OF BOOTSTRAP */
