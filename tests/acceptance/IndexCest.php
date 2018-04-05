@@ -4,6 +4,7 @@
 use Codeception\Util\Locator;
 use AcceptanceTester as A;
 
+// codecept run acceptance IndexCest --steps -f
 class IndexCest
 {
     public function _before(A $I)

@@ -6,6 +6,7 @@ use Codeception\Util\Locator;
 
 use AcceptanceTester as A;
 
+// codecept run acceptance SchoolPageCest --steps -f
 class SchoolPageCest
 {
     public function _before(A $I)

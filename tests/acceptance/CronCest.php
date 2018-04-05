@@ -6,6 +6,7 @@ use Codeception\Util\Locator;
 
 use AcceptanceTester as A;
 
+// codecept run acceptance CronCest --steps -f
 class CronCest
 {
     public function _before(A $I)
