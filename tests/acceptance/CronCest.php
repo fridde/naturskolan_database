@@ -2,7 +2,6 @@
 
 
 use Carbon\Carbon;
-use Codeception\Util\Locator;
 
 use AcceptanceTester as A;
 
@@ -11,7 +10,6 @@ class CronCest
 {
     public function _before(A $I)
     {
-        $I->setTestDate();
         $I->amOnPage('/');
         $I->setCookie('Hash', $I->get('natu', 'hash'));
         $I->amOnPage('/admin');
@@ -235,18 +233,24 @@ class CronCest
         $I->seeInDatabase('users', $user_data);
         $I->updateInDatabase('users', ['Status' => 1], ['id' => 103]);
         // run task again, but only a few hours after
-        $I->setTestDate('2018-03-01T19:00:00+01:00');
+        $I->setTestDate('2018-03-01T14:00:00+01:00');
         $this->runTaskAgain($I, 'send_new_user_mail');
         $I->fetchEmails();
         // expect no new mail
         $I->haveNumberOfUnreadEmails(1);
 
         // run task again much later
-        $I->setTestDate('2018-03-03T12:00:00+01:00');
+        $I->setTestDate('2018-03-03');
         $this->runTaskAgain($I, 'send_new_user_mail');
         $I->fetchEmails();
         // expect one new mail
         $I->haveNumberOfUnreadEmails(2);
+    }
+
+    // codecept run acceptance CronCest:sendUpdateProfileReminder --steps -f
+    public function sendUpdateProfileReminder(A $I)
+    {
+
     }
 
 }

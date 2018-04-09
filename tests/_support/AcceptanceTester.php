@@ -101,6 +101,7 @@ class AcceptanceTester extends \Codeception\Actor
     public function setTestDate(string $test_date = null)
     {
         $test_date = $test_date ?? $this->get('test_date');
-        Carbon::setTestNow(Carbon::parse($test_date));
+        $this->amOnPage('/api/updateTestDate/' . htmlentities($test_date));
+        $this->wait(2);
     }
 }
