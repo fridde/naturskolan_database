@@ -341,6 +341,15 @@ class User
         return count($this->getGroups()->toArray()) >= $min;
     }
 
+    public function hasActiveGroups()
+    {
+        $groups = $this->getGroups()->toArray();
+        return 1 <= count(array_filter($groups, function (Group $g){
+            return $g->isActive();
+        }));
+
+    }
+
     public function getGroupIdArray()
     {
         return array_map(

@@ -208,6 +208,22 @@ class BaseController
         $this->setTWIGVariables($variables);
     }
 
+    public function moveFromDataToVar(...$keys)
+    {
+        $data = $this->getParameter('data');
+        $data = $this->DATA ?? $data;
+
+        foreach($keys as $key){
+            $this->addAsVar($key, $data[$key] ?? null);
+            if(isset($this->DATA[$key])){
+                unset($this->DATA[$key]);
+            }
+            if(isset($this->params[$key])){
+                unset($this->params[$key]);
+            }
+        }
+    }
+
 
     /**
      * @return null|string
@@ -375,10 +391,10 @@ class BaseController
 
     public function getRequest($content_type = null)
     {
-        $possible_content_types = ["json", "urlencoded"];
-        if (empty($content_type) && function_exists("getallheaders")) {
+        $possible_content_types = ['json', 'urlencoded'];
+        if (empty($content_type) && function_exists('getallheaders')) {
             $req_headers = getallheaders();
-            $content_type = $req_headers['Content-Type'] ?? "";
+            $content_type = $req_headers['Content-Type'] ?? '';
         }
         $content_types = array_filter(
             $possible_content_types,
@@ -387,15 +403,15 @@ class BaseController
             }
         );
         if (count($content_types) > 1) {
-            throw new \Exception("This was a weird content-type: ".$content_type);
+            throw new \Exception('This was a weird content-type: '.$content_type);
         }
         if (empty($content_types)) {
             return $_REQUEST;
         }
         $defined_CT = array_shift($content_types);
 
-        if ($defined_CT == "json") {
-            $string = file_get_contents("php://input");
+        if ($defined_CT === 'json') {
+            $string = file_get_contents('php://input');
             json_decode($string, true);
             $is_valid = json_last_error() == JSON_ERROR_NONE;
             if (strlen($string) > 0 && $is_valid) {
@@ -403,7 +419,7 @@ class BaseController
             } else {
                 return null;
             }
-        } elseif ($defined_CT == "urlencoded") {
+        } elseif ($defined_CT == 'urlencoded') {
             return $_REQUEST;
         }
     }

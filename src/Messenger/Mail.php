@@ -82,8 +82,10 @@ class Mail extends AbstractMessageController
         $this->setTemplate('incomplete_profile');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Vi behöver mer information från dig!');
+        $DATA = $this->getParameter('data');
+        $this->moveFromDataToVar('school_url', 'fname');
 
-        $this->addToDATA($this->getParameter('data'));
+        $this->addToDATA($DATA);
     }
 
     protected function prepareConfirmVisit()
@@ -110,7 +112,7 @@ class Mail extends AbstractMessageController
         $groups = $DATA['groups'];
         $this->setTemplate('changed_groups');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
-        $this->addAsVar(['school_url' => $DATA['school_url'], 'fname' => $DATA['fname']]);
+        $this->moveFromDataToVar('school_url', 'fname');
         $has_removed = !empty($groups['removed']);
         $has_new = !empty($groups['new']);
         if ($has_removed && $has_new) {
@@ -144,7 +146,7 @@ class Mail extends AbstractMessageController
             }
         );
 
-		$this->addAsVar(['school_url' => $DATA['school_url'], 'fname' => $DATA['fname']]);
+        $this->moveFromDataToVar('school_url', 'fname');
         $this->setTemplate('new_user_welcome');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Välkommen i Naturskolans databas');

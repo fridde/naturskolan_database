@@ -415,18 +415,19 @@ class Task
             function ($u) use ($annoyance_start, $msg_props) {
                 /* @var User $u */
                 // We don't need to remind users without groups or users that have recently gotten a message.
-                return $u->hasGroups() && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
+                return $u->hasActiveGroups() && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
             }
         );
         $messages = [];
         /* @var User $user */
         foreach ($incomplete_users as $user) {
             $params = ['purpose' => 'update_profile_reminder'];
-            $data = ['user_fname' => $user->getFirstName()];
+            $data = ['fname' => $user->getFirstName()];
             $data['school_staff_url'] = $this->N->createLoginUrl($user);
-            $carrier = $user->hasMail() ? 'mail' : ($user->hasMobil() ? 'sms' : null);
+            $carrier = $user->hasMobil() ? Message::CARRIER_SMS : null;
+            $carrier = $user->hasMail() ? Message::CARRIER_MAIL : $carrier;
 
-            if ($carrier === 'sms') {
+            if ($carrier === Message::CARRIER_SMS) {
                 $params['receiver'] = $user->getMobil();
                 $long_url = $this->N->createLoginUrl($user);
                 $rep['login_url'] = $this->N->shortenUrl($long_url);
@@ -434,8 +435,7 @@ class Task
                 $params['message'] = $msg;
                 $sms = new SMS($params);
                 $return = $sms->buildAndSend();
-            } elseif ($carrier === 'mail') {
-                $carrier = 'mail';
+            } elseif ($carrier === Message::CARRIER_MAIL) {
                 $p = ['school', ['school' => $user->getSchoolId()], true];
                 $data['school_url'] = $this->N->generateUrl(...$p);
                 $params['receiver'] = $user->getMail();
