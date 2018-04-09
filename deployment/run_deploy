@@ -15,50 +15,48 @@ TESTDB_PATH=$TESTING_PATH/$PROJECT_NAME/tests/_data/test_db.sql
 STAGING_PATH=/cygdrive/d/staging
 GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
 
-set -x; trap read debug
+set -x
 
 if [ $SKIP -lt 1 ]; then
-    echo 'Backup DB and export to test-DB'
+    read -p 'Backup DB and export to test-DB...'	
     cd $PROJECT_PATH/misc
     php -e export_database.php default > $TESTDB_PATH
     php -e export_database.php just_data > /dev/null
     php -e export_database.php structure > /dev/null
     php -e "$PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
+	read -p "Delete old files..."
     cd SQL_data
     delete_old_files
-
 fi
 
 if [ $SKIP -lt 2 ]; then
-
+   read -p "Check git status of test repo..."
    cd $TESTING_PATH/$PROJECT_NAME
    git status
-   echo 'Proceed if your .gitignore file is configured correctly!'
+   read -p 'Proceed if your .gitignore file is configured correctly!'
    git add -A
    git commit -m 'Continue more testing'
    git push
-   echo 'Pulling repo changes into dev area'
+   read -p 'Pulling repo changes into dev area...'
    cd $PROJECT_PATH
    git pull
 
 fi
 
 if [ $SKIP -lt 3 ]; then
-    echo 'Synchronizing the work in vendor with the toolbox'
-    cd ~
-    
+    read -p 'Synchronizing the work in vendor with the toolbox...'
+    cd ~    
 	filecomparer
-
-	trap - debug; set +x
+	
     cd ~/toolbox
-	echo "Checking git status..."
+	read -p "Checking git status..."
     gitstatus
     echo 'Enter the names of the packages that you will commit.'
     read P_NAMES
 	
-	set -x; trap read debug
+	set -x
     set_package_date -a fridde -p "$P_NAMES"
-    echo 'If some repos have to be pushed, use Win+Alt+X to open a new split window.'
+    read -p 'If some repos have to be pushed, use Win+Alt+X to open a new split window.'
 fi
 
 if [ $SKIP -lt 4 ]; then
@@ -91,21 +89,22 @@ if [ $SKIP -lt 4 ]; then
         esac
     done
 
-	set -x; trap read debug
+	set -x; 
+	read -p "Updating composer packages in project directory..."
     cd $PROJECT_PATH
     composer update fridde/*
     composer install
     git status
 
-    trap - debug; set +x
+    set +x
     read -p "Is the .gitignore file correctly configured?  " yn
         case $yn in
             [Yy]* ) ;;
             [Nn]* ) exit;;
             * ) echo "Please answer yes or no.";;
         esac
-    set -x ; trap read debug
-
+    set -x ; 
+	read -p "Adding files from testing repo..."
     git add -A
     git commit -m "More work"
     git push
@@ -124,13 +123,12 @@ if [ $SKIP -lt 5 ]; then
 fi
 
 if [ $SKIP -lt 6 ]; then
-    echo 'Setting up local testing environment'
-    trap - debug ; set +x
+    read -p "Setting up local testing environment..."    
     cd ~/bin_win
     cmd /C start java -jar selenium-server.jar &
     cmd /C start MailHog.exe &
     cd $TESTING_PATH/$PROJECT_NAME
-    set -x ; trap read debug
+    read -p "Running the complete test suite..." 
     ./vendor/bin/codecept run -f --steps
 fi
 
