@@ -25,10 +25,10 @@ class SMS extends AbstractMessageController
         'update_profile_reminder' => 3,
     ];
 
-    public function __construct()
+    public function __construct(array $params = [])
     {
+        parent::__construct($params);
         $this->setType(Message::CARRIER_SMS);
-        parent::__construct();
     }
 
     public function send()

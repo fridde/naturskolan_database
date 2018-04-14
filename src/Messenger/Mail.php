@@ -22,7 +22,7 @@ class Mail extends AbstractMessageController
         'welcome_new_user' => 3,
     ];
 
-    public function __construct($params = [])
+    public function __construct(array $params = [])
     {
         parent::__construct($params);
         $this->setType(Message::CARRIER_MAIL);
