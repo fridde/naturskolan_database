@@ -1118,12 +1118,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/sms.git",
-                "reference": "190d0bbdba6a1e888b97d50117e97e8b315c2e10"
+                "reference": "402e27f3f47b45b9939dbd6d3e25986997084134"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/sms/zipball/190d0bbdba6a1e888b97d50117e97e8b315c2e10",
-                "reference": "190d0bbdba6a1e888b97d50117e97e8b315c2e10",
+                "url": "https://api.github.com/repos/fridde/sms/zipball/402e27f3f47b45b9939dbd6d3e25986997084134",
+                "reference": "402e27f3f47b45b9939dbd6d3e25986997084134",
                 "shasum": ""
             },
             "require": {
@@ -1145,7 +1145,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2017-11-13T19:54:04+00:00"
+            "time": "2018-04-14T09:46:20+00:00"
         },
         {
             "name": "fridde/utility",

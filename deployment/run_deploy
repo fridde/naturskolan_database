@@ -53,12 +53,13 @@ if [ $SKIP -lt 3 ]; then
 	
     cd ~/toolbox
 	read -p "Checking git status..."
-    gitstatus    
-    read -e -p 'Enter the names of the packages that you will commit.' P_NAMES
-	
-	set -x
+    gitstatus
+    
+	echo 'Enter the names of the packages that you will commit.'
+    read -e P_NAMES	
     set_package_date -a fridde -p "$P_NAMES"
-    read -p 'If some repos have to be pushed, use Win+Alt+X to open a new split window.'
+    
+	read -p 'If some repos have to be pushed, use Win+Alt+X to open a new split window.'
 fi
 
 if [ $SKIP -lt 4 ]; then
@@ -114,17 +115,17 @@ if [ $SKIP -lt 4 ]; then
     git push
 fi
 
-if [ $SKIP -lt 5 ]; then
-    read -p "Preparing and backing up the test directory..."
+if [ $SKIP -lt 5 ]; then    
+	read -p "Preparing and backing up the test directory..."
 	cd $TESTING_PATH
     delete_old_files
-    tar cf backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
+    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
 	
 	read -p "Bringing the test directory up to current status (git/composer)..."
     cd $PROJECT_NAME
     git pull
     composer install --no-suggest
-	read -p "Copying over settings from dev area"
+	read -p "Copying over settings from dev area..."
     cp $PROJECT_PATH/config/settings_{default,test}.yml ./config/
     mv ./config/settings_{test,local}.yml
 fi
@@ -142,7 +143,7 @@ fi
 if [ $SKIP -lt 7 ]; then
     echo 'Creating the local staging copy...'
     cd $STAGING_PATH    
-    tar cf backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
+    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
     chmod -R 0777 $PROJECT_NAME && rm -rf $PROJECT_NAME
 	delete_old_files
 
