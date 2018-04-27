@@ -1,9 +1,8 @@
 var Response = {
 
     callbackTranslator: {
-        passwordCorrect: Update.passwordCorrect,
+        wrongPassword: Update.wrongPassword,
         lastChange: Update.lastChange,
-        setAndReload: Cookie.setAndReload,
         removeRow: Update.removeRow,
         reloadPage: Update.reloadPage,
         sliderChanged: Update.setSliderLabel,

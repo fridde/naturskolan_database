@@ -3,9 +3,14 @@
 namespace Fridde;
 
 use Carbon\Carbon;
+use function foo\func;
 use Fridde\Entities\Change;
 use Fridde\Entities\Group;
+use Fridde\Entities\Hash;
+use Fridde\Entities\HashRepository;
 use Fridde\Entities\Message;
+use Fridde\Entities\School;
+use Fridde\Entities\SchoolRepository;
 use Fridde\Entities\User;
 use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
@@ -51,13 +56,15 @@ class Task
         $function_name = preg_replace('/[^[:alnum:][:space:]]/u', '', $this->type);
         try {
             call_user_func([$this, $function_name]);
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $msg = 'Failed task: '.$this->type;
-            $msg .= '. Error message: ' . $e->getMessage();
+            $msg .= '. Error message: '.$e->getMessage();
             $this->N->log($msg, 'Task->execute()');
+
             return false;
         }
         $this->N->log('Executed task: '.$this->type, 'Task->execute()');
+
         return true;
 
     }
@@ -72,7 +79,7 @@ class Task
     private function rebuildCalendar()
     {
         $last_rebuild = $this->N->getLastRun('rebuild_calendar');
-        if(empty($last_rebuild)){
+        if (empty($last_rebuild)) {
             $too_old = true;
         } else {
             $max_age = SETTINGS['cronjobs']['max_calendar_age'];
@@ -116,7 +123,8 @@ class Task
         $translator = ['immunity' => 'immunity_time', 'annoyance' => 'annoyance_interval'];
         $setting = $translator[strtolower($type)];
         $t = SETTINGS['user_message'][$setting];
-        return T::subDuration($t);
+
+        return T::subDurationFromNow($t);
     }
 
     /**
@@ -133,7 +141,7 @@ class Task
         $search_props['Subject'] = $subject;
 
         $time = Naturskolan::getSetting('user_message', 'visit_confirmation_time');
-        $deadline = T::addDuration($time);
+        $deadline = T::addDurationToNow($time);
 
         /* @var \Fridde\Entities\Visit[] $unconfirmed_visits */
         $unconfirmed_visits = $this->N->getRepo('Visit')->findUnconfirmedVisitsUntil($deadline);
@@ -225,7 +233,7 @@ class Task
 
         $data['fname'] = $v->getGroup()->getUser()->getFirstName();
         $school_id = $v->getGroup()->getSchoolId();
-        $absolute = ! empty(DEBUG);
+        $absolute = !empty(DEBUG);
         $data['school_url'] = $this->N->generateUrl('school', ['school' => $school_id], $absolute);
         $visit_info['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), $absolute);
         $visit_info['date_string'] = $v->getDate()->formatLocalized('%e %B');
@@ -290,7 +298,7 @@ class Task
             /** @var Group $group */
             $group = $this->N->getRepo('Group')->find($change->getEntityId());
             $new_value = $group->getUserId();
-            $old_value = (int) $change->getOldValue();
+            $old_value = (int)$change->getOldValue();
             if ($new_value !== $old_value) {
                 if (!empty($old_value)) {
                     $user_array[$old_value]['removed'][] = $group->getId();
@@ -308,7 +316,7 @@ class Task
         $messages = [];
         /** @var User $user */
         foreach ($user_array as $user_id => $g_changes) {
-            $user = $this->N->getRepo('User')->find($user_id);
+            $user = $this->N->ORM->find('User', $user_id);
             $params = ['purpose' => 'changed_groups_for_user'];
             if ($user->hasMail()) {
                 $params['receiver'] = $user->getMail();
@@ -365,10 +373,9 @@ class Task
             if ($user->hasMail()) {
                 $data['fname'] = $user->getFirstName();
                 $data['user']['has_mobil'] = $user->hasMobil();
-                $data['password'] = $this->N->createPassword($user->getSchoolId());
                 $data['groups'] = $user->getGroups()->toArray();
                 $data['school_url'] = $this->N->generateUrl('school', ['school' => $user->getSchoolId()], true);
-                $data['school_login_url'] = $this->N->createLoginUrl($user);
+                $data['user_login_url'] = $this->N->createLoginUrl($user);
 
                 $params['data'] = $data;
                 $params['receiver'] = $user->getMail();
@@ -376,7 +383,7 @@ class Task
 
                 $response = $mail->buildAndSend();
 
-                $messages[] = [$response, 'mail', $user, $subject];               
+                $messages[] = [$response, 'mail', $user, $subject];
             } else {
                 echo '';
                 // TODO: log this somewhere and inform admin
@@ -467,6 +474,56 @@ class Task
         $DBM->cleanOldGroupNumbers();
 
         // TODO: add more functionality to this function
+    }
+
+    private function createNewPasswords()
+    {
+        /* @var HashRepository $hash_repo */
+        $hash_repo = $this->N->ORM->getRepository('Hash');
+        /* @var SchoolRepository $school_repo */
+        $school_repo = $this->N->ORM->getRepository('School');
+        $schools = $school_repo->findAll();
+        $max_distance = Timing::multiplyDurationBy(SETTINGS['values']['validity']['school_pw'], 0.5);
+        $max_expiry_date = Timing::addDurationToNow($max_distance);
+        $new_expiration_date = Timing::addDurationToNow(SETTINGS['values']['validity']['school_pw']);
+
+        $version = $this->N->Auth->getPWH()->getLatestWordFileVersion().'_'.random_int(0, 999);
+        $school_passwords = [];
+        foreach ($schools as $school) {
+            /* @var School $school */
+            if (empty($hash_repo->findHashesThatExpireAfter($max_expiry_date))) {
+                $pw = $this->N->Auth->calculatePasswordForSchool($school, $version);
+                $school_passwords[$school->getId()] = $pw;
+
+                $hash = new Hash();
+                $hash->setValue(password_hash($pw, PASSWORD_DEFAULT));
+                $hash->setCategory(Hash::CATEGORY_SCHOOL_PW);
+                $hash->setVersion($version);
+                $hash->setOwnerId($school->getId());
+                $rights = $this->N->isAdminSchool($school) ? Hash::RIGHTS_ALL_SCHOOLS : Hash::RIGHTS_SCHOOL_ONLY;
+                $hash->setRights($rights);
+                $hash->setExpiresAt($new_expiration_date);
+                $this->N->ORM->EM->persist($hash);
+            }
+        }
+
+
+        $pw_string = implode(
+            PHP_EOL,
+            array_map(
+                function ($pw, $id) {
+                    return $id.': '.$pw;
+                },
+                $school_passwords,
+                array_keys($school_passwords)
+            )
+        );
+
+        if(false === file_put_contents(BASE_DIR.'temp/new_'.date('U'), $pw_string)){
+            throw new \Exception('The password file could not be written.');
+        }
+        $this->N->ORM->EM->flush();
+
     }
 
 

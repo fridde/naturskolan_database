@@ -186,8 +186,8 @@ class Visit
             if (empty($c) && $c !== 0) { // horrible hack because the POST from work_schedule removes any empty array, so a falsy value has to be added, that should be ignored here
                 continue;
             }
-            if (!$c instanceof User && !is_null($c)) {
-                $c = $GLOBALS['CONTAINER']->get('Naturskolan')->ORM->getRepository('User')->find($c);
+            if (!$c instanceof User && null !== $c) {
+                $c = $GLOBALS['CONTAINER']->get('Naturskolan')->ORM->find('User', $c);
             }
             $this->addColleague($c);
         }

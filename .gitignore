@@ -20,6 +20,7 @@ vendor/
 /config/settings_default.yml
 /config/settings_local.yml
 /config/settings_test.yml
+/config/.key
 
 /tests/_data/*
 /tests/_output/*
@@ -29,3 +30,5 @@ vendor/
 /tests/table_filler.php
 /tests/sample_data/
 
+
+/temp/*

@@ -5,15 +5,17 @@
 
 namespace Fridde;
 
-use Fridde\Entities\Cookie;
+use Fridde\Entities\Hash;
+use Fridde\Entities\School;
 use Fridde\Entities\SystemStatus;
 use Fridde\Entities\User;
-use Fridde\PasswordHandler as PW;
+use Fridde\Security\Authenticator;
+use Fridde\Security\PasswordHandler as PWH;
 use Fridde\Utility as U;
 use Carbon\Carbon;
 use dotzero\Googl;
 use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
+
 
 /**
  * The basic class to assist most other classes in the Naturskolan-Database application
@@ -26,14 +28,16 @@ class Naturskolan
     private $Client;
     /** @var \dotzero\Googl An instance of Googl to create short-links */
     private $Googl;
-    /** @var \Fridde\PasswordHandler Instance of PasswordHandler */
-    private $PW;
-    /* @var Authorization $Auth  */
+    /** @var \Fridde\Security\PasswordHandler Instance of PasswordHandler */
+    private $PWH;
+    /* @var \Fridde\Security\Authenticator $Auth  */
     public $Auth;
     /** @var array A text array containing labels and other text bits */
     private $text_array;
     /** @var string the path for the text pieces */
     private $text_path = 'config/labels.yml';
+
+    private const ADMIN_SCHOOL = 'natu';
 
     /**
      * Constructor
@@ -43,8 +47,8 @@ class Naturskolan
     public function __construct()
     {
         $this->ORM = new ORM();
-        $this->PW = new PW();
-        $this->Auth = new Authorization($this->ORM, $this->PW);
+        $this->PWH = new PWH();
+        $this->Auth = new Authenticator($this->ORM, $this->PWH);
         $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber());
     }
 
@@ -113,7 +117,7 @@ class Naturskolan
      * @param string $task
      * @return null|Carbon
      */
-    public function getLastRun(string $task)
+    public function getLastRun(string $task): ?Carbon
     {
         $last_run = $this->getStatus('last_run.' . $task);
         if(!empty($last_run)){
@@ -127,47 +131,7 @@ class Naturskolan
        $this->setStatus('last_run.'. $task, Carbon::now()->toIso8601String());
     }
 
-    /**
-     * Shorthand function to set a value for a certain entity in a certain repository.
-     *
-     * @param mixed $requests The function takes either 3-4 arguments corresponding to
-     *                        $repo, $id, $value and $attribute_name (with default 'Value').
-     *                        Or it takes ONE array which in itself consists of one or more
-     *                        arrays with each exactly 3-4 elements. The elements can either
-     *                        be in right order or indexed with 'repo', 'id', 'value' and 'att_name'.
-     *
-     * @return void
-     */
-    public function set(...$requests)
-    {
-        if (count($requests) === 1 && is_array($requests[0])) {
-            $requests = $requests[0];
-        } else {
-            $requests = [$requests];
-        }
 
-        foreach ($requests as $args) {
-            $repo = $args[0] ?? $args['repo'];
-            $id = $args[1] ?? $args['id'];
-            $value = $args[2] ?? $args['value'];
-            $attribute_name = $args[3] ?? ($args['att_name'] ?? 'Value');
-            $e = $this->ORM->getRepository($repo)->find($id);
-            $method = 'set'.$attribute_name;
-            if (!empty($e)) {
-                $e->$method($value);
-            } else {
-                $msg = 'No entity of the class <'.$repo.'> with the id <';
-                $msg .= $id.'> could be found.';
-                throw new \Exception($msg);
-            }
-        }
-    }
-
-    public function setAndFlush(...$requests)
-    {
-        $this->set(...$requests);
-        $this->ORM->EM->flush();
-    }
 
     /**
      * Execute a certain database update without specifying any parameters.
@@ -187,7 +151,7 @@ class Naturskolan
 
     /**
      * Wrapper function to set the calendar.status in SystemStatus
-     */
+
     public function setCalendarTo(string $new_status, bool $flush_after = false)
     {
 
@@ -199,6 +163,8 @@ class Naturskolan
             $this->ORM->EM->flush();
         }
     }
+     */
+
 
     /**
      * Check to see if calendar should be updated.
@@ -268,13 +234,9 @@ class Naturskolan
      */
     public function createPassword($school_id, $custom_salt = false)
     {
-        return $this->PW->createPassword($school_id, $custom_salt);
+        return $this->PWH->createPassword($school_id, $custom_salt);
     }
 
-    public function isAuthorizedFor(string $school_id)
-    {
-        return $this->Auth->getSchooldIdFromCookie() === $school_id;
-    }
 
     /**
      *
@@ -285,11 +247,9 @@ class Naturskolan
      */
     public function createLoginUrl(User $user, string $page = 'staff', $absolute = true)
     {
-        $params['school'] = $user->getSchoolId();
-        $params['page'] = $page;
-        $params['code'] = $this->PW->createCodeFromInt($user->getId(), 'user');
+        $params['code'] = $this->Auth->createAndSaveCode($user->getId(), Hash::CATEGORY_USER_URL_CODE);
 
-        return $this->generateUrl('school', $params, $absolute);
+        return $this->generateUrl('login', $params, $absolute);
     }
 
     private function getGoogl()
@@ -310,14 +270,11 @@ class Naturskolan
         return $this->getGoogl()->shorten($url);
     }
 
-    public function getIntFromCode($code, $entropy = '')
-    {
-        return $this->PW->getIntFromCode($code, $entropy);
-    }
 
     public function createConfirmationUrl($visit_id, $absolute = false)
     {
-        $params['parameters'] = $this->PW->createCodeFromInt($visit_id, 'visit');
+        $code = $this->Auth->createAndSaveCode($visit_id, Hash::CATEGORY_VISIT_CONFIRMATION_CODE);
+        $params['parameters'] = $code;
         $params['action'] = 'confirmVisit';
 
         return $this->generateUrl('api', $params, $absolute);
@@ -327,31 +284,26 @@ class Naturskolan
      * @param string $school_id_password
      * @return string|bool $school_id or false if none is found
      */
-    public function checkPassword(string $password, $school_id = null)
+    public function checkPasswordForSchool(string $password, string $school_id)
     {
-        if (0 === strpos($password, 'user$')) {
-            $code = substr($password, 5);
-            $user = $this->Auth->getUserFromCode($code);
-            if (!empty($user)) {
-                return $user->getSchoolId();
-            }
-        } else {
-            return $this->PW->checkPasswordForSchool($school_id, $password);
+        $school = $this->Auth->getSchoolFromPassword($password);
+        if(empty($school)){
+            return false;
         }
+        return $school->getId() === $school_id;
     }
 
-    public function createHash(string $extra_entropy = '')
+    public function createHash()
     {
-        $hash_string = password_hash(microtime() . $extra_entropy, PASSWORD_DEFAULT);
-        $hash_array = explode('$', $hash_string);
-
-        return implode('', array_slice($hash_array, 3));
+        return $this->Auth->createCookieKey();
     }
 
-    public function setCookieHash(string $school_id, int $rights = Cookie::RIGHTS_SCHOOL_ONLY)
+    public function setCookieKey(School $school, int $rights = Hash::RIGHTS_SCHOOL_ONLY)
     {
         $update = new Update();
-        $update->setCookie($school_id);
+        $rights = $this->isAdminSchool($school) ? Hash::RIGHTS_ALL_SCHOOLS : $rights;
+
+        $update->setCookie($school->getId(), $rights);
     }
 
     public function generateUrl($route_name, array $params = [], bool $absolute = false)
@@ -373,6 +325,8 @@ class Naturskolan
      * @param bool $debug
      * @return \Psr\Http\Message\ResponseInterface
      */
+
+    /*
     public function sendRequest(string $url, array $post_data = [], bool $use_api_key = true, bool $debug = false)
     {
         $options = ['json' => $post_data, 'cookies' => null, 'debug' => false];
@@ -391,6 +345,7 @@ class Naturskolan
 
         return $this->getClient()->post($url, $options);
     }
+    */
 
     public function getApiKey()
     {
@@ -512,6 +467,14 @@ class Naturskolan
     public function log(string $msg, string $source = null)
     {
         $GLOBALS['CONTAINER']->get('Logger')->addInfo($msg, ['source' => $source]);
+    }
+
+    public function isAdminSchool(School $school = null): bool
+    {
+        if(empty($school)){
+            return false;
+        }
+        return $school->getId() === self::ADMIN_SCHOOL;
     }
 
 }

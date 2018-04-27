@@ -22,6 +22,8 @@ class Mail extends AbstractMessageController
         'welcome_new_user' => 3,
     ];
 
+
+
     public function __construct(array $params = [])
     {
         parent::__construct($params);
@@ -102,7 +104,7 @@ class Mail extends AbstractMessageController
         array_walk_recursive(
             $DATA['groups'],
             function (&$g_id) {
-                $group = $this->N->ORM->getRepository('Group')->find($g_id);
+                $group = $this->N->ORM->find('Group', $g_id);
                 $g = ['group_id' => $g_id];
                 $g['name'] = $group->getName();
                 $g['grade'] = $group->getGradeLabel();
@@ -151,5 +153,10 @@ class Mail extends AbstractMessageController
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Välkommen i Naturskolans databas');
         $this->addToDATA($DATA);
+    }
+
+    public function getMethods()
+    {
+        return self::$methods;
     }
 }

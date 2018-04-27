@@ -11,7 +11,7 @@ class CronController extends BaseController
 
     public function __construct(array $params)
     {
-        parent::__construct($params);
+        parent::__construct($params, true);
         $cron_settings = SETTINGS['cronjobs'];
         $this->intervals = $cron_settings['intervals'];
     }

@@ -14,10 +14,9 @@ use Fridde\Utility;
 
 class SchoolController extends BaseController
 {
-    /** @var School $school */
-    public $school;
-    /** @var User $user */
-    private $user;
+    /** @var string $school_id */
+    public $school_id;   
+    
     public const PAGE = ['staff' => 'staff', 'groups' => 'groups'];
 
     public const STAFF_PAGE = 'staff';
@@ -26,13 +25,7 @@ class SchoolController extends BaseController
     public function __construct($params = [])
     {
         parent::__construct($params);
-        if($this->hasParameter('code')){
-            $this->setCookieAndRefresh();
-        }
-        $school_id = $this->getParameter('school');
-        if (!empty($school_id)){
-            $this->school = $this->N->getRepo('School')->find($school_id);
-        }
+        $this->school_id = $this->getParameter('school');        
     }
 
     public function handleRequest()
@@ -40,41 +33,42 @@ class SchoolController extends BaseController
         if (!$this->isAuthorized()) {
             $login_controller = new LoginController($this->getParameter());
             $login_controller->addAction('renderPasswordModal');
+
             return $login_controller->handleRequest();
         }
         $page = $this->getParameter('page') ?? self::GROUPS_PAGE;
-
+        /* @var School $school  */
+        $school = $this->N->ORM->find('School', $this->school_id);
         if ($page === self::GROUPS_PAGE) {
-            $this->addToDATA($this->getAllGroups($this->school));
+            $this->addToDATA($this->getAllGroups($school));
             $this->setTemplate('group_settings');
         } elseif ($page === self::STAFF_PAGE) {
-            $this->addToDATA($this->getAllUsers($this->school));
-            $this->addToDATA('school_id', $this->school->getId());
+            $this->addToDATA($this->getAllUsers($school));
+            $this->addToDATA('school_id', $this->school_id);
             $this->setTemplate('staff_list');
         } else {
             throw new \Exception("No action was defined for the page variable $page .");
         }
-        $this->addToDATA(['school_id' => $this->school->getId()]);
+        $this->addToDATA(['school_id' => $this->school_id]);
 
         parent::handleRequest();
     }
 
     private function isAuthorized()
     {
-        if ($this->N->Auth->getUserRole() === 'admin') {
-            return true;
-        }
-        // user has valid code in url
-        if (!empty($this->user)) {
-            if ($this->user->getSchoolId() === $this->school->getId()) {
+        $user_or_school = $this->N->Auth->getUserOrSchoolFromCookie();
+        if ($this->N->Auth::isUser($user_or_school)) {
+            /* @var User $user */
+            $user = $user_or_school;
+            if ($this->N->isAdminSchool($user->getSchool())) {
                 return true;
             }
+            return $this->school_id === $user->getSchoolId();
         }
-        // compare cookie id with request
-        if (!empty($this->school)) {
-            if ($this->school->getId() === $this->N->Auth->getSchooldIdFromCookie()) {
-                return true;
-            }
+        if($this->N->Auth::isSchool($user_or_school)){
+            /* @var School $school  */
+            $school = $user_or_school;
+            return $school->getId() === $this->school_id;
         }
 
         return false;
@@ -139,7 +133,7 @@ class SchoolController extends BaseController
                             $r['topic_short_name'] = $v->getTopic()->getShortName();
                             $r['topic_url'] = $v->getTopic()->getUrl();
                             $r['confirmed'] = $v->isConfirmed();
-                            $dur = T::addDuration(SETTINGS['values']['show_confirm_link']);
+                            $dur = T::addDurationToNow(SETTINGS['values']['show_confirm_link']);
                             if ($v->isInFuture() && $v->isBefore($dur)) {
                                 $r['confirmation_url'] = $this->N->createConfirmationUrl($v->getId());
                             }
@@ -154,7 +148,9 @@ class SchoolController extends BaseController
                 $groups_current_grade
             );
 
-            $group_columns = $this->H::partition($groups_current_grade_formatted); // puts items in two equally large columns
+            $group_columns = $this->H::partition(
+                $groups_current_grade_formatted
+            ); // puts items in two equally large columns
             $tab['col_left'] = $group_columns[0] ?? [];
             $tab['col_right'] = $group_columns[1] ?? [];
 
@@ -164,15 +160,5 @@ class SchoolController extends BaseController
         return $DATA;
     }
 
-    private function setCookieAndRefresh()
-    {
-        $code = $this->getParameter('code');
-        $school_id = $this->N->Auth->getUserFromCode($code)->getSchoolId();
-        $this->N->setCookieHash($school_id);
-        $params = ['school' => $school_id, 'page' => $this->getParameter('page')];
-        $url = $this->N->generateUrl('school', $params);
-
-        Utility::redirect($url);
-    }
 
 }

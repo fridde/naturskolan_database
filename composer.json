@@ -24,7 +24,8 @@
         "hashids/hashids": "2.0",
         "dotzero/googl": "0.2.0",
         "symfony/yaml": "4.0.4",
-        "dg/ftp-deployment": "^2.7"
+        "dg/ftp-deployment": "^2.7",
+        "defuse/php-encryption": "^2.1"
     },
     "require-dev": {
         "fzaninotto/faker": "1.6",

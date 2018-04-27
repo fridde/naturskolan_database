@@ -22,13 +22,13 @@ set -x
 
 if [ $SKIP -lt 1 ]; then
     read -p 'Backup DB and export to test-DB...'	
-    cd $PROJECT_PATH/misc
+    cd $PROJECT_PATH/misc/scripts
     php -e export_database.php default > $TESTDB_PATH
     php -e export_database.php just_data > /dev/null
     php -e export_database.php structure > /dev/null
     php -e "$PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
 	read -p "Delete old files..."
-    cd SQL_data
+    cd ../SQL_data
     delete_old_files
 fi
 

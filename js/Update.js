@@ -49,7 +49,7 @@ var Update = {
     },
 
     removeRow: function (data, status) {
-        if (status == "success" && data.status == "success") {
+        if (status === "success" && data.status === "success") {
             var tr = $("tr").filter("[data-id='" + data.oldId + "']");
             tr.hide("slow", function () {
                 tr.remove();
@@ -64,32 +64,21 @@ var Update = {
     },
 
     updateSaveTimeText: function (text) {
+        var $saveTime = $('.save-time');
         if (typeof text === 'undefined') {
-            var lastChange = $('.save-time').data("last-change");
+            var lastChange = $saveTime.data("last-change");
             if (typeof lastChange === 'undefined' || lastChange === '') {
                 return;
             }
             text = "Sparades " + moment(lastChange).fromNow() + '.';
         }
-        $(".save-time").text(text);
-        $(".save-time").css("visibility", "visible");
+        $saveTime.text(text);
+        $saveTime.css("visibility", "visible");
 
     },
 
-    passwordCorrect: function (data) {
-        if (data.success) {
-            $('.modal').modal('hide');
-            var options = {
-                updateMethod: "setCookie",
-                school: data.school,
-                url: window.location.pathname,
-                onReturn: 'setAndReload'
-            };
-            Update.send(options);
-        }
-        else {
-            // TODO: update modal and tell that password was incorrect
-        }
+    wrongPassword: function (data) {
+        // TODO: implement a feedback for a wrong password
     },
 
     showChange: function () {

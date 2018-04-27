@@ -147,6 +147,11 @@ class SMS extends AbstractMessageController
         $this->response = $response;
     }
 
+    public function getMethods()
+    {
+        return self::$methods;
+    }
+
 
 
 }

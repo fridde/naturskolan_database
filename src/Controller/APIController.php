@@ -3,6 +3,7 @@
 namespace Fridde\Controller;
 
 use Carbon\Carbon;
+use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 use Fridde\Messenger\Mail;
@@ -15,23 +16,18 @@ class APIController extends BaseController
 
     public function confirmVisit(string $code)
     {
-        if (empty($code)) {
+        /* @var Visit $visit  */
+        $visit = $this->N->Auth->getVisitFromCode($code);
+        if(empty($visit)){
             // TODO: error page, log
             return;
         }
-        $visit_id = $this->N->getIntFromCode($code, 'visit');
-        if (!empty($visit_id)) {
-            $update = new Update();
-            $return = $update->confirmVisit($visit_id)->flush()->getReturn();
-        }
+        $update = new Update();
+        $return = $update->confirmVisit($visit->getId())->flush()->getReturn();
+
         if(empty($return['success'])){
             // TODO: error page, log
             return;
-        }
-        /* @var Visit $visit  */
-        $visit = $this->N->ORM->getRepository('Visit')->find($visit_id);
-        if(empty($visit)){
-            // TODO: error page, log
         }
 
 
@@ -43,9 +39,16 @@ class APIController extends BaseController
     public function getPassword(string $school_id)
     {
         $this->setReturnType('json');
-        $cookie_school_id = $this->N->Auth->getSchooldIdFromCookie();
-        if($school_id === $cookie_school_id || $this->N->Auth->getUserRole() === 'admin'){
-            $this->addToDATA('password', $this->N->createPassword($school_id));
+        $user_or_school = $this->N->Auth->getUserOrSchoolFromCookie();
+        /* @var School $cookie_school  */
+        if($this->N->Auth::isUser($user_or_school)){
+            $cookie_school = $user_or_school->getSchool();
+        } else {
+            $cookie_school = $user_or_school;
+        }
+
+        if($school_id === $cookie_school->getId() || $this->N->isAdminSchool($cookie_school)){
+            $this->addToDATA('password', $this->N->Auth->calculatePasswordForSchool($cookie_school));
         }
     }
 
@@ -73,7 +76,7 @@ class APIController extends BaseController
         $response = $mail->buildAndSend();
 
         $this->addToDATA('status', $response->getStatus());
-        $this->addToDATA('errors', ($response->getErrors() ?? []));
+        $this->addToDATA('errors', $response->getErrors() ?? []);
     }
 
     public function updateTestDate(string $date_time)

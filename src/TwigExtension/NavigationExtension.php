@@ -2,8 +2,9 @@
 
 namespace Fridde\TwigExtension;
 
-use Fridde\Authorization;
+
 use Fridde\ORM;
+use Fridde\Security\Authenticator;
 use Fridde\TwigBaseExtension;
 
 class NavigationExtension extends TwigBaseExtension
@@ -15,7 +16,7 @@ class NavigationExtension extends TwigBaseExtension
     public const METHOD_DELIMITER = '->';
     public const ARG_DELIMITER = ',';
 
-    public function __construct(Authorization $auth, \AltoRouter $router, ORM $orm)
+    public function __construct(Authenticator $auth, \AltoRouter $router, ORM $orm)
     {
         parent::__construct();
         $this->Auth = $auth;

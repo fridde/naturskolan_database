@@ -3,19 +3,17 @@
 namespace Fridde\Controller;
 
 use Fridde\Entities\Visit;
+use Fridde\Entities\VisitRepository;
 use Fridde\HTML;
 use Carbon\Carbon;
 
 class ViewController extends BaseController {
 
-    private $page_translations = ['food_order' => 'viewFoodOrder', 'bus_order' => 'viewBus'];
+    protected $ActionTranslator = ['food_order' => 'viewFoodOrder', 'bus_order' => 'viewBus'];
 
     public function handleRequest()
     {
-
-        $page = $this->params['page'];
-        $method = $this->page_translations[$page] ?? 'nothingFound';
-        $this->addAction($method);
+        $this->addAction($this->getParameter('page'));
         parent::handleRequest();
     }
 
@@ -23,7 +21,7 @@ class ViewController extends BaseController {
     {
         $visits = $this->getVisitsWithFood();
         $collection = $this->indexIntoWeekAndDays($visits);
-        array_walk_recursive($collection['calendar'], function(&$visit){
+        array_walk_recursive($collection['calendar'], function(Visit &$visit){
             $topic = $visit->getTopic();
             $group = $visit->getGroup();            
             $v = ['grade_label' => $visit->getGroup()->getGradeLabel()];
@@ -45,11 +43,12 @@ class ViewController extends BaseController {
         $visits = $this->getVisitsWithBus();
         $locations = [];
         foreach($visits as $visit){
+            /* @var Visit $visit  */
             $loc = $visit->getTopic()->getLocation();
             $string = $loc->getName() . ' = ';
             $string .= $loc->getDescription() ?? '';
             $string .= empty($loc->getDescription()) ? '' : ', ';
-            $string .= 'https://www.google.com/maps/?q=' . $loc->getCoordinates();
+            $string .= 'https://www.google.com/maps/?q='.urlencode($loc->getCoordinates());
             $locations[$loc->getId()] = $string;
         }
         $collection = $this->indexIntoWeekAndDays($visits);
@@ -61,10 +60,9 @@ class ViewController extends BaseController {
             // $v['departure'] = // TODO: Add method for departure
             // $v['return'] = // TODO: Add method for return
             $nr_students = $g->getNumberStudents();
-            $v['nr_passengers'] = is_null($nr_students) ? '???' : $nr_students + 2;
+            $v['nr_passengers'] = null === $nr_students ? '???' : $nr_students + 2;
             $visit = $v;
         });
-
 
         $this->addToDATA($collection);
         $this->addToDATA('locations', $locations);
@@ -74,7 +72,7 @@ class ViewController extends BaseController {
 
     private function getVisitsWithBus()
     {
-        $visits = $this->N->ORM->getRepository('Visit')->findFutureVisits();
+        $visits = $this->getVisitRepo()->findFutureVisits();
         return array_filter($visits, function(Visit $v){
                 return $v->needsBus();
         });
@@ -82,7 +80,7 @@ class ViewController extends BaseController {
 
     private function getVisitsWithFood()
     {
-        $visits = $this->N->ORM->getRepository('Visit')->findFutureVisits();
+        $visits = $this->getVisitRepo()->findFutureVisits();
         return array_filter($visits, function(Visit $v){
                 return $v->needsFoodOrder();
         });
@@ -98,6 +96,7 @@ class ViewController extends BaseController {
         $date_strings = [];
         $index_day = Carbon::today()->subYears(2);
         foreach($visits as $visit){
+            /* @var Visit $visit  */
             $date = $visit->getDate();
             $index = $index_day->diffInDays($date);
             $date_str = $date->formatLocalized('%a, %e %b');
@@ -107,5 +106,12 @@ class ViewController extends BaseController {
         }
         return ['date_strings' => $date_strings, 'calendar' => $calendar];
 
+    }
+
+    private function getVisitRepo()
+    {
+        /* @var VisitRepository $repo  */
+        $repo = $this->N->ORM->getRepository('Visit');
+        return $repo;
     }
 }

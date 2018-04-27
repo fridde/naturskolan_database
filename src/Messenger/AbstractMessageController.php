@@ -7,11 +7,13 @@ namespace Fridde\Messenger;
 use Fridde\Controller\BaseController;
 use Fridde\Utility;
 
-class AbstractMessageController extends BaseController
+abstract class AbstractMessageController extends BaseController
 {
     protected $type;
     protected $status;
     protected $errors;
+
+    abstract protected function getMethods();
 
     public const PREPARE = 1;
     public const SEND = 2;
@@ -29,7 +31,8 @@ class AbstractMessageController extends BaseController
     protected function setActionsFromPurpose()
     {
         $purpose = $this->params['purpose'] ?? null;
-        $method_value = self::$methods[$purpose] ?? 0 ;
+        $methods = $this->getMethods();
+        $method_value = $methods[$purpose] ?? 0 ;
 
         if($method_value & self::PREPARE){
             $this->addAction(Utility::toCamelCase('prepare_' . $purpose));
@@ -89,6 +92,8 @@ class AbstractMessageController extends BaseController
     {
         $this->errors = $errors;
     }
+
+
 
 
 }

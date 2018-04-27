@@ -187,7 +187,7 @@ class AdminSummary
     private function getLoomingLastVisit()
     {
         $time_left = Naturskolan::getSetting('admin', 'summary', 'soon_last_visit');
-        $last_visit_deadline = T::addDuration($time_left);
+        $last_visit_deadline = T::addDurationToNow($time_left);
         $last_visit = $this->N->getRepo('Visit')->findLastVisit();
         if (empty($last_visit) || $last_visit->getDate()->lte($last_visit_deadline)) {
             $text = 'Snart är sista planerade mötet med eleverna. Börja planera nästa termin!';
@@ -271,7 +271,7 @@ class AdminSummary
     {
         $rows = [];
         $no_conf_interval = Naturskolan::getSetting('admin', 'summary', 'no_confirmation_warning');
-        $close_date = T::addDuration($no_conf_interval);
+        $close_date = T::addDurationToNow($no_conf_interval);
         $unconfirmed_visits = $this->N->getRepo('Visit')->findUnconfirmedVisitsUntil($close_date);
         $unconfirmed_visits = array_filter(
             $unconfirmed_visits,
@@ -412,12 +412,12 @@ class AdminSummary
             $entity_id = $change->getEntityId();
             if ($entity_class === 'Topic' && $property === 'Location') {
                 /* @var Topic $topic */
-                $topic = $this->N->ORM->getRepository('Topic')->find($entity_id);
+                $topic = $this->N->ORM->find('Topic', $entity_id);
                 $row = $topic->getShortName().' har ändrat plats.';
                 $rows[] = $row;
             } elseif ($entity_class === 'School' && $property === 'BusRule') {
                 /* @var School $school */
-                $school = $this->N->ORM->getRepository('School')->find($entity_id);
+                $school = $this->N->ORM->find('School', $entity_id);
                 $row = $school->getName().' har förändrat sina bussrutiner.';
                 $rows[] = $row;
             }
@@ -461,7 +461,7 @@ class AdminSummary
 
     private function setRecentGroupChanges()
     {
-        $deadline = T::addDuration(Naturskolan::getSetting('admin', 'summary', 'important_info_changed'));
+        $deadline = T::addDurationToNow(Naturskolan::getSetting('admin', 'summary', 'important_info_changed'));
         $recent_group_changes = [];
 
         $crit = [['EntityClass', 'Group'], ['in', 'Property', ['Food', 'NumberStudents', 'Info']]];
@@ -469,7 +469,7 @@ class AdminSummary
         /* @var Change $change */
         foreach ($group_changes as $change) {
             /* @var Group $g */
-            $g = $this->N->getRepo('Group')->find($change->getEntityId());
+            $g = $this->N->ORM->find('Group', $change)->getEntityId();
             $next_visit = $g->getNextVisit();
             if (!empty($next_visit) && $next_visit->isBefore($deadline)) {
                 $att = $change->getProperty();

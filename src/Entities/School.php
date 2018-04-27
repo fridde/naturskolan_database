@@ -39,14 +39,10 @@ class School
     /** @OneToMany(targetEntity="User", mappedBy="School") */
     protected $Users;
 
-    /** @OneToMany(targetEntity="Cookie", mappedBy="School") */
-    protected $Hashes;
-
     public function __construct()
     {
         $this->Groups = new ArrayCollection();
         $this->Users = new ArrayCollection();
-        $this->Hashes = new ArrayCollection();
     }
 
     public function getId()
@@ -149,20 +145,6 @@ class School
         return $this->Groups->toArray();
     }
 
-    public function getHashes()
-    {
-        return $this->Hashes;
-    }
-
-    public function setHashes($Hashes)
-    {
-        $this->Hashes = $Hashes;
-    }
-
-    public function addPassword($Hash)
-    {
-        $this->Hashes->add($Hash);
-    }
 
     public function getUsers()
     {
@@ -187,7 +169,7 @@ class School
             $this->getGroups(),
             function (Group $g) use ($grade, $start_year) {
                 $cond1 = $start_year !== false ? $g->getStartYear() == $start_year : true;
-                $cond2 = $g->getGrade() == $grade;
+                $cond2 = $g->getGrade() === $grade;
                 $cond3 = $g->isActive();
 
                 return $cond1 && $cond2 && $cond3;
@@ -220,7 +202,7 @@ class School
 
     public function isNaturskolan()
     {
-        return $this->getId() == 'natu';
+        return $this->getId() === 'natu';
     }
 
     /** @PrePersist */

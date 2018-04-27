@@ -6,9 +6,10 @@
 namespace Fridde;
 
 use Fridde\Entities\Group;
-use Fridde\Entities\Cookie;
 use Carbon\Carbon;
+use Fridde\Entities\Hash;
 use Fridde\Entities\School;
+use Fridde\Security\Authenticator;
 
 
 /**
@@ -19,8 +20,8 @@ class Update extends DefaultUpdate
     /** @var Naturskolan $N */
     protected $N;
 
-    /** @var array $object_required */
-    protected $object_required = [
+    /** @var array  */
+    protected const OBJECT_REQUIRED = [
         'User' => ['School'],
         'Group' => ['User'],
         'Visit' => ['Group', 'Topic'],
@@ -171,22 +172,23 @@ class Update extends DefaultUpdate
         $this->ORM->EM->flush();
     }
 
-    public function setCookie(string $school_id, string $url = '', int $rights = Cookie::RIGHTS_SCHOOL_ONLY)
+    public function setCookie(string $school_id, int $rights = Hash::RIGHTS_SCHOOL_ONLY)
     {
-        $hash = $this->N->createHash($school_id);
-        setcookie('Hash', $hash, Carbon::now()->addDays(90)->timestamp, '/');
-        $cookie = new Cookie();
-        $school = $this->N->getRepo('School')->find($school_id);
-        $cookie->setValue($hash)->setName('Hash')->setSchool($school);
-        $cookie->setRights($rights);
-        $this->ORM->save($cookie);
-        $this->setReturn('hash', $hash)->setReturn('school', $school->getId())->setReturn('url', $url);
+        $hash = $this->N->createHash();
+        setcookie(Authenticator::COOKIE_KEY_NAME, $hash, Carbon::now()->addDays(90)->timestamp, '/');
+
+        $hash = new Hash();
+        $hash->setValue(password_hash($hash, PASSWORD_DEFAULT));
+        $hash->setCategory(Hash::CATEGORY_USER_COOKIE_KEY);
+        $hash->setOwnerId($school_id);
+        $hash->setRights($rights);
+        $this->ORM->save($hash);
     }
 
     public function removeCookie(string $hash)
     {
-        $cookie = $this->N->getRepo('Cookie')->findByHash($hash);
-        $this->ORM->delete($cookie);
+        //$cookie = $this->N->getRepo('Hash')->findByHash($hash);
+        //$this->ORM->delete($cookie);
     }
 
 
@@ -281,7 +283,7 @@ class Update extends DefaultUpdate
         $start_year = $start_year ?? Carbon::today()->year;
         foreach ($group_numbers as [$school_id, $grade, $nr]) {
             /* @var School $school */
-            $school = $this->N->getRepo('School')->find($school_id);
+            $school = $this->N->ORM->find('School', $school_id);
             $school->setGroupNumber($grade, $nr, $start_year);
         }
         $this->ORM->EM->flush();
