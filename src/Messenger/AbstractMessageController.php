@@ -30,9 +30,11 @@ abstract class AbstractMessageController extends BaseController
 
     protected function setActionsFromPurpose()
     {
-        $purpose = $this->params['purpose'] ?? null;
+        $purpose = $this->getParameter('purpose');
+
         $methods = $this->getMethods();
         $method_value = $methods[$purpose] ?? 0 ;
+
 
         if($method_value & self::PREPARE){
             $this->addAction(Utility::toCamelCase('prepare_' . $purpose));
