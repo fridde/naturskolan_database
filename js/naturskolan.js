@@ -1,7 +1,7 @@
-var baseUrl;
-var updateUrl = "update";
-var recentChange = false;
-var saveDelay = 3000; //milliseconds between ajax savings
+let baseUrl;
+let updateUrl = "update";
+let recentChange = false;
+let saveDelay = 3000; //milliseconds between ajax savings
 moment.locale('sv');
 
 $(document).ready(function () {
@@ -29,7 +29,7 @@ $(document).ready(function () {
 
     $('.nav a[href="logout"]').click(function (e) {
         e.preventDefault();
-        var data = {
+        let data = {
             updateMethod: "removeCookie",
             hash: Cookies.get('Hash'),
             onReturn: 'removeCookie'
@@ -88,7 +88,7 @@ $(document).ready(function () {
     });
 
     if (typeof(DataTableConfigurator) !== "undefined") {
-        var $table = $("table");
+        let $table = $("table");
         $table.DataTable(DataTableConfigurator.options($table));
     }
 

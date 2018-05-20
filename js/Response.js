@@ -1,4 +1,4 @@
-var Response = {
+let Response = {
 
     callbackTranslator: {
         wrongPassword: Update.wrongPassword,
@@ -8,26 +8,26 @@ var Response = {
         sliderChanged: Update.setSliderLabel,
         datesAdded: Update.reloadPage, // TODO: Maybe exchange this for a better feedback
         groupNameChanged: Update.groupName,
-        removeCookie: Cookie.removeHashAndReload,
-        showStatus: Update.showChange
+        showStatus: Update.showChange,
+        checkPasswordResponse: Update.checkPasswordResponse
     },
 
     handler: function (jqXHR, onReturn, status) {
-        console.log('Ajax request status: ' + status);
         if (status === 'success') {
-            var data = jqXHR.responseJSON;
+            let data = jqXHR.responseJSON;
 
             if (!(this.checkData(data)) || this.hasErrors(data)){
                 return false;
             }
             this.logDataToConsole(data);
 
-            var callbackHandler = this.getCallback(onReturn);
+            let callbackHandler = this.getCallback(onReturn);
             if(callbackHandler === false){
                 return false;
             }
             return callbackHandler.call(this, data);
         }
+        console.warn('Ajax request returned with errors: ' + status);
         return false;
     },
 
@@ -41,21 +41,23 @@ var Response = {
 
     hasErrors: function (data) {
         if (data.errors.length > 0) {
-            console.log('The response didn\'t come back without errors.');
+            console.group('ResponseErrors');
             console.log(data.errors);
+            console.groupEnd();
             return true;
         }
         return false;
     },
 
     logDataToConsole: function (data) {
-        console.log("Response:");
-        console.log(data);
+        console.group("Response");
+        console.table(data);
+        console.groupEnd();
     },
 
     getCallback: function (onReturn) {
         if (!(onReturn in Response.callbackTranslator)) {
-            console.log("The return function <" + onReturn + "> was not defined in Response.js");
+            console.warn("The return function <" + onReturn + "> was not defined in Response.js");
             return false;
         }
         return this.callbackTranslator[onReturn];
@@ -63,9 +65,11 @@ var Response = {
     },
 
     logErrorsToConsole: function (jqXHR, textStatus, errorThrown) {
+        console.group('Errors');
         console.log(textStatus);
         console.log(errorThrown);
         console.log(jqXHR.responseText);
+        console.groupEnd();
     }
 
 };

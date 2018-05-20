@@ -992,12 +992,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/essentials.git",
-                "reference": "57344d44545349a1dff76a823e8945564b8e4cd3"
+                "reference": "e323d024193488346ee902fdecb28b63306bceb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/essentials/zipball/57344d44545349a1dff76a823e8945564b8e4cd3",
-                "reference": "57344d44545349a1dff76a823e8945564b8e4cd3",
+                "url": "https://api.github.com/repos/fridde/essentials/zipball/e323d024193488346ee902fdecb28b63306bceb8",
+                "reference": "e323d024193488346ee902fdecb28b63306bceb8",
                 "shasum": ""
             },
             "require": {
@@ -1027,7 +1027,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-04-27T19:17:12+00:00"
+            "time": "2018-05-20T11:59:10+00:00"
         },
         {
             "name": "fridde/html",
@@ -1035,12 +1035,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/html.git",
-                "reference": "4b7de5ad210b523a69c3b616f134519b2ede0a26"
+                "reference": "3e739ff82db9899e6fb515e78fb6a7befd6968d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/html/zipball/4b7de5ad210b523a69c3b616f134519b2ede0a26",
-                "reference": "4b7de5ad210b523a69c3b616f134519b2ede0a26",
+                "url": "https://api.github.com/repos/fridde/html/zipball/3e739ff82db9899e6fb515e78fb6a7befd6968d3",
+                "reference": "3e739ff82db9899e6fb515e78fb6a7befd6968d3",
                 "shasum": ""
             },
             "require": {
@@ -1064,7 +1064,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-04-27T19:18:12+00:00"
+            "time": "2018-05-20T12:00:04+00:00"
         },
         {
             "name": "fridde/mailer",
@@ -1108,12 +1108,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/orm.git",
-                "reference": "c55a036d415e72ca3f758945e1b86f4cf5aaf8ec"
+                "reference": "69a80c00554b438b1f198541876437393fbdd99f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/orm/zipball/c55a036d415e72ca3f758945e1b86f4cf5aaf8ec",
-                "reference": "c55a036d415e72ca3f758945e1b86f4cf5aaf8ec",
+                "url": "https://api.github.com/repos/fridde/orm/zipball/69a80c00554b438b1f198541876437393fbdd99f",
+                "reference": "69a80c00554b438b1f198541876437393fbdd99f",
                 "shasum": ""
             },
             "require": {
@@ -1137,7 +1137,7 @@
                 }
             ],
             "description": "A simple wrapper for Doctrine's data wrapper. A wrapper wrapper!",
-            "time": "2018-04-27T19:19:17+00:00"
+            "time": "2018-05-20T12:00:46+00:00"
         },
         {
             "name": "fridde/slacker",

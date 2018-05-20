@@ -9,13 +9,19 @@ use Fridde\Entities\Group;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
+use Fridde\Security\Authorizer;
 use Fridde\Timing as T;
 use Fridde\Utility;
 
 class SchoolController extends BaseController
 {
-    /** @var string $school_id */
-    public $school_id;   
+    protected $Security_Levels = [
+        'createGroupPage' => Authorizer::ACCESS_ADMIN_ONLY,
+        'createStaffPage' => Authorizer::ACCESS_ADMIN_ONLY
+    ];
+
+    /** @var School $request_school */
+    public $request_school;
     
     public const PAGE = ['staff' => 'staff', 'groups' => 'groups'];
 
@@ -25,54 +31,44 @@ class SchoolController extends BaseController
     public function __construct($params = [])
     {
         parent::__construct($params);
-        $this->school_id = $this->getParameter('school');        
+        $school_id = $this->getParameter('school');
+        $this->request_school = $this->N->ORM->find('School', $school_id);
     }
 
     public function handleRequest()
     {
-        if (!$this->isAuthorized()) {
-            $login_controller = new LoginController($this->getParameter());
-            $login_controller->addAction('renderPasswordModal');
-
-            return $login_controller->handleRequest();
-        }
         $page = $this->getParameter('page') ?? self::GROUPS_PAGE;
         /* @var School $school  */
-        $school = $this->N->ORM->find('School', $this->school_id);
-        if ($page === self::GROUPS_PAGE) {
-            $this->addToDATA($this->getAllGroups($school));
-            $this->setTemplate('group_settings');
-        } elseif ($page === self::STAFF_PAGE) {
-            $this->addToDATA($this->getAllUsers($school));
-            $this->addToDATA('school_id', $this->school_id);
-            $this->setTemplate('staff_list');
-        } else {
-            throw new \Exception("No action was defined for the page variable $page .");
+
+        $methods = [
+            self::GROUPS_PAGE => 'createGroupPage',
+            self::STAFF_PAGE => 'createStaffPage'
+        ];
+
+        $method = $methods[$page];
+        if($this->Authorizer->getVisitor()->isFromSchool($this->request_school)){
+            $this->Security_Levels[$method] = Authorizer::ACCESS_ALL_EXCEPT_GUEST;
         }
-        $this->addToDATA(['school_id' => $this->school_id]);
+
+        $this->addAction($method);
+        $this->addToDATA('school_id', $this->request_school->getId());
 
         parent::handleRequest();
     }
 
-    private function isAuthorized()
+    public function createStaffPage()
     {
-        $user_or_school = $this->N->Auth->getUserOrSchoolFromCookie();
-        if ($this->N->Auth::isUser($user_or_school)) {
-            /* @var User $user */
-            $user = $user_or_school;
-            if ($this->N->isAdminSchool($user->getSchool())) {
-                return true;
-            }
-            return $this->school_id === $user->getSchoolId();
-        }
-        if($this->N->Auth::isSchool($user_or_school)){
-            /* @var School $school  */
-            $school = $user_or_school;
-            return $school->getId() === $this->school_id;
-        }
-
-        return false;
+        $this->addToDATA($this->getAllUsers($this->request_school));
+        $this->setTemplate('staff_list');
     }
+
+    public function createGroupPage()
+    {
+        $this->addToDATA($this->getAllGroups($this->request_school));
+        $this->setTemplate('group_settings');
+    }
+
+
 
     public function getAllUsers(School $school)
     {
@@ -135,7 +131,7 @@ class SchoolController extends BaseController
                             $r['confirmed'] = $v->isConfirmed();
                             $dur = T::addDurationToNow(SETTINGS['values']['show_confirm_link']);
                             if ($v->isInFuture() && $v->isBefore($dur)) {
-                                $r['confirmation_url'] = $this->N->createConfirmationUrl($v->getId());
+                                $r['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), 'simple');
                             }
 
                             return $r;

@@ -235,7 +235,7 @@ class Task
         $school_id = $v->getGroup()->getSchoolId();
         $absolute = !empty(DEBUG);
         $data['school_url'] = $this->N->generateUrl('school', ['school' => $school_id], $absolute);
-        $visit_info['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), $absolute);
+        $visit_info['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), 'check_hash', $absolute);
         $visit_info['date_string'] = $v->getDate()->formatLocalized('%e %B');
         $visit_info['group_name'] = $v->getGroup()->getName();
         $visit_info['topic_label'] = $v->getTopic()->getLongestName();
@@ -500,7 +500,7 @@ class Task
                 $hash->setCategory(Hash::CATEGORY_SCHOOL_PW);
                 $hash->setVersion($version);
                 $hash->setOwnerId($school->getId());
-                $rights = $this->N->isAdminSchool($school) ? Hash::RIGHTS_ALL_SCHOOLS : Hash::RIGHTS_SCHOOL_ONLY;
+                $rights = $this->N::isAdminSchool($school) ? Hash::RIGHTS_ALL_SCHOOLS : Hash::RIGHTS_SCHOOL_ONLY;
                 $hash->setRights($rights);
                 $hash->setExpiresAt($new_expiration_date);
                 $this->N->ORM->EM->persist($hash);
@@ -519,7 +519,7 @@ class Task
             )
         );
 
-        if(false === file_put_contents(BASE_DIR.'temp/new_'.date('U'), $pw_string)){
+        if(false === file_put_contents(BASE_DIR.'/temp/new_'.date('U'), $pw_string)){
             throw new \Exception('The password file could not be written.');
         }
         $this->N->ORM->EM->flush();

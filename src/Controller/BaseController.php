@@ -4,6 +4,7 @@
 namespace Fridde\Controller;
 
 use Fridde\HTML;
+use Fridde\Security\Authorizer;
 use Fridde\TwigExtension\NavigationExtension;
 use Fridde\Utility;
 
@@ -31,25 +32,28 @@ class BaseController
     protected $css = [];
     protected $template;
 
+    /* @var Authorizer $Authorizer */
+    protected $Authorizer;
+
 
     public function __construct(array $params = [], $slim = false)
     {
         $this->slimConstruct($params);
         if ($slim) {
-            return ;
+            return;
         }
-        $args = [$this->N->Auth];
+        $args = [$this->Authorizer];
         $args[] = $GLOBALS['CONTAINER']->get('Router');
         $args[] = $this->N->ORM;
         $extension = new NavigationExtension(...$args);
         $this->H = new HTML(null, [$extension]);
         $this->setTitle(SETTINGS['defaults']['title'] ?? null);
-        $this->addAction($this->getParameter('action'));
     }
 
     public function slimConstruct(array $params = [])
     {
         $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
+        $this->Authorizer = new Authorizer($this->N->ORM, $this->N->Auth);
         $this->REQ = $_REQUEST ?? [];
         $this->params = $params;
         $this->addAction($this->getParameter('action'));
@@ -63,7 +67,16 @@ class BaseController
         $params = empty($param_string) ? [] : explode('/', $param_string);
         foreach ($actions as $action) {
             $method = $this->translateActionToMethod($action);
+            if(!$this->Authorizer->authorize($this, $method)){
+                $login_controller = new LoginController($this->getParameter());
+                $login_controller->addAction('renderPasswordModal');
+                return $login_controller->handleRequest();
+            }
+
             call_user_func_array([$this, $method], $params);
+            if ($this->getReturnType() === false) {
+                exit;
+            }
         }
 
         if ($this->getReturnType() === 'html') {
@@ -213,12 +226,12 @@ class BaseController
         $data = $this->getParameter('data');
         $data = $this->DATA ?? $data;
 
-        foreach($keys as $key){
+        foreach ($keys as $key) {
             $this->addAsVar($key, $data[$key] ?? null);
-            if(isset($this->DATA[$key])){
+            if (isset($this->DATA[$key])) {
                 unset($this->DATA[$key]);
             }
-            if(isset($this->params[$key])){
+            if (isset($this->params[$key])) {
                 unset($this->params[$key]);
             }
         }
@@ -307,9 +320,10 @@ class BaseController
 
     public function hasParameter(string $key = null)
     {
-        if(empty($key)){
+        if (empty($key)) {
             return !empty($this->params);
         }
+
         return (null !== $this->getParameter($key));
     }
 
@@ -367,7 +381,7 @@ class BaseController
             return null;
         }
         $actions = $this->getActions() ?? [];
-        $actions[] = $action;
+        array_unshift($actions, $action);
         $this->setActions($actions);
     }
 
@@ -413,23 +427,30 @@ class BaseController
         if ($defined_CT === 'json') {
             $string = file_get_contents('php://input');
             json_decode($string, true);
-            $is_valid = json_last_error() == JSON_ERROR_NONE;
-            if (strlen($string) > 0 && $is_valid) {
+            $is_valid = json_last_error() === JSON_ERROR_NONE;
+            if ($is_valid && strlen($string) > 0) {
                 return json_decode($string, true);
-            } else {
-                return null;
             }
-        } elseif ($defined_CT == 'urlencoded') {
+                return null;
+
+        } elseif ($defined_CT === 'urlencoded') {
             return $_REQUEST;
         }
+
     }
 
     public function getFromRequest($key = null)
     {
-        if(empty($key)){
+        if (empty($key)) {
             return $this->REQ;
         }
+
         return $this->REQ[$key] ?? null;
+    }
+
+    public function getSecurityLevels(): array
+    {
+        return $this->Security_Levels ?? [];
     }
 
 

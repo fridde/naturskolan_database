@@ -21,7 +21,7 @@ class Update extends DefaultUpdate
     protected $N;
 
     /** @var array  */
-    protected const OBJECT_REQUIRED = [
+    protected static $object_required = [
         'User' => ['School'],
         'Group' => ['User'],
         'Visit' => ['Group', 'Topic'],
@@ -68,15 +68,16 @@ class Update extends DefaultUpdate
      * @param string $password
      * @return void
      */
-    public function checkPassword(string $password, $school_id = null)
+    public function checkPassword(string $password, $school_id = null): void
     {
-        $school_id = $this->N->checkPassword($password, $school_id);
-        if ($school_id) {
-            $this->setReturn('school', $school_id);
-        } else {
+        $school = $this->N->Auth->getSchoolFromPassword($password);
+        if(empty($school) || $school->getId() !== $school_id){
             $this->addError('Wrong password!');
+            usleep(1000 * 2000); // to avoid brute force methods
+            return;
         }
-
+        $hash_string = $this->setCookie($school_id);
+        $this->N->Auth->setSessionKey($hash_string);
     }
 
     /**
@@ -172,17 +173,14 @@ class Update extends DefaultUpdate
         $this->ORM->EM->flush();
     }
 
-    public function setCookie(string $school_id, int $rights = Hash::RIGHTS_SCHOOL_ONLY)
+    protected function setCookie(string $school_id)
     {
-        $hash = $this->N->createHash();
-        setcookie(Authenticator::COOKIE_KEY_NAME, $hash, Carbon::now()->addDays(90)->timestamp, '/');
+        $category = Hash::CATEGORY_SCHOOL_COOKIE_KEY;
+        $hash_string = $this->N->Auth->createAndSaveCode($school_id, $category);
+        $exp_date = $this->N->Auth->getExpirationDate($category);
+        $this->N->Auth->setCookieKeyInBrowser($hash_string, $exp_date);
 
-        $hash = new Hash();
-        $hash->setValue(password_hash($hash, PASSWORD_DEFAULT));
-        $hash->setCategory(Hash::CATEGORY_USER_COOKIE_KEY);
-        $hash->setOwnerId($school_id);
-        $hash->setRights($rights);
-        $this->ORM->save($hash);
+        return $hash_string;
     }
 
     public function removeCookie(string $hash)

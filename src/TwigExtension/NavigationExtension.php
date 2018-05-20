@@ -3,20 +3,24 @@
 namespace Fridde\TwigExtension;
 
 
+use Fridde\Entities\User;
 use Fridde\ORM;
-use Fridde\Security\Authenticator;
+use Fridde\Security\Authorizer;
 use Fridde\TwigBaseExtension;
 
 class NavigationExtension extends TwigBaseExtension
 {
+    /* @var Authorizer $Auth  */
     protected $Auth;
+    /* @var \AltoRouter $Router  */
     protected $Router;
+    /* @var ORM $ORM  */
     protected $ORM;
 
     public const METHOD_DELIMITER = '->';
     public const ARG_DELIMITER = ',';
 
-    public function __construct(Authenticator $auth, \AltoRouter $router, ORM $orm)
+    public function __construct(Authorizer $auth, \AltoRouter $router, ORM $orm)
     {
         parent::__construct();
         $this->Auth = $auth;
@@ -69,15 +73,18 @@ class NavigationExtension extends TwigBaseExtension
         return substr_count($element_to_test, self::METHOD_DELIMITER) >= 1;
     }
 
-    public function getRole()
+    public function getMinSecurityLevel()
     {
-        return $this->Auth->getUserRole();
+        return $this->Auth->getVisitorSecurityLevel();
     }
 
 
-    public function getNavItems($role = 'guest')
+    public function getNavItems()
     {
-        $menu_items = self::getNavSettings($role);
+
+        $min_security_level = $this->Auth->getVisitorSecurityLevel();
+
+        $menu_items = self::getNavSettings($min_security_level);
         $default = ['children' => [], 'url' => '#'];
 
         return array_map(
@@ -182,9 +189,15 @@ class NavigationExtension extends TwigBaseExtension
     }
 
 
-    private static function getNavSettings(string $key = null)
+    private static function getNavSettings(int $min_security_level = null): array
     {
-        return SETTINGS['NAV_SETTINGS'][$key] ?? SETTINGS['NAV_SETTINGS'];
+        $keys = [
+            Authorizer::ROLE_GUEST => 'guest',
+            User::ROLE_TEACHER => 'user',
+            User::ROLE_ADMIN => 'admin'
+        ];
+
+        return SETTINGS['NAV_SETTINGS'][$keys[$min_security_level]] ?? SETTINGS['NAV_SETTINGS'];
     }
 
 }

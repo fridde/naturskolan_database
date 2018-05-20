@@ -1,4 +1,4 @@
-var Settings = {
+let Settings = {
 
     datepickerOptions : {
         dateFormat: 'yy-mm-dd',

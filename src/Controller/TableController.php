@@ -3,9 +3,14 @@
 namespace Fridde\Controller;
 
 use Fridde\HTML;
+use Fridde\Security\Authorizer;
 
 class TableController extends BaseController
 {
+
+    protected $Security_Levels = [
+        'view' => Authorizer::ACCESS_ADMIN_ONLY,
+    ];
 
     private $entity_class;
     private $t_settings;
@@ -16,11 +21,6 @@ class TableController extends BaseController
 
     public function view()
     {
-        if (!$this->isAuthorized()) {
-            $login_controller = new LoginController($this->params);
-
-            return $login_controller->renderPasswordModal();
-        }
 
         $this->entity_class = ucfirst($this->params['entity']);
 
@@ -40,8 +40,8 @@ class TableController extends BaseController
         $this->addToDATA('headers', array_keys($this->t_settings['columns']));
         $this->addToDATA('rows', $this->rows);
         $this->addToDATA('entity_class', $this->entity_class);
-        $this->addToDATA('sortable', ($this->t_settings['sortable'] ?? false));
-        $this->addToDATA('school_id', $this->N->Auth->getSchooldIdFromCookie());
+        $this->addToDATA('sortable', $this->t_settings['sortable'] ?? false);
+        $this->addToDATA('school_id', $this->Authorizer->getVisitor()->getSchool()->getId());
 
         $this->setTemplate('table');
 
@@ -52,7 +52,6 @@ class TableController extends BaseController
 
         //$this->setCss(['css.bs.date', 'css.DT']);
         $this->setCss(['DT']);
-        parent::handleRequest();
     }
 
     private function buildRows()
@@ -72,24 +71,23 @@ class TableController extends BaseController
 
     private function getTableSettings()
     {
-        $ec = $this->entity_class;
         $cols = $this->t_settings['columns'] ?? [];
         $cols['id']['value'] = 'getId';
         $cols['id']['type'] = 'ignored';
 
-        if (in_array($ec, ['User'])) {
+        if ($this->isOneOf('User')) {
             array_push($cols, 'FirstName', 'LastName');
             $cols['Mobil']['type'] = 'tel';
             $cols['Mail']['type'] = 'email';
-            $cols['Role']['options'] = 'getRoleOptions';
+            $cols['Role']['options'] = 'getRoleLabels';
             $cols[] = 'Acronym';
         }
 
-        if (in_array($ec, ['Group', 'Location', 'School'])) {
+        if ($this->isOneOf('Group', 'Location', 'School')) {
             $cols[] = 'Name';
         }
 
-        if (in_array($ec, ['Group'])) {
+        if ($this->isOneOf('Group')) {
             $cols['User']['value'] = 'getUserId';
             $cols['User']['options'] = ['User', 'findAllUsersWithSchools'];
             $cols['StartYear']['type'] = 'integer';
@@ -98,27 +96,27 @@ class TableController extends BaseController
             $cols['Info']['type'] = 'textarea';
             $cols['Notes']['type'] = 'textarea';
         }
-        if (in_array($ec, ['User', 'Group'])) {
+        if ($this->isOneOf('User', 'Group')) {
             $cols['Status']['options'] = 'getStatusOptions';
             $cols['LastChange']['type'] = 'readonly';
             $cols['CreatedAt']['type'] = 'readonly';
         }
 
-        if (in_array($ec, ['User', 'Group', 'Cookie'])) {
+        if ($this->isOneOf('User', 'Group', 'Cookie')) {
             $cols['School']['value'] = 'getSchoolId';
             $cols['School']['options'] = ['School', 'findAllSchoolLabels'];
         }
 
-        if (in_array($ec, ['Topic', 'Group'])) {
+        if ($this->isOneOf('Topic', 'Group')) {
             $cols['Grade']['options'] = 'getGradeLabels';
         }
 
-        if (in_array($ec, ['Topic', 'School'])) {
+        if ($this->isOneOf('Topic', 'School')) {
             $cols['VisitOrder']['type'] = 'readonly';
             $this->t_settings['sortable'] = true;
         }
 
-        if (in_array($ec, ['Topic'])) {
+        if ($this->isOneOf('Topic')) {
             array_push($cols, 'ShortName', 'LongName');
             $cols['Location']['value'] = 'getLocationId';
             $cols['Location']['options'] = ['Location', 'findAllLocationLabels'];
@@ -127,27 +125,27 @@ class TableController extends BaseController
             $cols['IsLektion']['options'] = 'getIsLektionOptions';
         }
 
-        if (in_array($ec, ['Location', 'School'])) {
+        if ($this->isOneOf('Location', 'School')) {
             $cols[] = 'Coordinates';
         }
 
-        if (in_array($ec, ['Location'])) {
+        if ($this->isOneOf('Location')) {
             $cols['Description']['type'] = 'textarea';
             $cols['BusId']['type'] = 'readonly';
         }
 
-        if (in_array($ec, ['Cookie'])) {
+        if ($this->isOneOf('Cookie')) {
             array_push($cols, 'Value', 'Name');
             $cols['Rights']['options'] = 'getRightsOptions';
         }
 
-        if (in_array($ec, ['School'])) {
+        if ($this->isOneOf('School')) {
             $cols['BusRule']['type'] = 'integer';
             $cols['GroupNumbers']['value'] = 'getGroupNumbersAsString';
             $cols['GroupNumbers']['type'] = 'readonly';
         }
 
-        if (in_array($ec, ['Visit'])) {
+        if ($this->isOneOf('Visit')) {
             $cols['Group']['value'] = 'getGroupId';
             $cols['Group']['options'] = ['Group', 'findAllGroupsWithNameAndSchool'];
             $cols['Date']['value'] = 'getDateString';
@@ -163,7 +161,7 @@ class TableController extends BaseController
             $cols[] = 'Time';
         }
 
-        if (in_array($ec, ['Event'])) {
+        if ($this->isOneOf('Event')) {
             $cols[] = 'Title';
             $cols['StartDate']['type'] = 'date';
             $cols['StartDate']['value'] = 'getStartDateString';
@@ -174,6 +172,11 @@ class TableController extends BaseController
         }
 
         $this->t_settings['columns'] = $cols;
+    }
+
+    private function isOneOf(...$entities)
+    {
+        return in_array($this->entity_class, $entities, true);
     }
 
     private function reorderColumns()
@@ -231,13 +234,6 @@ class TableController extends BaseController
             }
         }
         $this->t_settings['columns'] = $cols;
-    }
-
-    private function isAuthorized()
-    {
-        if ($this->N->Auth->getUserRole() === 'admin') {
-            return true;
-        }
     }
 
 }

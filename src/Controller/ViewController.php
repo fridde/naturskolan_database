@@ -6,10 +6,15 @@ use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Fridde\HTML;
 use Carbon\Carbon;
+use Fridde\Security\Authorizer;
 
 class ViewController extends BaseController {
 
     protected $ActionTranslator = ['food_order' => 'viewFoodOrder', 'bus_order' => 'viewBus'];
+
+    protected $Security_Levels = [
+        '*' => Authorizer::ACCESS_ADMIN_ONLY,
+    ];
 
     public function handleRequest()
     {

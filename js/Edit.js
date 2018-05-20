@@ -1,8 +1,8 @@
-var Edit = {
+let Edit = {
 
     change: function (event) {
-        var data = {};
-        var option, specialInfo;
+        let data = {};
+        let option, specialInfo, $tr;
         if (recentChange !== false) {
             clearTimeout(recentChange);
         }
@@ -26,7 +26,7 @@ var Edit = {
             case "tableInput":
 
                 data.entity_class = $(this).closest("table").data("entity");
-                data.entity_id = $(this).closest("tr").data("id");
+                data.entity_id = $(this).closest("tr").data("id").toString();
                 data.property = $(this).prop("name").split('#').shift();
                 if ($(this).attr("type") === "radio") {
                     data.value = $(this)
@@ -36,7 +36,8 @@ var Edit = {
                     data.value = $(this).val();
                 }
 
-                if (data.entity_id.toString().substring(0,1) === '#') {  // i.e. is a new object
+                if (data.entity_id.charAt(0) === '#') {  // i.e. is a new object
+                    data.entity_id = data.entity_id.substring(1);
                     data.return = {'old_id': data.entity_id};
                     data.updateMethod = 'createNewEntity';
                     data.properties = {};
@@ -44,7 +45,7 @@ var Edit = {
                         data.properties = $(".additional-information").data().defaultProperties;
                     }
                     if(typeof $(this).closest("tr").data('properties') !== 'undefined'){
-                        var props = JSON.parse($(this).closest("tr").data('properties'));
+                        let props = JSON.parse($(this).closest("tr").data('properties'));
                         Object.assign(data.properties, props);
                     }
                     data.properties[data.property] = data.value;
@@ -85,7 +86,7 @@ var Edit = {
 
             case "work_schedule":
                 $(this).toggleClass('active');
-                var $tr = $(this).closest('tr');
+                $tr = $(this).closest('tr');
                 data.updateMethod = "updateProperty";
                 data.entity_class = "Visit";
                 data.entity_id = $tr.data("id");
@@ -99,7 +100,7 @@ var Edit = {
 
             case 'food_bus_bookings':
                 $(this).toggleClass('active');
-                var $tr = $(this).closest('tr');
+                $tr = $(this).closest('tr');
                 data.updateMethod = "updateProperty";
                 data.entity_class = "Visit";
                 data.entity_id = $tr.data("id");
@@ -115,8 +116,8 @@ var Edit = {
             if (data.property.endsWith('[]')) {
                 data.property = data.property.slice(0, -2);
             }
-            var valueArray = [];
-            var checkedBoxes = $(this).closest("fieldset").find(":checked");
+            let valueArray = [];
+            let checkedBoxes = $(this).closest("fieldset").find(":checked");
             checkedBoxes.each(function (index, element) {
                 valueArray.push($(element).val());
             });

@@ -1,8 +1,8 @@
-var Slider = {
+let Slider = {
 
 	set : function(jqueryObj, optionParam){
-		var data = {};
-		var container, entity_id;
+		let data = {};
+		let container, entity_id;
 
 		if(optionParam == "group"){
 			container = jqueryObj.closest(".group-container");

@@ -1,4 +1,4 @@
-var Tooltip = {
+let Tooltip = {
 
     check: function(element, data){
 
@@ -10,7 +10,7 @@ var Tooltip = {
     },
 
     getContent: function(name){
-        var text = '';
+        let text = '';
         switch(name){
             case 'Food':
                 text += 'Menade du laktos eller menade du mjölkprotein? Om du är osäker, ';
@@ -25,7 +25,7 @@ var Tooltip = {
     },
 
     tooltipNeeded: function(property, text){
-        var regex;
+        let regex;
         switch(property){
             case "Food":
             regex = new RegExp(/\bmjölk\b/, 'iu');
@@ -34,7 +34,7 @@ var Tooltip = {
             regex = new RegExp(/^\s?(0|0046|\+46)(?=[12345689])/ , 'iu');
             break;
         }
-        var is_there = text.search(regex);
+        let is_there = text.search(regex);
         return text.search(regex) !== -1;
     }
 

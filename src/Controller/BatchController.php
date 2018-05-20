@@ -9,11 +9,14 @@ use Fridde\Entities\TopicRepository;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
+use Fridde\Security\Authorizer;
 use Fridde\Utility as U;
 use Fridde\Utility;
 
 class BatchController extends BaseController
 {
+    protected $Security_Levels = ['*' => Authorizer::ACCESS_ADMIN_ONLY];
+
 
     public function handleRequest()
     {
@@ -247,6 +250,4 @@ class BatchController extends BaseController
             )
         );
     }
-
-
 }

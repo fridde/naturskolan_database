@@ -57,18 +57,11 @@ class User
     /** @OneToMany(targetEntity="Group", mappedBy="User") */
     protected $Groups;
 
-    public const ROLE_TEACHER = 0;
-
-    public const ROLE_ADMIN = 9;
-
-    public const ROLES = [
-        0 => 'teacher',
-        1 => 'headmaster',
-        2 => 'administrator',
-        3 => 'stakeholder',
-        4 => 'superadmin',
-        5 => 'colleague',
-    ];
+    public const ROLE_STAKEHOLDER = 2;
+    public const ROLE_TEACHER = 4;
+    public const ROLE_SCHOOL_MANAGER = 8;
+    public const ROLE_ADMIN = 16;
+    public const ROLE_SUPERUSER = 32;
 
     public const ARCHIVED = 0;
     public const ACTIVE = 1;
@@ -184,7 +177,7 @@ class User
         return in_array($this->getSchoolId(), $school_id, true);
     }
 
-    public function getRole()
+    public function getRole(): ?int
     {
         return $this->Role;
     }
@@ -196,22 +189,27 @@ class User
 
     public function getRoleLabel()
     {
-        return self::ROLES($this->getRole());
+        $labels = $this->getRoleLabels();
 
+        return $labels[$this->getRole()] ?? null;
     }
 
-    public function getRoleOptions()
+    public function getRoleLabels()
     {
-        return self::ROLES;
+        $labels = [
+            self::ROLE_STAKEHOLDER => 'stakeholder',
+            self::ROLE_TEACHER => 'teacher',
+            self::ROLE_SCHOOL_MANAGER => 'school_manager',
+            self::ROLE_ADMIN => 'admin',
+            self::ROLE_SUPERUSER => 'superuser'
+        ];
+
+        return $labels;
     }
 
-    public function isRole($role)
+    public function hasRole(int $role)
     {
-        if (is_string($role)) {
-            $role = array_search($role, self::ROLES);
-        }
-
-        return $this->getRole() == $role;
+        return $this->getRole() === $role;
     }
 
 

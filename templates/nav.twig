@@ -2,8 +2,7 @@
 <div class="navbar-wrapper">
     <nav class="navbar navbar-toggleable-md">
         <ul class="nav">
-            {% set ROLE = getRole() %}
-            {% for item in getNavItems(ROLE) %}
+            {% for item in getNavItems() %}
                 {# logic part starts here #}
 
                 {% set item_class, link_class, has_children = 'nav-item', 'nav-link', false %}

@@ -336,7 +336,7 @@ class AdminSummary
                 $reasons['nonexistent'] = true;
             } else {
                 $reasons['inactive'] = !$u->isActive();
-                $reasons['not_teacher'] = !$u->isRole('teacher');
+                $reasons['not_teacher'] = !$u->hasRole(User::ROLE_TEACHER);
                 $reasons['wrong_school'] = $u->getSchool()->getId() !== $group->getSchool()->getId();
 
             }

@@ -5,13 +5,13 @@ routes:
    api : ['GET|POST','/api/[:action]/[**:parameters]?', 'API']
    batch : ['GET','/admin/batch/[:action]/[**:parameters]?','Batch']
    checkpw : ['GET','/login/[:password]?','Login#checkPassword']
-   cron : ['GET','/cron','Cron#run']
+   cron : ['GET','/cron/[:AuthKey]?','Cron']
    file : ['GET','/file/[:file1]/[:file2]?/[:file3]?','File#include']
    login : ['GET', '/login/[:code]', 'Login#login']
    logout: ['GET', '/logout', 'Login#logout']
    pwrecover : ['GET','/passwordrecover/[:code]?','API#passwordRecover']
-   school : ['GET','/skola/[a:school]/[a:page]?','School']  # changing this affects Navigation::getStaffPageUrl()
    sandbox: ['GET|POST','/sandbox/[:action]?/[**:parameters]?', 'Sandbox']
+   school : ['GET','/skola/[a:school]/[a:page]?','School']  # changing this affects Navigation::getStaffPageUrl()
    sms : ['GET|POST','/sms/[:purpose]?/[:encoding]?','SMS']
    table : ['GET','/table/[a:entity]','Table#view']
    task : ['GET','/task/[:type]','Cron#executeTask']

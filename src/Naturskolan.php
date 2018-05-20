@@ -37,7 +37,7 @@ class Naturskolan
     /** @var string the path for the text pieces */
     private $text_path = 'config/labels.yml';
 
-    private const ADMIN_SCHOOL = 'natu';
+    public const ADMIN_SCHOOL = 'natu';
 
     /**
      * Constructor
@@ -271,9 +271,16 @@ class Naturskolan
     }
 
 
-    public function createConfirmationUrl($visit_id, $absolute = false)
+    public function createConfirmationUrl($visit_id, string $security = 'check_hash',  $absolute = false)
     {
-        $code = $this->Auth->createAndSaveCode($visit_id, Hash::CATEGORY_VISIT_CONFIRMATION_CODE);
+        if($security === 'simple'){
+            $code = $visit_id . '/simple';
+        } elseif($security === 'check_hash'){
+            $code = $this->Auth->createAndSaveCode($visit_id, Hash::CATEGORY_VISIT_CONFIRMATION_CODE);
+        } else {
+            throw new \InvalidArgumentException('The security argument is not implemented');
+        }
+
         $params['parameters'] = $code;
         $params['action'] = 'confirmVisit';
 
@@ -291,19 +298,6 @@ class Naturskolan
             return false;
         }
         return $school->getId() === $school_id;
-    }
-
-    public function createHash()
-    {
-        return $this->Auth->createCookieKey();
-    }
-
-    public function setCookieKey(School $school, int $rights = Hash::RIGHTS_SCHOOL_ONLY)
-    {
-        $update = new Update();
-        $rights = $this->isAdminSchool($school) ? Hash::RIGHTS_ALL_SCHOOLS : $rights;
-
-        $update->setCookie($school->getId(), $rights);
     }
 
     public function generateUrl($route_name, array $params = [], bool $absolute = false)
@@ -469,7 +463,13 @@ class Naturskolan
         $GLOBALS['CONTAINER']->get('Logger')->addInfo($msg, ['source' => $source]);
     }
 
-    public function isAdminSchool(School $school = null): bool
+
+    public function getAdminSchool(): School
+    {
+        return $this->ORM->find('School', self::ADMIN_SCHOOL);
+    }
+
+    public static function isAdminSchool(School $school = null): bool
     {
         if(empty($school)){
             return false;

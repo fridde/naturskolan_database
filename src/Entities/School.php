@@ -55,11 +55,6 @@ class School
         $this->id = $id;
     }
 
-    public function getIdAsInteger()
-    {
-        return Utility::stringToInt($this->getId());
-    }
-
     public function getName()
     {
         return $this->Name;
@@ -168,8 +163,8 @@ class School
         return array_filter(
             $this->getGroups(),
             function (Group $g) use ($grade, $start_year) {
-                $cond1 = $start_year !== false ? $g->getStartYear() == $start_year : true;
-                $cond2 = $g->getGrade() === $grade;
+                $cond1 = $start_year !== false ? $g->getStartYear() === $start_year : true;
+                $cond2 = $g->getGrade() === (string) $grade;
                 $cond3 = $g->isActive();
 
                 return $cond1 && $cond2 && $cond3;
@@ -184,6 +179,8 @@ class School
 
     public function getGradesAvailable($withLabels = false)
     {
+
+
         $available_grades = array_filter(
             Group::getGradeLabels(),
             function ($k) {

@@ -5,7 +5,7 @@ while getopts "s:" opts; do
    case ${opts} in
       s) SKIP=${OPTARG} ;;
    esac
-done
+done 
 
 SKIP=$((SKIP -1))
 
@@ -18,16 +18,16 @@ STAGING_PATH=/cygdrive/d/staging
 STAGING_PROJECT_PATH=$STAGING_PATH/$PROJECT_NAME
 GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
 
-set -x
-
 if [ $SKIP -lt 1 ]; then
-    read -p 'Backup DB and export to test-DB...'	
+    read -p "Backup DB and export to test-DB..."
     cd $PROJECT_PATH/misc/scripts
+	set -x
     php -e export_database.php default > $TESTDB_PATH
     php -e export_database.php just_data > /dev/null
     php -e export_database.php structure > /dev/null
     php -e "$PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
-	read -p "Delete old files..."
+	set +x
+    read -p "Delete old files..."
     cd ../SQL_data
     delete_old_files
 fi
@@ -62,8 +62,7 @@ if [ $SKIP -lt 3 ]; then
 	read -p 'If some repos have to be pushed, use Win+Alt+X to open a new split window.'
 fi
 
-if [ $SKIP -lt 4 ]; then
-    set +x
+if [ $SKIP -lt 4 ]; then    
 
     echo "Have you..."
     echo "1. run filecomparer?"
@@ -92,14 +91,14 @@ if [ $SKIP -lt 4 ]; then
         esac
     done
 
-	set -x; 
+	#set -x; 
 	read -p "Updating composer packages in project directory..."
     cd $PROJECT_PATH
     composer update fridde/*
     composer install
     git status
 
-    set +x
+    #set +x
     while true; do
 		read -p "Is the .gitignore file correctly configured?  " yn
 			case $yn in
@@ -108,7 +107,7 @@ if [ $SKIP -lt 4 ]; then
 				* ) echo "Please answer Y or N!";;
         esac
 	done
-    set -x ; 
+    #set -x ; 
 	read -p "Adding files from testing repo..."
     git add -A
     git commit -m "More work"

@@ -135,7 +135,7 @@ class PasswordHandler
     public function getWordDirectory(): string
     {
         $dir = defined('BASE_DIR') ? BASE_DIR : '';
-        $dir .= $this->word_folder;
+        $dir .= '/' . $this->word_folder;
 
         return $dir;
     }

@@ -23,10 +23,10 @@ class DatabaseMaintainer
 
     public function cleanOldBackups()
     {
-        $files = scandir(BASE_DIR . "/backup");
+        $files = scandir(BASE_DIR . '/backup', SCANDIR_SORT_ASCENDING);
         foreach($files as $file){
             if(is_readable($file)){
-                $date_string = explode("_", $file)[0];
+                $date_string = explode('_', $file)[0];
                 $date = new Carbon($date_string);
 
                 if(!$this->isSafe($date)){

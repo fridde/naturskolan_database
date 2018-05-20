@@ -2,8 +2,6 @@
 
 namespace Fridde\Controller;
 
-use Fridde\{HTML};
-
 
 class ErrorController extends BaseController {
 

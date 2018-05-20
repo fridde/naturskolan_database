@@ -2,7 +2,7 @@ $(document).ready(function () {
 
 
     function cleanLines(text) {
-        var lines = text.split(/\r|\n|;/).map(function (i) {
+        let lines = text.split(/\r|\n|;/).map(function (i) {
             return i.trim();
         }).filter(function (i) {
             return i.length > 0;
@@ -22,15 +22,15 @@ $(document).ready(function () {
      *
      */
     $(".set-dates button#send").click(function () {
-        var lists = [];
+        let lists = [];
         $(Batch.listIdentifier).each(function (i, listobj) {
-            var rows = [];
+            let rows = [];
             $(listobj).find("li").each(function (i, itemobj) {
                 rows.push($(itemobj).attr("data-id"));
             });
             lists.push(rows);
         });
-        var data = {
+        let data = {
             updateMethod: "setVisits",
             value: lists,
             onReturn: 'showStatus'
@@ -43,12 +43,12 @@ $(document).ready(function () {
      * google spreadsheets. It removes empty rows and trims and sorts the rows.
      */
     $(".add-dates button#clean").click(function () {
-        var $textElement = $("textarea.date-lines");
+        let $textElement = $("textarea.date-lines");
         $textElement.val(cleanLines($textElement.val()));
     });
 
     $('.set-group-count button#clean').click(function () {
-        var $textElement = $("textarea.group-count-lines");
+        let $textElement = $("textarea.group-count-lines");
         $textElement.val(cleanLines($textElement.val()));
     });
 
@@ -59,16 +59,16 @@ $(document).ready(function () {
      * and the topic_id as "entity_id"
      */
     $(".add-dates button#add").click(function () {
-        var textarea = $("textarea.date-lines");
+        let textarea = $("textarea.date-lines");
         textarea.val(cleanLines(textarea.val()));
-        var lines = textarea.val().split(/\r|\n/);
-        var topic_id = $('select.date-lines').val();
-        var update_method = "addDates";
+        let lines = textarea.val().split(/\r|\n/);
+        let topic_id = $('select.date-lines').val();
+        let update_method = "addDates";
         if (topic_id === "multiple") {
             update_method = 'addDatesForMultipleTopics';
         }
 
-        var data = {
+        let data = {
             updateMethod: update_method,
             topic_id: topic_id,
             dates: lines,
@@ -78,13 +78,13 @@ $(document).ready(function () {
     });
 
     $('.set-group-count button#update').click(function () {
-        var $text = $("textarea.group-count-lines");
-        var lines = $text.val().split(/\r|\n/).map(function (i) {
+        let $text = $("textarea.group-count-lines");
+        let lines = $text.val().split(/\r|\n/).map(function (i) {
             return i.split(',').map(function (j) {
                 return j.trim()
             });
         });
-        var data = {
+        let data = {
             updateMethod: "batchSetGroupCount",
             group_numbers: lines,
             start_year: $('#start-year-selector').val(),
@@ -100,18 +100,18 @@ $(document).ready(function () {
      * ###################
      */
 
-    var toggleGroupNameField = function (event) {
-        var h1 = $(event.target).closest('h1');
-        var dataId = h1.closest(".group-container").attr("data-entity-id");
-        var inputField = h1.children('input');
+    let toggleGroupNameField = function (event) {
+        let h1 = $(event.target).closest('h1');
+        let dataId = h1.closest(".group-container").attr("data-entity-id");
+        let inputField = h1.children('input');
         if (event.type === 'click' || event.type === 'dblclick') {
             h1.children("span, i, svg").hide();
             inputField.val(h1.children('span').text());
             inputField.show().focus();
 
         } else if (event.type === 'focusout') {
-            var newName = h1.children('input').hide().val();
-            var data = {
+            let newName = h1.children('input').hide().val();
+            let data = {
                 updateMethod: "changeGroupName",
                 entity_id: dataId,
                 value: newName,
@@ -124,11 +124,11 @@ $(document).ready(function () {
         }
     };
 
-    var addRow = function () {
-        var oldRow = $(".editable tbody tr:last");
-        var newRow = oldRow.clone(true);
+    let addRow = function () {
+        let oldRow = $(".editable tbody tr:last");
+        let newRow = oldRow.clone(true);
         newRow.hide();
-        var tempId = '#' + Math.random().toString(36).substring(2, 6);
+        let tempId = '#' + Math.random().toString(36).substring(2, 6);
         newRow.attr("data-id", tempId).data("id", tempId);
         newRow.find(":input").val('').removeAttr('value').removeAttr('id');
         newRow.data('properties', undefined).removeProp('data-properties');
@@ -147,7 +147,7 @@ $(document).ready(function () {
     $(".group-container input.group-name-input").focusout(toggleGroupNameField);
 
     $('#missingGroups button').click(function () {
-        var data = {
+        let data = {
             updateMethod: "createMissingGroups",
             grade: $('#missingGroups select[name="grade"]').val(),
             onReturn: 'showStatus'
@@ -156,7 +156,7 @@ $(document).ready(function () {
     });
 
     $('#fill-empty-group-names button').click(function () {
-        var data = {
+        let data = {
             updateMethod: "fillEmptyGroupNames",
             grade: $('#fill-empty-group-names select[name="grade"]').val(),
             onReturn: 'showStatus'
@@ -165,7 +165,7 @@ $(document).ready(function () {
     });
 
     $('#cron-task-activation :checkbox').click(function () {
-        var data = {
+        let data = {
             updateMethod: "changeTaskActivation",
             task_name: $(this).attr('name'),
             status: $(this).is(':checked'),
@@ -179,17 +179,17 @@ $(document).ready(function () {
      * MODALS
      */
 
-    var $login_modal_submit = $('#login_modal_submit');
+    let $login_modal_submit = $('#login_modal_submit');
     $login_modal_submit.click(function () {
-        var data = {
+        let data = {
             updateMethod: 'checkPassword',
             password: $("[name='password']").val(),
             school_id: $(".additional-information").data('default-properties').School,
-            onReturn: 'passwordCorrect'
+            onReturn: 'checkPasswordResponse'
         };
         Update.send(data);
     });
-    var predefined_pw = $('#login-modal input[name="password"]').val();
+    let predefined_pw = $('#login-modal input[name="password"]').val();
     if (typeof predefined_pw === "string" && predefined_pw !== '') {
         $login_modal_submit[0].click();
     }
@@ -202,8 +202,8 @@ $(document).ready(function () {
     });
 
     $('#forgotten_password_submit').click(function () {
-        var modal_id = '#password-modal';
-        var mail = $(modal_id + ' input[name="mailadress"]').val();
+        let modal_id = '#password-modal';
+        let mail = $(modal_id + ' input[name="mailadress"]').val();
         $.ajax({
             url: 'api/sendPasswordRecoverMail/' + mail,
             method: 'POST',
@@ -228,12 +228,12 @@ $(document).ready(function () {
         window.location.replace($(this).data('url'));
     });
 
-    $('div#show-entry-code button').popover({
+    $('div#show-school-pw button').popover({
         html: true,
         trigger: 'hover click',
         placement: 'bottom',
         content: function () {
-            var content_id = "content-id-" + $.now();
+            let content_id = "content-id-" + $.now();
 
             $.ajax({
                 url: 'api/getPassword/' + $(this).data('school'),
@@ -246,9 +246,9 @@ $(document).ready(function () {
     });
 
     $('input[name="hide-password"]').click(function () {
-        var $input = $(this);
-        var $password_field = $('input[name="password"]');
-        var $type = 'text';
+        let $input = $(this);
+        let $password_field = $('input[name="password"]');
+        let $type = 'text';
         if ($input.is(':checked')) {
             $type = 'password';
         }

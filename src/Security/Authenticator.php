@@ -3,11 +3,13 @@
 
 namespace Fridde\Security;
 
+use Carbon\Carbon;
 use Fridde\Entities\Hash;
 use Fridde\Entities\HashRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
+use Fridde\Naturskolan;
 use Fridde\ORM;
 use Fridde\Timing;
 use Fridde\Utility;
@@ -25,9 +27,15 @@ class Authenticator
     private const URL_CODE_LENGTH = 10;
     private const VISIT_CONFIRMATION_CODE_LENGTH = 5;
 
+    public const ROLE_GUEST = 0;
+    public const ROLE_USER = 1;
+    public const ROLE_ADMIN = 2;
+
+
     /**
-     * Authorization constructor.
+     * Authenticator constructor.
      * @param ORM $ORM
+     * @param PasswordHandler $PWH
      */
     public function __construct(ORM $ORM, PasswordHandler $PWH)
     {
@@ -37,9 +45,16 @@ class Authenticator
 
     public function calculatePasswordForSchool(School $school, $version = null): string
     {
-        $version = $version ?? $this->PWH->getLatestWordFileVersion();
+        if (empty($version)) {
+            $version = $this->getLatestValidVersion($school->getId(), Hash::CATEGORY_SCHOOL_PW);
+        }
+        if (empty($version)) {
+            throw new \Exception('No valid password for this school could be found. This should never happen!');
+        }
 
         return $this->PWH->calculatePasswordForId($school->getId(), $version);
+
+
     }
 
     public function createCookieKey(): string
@@ -57,31 +72,18 @@ class Authenticator
         return $this->PWH::createRandomKey(self::VISIT_CONFIRMATION_CODE_LENGTH);
     }
 
-    public function getUserFromCookie()
+    public function getObjectFromCode(string $code = null, int $category, string $object_class)
     {
-        return $this->getObjectFromCode($this->getCookieKey(), Hash::CATEGORY_USER_COOKIE_KEY, 'User');
-    }
-
-    public function getSchoolFromCookie()
-    {
-        return $this->getObjectFromCode($this->getCookieKey(), Hash::CATEGORY_SCHOOL_COOKIE_KEY, 'School');
-    }
-
-    public function getUserOrSchoolFromCookie()
-    {
-        return $this->getUserFromCookie() ?? $this->getSchoolFromCookie();
-
-    }
-
-    private function getObjectFromCode(string $code, int $category, string $object_class)
-    {
+        if (empty($code)) {
+            return null;
+        }
         $hash = $this->getHashRepo()->findByPassword($code, $category);
 
         if (empty($hash)) {
             return null;
         }
 
-        return $this->ORM->find($object_class, $hash->getOwnerId);
+        return $this->ORM->find($object_class, $hash->getOwnerId());
     }
 
     public function getVisitFromCode(string $code)
@@ -96,22 +98,24 @@ class Authenticator
 
     public function getSchoolFromPassword($password): ?School
     {
-        /* @var Hash $hash  */
+        /* @var Hash $hash */
         $hash = $this->getHashRepo()->findByPassword($password, Hash::CATEGORY_SCHOOL_PW);
-        if(!empty($hash)){
+        if (empty($hash)) {
             return null;
         }
         $school_id = $hash->getOwnerId();
-        /* @var School $school  */
+        /* @var School $school */
         $school = $this->ORM->find('School', $school_id);
 
         return $school ?? null;
     }
 
+
     private function getHashRepo(): HashRepository
     {
-        /* @var HashRepository $hash_repo  */
+        /* @var HashRepository $hash_repo */
         $hash_repo = $this->ORM->getRepository('Hash');
+
         return $hash_repo;
     }
 
@@ -121,23 +125,40 @@ class Authenticator
         return $this->PWH;
     }
 
-    public function createAndSaveCode($owner_id, int $category): string
+    private function getCategorySettings()
     {
-        $category_settings = [
+        return [
             Hash::CATEGORY_USER_URL_CODE => ['createUrlCode', 'url_key'],
             Hash::CATEGORY_USER_COOKIE_KEY => ['createCookieKey', 'cookie_key'],
             Hash::CATEGORY_SCHOOL_COOKIE_KEY => ['createCookieKey', 'cookie_key'],
-            Hash::CATEGORY_VISIT_CONFIRMATION_CODE => ['createVisitConfirmationCode', 'visit_confirmation_code']
+            Hash::CATEGORY_VISIT_CONFIRMATION_CODE => ['createVisitConfirmationCode', 'visit_confirmation_code'],
         ];
+    }
 
-        $code = call_user_func([$this, $category_settings[$category][0]]);
+    public function getExpirationDate(int $category): Carbon
+    {
+        $cat_settings = $this->getCategorySettings();
+        $path = ['values', 'validity', $cat_settings[$category][1]];
+        $expiration = Utility::resolve(SETTINGS, $path);
+
+        return Timing::addDurationToNow($expiration);
+    }
+
+    private function getFunctionForCategory(int $category): string
+    {
+        $cat_settings = $this->getCategorySettings();
+
+        return $cat_settings[$category][0];
+    }
+
+    public function createAndSaveCode($owner_id, int $category): string
+    {
+        $code = call_user_func([$this, $this->getFunctionForCategory($category)]);
         $hash = new Hash();
         $hash->setCategory($category);
         $hash->setValue(password_hash($code, PASSWORD_DEFAULT));
         $hash->setOwnerId($owner_id);
-        $path = ['values', 'validity', $category_settings[$category][1]];
-        $expiration = Utility::resolve(SETTINGS, $path);
-        $hash->setExpiresAt(Timing::addDurationToNow($expiration));
+        $hash->setExpiresAt($this->getExpirationDate($category));
 
         $this->ORM->EM->persist($hash);
         $this->ORM->EM->flush();
@@ -145,9 +166,21 @@ class Authenticator
         return $code;
     }
 
-    private function getCookieKey()
+    public function setCookieKeyInBrowser($value, Carbon $exp_date)
     {
-        return $_COOKIE[self::COOKIE_KEY_NAME] ?? null;
+        $key = self::COOKIE_KEY_NAME;
+        setcookie($key, $value, $exp_date->timestamp, '/');
+    }
+
+    public function removeCookieKeyFromBrowser()
+    {
+        $key = self::COOKIE_KEY_NAME;
+        setcookie($key, null, -1, '/');
+    }
+
+    public function setSessionKey(string $value)
+    {
+        $_SESSION[self::COOKIE_KEY_NAME] = $value;
     }
 
     public static function isUser($object)
@@ -165,6 +198,10 @@ class Authenticator
         return ($object instanceof Visit);
     }
 
+    private function getLatestValidVersion($owner_id, int $category): ?string
+    {
+        return $this->getHashRepo()->findOldestValidVersion($owner_id, $category);
+    }
 
 
 }

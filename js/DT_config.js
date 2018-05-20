@@ -1,4 +1,4 @@
-var DataTableConfigurator = {
+let DataTableConfigurator = {
 
     defaultOptions: {
         dom: 'lfBt',
@@ -32,7 +32,7 @@ var DataTableConfigurator = {
     },
 
     options: function(JQ){
-        var entity = JQ.closest("table[data-entity]").data("entity");
+        let entity = JQ.closest("table[data-entity]").data("entity");
         if(typeof entity !== 'undefined' && typeof this.specialOptions[entity] !== 'undefined'){
             return $.extend({}, this.defaultOptions, this.specialOptions[entity]);
         } else {
