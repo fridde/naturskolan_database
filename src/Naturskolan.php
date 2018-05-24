@@ -458,7 +458,7 @@ class Naturskolan
      * @param string $msg
      * @param string|null $source
      */
-    public function log(string $msg, string $source = null)
+    public function log(string $msg, string $source = '')
     {
         $GLOBALS['CONTAINER']->get('Logger')->addInfo($msg, ['source' => $source]);
     }

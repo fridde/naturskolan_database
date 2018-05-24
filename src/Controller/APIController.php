@@ -117,6 +117,7 @@ class APIController extends BaseController
         $date_time = html_entity_decode($date_time);
         $this->N->setStatus('test.datetime', $date_time);
         Carbon::setTestNow($date_time);
+        $this->setReturnType('json');
     }
 
 }

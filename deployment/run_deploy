@@ -59,7 +59,7 @@ if [ $SKIP -lt 3 ]; then
     read -e P_NAMES	
     set_package_date -a fridde -p "$P_NAMES"
     
-	read -p 'If some repos have to be pushed, use Win+Alt+X to open a new split window.'
+	read -p 'If some repos have to be pushed, use Ctrl+Shift+E to open a new split window.'
 fi
 
 if [ $SKIP -lt 4 ]; then    
@@ -108,7 +108,7 @@ if [ $SKIP -lt 4 ]; then
         esac
 	done
     #set -x ; 
-	read -p "Adding files from testing repo..."
+	read -p "Adding files from dev repo..."
     git add -A
     git commit -m "More work"
     git push
