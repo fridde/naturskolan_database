@@ -3,14 +3,14 @@ BASE: '/testing/naturskolan_database'
 test_date: '2018-03-01'
 
 natu:
-    hash: 'xGvueTHZ9FRoqyceP25WIO1xQU8rpDl9b4kl02pM4nqrLnQEOUXiK'
+    hash: '14e485179c8a97b9659d68a6db4e9a3e'
     
 gala:
-    pw: '4oEUWA'
+    pw: 'stövlar.jänta.korg'
 
 st_per:
-    pw: 'ev2Hae'
-    hash: 'IhKWKA9lROo3oDwR3tV/2.fwu9yzPyKDRf3swEg1sHh5BKYV2bQ9K'
+    pw: 'kaktus.tjusig.stan'
+    hash: '2f81a2f2901435990c53e898111e25f2'
     teachers:
           - 'Tomas Samuelsson'
           - 'Anna Svensson'

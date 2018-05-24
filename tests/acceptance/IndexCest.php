@@ -16,12 +16,12 @@ class IndexCest
     {
     }
 
-
-    public function UserIsThere(A $I)
+    // codecept run acceptance IndexCest:userIsThere --steps -f
+    public function userIsThere(A $I)
     {
         $I->seeInDatabase('users', ['FirstName' => 'Heinz', 'LastName' => 'Krumbichel']);
     }
-
+    // codecept run acceptance IndexCest:frontpageWorksForVisitor --steps -f
     public function frontpageWorksForVisitor(A $I)
     {
         $I->amOnPage('/');
@@ -40,6 +40,7 @@ class IndexCest
         $I->cantSee('Logga ut', '.nav');
     }
 
+    // codecept run acceptance IndexCest:frontpageWorksForAdmin --steps -f
     public function frontpageWorksForAdmin(A $I)
     {
         $I->amOnPage('/');
@@ -55,7 +56,7 @@ class IndexCest
         $I->see('Logga ut', '.nav');
     }
 
-    // codecept run acceptance IndexCest:userCanLogin
+    // codecept run acceptance IndexCest:userCantLoginWithBadPW --steps -f
     public function userCantLoginWithBadPW(A $I)
     {
         $I->wantTo('Be rejected using a bad password');
@@ -102,6 +103,7 @@ class IndexCest
 
     }
 
+    // codecept run acceptance IndexCest:userCanLogin --steps -f
     public function userCanLogin(A $I)
     {
         $I->wantTo('Enter with a valid password');
@@ -123,7 +125,7 @@ class IndexCest
         $I->seeInDatabase('cookies', ['Name' => 'Hash', 'School_id' => 'pers', 'Value' => $hash]);
     }
 
-    // codecept run acceptance IndexCest:userCanLogout --steps
+    // codecept run acceptance IndexCest:userCanLogout --steps -f
     public function userCanLogout(A $I)
     {
         $I->wantTo('Logout and not be able to enter');

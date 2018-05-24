@@ -20,7 +20,7 @@ modules:
             capabilities:
                 chromeOptions: # additional chrome options
         - Db:
-            dsn: 'mysql:host=localhost;dbname=ndb_test'
+            dsn: 'mysql:host=localhost:3307;dbname=ndb_test'
             user: 'root'
             password: ''
             dump: 'tests/_data/test_db.sql'
