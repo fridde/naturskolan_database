@@ -15,8 +15,8 @@ class Topic
     /** @Id @Column(type="integer") @GeneratedValue */
     protected $id;
 
-    /** @Column(type="string") */
-    protected $Grade;
+    /** @Column(type="string", nullable=true) */
+    protected $Segment;
 
     /** @Column(type="integer") */
     protected $VisitOrder;
@@ -70,26 +70,26 @@ class Topic
         return $this->id;
     }
 
-    public function getGrade()
+    public function getSegment()
     {
-        return $this->Grade;
+        return $this->Segment;
     }
 
-    public function getGradeLabel()
+    public function getSegmentLabel()
     {
-        $labels = Group::getGradeLabels();
+        $labels = Group::getSegmentLabels();
 
-        return $labels[$this->getGrade()];
+        return $labels[$this->getSegment()];
     }
 
-    public function getGradeLabels()
+    public function getSegmentLabels()
     {
-        return Group::getGradeLabels();
+        return Group::getSegmentLabels();
     }
 
-    public function setGrade($Grade)
+    public function setSegment($Segment)
     {
-        $this->Grade = $Grade;
+        $this->Segment = $Segment;
     }
 
     public function getVisitOrder()

@@ -42,8 +42,8 @@ class Update extends DefaultUpdate
         'changeGroupName' => ['entity_id', 'value'],
         'batchSetGroupCount' => ['group_numbers', 'start_year'],
         'changeTaskActivation' => ['task_name', 'status'],
-        'createMissingGroups' => ['grade'],
-        'fillEmptyGroupNames' => ['grade'],
+        'createMissingGroups' => ['segment'],
+        'fillEmptyGroupNames' => ['segment'],
     ];
 
     /**
@@ -222,23 +222,23 @@ class Update extends DefaultUpdate
     }
 
     /**
-     * @param $grade
+     * @param $segment
      * @param null $start_year
      */
-    public function createMissingGroups(string $grade, int $start_year = null)
+    public function createMissingGroups(string $segment_id, int $start_year = null)
     {
         $all_schools = $this->N->getRepo('School')->findAll();
         /* @var \Fridde\Entities\School $school */
         foreach ($all_schools as $school) {
-            $actual_count = $school->getActiveGroupsByGradeAndYear($grade, $start_year);
-            $expected_count = $school->getGroupNumber($grade, $start_year);
+            $actual_count = $school->getActiveGroupsBySegmentAndYear($segment_id, $start_year);
+            $expected_count = $school->getGroupNumber($segment_id, $start_year);
             $diff = $expected_count - $actual_count;
 
             for ($i = 0; $i < $diff; $i++) {
                 $group = new Group();
                 $group->setName();
                 $group->setSchool($school);
-                $group->setGrade($grade);
+                $group->setSegment($segment_id);
                 $group->setStartYear($start_year);
                 $group->setStatus(1);
                 $this->ORM->EM->persist($group);
@@ -251,10 +251,10 @@ class Update extends DefaultUpdate
         $this->ORM->EM->flush();
     }
 
-    public function fillEmptyGroupNames(string $grade, int $start_year = null)
+    public function fillEmptyGroupNames(string $segment_id, int $start_year = null)
     {
         $start_year = $start_year ?? Carbon::today()->year;
-        $criteria = [['Grade', $grade], ['StartYear', $start_year]];
+        $criteria = [['Segment', $segment_id], ['StartYear', $start_year]];
         $groups = $this->N->ORM->getRepository('Group')->selectAnd($criteria);
         $groups_without_name = array_filter(
             $groups,
@@ -273,16 +273,16 @@ class Update extends DefaultUpdate
 
     /**
      * @param array $group_numbers An array of strings where each string contains 3
-     *        comma-separated values: The school_id, the grade and the new number of groups
+     *        comma-separated values: The school_id, the segment and the new number of groups
      * @param int|null $start_year
      */
     public function batchSetGroupCount(array $group_numbers, int $start_year = null)
     {
         $start_year = $start_year ?? Carbon::today()->year;
-        foreach ($group_numbers as [$school_id, $grade, $nr]) {
+        foreach ($group_numbers as [$school_id, $segment_id, $nr]) {
             /* @var School $school */
             $school = $this->N->ORM->find('School', $school_id);
-            $school->setGroupNumber($grade, $nr, $start_year);
+            $school->setGroupNumber($segment_id, $nr, $start_year);
         }
         $this->ORM->EM->flush();
     }

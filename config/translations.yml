@@ -8,7 +8,7 @@ translations:
   expirationdate : ''
   firstname : 'Förnamn'
   food : 'Specialkost'
-  grade : 'Årskurs'
+  segment : 'Segment'
   group : 'Grupp'
   groupsak2 : 'Antal klasser åk 2'
   groupsak5 : 'Antal klasser åk 5'

@@ -48,11 +48,11 @@ class BatchController extends BaseController
      * @example setVisitsExample.php
      * @return void
      */
-    public function setVisits($grade = null, $start_year = null)
+    public function setVisits($segment_id = null, $start_year = null)
     {
-        $grade_labels = Group::getGradeLabels();
-        $grade = $grade ?? array_keys($grade_labels)[0];
-        $criteria = [['Grade', $grade]];
+        $segment_labels = Group::getSegmentLabels();
+        $segment_id = $segment_id ?? array_keys($segment_labels)[0];
+        $criteria = [['Segment', $segment_id]];
         if (!empty($start_year)) {
             $criteria[] = ['StartYear', $start_year];
         }
@@ -82,7 +82,7 @@ class BatchController extends BaseController
         );
 
         $this->addToDATA(
-            'grades',
+            'segments',
             array_map(
                 function ($val, $label) {
                     $r = ['label' => $label];
@@ -91,8 +91,8 @@ class BatchController extends BaseController
 
                     return $r;
                 },
-                array_keys($grade_labels),
-                $grade_labels
+                array_keys($segment_labels),
+                $segment_labels
             )
         );
 
@@ -141,7 +141,7 @@ class BatchController extends BaseController
             $column = [
                 'id' => $topic_id,
                 'name' => $topic->getShortName(),
-                'serial' => $topic->getGrade().'.'.$topic->getVisitOrder(),
+                'serial' => $topic->getSegment().'.'.$topic->getVisitOrder(),
             ];
 
             $visit_rows = [];

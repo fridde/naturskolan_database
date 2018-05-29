@@ -26,7 +26,7 @@ class Group
     protected $School;
 
     /** @Column(type="string", nullable=true) */
-    protected $Grade;
+    protected $Segment;
 
     /** @Column(type="integer", nullable=true) */
     protected $StartYear;
@@ -132,31 +132,31 @@ class Group
         $this->School = $School;
     }
 
-    public function getGrade()
+    public function getSegment()
     {
-        return $this->Grade;
+        return $this->Segment;
     }
 
-    public function getGradeLabel()
+    public function getSegmentLabel()
     {
-        $labels = self::getGradeLabels();
+        $labels = self::getSegmentLabels();
 
-        return $labels[$this->Grade];
+        return $labels[$this->Segment];
     }
 
-    public static function getGradeLabels()
+    public static function getSegmentLabels()
     {
-        return SETTINGS['grades'];
+        return SETTINGS['segments'];
     }
 
-    public function setGrade($Grade)
+    public function setSegment($Segment)
     {
-        $this->Grade = $Grade;
+        $this->Segment = $Segment;
     }
 
-    public function isGrade($Grade)
+    public function isSegment($Segment)
     {
-        return $this->getGrade() === (string)$Grade;
+        return $this->getSegment() === (string) $Segment;
     }
 
     public function getStartYear()

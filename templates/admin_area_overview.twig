@@ -3,8 +3,8 @@
 {%- block content -%}
     <div class="admin-panel" id="missingGroups">
         <button class=".btn-primary">Lägg till resterande grupper</button>
-        <select name="grade">
-            {% for value, label in DATA.grades %}
+        <select name="segment">
+            {% for value, label in DATA.segments %}
                 <option value="{{ value }}">{{ label }}</option>
             {% endfor %}
         </select>
@@ -14,8 +14,8 @@
     </div>
     <div class="admin-panel" id="fill-empty-group-names">
         <button class=".btn-primary">Fyll tomma gruppnamn med djurnamn</button>
-        <select name="grade">
-            {% for value, label in DATA.grades %}
+        <select name="segment">
+            {% for value, label in DATA.segments %}
                 <option value="{{ value }}">{{ label }}</option>
             {% endfor %}
         </select>

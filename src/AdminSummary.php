@@ -121,7 +121,7 @@ class AdminSummary
         /* @var Group $g */
         $g = $change['group'];
 
-        $text = $g->getGradeLabel().', ';
+        $text = $g->getSegmentLabel().', ';
         $text .= 'Grupp '.($g->getName() ?? '???').' från '.$g->getSchool()->getName();
         $text .= ', möter oss härnäst ';
         $text .= $g->getNextVisit()->getDate()->toDateString().': ';
@@ -157,7 +157,7 @@ class AdminSummary
             $row .= $v->getDate()->toDateString().': ';
             $row .= $v->getGroup()->getName().' från ';
             $row .= $v->getGroup()->getSchool()->getName();
-            $row .= ', '.$v->getGroup()->getGradeLabel();
+            $row .= ', '.$v->getGroup()->getSegmentLabel();
             $rows[] = $row;
         }
 
@@ -217,7 +217,7 @@ class AdminSummary
             }
         );
         foreach ($ill_sized_groups as $g) {
-            $row = $g->getName().', '.$g->getGradeLabel().', ';
+            $row = $g->getName().', '.$g->getSegmentLabel().', ';
             $row .= 'från '.$g->getSchool()->getName();
             $row .= ' har '.$g->getNumberStudents().' elever.';
             $rows[] = $row;
@@ -306,12 +306,12 @@ class AdminSummary
         $schools = $this->N->getRepo('School')->findAll();
         /* @var School $school */
         foreach ($schools as $school) {
-            foreach (Group::getGradeLabels() as $grade_id => $label) {
+            foreach (Group::getSegmentLabels() as $segment_id => $label) {
                 foreach($years_to_check as $start_year){
-                    $active = $school->getNrActiveGroupsByGradeAndYear($grade_id, $start_year);
-                    $expected = $school->getGroupNumber($grade_id, $start_year);
+                    $active = $school->getNrActiveGroupsBySegmentAndYear($segment_id, $start_year);
+                    $expected = $school->getGroupNumber($segment_id, $start_year);
                     if ($expected !== $active) {
-                        $row = $school->getName().' har fel antal grupper i årskurs ';
+                        $row = $school->getName().' har fel antal grupper i segment ';
                         $row .= $label.' och år '. $start_year.'. Det finns ';
                         $row .= $active.' grupper, men det borde vara '.$expected.'. ';
                         $rows[] = $row;
@@ -345,7 +345,7 @@ class AdminSummary
                 continue;
             }
 
-            $row = $group->getGradeLabel().': ';
+            $row = $group->getSegmentLabel().': ';
             $row .= $group->getName().' från '.$group->getSchool()->getName();
             $row .= '. Skäl: ';
             $reason_texts = [];

@@ -93,7 +93,7 @@ class Calendar
             $desc = [];
             $desc[] = 'Tid: '.$start_DT->toTimeString().'-'.$end_DT->toTimeString();
             $desc[] = 'Lärare: '.$teacher->getFullName();
-            $desc[] = 'Årskurs: '.$group->getGradeLabel();
+            $desc[] = 'Årskurs: '.$group->getSegmentLabel();
             $desc[] = 'Mobil: '.$teacher->getMobil();
             $desc[] = 'Mejl: '.$teacher->getMail();
             $desc[] = 'Klass '.$group->getName().' med '.$group->getNumberStudents().' elever';

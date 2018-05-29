@@ -17,7 +17,7 @@ $(document).ready(function () {
      */
 
     /**
-     * This button is used on /batch/set_visits/{grade}
+     * This button is used on /batch/set_visits/{segment}
      * and sends away all configurations as a big array
      *
      */
@@ -149,7 +149,7 @@ $(document).ready(function () {
     $('#missingGroups button').click(function () {
         let data = {
             updateMethod: "createMissingGroups",
-            grade: $('#missingGroups select[name="grade"]').val(),
+            segment: $('#missingGroups select[name="segment"]').val(),
             onReturn: 'showStatus'
         };
         Update.send(data);
@@ -158,7 +158,7 @@ $(document).ready(function () {
     $('#fill-empty-group-names button').click(function () {
         let data = {
             updateMethod: "fillEmptyGroupNames",
-            grade: $('#fill-empty-group-names select[name="grade"]').val(),
+            segment: $('#fill-empty-group-names select[name="segment"]').val(),
             onReturn: 'showStatus'
         };
         Update.send(data);

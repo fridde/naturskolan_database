@@ -6,19 +6,19 @@ use Fridde\CustomRepository;
 class GroupRepository extends CustomRepository
 {
 
-    public function findActiveGroups($grade = null)
+    public function findActiveGroups($segment = null)
     {
         $criteria = ['Status', Group::ACTIVE];
-        if(!empty($grade)){
-            $criteria[] = ['Grade', $grade];
+        if(!empty($segment_id)){
+            $criteria[] = ['Segment', $segment_id];
         }
         return $this->select($criteria);
     }
 
-    public function findGroupsInGrade($grade = null)
+    public function findGroupsInSegment(string $segment_id = null)
     {
-        if(!empty($grade)){
-            return $this->select(['Grade', $grade]);
+        if(!empty($segment_id)){
+            return $this->select(['Segment', $segment_id]);
         }
         return $this->findAll();
     }
@@ -26,7 +26,7 @@ class GroupRepository extends CustomRepository
     public function findAllGroupsWithNameAndSchool()
     {
         $groups_id_name_school = array_map(function($g){
-            $label = '[' . $g->getGradeLabel() . '] ' . $g->getName();
+            $label = '[' . $g->getSegmentLabel() . '] ' . $g->getName();
             $label .= ', ' . mb_strtoupper($g->getSchoolId());
             return [$g->getId(), $label];
         }, $this->findActiveGroups());

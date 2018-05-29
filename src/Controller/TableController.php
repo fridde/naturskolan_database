@@ -108,7 +108,7 @@ class TableController extends BaseController
         }
 
         if ($this->isOneOf('Topic', 'Group')) {
-            $cols['Grade']['options'] = 'getGradeLabels';
+            $cols['Segment']['options'] = 'getSegmentLabels';
         }
 
         if ($this->isOneOf('Topic', 'School')) {

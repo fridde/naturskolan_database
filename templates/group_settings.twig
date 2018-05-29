@@ -10,7 +10,7 @@
             <ul class="nav nav-tabs">
                 {% for tab in tabs -%}
                     <li class="nav-item {%- if loop.first %} active{% endif %}">
-                        <a href="#tab_{{ tab.id }}" data-toggle="tab" class="nav-link">{{ tab.grade_label }}</a>
+                        <a href="#tab_{{ tab.id }}" data-toggle="tab" class="nav-link">{{ tab.segment_label }}</a>
                     </li>
                 {% endfor -%}
             </ul>

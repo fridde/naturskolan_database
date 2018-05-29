@@ -29,7 +29,7 @@ class ViewController extends BaseController {
         array_walk_recursive($collection['calendar'], function(Visit &$visit){
             $topic = $visit->getTopic();
             $group = $visit->getGroup();            
-            $v = ['grade_label' => $visit->getGroup()->getGradeLabel()];
+            $v = ['segment_label' => $visit->getGroup()->getSegmentLabel()];
             $v['group_name'] = $group->getName();
             $v['topic_name'] = $topic->getShortName();
             $v['location'] = $topic->getLocation()->getName();

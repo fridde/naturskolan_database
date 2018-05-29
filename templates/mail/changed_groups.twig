@@ -26,7 +26,7 @@
                         {% if groups.new|length == 1 %}Ny grupp{%- else -%}Nya grupper{%- endif %} som du ansvarar för:
 
                         {%- for group in groups.new -%}
-                            <p><span>- {{ group.name }}, {{ group.grade }}</span></p>
+                            <p><span>- {{ group.name }}, {{ group.segment }}</span></p>
                         {%- endfor -%}
 
                         </p>
@@ -36,7 +36,7 @@
                         {% if groups.removed|length == 1 %}Borttagen grupp{%- else -%}Borttagna grupper{%- endif %} som du ej längre ansvarar för:
 
                         {%- for group in groups.removed -%}
-                            <p><span>- {{ group.name }}, {{ group.grade }}</span></p>
+                            <p><span>- {{ group.name }}, {{ group.segment }}</span></p>
                         {%- endfor -%}
 
                         </p>
@@ -46,7 +46,7 @@
                         {% if groups.rest|length == 1 %}Gruppen{%- else -%}Grupper{%- endif %} som du fortsätter att ansvara för:
 
                         {%- for group in groups.rest -%}
-                            <p><span>- {{ group.name }}, {{ group.grade }}</span></p>
+                            <p><span>- {{ group.name }}, {{ group.segment }}</span></p>
                         {%- endfor -%}
 
                         </p>

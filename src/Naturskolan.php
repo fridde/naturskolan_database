@@ -380,7 +380,7 @@ class Naturskolan
                     break;
 
                 case 'Topic':
-                    $r = $v->getGrade().'.'.$v->getVisitOrder();
+                    $r = $v->getSegment().'.'.$v->getVisitOrder();
                     $r .= ' '.$v->getShortName();
                     break;
 

@@ -107,7 +107,7 @@ class Mail extends AbstractMessageController
                 $group = $this->N->ORM->find('Group', $g_id);
                 $g = ['group_id' => $g_id];
                 $g['name'] = $group->getName();
-                $g['grade'] = $group->getGradeLabel();
+                $g['segment'] = $group->getSegmentLabel();
                 $g_id = $g;
             }
         );
@@ -143,7 +143,7 @@ class Mail extends AbstractMessageController
             $DATA['groups'],
             function (Group &$group) {
                 $g = ['name' => $group->getName()];
-                $g['grade'] = $group->getGradeLabel();
+                $g['segment'] = $group->getSegmentLabel();
                 $group = $g;
             }
         );

@@ -78,12 +78,12 @@ class School
         return $this->GroupNumbers;
     }
 
-    public function getGroupNumber($grade, int $start_year = null)
+    public function getGroupNumber($segment, int $start_year = null)
     {
         $start_year = $start_year ?? Carbon::today()->year;
         $groupNumbers = $this->getGroupNumbers();
 
-        return $groupNumbers[$start_year][$grade] ?? 0;
+        return $groupNumbers[$start_year][$segment] ?? 0;
     }
 
     public function setGroupNumbers(array $GroupNumbers)
@@ -92,16 +92,16 @@ class School
     }
 
     /**
-     * @param string $grade
+     * @param string $segment
      * @param int $value
      * @param int|null $start_year
      */
-    public function setGroupNumber(string $grade, int $value = 0, int $start_year = null)
+    public function setGroupNumber(string $segment, int $value = 0, int $start_year = null)
     {
         $start_year = $start_year ?? Carbon::today()->year;
 
         $current_values = $this->getGroupNumbers() ?? [];
-        $current_values[$start_year][$grade] = $value;
+        $current_values[$start_year][$segment] = $value;
         $this->setGroupNumbers($current_values);
     }
 
@@ -152,19 +152,19 @@ class School
     }
 
     /**
-     * @param $grade
+     * @param $segment
      * @param mixed $start_year If null, the current year is assumed. If false, all years are included
      * @return array
      */
-    public function getActiveGroupsByGradeAndYear($grade, $start_year = null)
+    public function getActiveGroupsBySegmentAndYear($segment_id, $start_year = null)
     {
         $start_year = $start_year ?? Carbon::today()->year;
 
         return array_filter(
             $this->getGroups(),
-            function (Group $g) use ($grade, $start_year) {
+            function (Group $g) use ($segment_id, $start_year) {
                 $cond1 = $start_year !== false ? $g->getStartYear() === $start_year : true;
-                $cond2 = $g->getGrade() === (string) $grade;
+                $cond2 = $g->getSegment() === (string) $segment_id;
                 $cond3 = $g->isActive();
 
                 return $cond1 && $cond2 && $cond3;
@@ -172,29 +172,29 @@ class School
         );
     }
 
-    public function hasGrade($grade)
+    public function hasSegment(string $segment_id)
     {
-        return ! empty($this->getActiveGroupsByGradeAndYear($grade, false));
+        return ! empty($this->getActiveGroupsBySegmentAndYear($segment_id, false));
     }
 
-    public function getGradesAvailable($withLabels = false)
+    public function getSegmentsAvailable($withLabels = false)
     {
 
 
-        $available_grades = array_filter(
-            Group::getGradeLabels(),
+        $available_segments = array_filter(
+            Group::getSegmentLabels(),
             function ($k) {
-                return $this->hasGrade($k);
+                return $this->hasSegment($k);
             },
             ARRAY_FILTER_USE_KEY
         );
 
-        return $withLabels ? $available_grades : array_keys($available_grades);
+        return $withLabels ? $available_segments : array_keys($available_segments);
     }
 
-    public function getNrActiveGroupsByGradeAndYear($grade, $start_year = null)
+    public function getNrActiveGroupsBySegmentAndYear($segment_id, $start_year = null)
     {
-        return count($this->getActiveGroupsByGradeAndYear($grade, $start_year));
+        return count($this->getActiveGroupsBySegmentAndYear($segment_id, $start_year));
     }
 
     public function isNaturskolan()

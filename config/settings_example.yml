@@ -84,7 +84,7 @@ slacker:
   username : 'My Example Database'
   channel : '#administration'
 
-grades: { 2: 'åk 2/3', 5: 'åk 5', fbk: 'FBK'}  # the first denotes the "default" grade in views
+segments: { 2: 'åk 2/3', 5: 'åk 5', fbk: 'FBK'}  # the first denotes the default segment in views
 
 values:
   show_confirm_link : [30, d] # time before the confirmation link is shown in the group settings

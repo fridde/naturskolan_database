@@ -13,9 +13,9 @@
 *    max: int
 *  school_name: string
 *  tabs
-*    0                          // first tab containing "first" grade
-*      id: string  // the id of the grade
-*      grade_label: string
+*    0                          // first tab containing "first" segment
+*      id: string  // the id of the segment
+*      segment_label: string
 *      col_left:                // left column
 *        0                      // first group of left column
 *          id: int
@@ -38,7 +38,7 @@
 *          ...
 *      col_right:               // right column
 *        ...
-*    1                          // second tab containing "second" grade
+*    1                          // second tab containing "second" segment
 *      ...
 *
 * */

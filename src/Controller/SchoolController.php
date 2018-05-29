@@ -109,12 +109,12 @@ class SchoolController extends BaseController
         $DATA['student_limits'] = SETTINGS['values']['min_max_students'];
         $DATA['school_name'] = $school->getName();
 
-        $grades_at_this_school = $school->getGradesAvailable(true);
+        $segments_at_this_school = $school->getSegmentsAvailable(true);
 
-        foreach ($grades_at_this_school as $grade_val => $grade_label) {
-            $groups_current_grade = $school->getActiveGroupsByGradeAndYear($grade_val, false);
-            $tab = ['id' => $grade_val, 'grade_label' => $grade_label];
-            $groups_current_grade_formatted = array_map(
+        foreach ($segments_at_this_school as $segment_val => $segment_label) {
+            $groups_current_segment = $school->getActiveGroupsBySegmentAndYear($segment_val, false);
+            $tab = ['id' => $segment_val, 'segment_label' => $segment_label];
+            $groups_current_segment_formatted = array_map(
                 function (Group $g) {
                     $r['id'] = $g->getId();
                     $r['name'] = $g->getName();
@@ -141,11 +141,11 @@ class SchoolController extends BaseController
 
                     return $r;
                 },
-                $groups_current_grade
+                $groups_current_segment
             );
 
             $group_columns = $this->H::partition(
-                $groups_current_grade_formatted
+                $groups_current_segment_formatted
             ); // puts items in two equally large columns
             $tab['col_left'] = $group_columns[0] ?? [];
             $tab['col_right'] = $group_columns[1] ?? [];

@@ -1,12 +1,12 @@
 {%- extends "admin_area.twig" -%}
 
-{%- set groups, date_columns, grades = DATA.groups, DATA.date_columns, DATA.grades -%}
+{%- set groups, date_columns, segments = DATA.groups, DATA.date_columns, DATA.segments -%}
 
 {% block content %}
     <div class="btn-group" role="group">
-        {% for grade in grades %}
-            <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ grade.url }}';">
-                {{ grade.label }}
+        {% for segment in segments %}
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ segment.url }}';">
+                {{ segment.label }}
             </button>
         {% endfor %}
     </div>
