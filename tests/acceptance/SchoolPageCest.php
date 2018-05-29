@@ -12,7 +12,7 @@ class SchoolPageCest
     public function _before(A $I)
     {
         $I->amOnPage('/');
-        $I->setCookie('Hash', $I->get('st_per', 'hash'));
+        $I->setCookie('AuthKey', $I->get('st_per', 'AuthKey'));
         $I->amOnPage('/skola/pers');
         $I->setTestDate();
         $I->wait(2);

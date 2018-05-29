@@ -48,7 +48,7 @@ class IndexCest
         $admin_nav_items = $I->get('nav_items','admin');
         $I->checkMultiple('cantSee', $admin_nav_items, ['.nav']);
 
-        $I->setCookie('Hash', $I->get('natu','hash'));
+        $I->setCookie('AuthKey', $I->get('natu','AuthKey'));
         $I->reloadPage();
         foreach ($admin_nav_items as $item) {
             $I->see($item, '.nav');
@@ -61,7 +61,7 @@ class IndexCest
     {
         $I->wantTo('Be rejected using a bad password');
         $I->amOnPage('/');
-        $I->resetCookie('Hash');
+        $I->resetCookie('AuthKey');
         $link = Locator::find('a', ['href' => $I->get('BASE') . '/skola/pers']);
         $I->seeElement($link);
         $I->click($link);
@@ -108,7 +108,7 @@ class IndexCest
     {
         $I->wantTo('Enter with a valid password');
         $I->amOnPage('/');
-        $I->resetCookie('Hash');
+        $I->resetCookie('AuthKey');
         $link = Locator::find('a', ['href' => $I->get('BASE') . '/skola/pers']);
         $I->click($link);
         $I->wait(3);
@@ -119,10 +119,10 @@ class IndexCest
         $I->wait(3);
         $user_nav_items = $I->get('nav_items', 'user');
         $I->checkMultiple('canSee', $user_nav_items, ['.nav']);
-        $hash = $I->grabCookie('Hash');
-        $I->assertNotEmpty($hash);
+        $AuthKey = $I->grabCookie('AuthKey');
+        $I->assertNotEmpty($AuthKey);
         $I->wait(3);
-        $I->seeInDatabase('cookies', ['Name' => 'Hash', 'School_id' => 'pers', 'Value' => $hash]);
+        $I->seeInDatabase('hashes', ['Category' => 2, 'Owner_id' => 'pers']);
     }
 
     // codecept run acceptance IndexCest:userCanLogout --steps -f
@@ -130,12 +130,12 @@ class IndexCest
     {
         $I->wantTo('Logout and not be able to enter');
         $I->amOnPage('/');
-        $I->setCookie('Hash', $I->get('st_per', 'hash'));
+        $I->setCookie('AuthKey', $I->get('st_per', 'AuthKey'));
         $I->amOnPage('/skola/pers');
 
         $I->click('//a[@href="logout"]');
         $I->wait(2);
-        $I->dontSeeCookie('Hash');
+        $I->dontSeeCookie('AuthKey');
         $I->dontSeeInCurrentUrl('skola/pers');
     }
 
