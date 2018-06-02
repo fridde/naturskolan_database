@@ -4,6 +4,7 @@ test_date: '2018-03-01'
 
 natu:
     AuthKey: '14e485179c8a97b9659d68a6db4e9a3e'
+    pw: 'grönhet.flikar.sadel'
     
 gala:
     pw: 'stövlar.jänta.korg'
