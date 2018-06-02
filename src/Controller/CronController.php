@@ -22,8 +22,13 @@ class CronController extends BaseController
 
     public function handleRequest()
     {
+        if($this->hasAction('executeTaskNow')){
+            $this->executeTaskNow();
+            return ;
+        }
+
         $this->addAction('run');
-        if ($this->authorizeViaAuthkey($this->getParameter('AuthKey'))) {
+        if ($this->isAuthorizedViaAuthkey()) {
             $this->Security_Levels['run'] = Authorizer::ACCESS_ALL;
         }
         parent::handleRequest();
@@ -43,6 +48,21 @@ class CronController extends BaseController
         }
     }
 
+    // careful, this task is executed no matter the status of the system
+    public function executeTaskNow()
+    {
+        $task = new Task($this->getParameter('type'));
+        if(!($task->isExempted() || $this->isAuthorizedViaAuthkey())){
+            throw new \Exception('Tried to execute task with bad/wrong AuthKey');
+        }
+
+        $success = $task->execute();
+        if ($success) {
+            $this->N->setLastRun($task->getType());
+        }
+
+    }
+
     private function checkIfRightTime(string $task_type)
     {
         $last_completion = $this->N->getLastRun($task_type);
@@ -53,8 +73,9 @@ class CronController extends BaseController
         return T::longerThanSince($this->intervals[$task_type], $last_completion);
     }
 
-    private function authorizeViaAuthkey(string $key = null): bool
+    private function isAuthorizedViaAuthkey(string $key = null): bool
     {
+        $key = $key ?? $this->getParameter('AuthKey');
         $hash = $this->N->getStatus('cron.auth_key_hash');
 
         return password_verify($key, $hash);

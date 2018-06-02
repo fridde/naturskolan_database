@@ -380,9 +380,14 @@ class BaseController
         if (empty($action)) {
             return null;
         }
-        $actions = $this->getActions() ?? [];
+        $actions = $this->getActions();
         array_unshift($actions, $action);
         $this->setActions($actions);
+    }
+
+    public function hasAction(string $action)
+    {
+        return in_array($action, $this->getActions(), true);
     }
 
     public function translateActionToMethod($action)

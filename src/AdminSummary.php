@@ -38,6 +38,7 @@ class AdminSummary
         'bad_mobil' => 'getBadMobileNumbers',
         'bus_or_food_order_outdated' => 'getOutdatedBusOrFoodOrders',
         'duplicate_mail_adresses' => 'getDuplicateMailAdresses',
+        'files_left_in_temp' => 'getFilesLeftInTemp',
         'food_changed' => 'getChangedFood',
         'inactive_group_visit' => 'getInactiveGroupVisits',
         'info_changed' => 'getChangedInfo',
@@ -66,7 +67,7 @@ class AdminSummary
      */
     public function send()
     {
-        $this->summary = $this->compileSummary();
+        $this->compileSummary();
         if (empty($this->summary)) {
             return null;
         }
@@ -83,17 +84,17 @@ class AdminSummary
      * Performs a variety of checks of the whole system (visits, missing or bad information, etc)
      * and saves any anomalies in the parameter *summary* using addToAdminMail().
      *
-     * @return array The array containing the error_types as index and an array containing each
-     *               incident of the error occurring as a string
+     * Afterwards, $summary contains an array containing the error_types as index and an array
+     * containing each incident of the error occurring as a string
      */
     private function compileSummary()
     {
         $summary = [];
         foreach (self::$method_translator as $error_type => $method_name) {
-            $summary[$error_type] = $this->$method_name();
+            $summary[$error_type] = call_user_func([$this, $method_name]);
         }
 
-        return array_filter($summary);
+        $this->summary = array_filter($summary);
     }
 
     /**
@@ -459,6 +460,19 @@ class AdminSummary
         return $rows;
     }
 
+    private function getFilesLeftInTemp()
+    {
+        $files = scandir(BASE_DIR . '/temp', SCANDIR_SORT_ASCENDING);
+
+        $files = array_diff($files, ['.', '..', '.gitignore']);
+
+        array_walk($files, function(&$v){
+            return 'Filen ' . $v . ' finns fortfarande i /temp. Ta bort den snarast!';
+        });
+
+        return $files;
+    }
+
     private function setRecentGroupChanges()
     {
         $deadline = T::addDurationToNow(Naturskolan::getSetting('admin', 'summary', 'important_info_changed'));
@@ -490,7 +504,7 @@ class AdminSummary
 
     private function getRecentGroupChangesFor(string $type)
     {
-        if (!isset($this->recent_group_changes)) {
+        if ($this->recent_group_changes === null) {
             $this->setRecentGroupChanges();
         }
 

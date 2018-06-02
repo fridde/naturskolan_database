@@ -1,5 +1,6 @@
 admin_summary:
   food_changed : "Nyligen ändrad specialkost"
+  files_left_in_temp : 'Känsliga filer på servern'
   nr_students_changed : "Nyligen ändrad elevantal"
   visit_not_confirmed : "Obekräftade besök"
   too_many_students : "För många elever"

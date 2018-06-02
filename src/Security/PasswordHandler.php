@@ -26,7 +26,15 @@ class PasswordHandler
 
     public static function createRandomKey(int $length = 32)
     {
-        return substr(md5(random_int(0, 999).microtime()), 0, $length);
+        $key = '';
+        $current_string = random_int(0, 999).microtime();
+
+        while(strlen($key) < $length){
+            $current_string = md5($current_string);
+            $key .= $current_string;
+        }
+
+        return substr($key, 0, $length);
     }
 
     public function getKey(): Key
@@ -40,7 +48,7 @@ class PasswordHandler
         return $this->key;
     }
 
-    public function saveKey(string $key)
+    public function saveKeyToFile(string $key)
     {
         file_put_contents($this->getConfigDirectory().'.key', $key);
     }

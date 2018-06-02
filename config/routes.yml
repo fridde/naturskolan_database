@@ -14,7 +14,7 @@ routes:
    school : ['GET','/skola/[a:school]/[a:page]?','School']  # changing this affects Navigation::getStaffPageUrl()
    sms : ['GET|POST','/sms/[:purpose]?/[:encoding]?','SMS']
    table : ['GET','/table/[a:entity]','Table#view']
-   task : ['GET','/task/[:type]','Cron#executeTask']
+   task : ['GET','/task/[:type]/[:AuthKey]?','Cron#executeTaskNow']
    update : ['POST','/update','Update']
    view : ['GET','/view/[:page]','View']
    default: ['GET','/[**:url]?','Page']

@@ -236,7 +236,7 @@ $(document).ready(function () {
             let content_id = "content-id-" + $.now();
 
             $.ajax({
-                url: 'api/getPassword/' + $(this).data('school'),
+                url: 'api/getPasswordForSchool/' + $(this).data('school'),
                 method: 'POST'
             }).done(function (data) {
                 $('#' + content_id).html(data.password);

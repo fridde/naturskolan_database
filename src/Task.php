@@ -17,6 +17,7 @@ use Fridde\Entities\Visit;
 use Fridde\Messenger\AbstractMessageController;
 use Fridde\Messenger\Mail;
 use Fridde\Messenger\SMS;
+use Fridde\Security\PasswordHandler;
 use Fridde\Utility as U;
 use Fridde\Timing as T;
 
@@ -34,6 +35,8 @@ class Task
     /** @var string Type of task to perform. */
     private $type;
 
+    private $exempted_tasks = ['createNewAuthKey'];
+
     /**
      * The constructor.
      *
@@ -42,7 +45,7 @@ class Task
     public function __construct(string $task_type = null)
     {
         $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
-        $this->type = $task_type;
+        $this->setType($task_type);
     }
 
     /**
@@ -67,6 +70,27 @@ class Task
 
         return true;
 
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function isExempted()
+    {
+        return in_array($this->getType(), $this->exempted_tasks, true);
     }
 
     /**
@@ -519,11 +543,31 @@ class Task
             )
         );
 
-        if(false === file_put_contents(BASE_DIR.'/temp/new_'.date('U'), $pw_string)){
+        $date = preg_replace('/[^[:alnum:]]/', '_', Carbon::now()->toIso8601String());
+        $file_name = BASE_DIR.'\temp\new_'. $date;
+        if(false === file_put_contents($file_name, $pw_string)){
             throw new \Exception('The password file could not be written.');
         }
         $this->N->ORM->EM->flush();
 
+    }
+
+    private function createNewAuthKey()
+    {
+        if(!empty($this->N->getStatus('cron.auth_key_hash'))){
+            throw new \Exception('Failure: Tried to create a new AuthKey when there already was one.');
+        }
+
+        $key = PasswordHandler::createRandomKey();
+        $hash = password_hash($key, PASSWORD_DEFAULT);
+
+        $success = file_put_contents(BASE_DIR . '/temp/auth_key', $key);
+        if(!$success){
+            throw new \Exception('The auth_key could not be saved.');
+        }
+        $this->N->setStatus('cron.auth_key_hash', $hash);
+
+        echo 'Find the AuthKey in /temp/auth_key';
     }
 
 

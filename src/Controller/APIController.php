@@ -16,7 +16,7 @@ class APIController extends BaseController
     protected $Security_Levels = [
         'confirmVisit' =>  Authorizer::ACCESS_ALL,
         'confirmVisitUsingId' => Authorizer::ACCESS_ALL_EXCEPT_GUEST,
-        'getPassword' => Authorizer::ACCESS_ALL_EXCEPT_GUEST,
+        'getPasswordForSchool' => Authorizer::ACCESS_ALL_EXCEPT_GUEST,
         'sendPasswordRecoverMail' => Authorizer::ACCESS_ALL,
         'updateTestDate' => Authorizer::ACCESS_ADMIN_ONLY
     ];
@@ -71,7 +71,7 @@ class APIController extends BaseController
 
     }
 
-    public function getPassword(string $school_id): void
+    public function getPasswordForSchool(string $school_id): void
     {
         $this->setReturnType('json');
         $visitor = $this->Authorizer->getVisitor();
