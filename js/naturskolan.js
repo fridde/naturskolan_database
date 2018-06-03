@@ -26,17 +26,6 @@ $(document).ready(function () {
     $('#password-modal').modal('hide');
     $('#visit-confirmation-modal').modal({backdrop: "static"});
 
-
-    $('.nav a[href="logout"]').click(function (e) {
-        e.preventDefault();
-        let data = {
-            updateMethod: "removeCookie",
-            hash: Cookies.get('Hash'),
-            onReturn: 'removeCookie'
-        };
-        Update.send(data);
-    });
-
     /**
      * Initialize sortable lists here
      */

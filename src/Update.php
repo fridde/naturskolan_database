@@ -5,6 +5,7 @@
 
 namespace Fridde;
 
+use Fridde\Controller\LoginController;
 use Fridde\Entities\Group;
 use Carbon\Carbon;
 use Fridde\Entities\Hash;
@@ -185,6 +186,9 @@ class Update extends DefaultUpdate
 
     public function removeCookie(string $hash)
     {
+        $login_controller = new LoginController();
+        $login_controller->logout();
+
         //$cookie = $this->N->getRepo('Hash')->findByHash($hash);
         //$this->ORM->delete($cookie);
     }

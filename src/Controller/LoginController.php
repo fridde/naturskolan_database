@@ -14,7 +14,7 @@ class LoginController extends BaseController
     protected $Security_Levels = [
         'renderPasswordModal' => Authorizer::ACCESS_ALL,
         'login' => Authorizer::ACCESS_ALL,
-        'logout' => Authorizer::ACCESS_ALL_EXCEPT_GUEST
+        'logout' => Authorizer::ACCESS_ALL
     ];
 
     public function renderPasswordModal()
@@ -42,5 +42,8 @@ class LoginController extends BaseController
     public function logout()
     {
         $this->N->Auth->removeCookieKeyFromBrowser();
+        $this->N->Auth->emptySession();
+
+        Utility::redirect(APP_URL);
     }
 }

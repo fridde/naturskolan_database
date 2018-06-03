@@ -183,6 +183,11 @@ class Authenticator
         $_SESSION[self::COOKIE_KEY_NAME] = $value;
     }
 
+    public function emptySession()
+    {
+        return session_unset();
+    }
+
     public static function isUser($object)
     {
         return ($object instanceof User);
