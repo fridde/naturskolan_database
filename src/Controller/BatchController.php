@@ -21,6 +21,7 @@ class BatchController extends BaseController
     public function handleRequest()
     {
         $this->addToDATA('school_id', 'natu');
+        $this->setParameter('school', 'natu');
         parent::handleRequest();
     }
 

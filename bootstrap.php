@@ -6,6 +6,10 @@ use Fridde\Essentials;
 use Fridde\Settings;
 use Carbon\Carbon;
 
+if(empty($_SERVER['argv'][0])){
+    session_start();
+}
+
 /** START OF BOOTSTRAP  */
 Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl(__DIR__);

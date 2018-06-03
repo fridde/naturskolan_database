@@ -67,6 +67,9 @@ class BaseController
         $params = empty($param_string) ? [] : explode('/', $param_string);
         foreach ($actions as $action) {
             $method = $this->translateActionToMethod($action);
+            if(empty($method)){
+                continue;
+            }
             if(!$this->Authorizer->authorize($this, $method)){
                 $login_controller = new LoginController($this->getParameter());
                 $login_controller->addAction('renderPasswordModal');
@@ -81,17 +84,19 @@ class BaseController
 
         if ($this->getReturnType() === 'html') {
             return $this->renderAsHtml();
-        } elseif ($this->getReturnType() === 'json') {
-            $this->returnAsJson();
-        } else {
-            throw new \Exception('The return type '.$this->getReturnType().' is not defined.');
         }
+        if ($this->getReturnType() === 'json') {
+            return $this->returnAsJson();
+        }
+        throw new \Exception('The return type '.$this->getReturnType().' is not defined.');
+
     }
 
     public function returnAsJson()
     {
         header('Content-Type: application/json');
         echo json_encode($this->DATA);
+        return null;
     }
 
     public function renderAsHtml()

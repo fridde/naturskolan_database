@@ -43,14 +43,14 @@ class Authorizer
     public function getVisitorSecurityLevel()
     {
         $visitor = $this->getVisitor();
-        if ($visitor->hasUser() && $visitor->getUserRole() === User::ROLE_SUPERUSER) {
+        if ($visitor->isUser() && $visitor->hasRole(User::ROLE_SUPERUSER)) {
             return User::ROLE_SUPERUSER;
         }
 
         if ($visitor->isFromAdminSchool() || $visitor->isAdminUser()) {
             return User::ROLE_ADMIN;
         }
-        if ($visitor->hasUser()) {
+        if ($visitor->isUser()) {
             return $visitor->getUserRole();
         }
         if($visitor->hasSchool()){

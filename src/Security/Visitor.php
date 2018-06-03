@@ -56,7 +56,7 @@ class Visitor
 
     public function isAdminUser()
     {
-        if($this->hasUser()){
+        if($this->isUser()){
             return (bool) ($this->getUser()->getRole() & (User::ROLE_ADMIN | User::ROLE_SUPERUSER));
         }
         return false;
@@ -79,7 +79,7 @@ class Visitor
 
     public function setSchoolFromKey(string $key = null): void
     {
-        if ($this->hasUser()) {
+        if ($this->isUser()) {
             $this->setSchool($this->getUser()->getSchool());
             return;
         }
@@ -136,18 +136,23 @@ class Visitor
         $this->user = $user;
     }
 
-    public function hasUser()
+    public function isUser()
     {
         return ($this->getUser() instanceof User);
     }
 
     public function getUserRole(): ?int
     {
-        if($this->hasUser()){
+        if($this->isUser()){
             return $this->getUser()->getRole();
         }
         return null;
 
+    }
+
+    public function hasRole(int $role): bool
+    {
+        return $this->getUserRole() === $role;
     }
 
     /**
