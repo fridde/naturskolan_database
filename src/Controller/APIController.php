@@ -21,6 +21,14 @@ class APIController extends BaseController
         'updateTestDate' => Authorizer::ACCESS_ADMIN_ONLY
     ];
 
+    public function __construct(array $params = [], bool $slim = true)
+    {
+        parent::__construct($params, $slim);
+        if(in_array(SETTINGS['environment'], ['dev', 'test'], true)){
+            $this->Security_Levels['updateTestDate'] = Authorizer::ACCESS_ALL;
+        }
+    }
+
 
     public function confirmVisitUsingId(string $visit_id): void
     {
