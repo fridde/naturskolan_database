@@ -1,6 +1,6 @@
 BASE: '/testing/naturskolan_database'
 
-test_date: '2018-03-01'
+test_date: '2018-06-01'
 
 natu:
     AuthKey: '14e485179c8a97b9659d68a6db4e9a3e'
