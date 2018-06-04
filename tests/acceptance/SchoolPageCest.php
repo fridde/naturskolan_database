@@ -11,10 +11,10 @@ class SchoolPageCest
 {
     public function _before(A $I)
     {
+        $I->setTestDate();
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('st_per', 'AuthKey'));
         $I->amOnPage('/skola/pers');
-        $I->setTestDate();
         $I->wait(2);
     }
 
@@ -46,7 +46,7 @@ class SchoolPageCest
     // codecept run acceptance SchoolPageCest:passwordIsRevealed --steps -f
     public function passwordIsRevealed(A $I)
     {
-        $places = [null, '/skola/pers/staff', '/skola/pers/groups'];
+        $places = [null, '/skola/pers/staff', '/skola/pers/groups'];  // the first one is to test the default 'skola/pers'
         foreach ($places as $place) {
             if (!empty($place)) {
                 $I->amOnPage($place);
