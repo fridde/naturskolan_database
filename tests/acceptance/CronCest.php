@@ -11,9 +11,14 @@ class CronCest
     public function _before(A $I)
     {
         $I->amOnPage('/');
-        $I->setCookie('Hash', $I->get('natu', 'hash'));
+        $I->setCookie('AuthKey', $I->get('natu', 'AuthKey'));
         $I->amOnPage('/admin');
-        $I->deleteAllEmails();
+        try{
+            $I->deleteAllEmails();
+        } catch (\Exception $e){
+            echo $e->getTraceAsString();
+        }
+
     }
 
     public function _after(A $I)

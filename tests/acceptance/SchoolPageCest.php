@@ -33,14 +33,15 @@ class SchoolPageCest
         $heinz_field = Locator::find('input', ['name' => 'FirstName', 'value' => 'Heinz']);
         $krumbichel_field = Locator::find('input', ['name' => 'LastName', 'value' => 'Krumbichel']);
         $I->seeInField($heinz_field, 'Heinz');
+        $last_change_before = $I->grabFromDatabase('users', 'LastChange', ['id' => 102]);
         $I->fillField($heinz_field, 'Albus');
         $I->click($krumbichel_field);
         $I->wait(3);
         $I->seeInDatabase('users', ['FirstName' => 'Albus']);
 
-        $last_change = $I->grabFromDatabase('users', 'LastChange', ['id' => 102]);
+        $last_change_after = $I->grabFromDatabase('users', 'LastChange', ['id' => 102]);
         $I->wantToTest('Has LastChange been updated?');
-        $I->assertTrue(Carbon::parse($last_change)->gt(Carbon::now()->subMinute()));
+        $I->assertTrue(Carbon::parse($last_change_after)->gt(Carbon::parse($last_change_before)));
     }
 
     // codecept run acceptance SchoolPageCest:passwordIsRevealed --steps -f
@@ -104,7 +105,7 @@ class SchoolPageCest
             'Processed' => null
             ]);
 
-        $visits_for_2a = ['2018-02-16', 'Universum', '2018-04-13', 'Vårvandring', '2018-06-07', 'Forntidsdag'];
+        $visits_for_2a = ['2018-10-19', 'Universum', '2018-11-13', 'Vårvandring', '2019-02-07', 'Forntidsdag'];
         //
         $visit_locator_for_2a = $I->get('paths', 'visits_for_2a');
         $I->checkMultiple('see', $visits_for_2a, [$visit_locator_for_2a]);
