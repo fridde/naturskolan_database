@@ -17,6 +17,7 @@ class CronController extends BaseController
     public function __construct(array $params)
     {
         parent::__construct($params, true);
+        $this->setReturnType('json');
         $this->intervals = SETTINGS['cronjobs']['intervals'];
     }
 
