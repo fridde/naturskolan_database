@@ -126,6 +126,7 @@ if [ $SKIP -lt 5 ]; then
     composer install --no-suggest
 	read -p "Copying over settings from dev area..."
     cp $PROJECT_PATH/config/settings_{default,test}.yml ./config/
+	cp $PROJECT_PATH/config/.key ./config/
     mv ./config/settings_{test,local}.yml
 fi
 
