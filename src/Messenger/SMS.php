@@ -19,10 +19,10 @@ class SMS extends AbstractMessageController
 
     // PREPARE=1; SEND=2; UPDATE=4;
 
-    public $methods = [
-        'update_received_sms' => 4,
-        'confirm_visit' => 3,
-        'update_profile_reminder' => 3,
+    public static $methods = [
+        'update_received_sms' => self::UPDATE,
+        'confirm_visit' => self::SEND | self::PREPARE,
+        'update_profile_reminder' => self::SEND | self::PREPARE,
     ];
 
     public function __construct(array $params = [])

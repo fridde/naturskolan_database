@@ -13,13 +13,13 @@ class Mail extends AbstractMessageController
     /* @var \Fridde\Mailer $Mailer */
     protected $Mailer;
     // PREPARE=1; SEND=2; UPDATE=4;
-    public $methods = [
-        'admin_summary' => 3,
-        'password_recover' => 3,
-        'confirm_visit' => 3,
-        'update_profile_reminder' => 3,
-        'changed_groups_for_user' => 3,
-        'welcome_new_user' => 3,
+    public static $methods = [
+        'admin_summary' => self::SEND | self::PREPARE,
+        'password_recover' => self::SEND | self::PREPARE,
+        'confirm_visit' => self::SEND | self::PREPARE,
+        'update_profile_reminder' => self::SEND | self::PREPARE,
+        'changed_groups_for_user' => self::SEND | self::PREPARE,
+        'welcome_new_user' => self::SEND | self::PREPARE,
     ];
 
 
