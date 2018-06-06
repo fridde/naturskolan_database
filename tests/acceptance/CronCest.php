@@ -13,11 +13,7 @@ class CronCest
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('natu', 'AuthKey'));
         $I->amOnPage('/admin');
-        try{
-            $I->deleteAllEmails();
-        } catch (\Exception $e){
-            echo $e->getTraceAsString();
-        }
+        $I->deleteAllEmails();
 
     }
 
