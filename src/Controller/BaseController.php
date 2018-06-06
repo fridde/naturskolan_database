@@ -385,7 +385,7 @@ class BaseController
         $this->actions = $actions;
     }
 
-    public function addAction(string $action, bool $to_front = false)
+    public function addAction(string $action = null, bool $to_front = false)
     {
         if (empty($action)) {
             return null;
@@ -399,7 +399,7 @@ class BaseController
         $this->setActions($actions);
     }
 
-    public function prependAction(string $action)
+    public function prependAction(string $action = null)
     {
         $this->addAction($action, true);
     }
