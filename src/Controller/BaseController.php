@@ -20,7 +20,7 @@ class BaseController
     /* @var array $REQ */
     protected $REQ;
     /* @var string $return_type */
-    protected $return_type = 'html';
+    protected $return_type = self::RETURN_HTML;
     /** @var \Fridde\HTML A Html object to build the page */
     protected $H;
     protected $DATA = [];
