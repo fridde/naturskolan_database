@@ -21,7 +21,7 @@ class CronCest
     {
     }
 
-    // codecept run acceptance CronCest:canSeeAllFields --steps
+    // codecept run acceptance CronCest:canSeeAllFields --steps -f
     public function canSeeAllFields(A $I)
     {
         $fields = $I->get('cron_items');
@@ -31,7 +31,7 @@ class CronCest
         }
     }
 
-    // codecept run acceptance CronCest:canToggleActivation --steps
+    // codecept run acceptance CronCest:canToggleActivation --steps -f
     public function canToggleActivation(A $I)
     {
         $status_path = ['systemstatus', 'Value', ['id' => 'cron_tasks.activation']];
@@ -71,7 +71,7 @@ class CronCest
         $I->wait(2);
     }
 
-    // codecept run acceptance CronCest:calendarGetsRebuild --steps
+    // codecept run acceptance CronCest:calendarGetsRebuild --steps -f
     public function calendarGetsRebuild(A $I)
     {
         $cal_path = __DIR__.'/../../kalender.ics';
@@ -84,7 +84,7 @@ class CronCest
     }
 
 
-    // codecept run acceptance CronCest:calendarDoesntGetRebuild --steps
+    // codecept run acceptance CronCest:calendarDoesntGetRebuild --steps -f
     public function calendarDoesntGetRebuild(A $I)
     {
         $cal_path = __DIR__.'/../../kalender.ics';
