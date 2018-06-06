@@ -12,7 +12,7 @@ class Mail extends AbstractMessageController
 {
     /* @var \Fridde\Mailer $Mailer */
     protected $Mailer;
-    // PREPARE=1; SEND=2; UPDATE=4;
+
     public static $methods = [
         'admin_summary' => self::SEND | self::PREPARE,
         'password_recover' => self::SEND | self::PREPARE,

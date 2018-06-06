@@ -16,9 +16,6 @@ class SMS extends AbstractMessageController
     protected $options;
     protected $response;
 
-
-    // PREPARE=1; SEND=2; UPDATE=4;
-
     public static $methods = [
         'update_received_sms' => self::UPDATE,
         'confirm_visit' => self::SEND | self::PREPARE,

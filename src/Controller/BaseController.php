@@ -35,6 +35,9 @@ class BaseController
     /* @var Authorizer $Authorizer */
     protected $Authorizer;
 
+    public const RETURN_HTML = 0;
+    public const RETURN_JSON = 1;
+
 
     public function __construct(array $params = [], $slim = false)
     {
@@ -67,12 +70,13 @@ class BaseController
         $params = empty($param_string) ? [] : explode('/', $param_string);
         foreach ($actions as $action) {
             $method = $this->translateActionToMethod($action);
-            if(empty($method)){
+            if (empty($method)) {
                 continue;
             }
-            if(!$this->Authorizer->authorize($this, $method)){
+            if (!$this->Authorizer->authorize($this, $method)) {
                 $login_controller = new LoginController($this->getParameter());
                 $login_controller->addAction('renderPasswordModal');
+
                 return $login_controller->handleRequest();
             }
 
@@ -82,10 +86,10 @@ class BaseController
             }
         }
 
-        if ($this->getReturnType() === 'html') {
+        if ($this->getReturnType() === self::RETURN_HTML) {
             return $this->renderAsHtml();
         }
-        if ($this->getReturnType() === 'json') {
+        if ($this->getReturnType() === self::RETURN_JSON) {
             return $this->returnAsJson();
         }
         throw new \Exception('The return type '.$this->getReturnType().' is not defined.');
@@ -96,6 +100,7 @@ class BaseController
     {
         header('Content-Type: application/json');
         echo json_encode($this->DATA);
+
         return null;
     }
 
@@ -188,12 +193,12 @@ class BaseController
         $this->setDATA($this->getDATA() + $array);
     }
 
-    public function setReturnType(string $return_type = 'html')
+    public function setReturnType(int $return_type = self::RETURN_HTML)
     {
         $this->return_type = $return_type;
     }
 
-    public function getReturnType()
+    public function getReturnType(): int
     {
         return $this->return_type;
     }
@@ -367,7 +372,7 @@ class BaseController
     /**
      * @return array
      */
-    public function getActions()
+    public function getActions(): array
     {
         return $this->actions ?? [];
     }
@@ -380,14 +385,23 @@ class BaseController
         $this->actions = $actions;
     }
 
-    public function addAction($action)
+    public function addAction(string $action, bool $to_front = false)
     {
         if (empty($action)) {
             return null;
         }
         $actions = $this->getActions();
-        array_unshift($actions, $action);
+        if ($to_front) {
+            array_unshift($actions, $action);
+        } else {
+            $actions[] = $action;
+        }
         $this->setActions($actions);
+    }
+
+    public function prependAction(string $action)
+    {
+        $this->addAction($action, true);
     }
 
     public function hasAction(string $action)
@@ -441,7 +455,8 @@ class BaseController
             if ($is_valid && strlen($string) > 0) {
                 return json_decode($string, true);
             }
-                return null;
+
+            return null;
 
         } elseif ($defined_CT === 'urlencoded') {
             return $_REQUEST;

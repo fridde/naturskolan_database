@@ -81,7 +81,7 @@ class APIController extends BaseController
 
     public function getPasswordForSchool(string $school_id): void
     {
-        $this->setReturnType('json');
+        $this->setReturnType(self::RETURN_JSON);
         $visitor = $this->Authorizer->getVisitor();
         /* @var School $request_school  */
         $request_school = $this->N->ORM->find('School', $school_id);
@@ -95,7 +95,7 @@ class APIController extends BaseController
 
     public function sendPasswordRecoverMail(string $mail_adress): void
     {
-        $this->setReturnType('json');
+        $this->setReturnType(self::RETURN_JSON);
         $mail_adress = trim($mail_adress);
         /* @var User $user  */
         $user = $this->N->ORM->getRepository('User')->findOneBy(['Mail' => $mail_adress]);
@@ -125,7 +125,7 @@ class APIController extends BaseController
         $date_time = html_entity_decode($date_time);
         $this->N->setStatus('test.datetime', $date_time);
         Carbon::setTestNow($date_time);
-        $this->setReturnType('json');
+        $this->setReturnType(self::RETURN_JSON);
     }
 
 }
