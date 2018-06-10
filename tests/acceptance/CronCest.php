@@ -118,13 +118,13 @@ class CronCest
                 'sub' => 'Bekräfta ditt besök',
                 'from' => 'info@sigtunanaturskola.se',
                 'to' => 'krumpf@edu.sigtuna.se',
-                'body' => ['Liv', 'Björn', '2A', '13 mars'],
+                'body' => ['Universum', 'Björn', '2A', '10 juni'],
             ],
             [
                 'sub' => 'Bekräfta ditt besök',
                 'from' => 'info@sigtunanaturskola.se',
                 'to' => 'kindulaer@edu.sigtuna.se',
-                'body' => ['Universum', 'Alfred', '2C', '2 mars'],
+                'body' => ['Liv', 'Alfred', '2C', '7 juni'],
             ],
         ];
 
@@ -147,7 +147,7 @@ class CronCest
                 'Felaktiga mobilnummer',
                 'Peter Samuelsson',
                 '071-9638300',
-                'Pär Hedin',
+                'Per Hedin',
                 '085474218',
                 'Obekräftade besök',
                 '2018-03-02: Universum med 2C från S:t Pers skola',
