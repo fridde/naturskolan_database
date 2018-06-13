@@ -23,6 +23,7 @@ if [ $SKIP -lt 1 ]; then
     cd $PROJECT_PATH/misc/scripts
 	set -x
     php -e export_database.php default > $TESTDB_PATH
+	php -e export_database.php test_db > $TESTDB_PATH
     php -e export_database.php just_data > /dev/null
     php -e export_database.php structure > /dev/null
     php -e "$PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH

@@ -283,10 +283,10 @@ class Update extends DefaultUpdate
     public function batchSetGroupCount(array $group_numbers, int $start_year = null)
     {
         $start_year = $start_year ?? Carbon::today()->year;
-        foreach ($group_numbers as [$school_id, $segment_id, $nr]) {
+        foreach ($group_numbers as [$school_id, $segment_id, $count]) {
             /* @var School $school */
             $school = $this->N->ORM->find('School', $school_id);
-            $school->setGroupNumber($segment_id, $nr, $start_year);
+            $school->setGroupNumber($segment_id, $count, $start_year);
         }
         $this->ORM->EM->flush();
     }
