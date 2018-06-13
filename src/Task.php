@@ -310,6 +310,7 @@ class Task
      * Informs group leaders via email that they have gained or lost one or more groups.
      *
      * @return void
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     private function sendChangedGroupLeaderMail()
     {

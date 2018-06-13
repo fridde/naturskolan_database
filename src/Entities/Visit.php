@@ -100,7 +100,7 @@ class Visit
     public function getDate()
     {
         if (is_string($this->Date)) {
-            $this->Date = new Carbon($this->Date);
+            $this->Date = Carbon::parse($this->Date)->toDateString();
         }
 
         return $this->Date;

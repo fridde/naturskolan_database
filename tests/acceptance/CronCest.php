@@ -149,7 +149,8 @@ class CronCest
                 '071-9638300',
                 'Per Hedin',
                 '085474218',
-                'Obekräftade besök',
+                //'Obekräftade besök',
+                'För många elever',
                 '2018-03-02: Universum med 2C från S:t Pers skola',
             ],
         ];
