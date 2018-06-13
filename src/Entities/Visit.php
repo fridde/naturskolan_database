@@ -97,10 +97,10 @@ class Visit
         return !empty($this->getGroup());
     }
 
-    public function getDate()
+    public function getDate(): Carbon
     {
         if (is_string($this->Date)) {
-            $this->Date = Carbon::parse($this->Date)->toDateString();
+            $this->Date = Carbon::parse($this->Date);
         }
 
         return $this->Date;
