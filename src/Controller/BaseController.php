@@ -161,9 +161,13 @@ class BaseController
     /**
      * @return mixed
      */
-    public function getDATA()
+    public function getDATA($key = null)
     {
-        return $this->DATA;
+        $DATA = $this->DATA;
+        if(!empty($key)){
+            return $DATA[$key] ?? null;
+        }
+        return $DATA;
     }
 
     /**

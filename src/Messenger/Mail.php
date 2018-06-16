@@ -100,7 +100,7 @@ class Mail extends AbstractMessageController
 
     protected function prepareChangedGroupsForUser()
     {
-        $DATA = $this->getParameter('data');
+        $this->setDATA($this->getParameter('data'));
         array_walk_recursive(
             $DATA['groups'],
             function (&$g_id) {
@@ -111,7 +111,7 @@ class Mail extends AbstractMessageController
                 $g_id = $g;
             }
         );
-        $groups = $DATA['groups'];
+        $groups = $this->getDATA('groups');
         $this->setTemplate('changed_groups');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->moveFromDataToVar('school_url', 'fname');
@@ -127,7 +127,6 @@ class Mail extends AbstractMessageController
             throw new \Exception('There were no groups given for this user.');
         }
         $this->Mailer->set('subject', $subject);
-        $this->addToDATA($DATA);
     }
 
     /**
