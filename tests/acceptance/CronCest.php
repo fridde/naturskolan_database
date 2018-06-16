@@ -117,14 +117,14 @@ class CronCest
             [
                 'sub' => 'Bekräfta ditt besök',
                 'from' => 'info@sigtunanaturskola.se',
-                'to' => 'krumpf@edu.sigtuna.se',
-                'body' => ['Universum', 'Björn', '2A', '10 juni'],
+                'to' => 'kindulaer@edu.sigtuna.se',
+                'body' => ['Liv', 'Alfred', '2C', '7 juni'],
             ],
             [
                 'sub' => 'Bekräfta ditt besök',
                 'from' => 'info@sigtunanaturskola.se',
-                'to' => 'kindulaer@edu.sigtuna.se',
-                'body' => ['Liv', 'Alfred', '2C', '7 juni'],
+                'to' => 'krumpf@edu.sigtuna.se',
+                'body' => ['Universum', 'Björn', '2A', '4 juni'],
             ],
         ];
 
@@ -149,9 +149,9 @@ class CronCest
                 '071-9638300',
                 'Per Hedin',
                 '085474218',
-                //'Obekräftade besök',
                 'För många elever',
-                '2018-03-02: Universum med 2C från S:t Pers skola',
+                'Obekräftade besök',
+                '2018-06-04: Universum med 2A från S:t Pers skola',
             ],
         ];
         $I->checkEmail($mail);
