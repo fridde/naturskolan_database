@@ -10,6 +10,7 @@ class CronCest
 {
     public function _before(A $I)
     {
+        // here the db is reset
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('natu', 'AuthKey'));
         $I->amOnPage('/admin');
