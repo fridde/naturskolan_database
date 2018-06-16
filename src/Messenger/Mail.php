@@ -98,9 +98,11 @@ class Mail extends AbstractMessageController
 
     protected function prepareChangedGroupsForUser()
     {
-        $this->addToDATA($this->getParameter('data'));
+        $DATA = $this->getParameter('data');
+
+
         array_walk_recursive(
-            $this->getDATA('groups'),
+            $DATA['groups'],
             function (&$g_id) {
                 $group = $this->N->ORM->find('Group', $g_id);
                 $g = ['group_id' => $g_id];
@@ -109,10 +111,13 @@ class Mail extends AbstractMessageController
                 $g_id = $g;
             }
         );
-        $groups = $this->getDATA('groups');
+        $groups = $DATA['groups'];
+        $this->addToDATA($DATA);
+        $this->moveFromDataToVar('school_url', 'fname');
+
         $this->setTemplate('changed_groups');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
-        $this->moveFromDataToVar('school_url', 'fname');
+
         $has_removed = !empty($groups['removed']);
         $has_new = !empty($groups['new']);
         if ($has_removed && $has_new) {
@@ -135,16 +140,17 @@ class Mail extends AbstractMessageController
      */
     protected function prepareWelcomeNewUser()
     {
-        $this->addToDATA($this->getParameter('data'));
+        $DATA = $this->getParameter('data');
+
         array_walk(
-            $this->getDATA('groups'),
+            $DATA['groups'],
             function (Group &$group) {
                 $g = ['name' => $group->getName()];
                 $g['segment'] = $group->getSegmentLabel();
                 $group = $g;
             }
         );
-
+        $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
         $this->setTemplate('new_user_welcome');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));

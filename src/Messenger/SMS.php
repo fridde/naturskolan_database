@@ -113,13 +113,13 @@ class SMS extends AbstractMessageController
             $this->N->log($log_msg, 'SMS->checkReceivedSmsForConfirmation()');
         }
         $message = array_filter(
-            $user_messages->toArray(),
+            $user_messages,
             function ($m) use ($n_visit) {
                 /* @var Message $m */
                 return (int) $m->getContent('visit_id') === $n_visit->getId();
             }
         );
-        if (count($message) == 0) {
+        if (count($message) === 0) {
             $log_msg = 'A user sent a message to you without having been sent a message first. Check this!';
             $this->N->log($log_msg, 'SMS->checkReceivedSmsForConfirmation()');
         }
