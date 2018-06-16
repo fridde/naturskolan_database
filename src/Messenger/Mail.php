@@ -84,10 +84,8 @@ class Mail extends AbstractMessageController
         $this->setTemplate('incomplete_profile');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Vi behöver mer information från dig!');
-        $DATA = $this->getParameter('data');
+        $this->addToDATA($this->getParameter('data'));
         $this->moveFromDataToVar('school_url', 'fname');
-
-        $this->addToDATA($DATA);
     }
 
     protected function prepareConfirmVisit()
@@ -100,9 +98,9 @@ class Mail extends AbstractMessageController
 
     protected function prepareChangedGroupsForUser()
     {
-        $this->setDATA($this->getParameter('data'));
+        $this->addToDATA($this->getParameter('data'));
         array_walk_recursive(
-            $DATA['groups'],
+            $this->getDATA('groups'),
             function (&$g_id) {
                 $group = $this->N->ORM->find('Group', $g_id);
                 $g = ['group_id' => $g_id];
@@ -137,9 +135,9 @@ class Mail extends AbstractMessageController
      */
     protected function prepareWelcomeNewUser()
     {
-        $DATA = $this->getParameter('data');
+        $this->addToDATA($this->getParameter('data'));
         array_walk(
-            $DATA['groups'],
+            $this->getDATA('groups'),
             function (Group &$group) {
                 $g = ['name' => $group->getName()];
                 $g['segment'] = $group->getSegmentLabel();
@@ -151,7 +149,6 @@ class Mail extends AbstractMessageController
         $this->setTemplate('new_user_welcome');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Välkommen i Naturskolans databas');
-        $this->addToDATA($DATA);
     }
 
     public function getMethods()

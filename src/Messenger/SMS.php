@@ -116,7 +116,7 @@ class SMS extends AbstractMessageController
             $user_messages->toArray(),
             function ($m) use ($n_visit) {
                 /* @var Message $m */
-                return $m->getContent('visit_id') == $n_visit->getId();
+                return (int) $m->getContent('visit_id') === $n_visit->getId();
             }
         );
         if (count($message) == 0) {
@@ -126,7 +126,7 @@ class SMS extends AbstractMessageController
 
         $content = strtolower($this->getParameter('message'));
         $content = preg_replace('[^a-zA-Z]', '', $content);
-        if (substr($content, 0, 2) == 'ja') {
+        if (0 === strpos($content, 'ja')) {
             $return['about_visit'] = true;
             $return['visit_id'] = $n_visit->getId();
         }
