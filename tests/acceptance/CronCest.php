@@ -10,7 +10,8 @@ class CronCest
 {
     public function _before(A $I)
     {
-        // here the db is reset
+        // if run manually, don't forget to first run
+        // codecept run acceptance HelperTestsCest:resetDatabase
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('natu', 'AuthKey'));
         $I->amOnPage('/admin');
