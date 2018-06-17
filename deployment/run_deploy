@@ -36,11 +36,15 @@ fi
 if [ $SKIP -lt 2 ]; then
    read -p "Check git status of test repo..."
    cd $TESTING_PATH/$PROJECT_NAME
+   if [ -n "$(git status -s)" ]; then
+       git status
+	   read -p 'Proceed if your .gitignore file is configured correctly!'
+	   git add -A
+       git commit -m 'Continue more testing'
+       git push
+   fi
    git status
-   read -p 'Proceed if your .gitignore file is configured correctly!'
-   git add -A
-   git commit -m 'Continue more testing'
-   git push
+   
    read -p 'Pulling repo changes into dev area...'
    cd $PROJECT_PATH
    git pull
@@ -61,26 +65,25 @@ if [ $SKIP -lt 3 ]; then
 fi
 
 if [ $SKIP -lt 4 ]; then    
-	read -p "Updating composer packages in project directory..."
+	read -p "Updating composer packages in dev directory..."
     cd $PROJECT_PATH
     composer update fridde/*
     composer install
-    git status
-
-    #set +x
-    while true; do
-		read -p "Is the .gitignore file correctly configured?  " yn
-			case $yn in
-				[Yy]* ) break;;
-				[Nn]* ) exit;;
-				* ) echo "Please answer Y or N!";;
-        esac
-	done
-    #set -x ; 
-	read -p "Adding files from dev repo..."
-    git add -A
-    git commit -m "More work"
-    git push
+    if [ -n "$(git status -s)" ]; then
+		git status
+		while true; do
+			read -p "Is the .gitignore file correctly configured?  " yn
+				case $yn in
+					[Yy]* ) break;;
+					[Nn]* ) exit;;
+					* ) echo "Please answer Y or N!";;
+			esac
+		done		
+		read -p "Adding files from dev repo..."
+		git add -A
+		git commit -m "More work"
+		git push
+	fi
 fi
 
 if [ $SKIP -lt 5 ]; then    
@@ -113,7 +116,8 @@ if [ $SKIP -lt 7 ]; then
     echo 'Creating the local staging copy...'
     cd $STAGING_PATH    
     quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
-    chmod -R 0777 $PROJECT_NAME && rm -rf $PROJECT_NAME
+    chmod -R 0777 $PROJECT_NAME && mv $PROJECT_NAME "dir_to_delete"
+	rm -rf "dir_to_delete" &
 	delete_old_files
 
     git clone --depth 1 $GITHUB_PROJECT

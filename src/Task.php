@@ -202,11 +202,11 @@ class Task
      * Logs a sent mail or sms to the database for later retrieval.
      *
      * @param  AbstractMessageController $response The response array returned by the Messenger
-     * @param  string $msg_carrier How was the message sent? 'sms' or 'mail' are currently implemented
+     * @param  int $msg_carrier How was the message sent? 
      * @param  \Fridde\Entities\User $user The user (as object) the message was sent to
      * @return \Fridde\Update The result of the Update-operation as defined in Fridde\Update
      */
-    private function logMessage($response, $msg_carrier, $user, $subject)
+    private function logMessage($response, int $msg_carrier, User $user, int $subject)
     {
         $success = $response->getStatus() === 'success';
 
@@ -215,7 +215,7 @@ class Task
             $msg_props['Subject'] = $subject;
             $msg_props['Carrier'] = $msg_carrier;
             $msg_props['Status'] = Message::STATUS_SENT;
-            if ($msg_carrier === 'sms') {
+            if ($msg_carrier === Message::CARRIER_SMS) {
                 $return = $response->getResponse()['result']['success'][0];
                 $msg_props['ExtId'] = $return['id'];
                 $msg_props['Status'] = $return['status']; // TODO: Convert this to an int
@@ -225,7 +225,7 @@ class Task
             return (new Update)->createNewEntity('Message', $msg_props);
         } else {
             //TODO: log this failed trial to error table or equivalent
-            return (new Update);
+            return new Update;
         }
     }
 
@@ -408,7 +408,7 @@ class Task
 
                 $response = $mail->buildAndSend();
 
-                $messages[] = [$response, 'mail', $user, $subject];
+                $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject];
             } else {
                 echo '';
                 // TODO: log this somewhere and inform admin
