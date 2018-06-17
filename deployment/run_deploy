@@ -87,7 +87,7 @@ if [ $SKIP -lt 5 ]; then
 	read -p "Preparing and backing up the test directory..."
 	cd $TESTING_PATH
     delete_old_files
-    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
+    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME &
 	
 	read -p "Bringing the test directory up to current status (git/composer)..."
     cd $PROJECT_NAME
