@@ -468,7 +468,7 @@ class Task
                 $sms = new SMS($params);
                 $return = $sms->buildAndSend();
             } elseif ($carrier === Message::CARRIER_MAIL) {
-                $p = ['school', ['school' => $user->getSchoolId()], true];
+                $p = ['school', ['school' => $user->getSchoolId(), 'page' => 'staff'], true];
                 $data['school_url'] = $this->N->generateUrl(...$p);
                 $params['receiver'] = $user->getMail();
                 $params['data'] = $data;
