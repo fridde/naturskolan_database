@@ -91,7 +91,8 @@ if [ $SKIP -lt 5 ]; then
 	cd $TESTING_PATH
     delete_old_files
     quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME &
-	
+	echo "Wait for rsync to be finished before continuing"
+	echo ""
 	read -p "Bringing the test directory up to current status (git/composer)..."
     cd $PROJECT_NAME
     git pull

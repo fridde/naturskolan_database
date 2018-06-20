@@ -32,7 +32,7 @@ class LoginController extends BaseController
         }
         $this->N->Auth->createAndSaveCode($user->getId(), Hash::CATEGORY_USER_COOKIE_KEY);
         $params['school'] = $user->getSchoolId();
-        $params['page'] = $this->getParameter('page');
+        $params['page'] = $this->getParameter('destination') ?? 'staff';
         $url = $this->N->generateUrl('school', $params);
 
         Utility::redirect($url);

@@ -455,7 +455,7 @@ class Task
         foreach ($incomplete_users as $user) {
             $params = ['purpose' => 'update_profile_reminder'];
             $data = ['fname' => $user->getFirstName()];
-            $data['school_staff_url'] = $this->N->createLoginUrl($user);
+            $data['school_staff_url'] = $this->N->createLoginUrl($user, 'staff');
             $carrier = $user->hasMobil() ? Message::CARRIER_SMS : null;
             $carrier = $user->hasMail() ? Message::CARRIER_MAIL : $carrier;
 
@@ -468,7 +468,7 @@ class Task
                 $sms = new SMS($params);
                 $return = $sms->buildAndSend();
             } elseif ($carrier === Message::CARRIER_MAIL) {
-                $p = ['school', ['school' => $user->getSchoolId(), 'page' => 'staff'], true];
+                $p = ['school', ['school' => $user->getSchoolId()], true];
                 $data['school_url'] = $this->N->generateUrl(...$p);
                 $params['receiver'] = $user->getMail();
                 $params['data'] = $data;
