@@ -237,14 +237,14 @@ class CronCest
         $I->seeInDatabase('users', $user_data);
         $I->updateInDatabase('users', ['Status' => 1], ['id' => 103]);
         // run task again, but only a few hours after
-        $I->setTestDate('2018-03-01T14:00:00+01:00');
+        $I->setTestDate('2018-06-01T14:00:00+02:00');
         $this->runTaskAgain($I, 'send_new_user_mail');
         $I->fetchEmails();
         // expect no new mail
         $I->haveNumberOfUnreadEmails(1);
 
         // run task again much later
-        $I->setTestDate('2018-03-03');
+        $I->setTestDate('2018-06-03');
         $this->runTaskAgain($I, 'send_new_user_mail');
         $I->fetchEmails();
         // expect one new mail
