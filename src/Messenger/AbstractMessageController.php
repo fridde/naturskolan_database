@@ -9,7 +9,7 @@ use Fridde\Utility;
 
 abstract class AbstractMessageController extends BaseController
 {
-    protected $type;
+    protected $carrier_type;
     protected $status;
     protected $errors;
 
@@ -50,17 +50,17 @@ abstract class AbstractMessageController extends BaseController
     /**
      * @return mixed
      */
-    public function getType()
+    public function getCarrierType()
     {
-        return $this->type;
+        return $this->carrier_type;
     }
 
     /**
      * @param mixed $type
      */
-    public function setType($type)
+    public function setCarrierType(int $carrier_type)
     {
-        $this->type = $type;
+        $this->carrier_type = $carrier_type;
     }
 
      /**

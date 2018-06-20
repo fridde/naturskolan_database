@@ -27,7 +27,7 @@ class Mail extends AbstractMessageController
     public function __construct(array $params = [])
     {
         parent::__construct($params);
-        $this->setType(Message::CARRIER_MAIL);
+        $this->setCarrierType(Message::CARRIER_MAIL);
         $this->Mailer = new Mailer();
     }
 

@@ -191,7 +191,7 @@ class Task
                 } else {
                     continue;
                 }
-                $msg_carrier = $response->getType();
+                $msg_carrier = $response->getCarrierType();
                 $this->logMessage($response, $msg_carrier, $user, $subject)->flush();
             }
         }
@@ -358,7 +358,7 @@ class Task
                 $mail = new Mail($params);
                 $response = $mail->buildAndSend();
 
-                $messages[] = [$response, 'mail', $user, $subject];
+                $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject];
             } else {
                 $msg = 'User '.$user->getFullName().' has no mailadress. Check this!';
                 $this->N->log($msg, 'Task->sendChangedGroupLeaderMail()');

@@ -25,7 +25,7 @@ class SMS extends AbstractMessageController
     public function __construct(array $params = [])
     {
         parent::__construct($params);
-        $this->setType(Message::CARRIER_SMS);
+        $this->setCarrierType(Message::CARRIER_SMS);
     }
 
     public function send()
