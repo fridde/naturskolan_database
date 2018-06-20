@@ -109,6 +109,7 @@ class BaseController
         if (empty($this->getTemplate())) {
             $this->setTemplate('error');
             $this->addToDATA('url', implode('/', $this->getParameter()));
+            $this->N->log('A request for ' . $_SERVER['REQUEST_URI'] . ' resulted in a template error.', 'BaseController');
         }
 
         $this->H->setTitle($this->getTitle());

@@ -22,11 +22,12 @@ try {
         exit();
     }
 } catch( Exception $e){
-    // handle exception
-
+    $N = $container->get('Naturskolan')->log($e->getMessage(), $e->getFile() . ':' . $e->getLine());
+    header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error', true, 500);
+    exit();
 }
 
-header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found');
+header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found', true, 404);
 echo 'No match found. Requested url: '.PHP_EOL;
 echo $request_url;
 exit();

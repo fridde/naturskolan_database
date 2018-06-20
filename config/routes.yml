@@ -4,7 +4,6 @@ routes:
    admin : ['GET','/admin/[:action]?','Admin']
    api : ['GET|POST','/api/[:action]/[**:parameters]?', 'API']
    batch : ['GET','/admin/batch/[:action]/[**:parameters]?','Batch']
-   checkpw : ['GET','/login/[:password]?','Login#checkPassword']
    cron : ['GET','/cron/[:AuthKey]?','Cron']
    file : ['GET','/file/[:file1]/[:file2]?/[:file3]?','File#include']
    login : ['GET', '/login/[:code]', 'Login#login']
