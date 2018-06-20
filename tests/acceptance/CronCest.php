@@ -172,7 +172,7 @@ class CronCest
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
         // checking that this is due to the mails already being sent and not just because of the systemstatus
-        $I->setTestDate('2018-03-03');
+        $I->setTestDate('2018-06-04');
         $I->amOnPage('/cron/');
         $I->wait(2);
         $I->fetchEmails();
