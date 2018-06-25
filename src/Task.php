@@ -53,6 +53,9 @@ class Task
      * defined in TASK_TO_METHOD_MAP, but only if its corresponding entry in
      * $task_activation is not set to a falsy value
      *
+     * @uses createNewPasswords()
+     * @uses cleanSQLDatabase()
+     *
      */
     public function execute()
     {
