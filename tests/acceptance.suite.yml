@@ -25,6 +25,7 @@ modules:
             password: ''
             dump: 'tests/_data/test_db.sql'
             populate: true
+            cleanup: true
         - Mailhog:
             url: http://localhost
             port: 8025

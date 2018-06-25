@@ -104,4 +104,13 @@ class AcceptanceTester extends \Codeception\Actor
         $this->amOnPage('/api/updateTestDate/' . htmlentities($test_date));
         $this->wait(2);
     }
+
+    public function changeTestDate(string $modifier)
+    {
+        $current = Carbon::parse($this->get('test_date'));
+        $modified = $current->modify($modifier);
+
+        $this->setTestDate($modified->toIso8601String());
+    }
+
 }

@@ -172,7 +172,7 @@ class CronCest
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
         // checking that this is due to the mails already being sent and not just because of the systemstatus
-        $I->setTestDate('2018-06-04');
+        $I->changeTestDate('+3 days');
         $I->amOnPage('/cron/');
         $I->wait(2);
         $I->fetchEmails();
@@ -209,12 +209,14 @@ class CronCest
     // codecept run acceptance CronCest:sendNewUserMail --steps -f
     public function sendNewUserMail(A $I)
     {
+        $expected_mail_nr = 1;
+
         $heinz_welcome_mail = ['User_id' => 102, 'Subject' => 1, 'Carrier' => 0, 'Status' => 1];
         $I->dontSeeInDatabase('messages', $heinz_welcome_mail);
         $this->runTask($I, 'send_new_user_mail');
         $I->seeInDatabase('messages', $heinz_welcome_mail);
         $I->fetchEmails();
-        $I->haveNumberOfUnreadEmails(1);
+        $I->haveNumberOfUnreadEmails($expected_mail_nr);
         $mail = [
             'sub' => 'Välkommen i Naturskolans databas',
             'from' => 'info@sigtunanaturskola.se',
@@ -237,24 +239,50 @@ class CronCest
         $I->seeInDatabase('users', $user_data);
         $I->updateInDatabase('users', ['Status' => 1], ['id' => 103]);
         // run task again, but only a few hours after
-        $I->setTestDate('2018-06-01T14:00:00+02:00');
+        $I->changeTestDate('+2 hours');
         $this->runTaskAgain($I, 'send_new_user_mail');
         $I->fetchEmails();
         // expect no new mail
-        $I->haveNumberOfUnreadEmails(1);
+        $I->haveNumberOfUnreadEmails($expected_mail_nr);
 
         // run task again much later
-        $I->setTestDate('2018-06-03');
+        $I->changeTestDate('+3 days');
         $this->runTaskAgain($I, 'send_new_user_mail');
         $I->fetchEmails();
         // expect one new mail
-        $I->haveNumberOfUnreadEmails(2);
+        $I->haveNumberOfUnreadEmails($expected_mail_nr + 1);
     }
 
     // codecept run acceptance CronCest:sendUpdateProfileReminder --steps -f
     public function sendUpdateProfileReminder(A $I)
     {
+        $expected_mail_nr = 1 ;
 
+        $this->runTask($I, 'send_update_profile_reminder');
+        $I->fetchEmails();
+        $I->haveNumberOfUnreadEmails($expected_mail_nr);
+
+        $mail = [
+            'sub' => 'Vi behöver mer information från dig',
+            'from' => 'info@sigtunanaturskola.se',
+            'to' => 'nbrealey0@sphinn.com',
+            'body' => [
+                'Hej Maja',
+                'Vi behöver ditt mobilnummer',
+                'Uppdatera ditt profil'
+            ],
+        ];
+        $I->checkEmail($mail);
+
+        $this->runTaskAgain($I, 'send_update_profile_reminder');
+        // no new mail as there is no change
+        $I->fetchEmails();
+        $I->haveNumberOfUnreadEmails($expected_mail_nr);
+
+        $I->changeTestDate('+5 days'); // more than the annoyance interval, so the user will be contacted again
+        $this->runTaskAgain($I, 'send_update_profile_reminder');
+        $I->fetchEmails();
+        $I->haveNumberOfUnreadEmails($expected_mail_nr + 1);
     }
 
 }
