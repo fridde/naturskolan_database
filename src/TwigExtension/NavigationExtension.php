@@ -3,6 +3,7 @@
 namespace Fridde\TwigExtension;
 
 
+use Fridde\Entities\SchoolRepository;
 use Fridde\Entities\User;
 use Fridde\ORM;
 use Fridde\Security\Authorizer;
@@ -171,8 +172,10 @@ class NavigationExtension extends TwigBaseExtension
 
     public function getAllSchoolUrls(array $ignored_schools = [])
     {
-        /* @var \Fridde\Entities\School[] $school_labels */
-        $school_labels = $this->ORM->getRepository('School')->findAllSchoolLabels();
+        /* @var SchoolRepository $school_repo  */
+        $school_repo = $this->ORM->getRepository('School');
+
+        $school_labels = $school_repo->findAllSchoolLabels();
         $school_labels = array_diff_key($school_labels, array_flip($ignored_schools));
 
         return array_map(

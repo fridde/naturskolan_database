@@ -74,11 +74,11 @@ class Task
         } catch (\Exception $e) {
             $msg = 'Failed task: '.$this->type;
             $msg .= '. Error message: '.$e->getMessage();
-            $this->N->log($msg, 'Task->execute()');
+            $this->N->log($msg, __METHOD__);
 
             return false;
         }
-        $this->N->log('Executed task: '.$this->type, 'Task->execute()');
+        $this->N->log('Executed task: '.$this->type, __METHOD__);
 
         return true;
 
@@ -126,9 +126,9 @@ class Task
         if ($is_dirty || $too_old) {
             $cal = new Calendar();
             $cal->save();
-            $this->N->log('Actually recalculated calendar', 'Task->rebuildCalendar()');
+            $this->N->log('Actually recalculated calendar', __METHOD__);
         } else {
-            $this->N->log('No calendar recalculation needed', 'Task->rebuildCalendar()');
+            $this->N->log('No calendar recalculation needed', __METHOD__);
         }
     }
 
@@ -195,7 +195,7 @@ class Task
                     } else {
                         $e = 'User '.$user->getId().' has neither mail nor mobile number ';
                         $e .= 'and couldn\'t be contacted to confirm visit. Check this!';
-                        $this->N->log($e, 'Task->sendVisitConfirmationMessage()');
+                        $this->N->log($e, __METHOD__);
                         continue;
                     }
                 } elseif (!$last_msg->wasSentAfter($annoyance_start)) {
@@ -373,7 +373,7 @@ class Task
                 $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject];
             } else {
                 $msg = 'User '.$user->getFullName().' has no mailadress. Check this!';
-                $this->N->log($msg, 'Task->sendChangedGroupLeaderMail()');
+                $this->N->log($msg, __METHOD__);
             }
         }
         array_walk(
@@ -489,7 +489,7 @@ class Task
             } else {
                 $e_text = 'User with id <'.$user->getId().'> has no email or';
                 $e_text .= ' mobile phone number. Check up on that immediately.';
-                $this->N->log($e_text, 'Task->sendUpdateProfileReminder()');
+                $this->N->log($e_text, __METHOD__);
                 $return = null;
             }
             $messages[] = [$return, $carrier, $user, $subject];
@@ -518,18 +518,20 @@ class Task
      */
     private function createNewPasswords()
     {
-        /* @var HashRepository $hash_repo  */
-        /* @var SchoolRepository $school_repo  */
-        /* @var School[] $schools  */
+        /* @var HashRepository $hash_repo */
+        /* @var SchoolRepository $school_repo */
+        /* @var School[] $schools */
         $hash_repo = $this->N->ORM->getRepository('Hash');
         $school_repo = $this->N->ORM->getRepository('School');
         $schools = $school_repo->findAll();
+        $pw_validity = SETTINGS['values']['validity']['school_pw'];
 
-        $max_distance = Timing::multiplyDurationBy(SETTINGS['values']['validity']['school_pw'], 0.5);
+        $max_distance = Timing::multiplyDurationBy($pw_validity, 0.5);
         $max_expiry_date = Timing::addDurationToNow($max_distance);
-        $new_expiration_date = Timing::addDurationToNow(SETTINGS['values']['validity']['school_pw']);
+        $new_expiration_date = Timing::addDurationToNow($pw_validity);
 
-        $version = $this->N->Auth->getPWH()->getLatestWordFileVersion().'_'.random_int(0, 999);
+        $version = $this->N->Auth->getPWH()->getLatestWordFileVersion();
+        $version .= '_'.random_int(0, 999);
         $school_passwords = [];
         foreach ($schools as $school) {
             if (empty($hash_repo->findHashesThatExpireAfter($max_expiry_date))) {
@@ -548,6 +550,9 @@ class Task
             }
         }
 
+        if(empty($school_passwords)){
+            $this->N->log('Passwords checked, no new passwords had to be created.',__METHOD__);
+        }
 
         $pw_string = implode(
             PHP_EOL,

@@ -79,9 +79,9 @@ class User
         return $this->id;
     }
 
-    public function hasId($Id)
+    public function hasId(int $Id): bool
     {
-        return $this->getId() == $Id;
+        return $this->getId() === $Id;
     }
 
     public function getFirstName()

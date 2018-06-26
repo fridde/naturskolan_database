@@ -956,12 +956,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/dumper.git",
-                "reference": "5ff70ab99bb7ffebff43877b9dc790ec4bc9e717"
+                "reference": "8dfb69939d7009f891d50ccec46a367701da5c49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/dumper/zipball/5ff70ab99bb7ffebff43877b9dc790ec4bc9e717",
-                "reference": "5ff70ab99bb7ffebff43877b9dc790ec4bc9e717",
+                "url": "https://api.github.com/repos/fridde/dumper/zipball/8dfb69939d7009f891d50ccec46a367701da5c49",
+                "reference": "8dfb69939d7009f891d50ccec46a367701da5c49",
                 "shasum": ""
             },
             "require": {
@@ -984,7 +984,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2017-10-22T19:39:18+00:00"
+            "time": "2018-06-26T10:49:17+00:00"
         },
         {
             "name": "fridde/essentials",
@@ -992,12 +992,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/essentials.git",
-                "reference": "e323d024193488346ee902fdecb28b63306bceb8"
+                "reference": "ac1317b3d4d8bc6c5aa996ea68ffe51d8d8bbd47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/essentials/zipball/e323d024193488346ee902fdecb28b63306bceb8",
-                "reference": "e323d024193488346ee902fdecb28b63306bceb8",
+                "url": "https://api.github.com/repos/fridde/essentials/zipball/ac1317b3d4d8bc6c5aa996ea68ffe51d8d8bbd47",
+                "reference": "ac1317b3d4d8bc6c5aa996ea68ffe51d8d8bbd47",
                 "shasum": ""
             },
             "require": {
@@ -1027,7 +1027,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-05-20T11:59:10+00:00"
+            "time": "2018-06-26T10:49:38+00:00"
         },
         {
             "name": "fridde/html",
@@ -1181,12 +1181,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/sms.git",
-                "reference": "402e27f3f47b45b9939dbd6d3e25986997084134"
+                "reference": "5d076d757be004bc76a3c8d283ef77fa7845029c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/sms/zipball/402e27f3f47b45b9939dbd6d3e25986997084134",
-                "reference": "402e27f3f47b45b9939dbd6d3e25986997084134",
+                "url": "https://api.github.com/repos/fridde/sms/zipball/5d076d757be004bc76a3c8d283ef77fa7845029c",
+                "reference": "5d076d757be004bc76a3c8d283ef77fa7845029c",
                 "shasum": ""
             },
             "require": {
@@ -1208,7 +1208,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-04-14T09:46:20+00:00"
+            "time": "2018-06-26T10:50:01+00:00"
         },
         {
             "name": "fridde/utility",

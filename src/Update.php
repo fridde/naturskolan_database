@@ -8,6 +8,7 @@ namespace Fridde;
 use Fridde\Controller\LoginController;
 use Fridde\Entities\Group;
 use Carbon\Carbon;
+use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Hash;
 use Fridde\Entities\School;
 use Fridde\Security\Authenticator;
@@ -257,9 +258,12 @@ class Update extends DefaultUpdate
 
     public function fillEmptyGroupNames(string $segment_id, int $start_year = null)
     {
+        /* @var GroupRepository $group_repo  */
+        $group_repo = $this->N->ORM->getRepository('Group');
+
         $start_year = $start_year ?? Carbon::today()->year;
         $criteria = [['Segment', $segment_id], ['StartYear', $start_year]];
-        $groups = $this->N->ORM->getRepository('Group')->selectAnd($criteria);
+        $groups = $group_repo->selectAnd($criteria);
         $groups_without_name = array_filter(
             $groups,
             function (Group $g) {

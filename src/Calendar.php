@@ -5,6 +5,7 @@ namespace Fridde;
 use Eluceo\iCal\Component\Calendar as Cal;
 use Eluceo\iCal\Component\Event;
 use Carbon\Carbon;
+use Fridde\Entities\EventRepository;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 
@@ -116,6 +117,9 @@ class Calendar
 
     public function convertToIcs(array $array)
     {
+        /* @var EventRepository $event_repo  */
+        $event_repo = $this->N->ORM->getRepository('Event');
+
         date_default_timezone_set('Europe/Stockholm');
 
         $cal = new Cal('SigtunaNaturskola');
@@ -140,7 +144,7 @@ class Calendar
             $cal->addComponent($event);
         }
 
-        foreach ($this->ORM->getRepository('Event')->getEvents() as $ievent) {
+        foreach ($event_repo->getEvents() as $ievent) {
             $cal->addComponent($ievent);
         }
 

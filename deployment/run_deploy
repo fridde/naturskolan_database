@@ -93,7 +93,7 @@ if [ $SKIP -lt 5 ]; then
     quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME &
 	echo "Wait for rsync to be finished before continuing"
 	echo ""
-	read -p "Bringing the test directory up to current status (git/composer)..."
+	read -p "Bringing the test directory up to current status (git/composer).[WAIT]"
     cd $PROJECT_NAME
     git pull
     composer install --no-suggest

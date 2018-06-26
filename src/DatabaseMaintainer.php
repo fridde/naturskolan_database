@@ -12,7 +12,7 @@ class DatabaseMaintainer
     private $N;
 
     public function __construct(){
-        $this->N = $GLOBALS["CONTAINER"]->get("Naturskolan");
+        $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
     }
 
     public function backup()
@@ -40,7 +40,7 @@ class DatabaseMaintainer
     {
        $current_year = Carbon::today()->year;
         /** @var School $school */
-        foreach($this->N->getRepo("School")->findAll() as $school){
+        foreach($this->N->getRepo('School')->findAll() as $school){
            $group_numbers = $school->getGroupNumbers();
            foreach($group_numbers as $startyear => $numbers){
                if($startyear < $current_year - 2){
@@ -68,7 +68,7 @@ class DatabaseMaintainer
 
     public function clean()
     {
-        $entities = ["Change", "Cookie", "Group", "Message"];
+        $entities = ['Change', 'Cookie', 'Group', 'Message'];
         $remove = [];
         $nameless = [];
 
@@ -77,20 +77,20 @@ class DatabaseMaintainer
             $repo = $this->N->ORM->getRepository($entity);
 
             switch($entity){
-                case "Change":
+                case 'Change':
                 $date = Carbon::today()->subDays(90);
                 $remove[] = $repo->findChangesOlderThan($date);
                 break;
-                case "Cookie":
+                case 'Cookie':
                 $date = Carbon::today()->subDays(300);
                 $remove[] = $repo->findCookiesOlderThan($date);
                 break;
-                case "Group":
+                case 'Group':
                 $date = Carbon::today()->subYears(2);
                 $remove[] = $repo->findGroupsOlderThan($date);
                 $nameless = $repo->findGroupsWithoutName();
                 break;
-                case "Message":
+                case 'Message':
                 $date = Carbon::today()->subDays(400);
                 $remove[] = $repo->findMessagesOlderThan($date);
                 break;
@@ -108,7 +108,7 @@ class DatabaseMaintainer
 
         // Errors get special treatment
         $ts = Carbon::today()->subDays(300)->timestamp;
-        $stmt = "DELETE FROM errors WHERE time < " . $ts . ";";
+        $stmt = 'DELETE FROM errors WHERE time < ' . $ts . ';';
         $this->N->ORM->EM->getConnection()->executeQuery($stmt);
     }
 

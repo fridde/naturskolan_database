@@ -7,6 +7,7 @@ use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Topic;
 use Fridde\Entities\TopicRepository;
 use Fridde\Entities\User;
+use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Fridde\Security\Authorizer;
@@ -181,8 +182,13 @@ class BatchController extends BaseController
 
     public function setColleagues()
     {
-        $future_visits = $this->N->ORM->getRepository('Visit')->findFutureVisits();
-        $colleagues = $this->N->ORM->getRepository('User')->getActiveColleagues();
+        /* @var VisitRepository $visit_repo  */
+        /* @var UserRepository $user_repo  */
+        $visit_repo = $this->N->ORM->getRepository('Visit');
+        $user_repo = $this->N->ORM->getRepository('User');
+
+        $future_visits = $visit_repo->findFutureVisits();
+        $colleagues = $user_repo->getActiveColleagues();
 
         $DATA['colleagues'] = array_map(
             function (User $c) {
@@ -219,8 +225,11 @@ class BatchController extends BaseController
 
     public function setBookings()
     {
+        /* @var VisitRepository $visit_repo  */
+        $visit_repo = $this->N->ORM->getRepository('Visit');
+
         $this->setTemplate('set_bookings');
-        $visits = $this->N->ORM->getRepository('Visit')->findFutureVisits();
+        $visits = $visit_repo->findFutureVisits();
 
         $visits = array_filter(
             $visits,

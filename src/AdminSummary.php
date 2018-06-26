@@ -9,6 +9,7 @@ use Fridde\Entities\GroupRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\Topic;
 use Fridde\Entities\User;
+use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Fridde\Messenger\AbstractMessageController;
@@ -229,12 +230,14 @@ class AdminSummary
 
     private function getDuplicateMailAdresses()
     {
+        /* @var UserRepository $user_repo  */
+        $user_repo = $this->N->ORM->getRepository('User');
 
         $all_mail_adresses = array_map(
             function (User $u) {
                 return trim($u->getMail());
             },
-            $this->N->ORM->getRepository('User')->select(['Status', User::ACTIVE])
+            $user_repo->select(['Status', User::ACTIVE])
         );
         $counter = array_count_values($all_mail_adresses);
 

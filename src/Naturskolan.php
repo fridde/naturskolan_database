@@ -399,7 +399,7 @@ class Naturskolan
             $this->setTextArrayfromFile($file_path);
         }
         $text = U::resolve($this->text_array, $index);
-        if ($text == null || ! is_string($text)) {
+        if (empty($text) || ! is_string($text)) {
             $e_msg = 'The path given couldn\'t be resolved to a valid string. The path: ';
             $e_msg .= var_export($index, true);
             throw new \InvalidArgumentException($e_msg);

@@ -45,7 +45,7 @@ class School
         $this->Users = new ArrayCollection();
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
@@ -55,7 +55,7 @@ class School
         $this->id = $id;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->Name;
     }
