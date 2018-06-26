@@ -552,6 +552,7 @@ class Task
 
         if(empty($school_passwords)){
             $this->N->log('Passwords checked, no new passwords had to be created.',__METHOD__);
+            return;
         }
 
         $pw_string = implode(
