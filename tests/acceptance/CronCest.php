@@ -288,6 +288,8 @@ class CronCest
     // codecept run acceptance CronCest:createNewPasswords --steps -f
     public function createNewPasswords(A $I)
     {
+        $I->seeNumRecords(23, 'hashes', ['Category' => 3]);
+
 
     }
 
