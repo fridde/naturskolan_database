@@ -27,14 +27,14 @@ class AcceptanceTester extends \Codeception\Actor
      * Define custom actions here
      */
 
-    private $settings;
+    private $test_items;
 
     public function get(...$keys)
     {
-        if (empty($this->settings)) {
-            $this->settings = Yaml::parseFile(__DIR__.'/../acceptance/test_items.yml');
+        if (empty($this->test_items)) {
+            $this->test_items = Yaml::parseFile(__DIR__.'/../acceptance/test_items.yml');
         }
-        $array = $this->settings;
+        $array = $this->test_items;
         foreach ($keys as $key) {
             $array = &$array[$key];
         }
