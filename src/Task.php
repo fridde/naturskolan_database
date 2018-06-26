@@ -55,6 +55,15 @@ class Task
      *
      * @uses createNewPasswords()
      * @uses cleanSQLDatabase()
+     * @uses rebuildCalendar()
+     * @uses backupDatabase()
+     * @uses sendVisitConfirmationMessage()
+     * @uses sendAdminSummaryMail()
+     * @uses sendChangedGroupLeaderMail()
+     * @uses sendNewUserMail()
+     * @uses changedVisitDateMail()
+     * @uses sendUpdateProfileReminder()
+     * @uses createNewAuthKey()
      *
      */
     public function execute()
@@ -205,7 +214,7 @@ class Task
      * Logs a sent mail or sms to the database for later retrieval.
      *
      * @param  AbstractMessageController $response The response array returned by the Messenger
-     * @param  int $msg_carrier How was the message sent? 
+     * @param  int $msg_carrier How was the message sent?
      * @param  \Fridde\Entities\User $user The user (as object) the message was sent to
      * @return \Fridde\Update The result of the Update-operation as defined in Fridde\Update
      */
@@ -504,13 +513,18 @@ class Task
         // TODO: add more functionality to this function
     }
 
+    /**
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     private function createNewPasswords()
     {
-        /* @var HashRepository $hash_repo */
+        /* @var HashRepository $hash_repo  */
+        /* @var SchoolRepository $school_repo  */
+        /* @var School[] $schools  */
         $hash_repo = $this->N->ORM->getRepository('Hash');
-        /* @var SchoolRepository $school_repo */
         $school_repo = $this->N->ORM->getRepository('School');
         $schools = $school_repo->findAll();
+
         $max_distance = Timing::multiplyDurationBy(SETTINGS['values']['validity']['school_pw'], 0.5);
         $max_expiry_date = Timing::addDurationToNow($max_distance);
         $new_expiration_date = Timing::addDurationToNow(SETTINGS['values']['validity']['school_pw']);
@@ -518,7 +532,6 @@ class Task
         $version = $this->N->Auth->getPWH()->getLatestWordFileVersion().'_'.random_int(0, 999);
         $school_passwords = [];
         foreach ($schools as $school) {
-            /* @var School $school */
             if (empty($hash_repo->findHashesThatExpireAfter($max_expiry_date))) {
                 $pw = $this->N->Auth->calculatePasswordForSchool($school, $version);
                 $school_passwords[$school->getId()] = $pw;
@@ -548,8 +561,8 @@ class Task
         );
 
         $date = preg_replace('/[^[:alnum:]]/', '_', Carbon::now()->toIso8601String());
-        $file_name = BASE_DIR.'\temp\new_'. $date;
-        if(false === file_put_contents($file_name, $pw_string)){
+        $file_name = BASE_DIR.'\temp\new_'.$date;
+        if (false === file_put_contents($file_name, $pw_string)) {
             throw new \Exception('The password file could not be written.');
         }
         $this->N->ORM->EM->flush();
@@ -558,15 +571,15 @@ class Task
 
     private function createNewAuthKey()
     {
-        if(!empty($this->N->getStatus('cron.auth_key_hash'))){
+        if (!empty($this->N->getStatus('cron.auth_key_hash'))) {
             throw new \Exception('Failure: Tried to create a new AuthKey when there already was one.');
         }
 
         $key = PasswordHandler::createRandomKey();
         $hash = password_hash($key, PASSWORD_DEFAULT);
 
-        $success = file_put_contents(BASE_DIR . '/temp/auth_key', $key);
-        if(!$success){
+        $success = file_put_contents(BASE_DIR.'/temp/auth_key', $key);
+        if (!$success) {
             throw new \Exception('The auth_key could not be saved.');
         }
         $this->N->setStatus('cron.auth_key_hash', $hash);

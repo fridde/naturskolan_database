@@ -313,35 +313,6 @@ class Naturskolan
         return $url;
     }
 
-    /**
-     * @param string $url
-     * @param array $post_data
-     * @param bool $use_api_key
-     * @param bool $debug
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-
-    /*
-    public function sendRequest(string $url, array $post_data = [], bool $use_api_key = true, bool $debug = false)
-    {
-        $options = ['json' => $post_data, 'cookies' => null, 'debug' => false];
-
-        if ($use_api_key) {
-            $options['json']['api_key'] = $this->getApiKey();
-        }
-        if ($debug || ($GLOBALS['debug'] ?? false)) {
-            $options['cookies'] = CookieJar::fromArray(['XDEBUG_SESSION' => 'xdebug.api'], 'localhost');
-            $options['json']['XDEBUG_SESSION_START'] = 'api';
-            $options['debug'] = true;
-            $url .= '?XDEBUG_SESSION_START=api';
-        }
-
-        usleep(100 * 1000); // = 0.1 seconds to not choke the server
-
-        return $this->getClient()->post($url, $options);
-    }
-    */
-
     public function getApiKey()
     {
         return SETTINGS['values']['api_key'] ?? null;
@@ -428,7 +399,7 @@ class Naturskolan
             $this->setTextArrayfromFile($file_path);
         }
         $text = U::resolve($this->text_array, $index);
-        if (!(isset($text) && is_string($text))) {
+        if ($text == null || ! is_string($text)) {
             $e_msg = 'The path given couldn\'t be resolved to a valid string. The path: ';
             $e_msg .= var_export($index, true);
             throw new \InvalidArgumentException($e_msg);
@@ -457,15 +428,22 @@ class Naturskolan
 
     /**
      * @param string $msg
-     * @param string|null $source
+     * @param $source
      */
-    public function log(string $msg, string $source = '')
+    public function log(string $msg, $source = '')
     {
+        if(is_array($source)){
+            $source = $source[0] . '->' . $source[1] . '()';
+        }
+
         $GLOBALS['CONTAINER']->get('Logger')->addInfo($msg, ['source' => $source]);
     }
 
 
-    public function getAdminSchool(): School
+    /**
+     * @return School|object
+     */
+    public function getAdminSchool()
     {
         return $this->ORM->find('School', self::ADMIN_SCHOOL);
     }
