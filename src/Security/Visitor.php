@@ -14,8 +14,6 @@ class Visitor
 {
     /* @var Authenticator $Auth */
     private $Auth;
-    /* @var ORM $ORM */
-    private $ORM;
     /* @var School $school */
     private $school;
     /* @var User $user */
