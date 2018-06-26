@@ -32,7 +32,7 @@ class AcceptanceTester extends \Codeception\Actor
     public function get(...$keys)
     {
         if (empty($this->settings)) {
-            $this->settings = Yaml::parseFile(__DIR__.'/../acceptance/settings.yml');
+            $this->settings = Yaml::parseFile(__DIR__.'/../acceptance/test_items.yml');
         }
         $array = $this->settings;
         foreach ($keys as $key) {

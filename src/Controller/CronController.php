@@ -76,7 +76,7 @@ class CronController extends BaseController
 
     private function isAuthorizedViaAuthkey(string $key = null): bool
     {
-        $key = $key ?? $this->getParameter('AuthKey');
+        $key = $key ?? (string) $this->getParameter('AuthKey');
         $hash = $this->N->getStatus('cron.auth_key_hash');
 
         return password_verify($key, $hash);
