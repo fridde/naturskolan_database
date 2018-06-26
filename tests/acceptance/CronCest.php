@@ -285,4 +285,10 @@ class CronCest
         $I->haveNumberOfUnreadEmails($expected_mail_nr + 1);
     }
 
+    // codecept run acceptance CronCest:createNewPasswords --steps -f
+    public function createNewPasswords(A $I)
+    {
+
+    }
+
 }
