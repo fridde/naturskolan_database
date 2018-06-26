@@ -54,6 +54,10 @@ class CronCest
     {
         $I->amOnPage('/admin');
         $cron_tasks = array_keys($I->get('cron_items'));
+        if(!in_array($task, $cron_tasks, true)){
+            throw new \Exception('The task "'. $task . '" was not defined in the test settings');
+        }
+
         foreach ($cron_tasks as $cron_task) {
             $path = '//input[@name="'.$cron_task.'"]';
             if ($cron_task === $task) {
@@ -288,8 +292,21 @@ class CronCest
     // codecept run acceptance CronCest:createNewPasswords --steps -f
     public function createNewPasswords(A $I)
     {
-        $I->seeNumRecords(23, 'hashes', ['Category' => 3]);
+        $initial_pw_count = 23;
+        $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
 
+        $this->runTask($I,'create_new_passwords');
+        // the there are no passwords that expire before "today + 1/2 year"
+        $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
+
+        $I->changeTestDate('+6 weeks'); // now the task is due, but still no old passwords
+        $this->runTaskAgain($I, 'create_new_passwords');
+        $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
+
+
+        $I->changeTestDate('+8 months'); // now all passwords should be renewed
+        $this->runTaskAgain($I, 'create_new_passwords');
+        $I->seeNumRecords($initial_pw_count * 2, 'hashes', ['Category' => 3]);
 
     }
 
