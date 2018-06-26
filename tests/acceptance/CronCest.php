@@ -304,7 +304,8 @@ class CronCest
         $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
 
 
-        $I->changeTestDate('+8 months'); // now all passwords should be renewed
+        $I->changeTestDate('+8 months'); // = 2019-02-01
+        // now all passwords should be renewed
         $this->runTaskAgain($I, 'create_new_passwords');
         $I->seeNumRecords($initial_pw_count * 2, 'hashes', ['Category' => 3]);
 
