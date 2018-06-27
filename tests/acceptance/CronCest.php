@@ -293,15 +293,9 @@ class CronCest
     // codecept run acceptance CronCest:createNewPasswords --steps -f
     public function createNewPasswords(A $I)
     {
-        chdir(codecept_root_dir() . '/temp');
-        $temp_files = glob('*');
+        $I->emptyTempFolder();
 
-        foreach($temp_files as $file){
-            codecept_debug($file);
-        }
-
-
-        /*        $initial_pw_count = 23;
+        $initial_pw_count = 23;
         $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
 
         $this->runTask($I,'create_new_passwords');
@@ -316,11 +310,11 @@ class CronCest
         $I->changeTestDate('+8 months'); // = 2019-02-01
         // now all passwords should be renewed
         $this->runTaskAgain($I, 'create_new_passwords');
-        $I->seeNumRecords($initial_pw_count * 2, 'hashes', ['Category' => 3]);*/
+        $I->seeNumRecords($initial_pw_count * 2, 'hashes', ['Category' => 3]);
 
-        // TODO: test if new file has been created
+        $I->assertNotEmpty($I->getFileNamesFromTempFolder());
 
-    }
+     }
 
 
 
