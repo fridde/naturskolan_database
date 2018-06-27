@@ -118,7 +118,7 @@ class Calendar
     public function convertToIcs(array $array)
     {
         /* @var EventRepository $event_repo  */
-        $event_repo = $this->N->ORM->getRepository('Event');
+        $event_repo = $this->ORM->getRepository('Event');
 
         date_default_timezone_set('Europe/Stockholm');
 
