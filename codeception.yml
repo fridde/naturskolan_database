@@ -8,3 +8,7 @@ actor_suffix: Tester
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
+        - Codeception\Extension\RemoteDebug
+    config:
+          Codeception\Extension\RemoteDebug:
+              sessionName: PHPSTORM
