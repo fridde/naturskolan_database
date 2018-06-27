@@ -309,6 +309,10 @@ class CronCest
         $this->runTaskAgain($I, 'create_new_passwords');
         $I->seeNumRecords($initial_pw_count * 2, 'hashes', ['Category' => 3]);
 
+        // TODO: test if new file has been created
+
     }
+
+
 
 }
