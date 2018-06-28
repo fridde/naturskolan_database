@@ -322,7 +322,7 @@ class CronCest
 
     public function backupDatabase(A $I)
     {
-        $this->runTask($I,'create_new_passwords');
+        $this->runTask($I,'backup_database');
     }
 
 

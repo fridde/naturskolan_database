@@ -3,7 +3,7 @@ namespace Fridde;
 
 use Carbon\Carbon;
 use Fridde\{
-    Dumper, Entities\Group, Entities\School
+    Dumper, Entities\Group, Entities\School, Entities\SchoolRepository
 };
 
 class DatabaseMaintainer
@@ -40,12 +40,16 @@ class DatabaseMaintainer
 
     public function cleanOldGroupNumbers()
     {
-       $current_year = Carbon::today()->year;
-        /** @var School $school */
-        foreach($this->ORM->getRepository('School')->findAll() as $school){
+        /* @var SchoolRepository $school_repo  */
+        /* @var School $school */
+        $school_repo = $this->ORM->getRepository('School');
+
+        $oldest_allowed_year = Carbon::today()->year - 2;
+        
+        foreach($school_repo->findAll() as $school){
            $group_numbers = $school->getGroupNumbers();
            foreach($group_numbers as $startyear => $numbers){
-               if($startyear < $current_year - 2){
+               if($startyear < $oldest_allowed_year){
                    unset($group_numbers[$startyear]);
                }
            }
@@ -54,18 +58,22 @@ class DatabaseMaintainer
        $this->ORM->EM->flush();
     }
 
-    private function isSafe(Carbon $date)
+    private function isSafe(Carbon $date): bool
     {
         $today = Carbon::today();
-        $daynr = $date->diffInDays($today);
-        $checks = [];
+        $age_in_days = $date->diffInDays($today);
 
-        $checks[] = $daynr < 10;
-        $checks[] = $daynr < 90 && $daynr % 5 === 0;
-        $checks[] = $daynr < 300 && $daynr % 30 === 0 ;
-        $checks[] = $daynr % 90 === 0;
+        $arbitrary_constant_date = Carbon::parse('2018-01-01');
+        $day_nr = $date->diffInDays($arbitrary_constant_date);
 
-        return !empty(array_filter($checks));
+        $any = false;
+
+        $any |= $age_in_days < 10;
+        $any |= $age_in_days < 90 && $day_nr % 5 === 0;
+        $any |= $age_in_days < 300 && $day_nr % 30 === 0 ;
+        $any |= $day_nr % 90 === 0;
+
+        return $any;
     }
 
     public function clean()
