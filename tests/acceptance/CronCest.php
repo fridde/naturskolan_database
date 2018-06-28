@@ -313,8 +313,18 @@ class CronCest
         $I->seeNumRecords($initial_pw_count * 2, 'hashes', ['Category' => 3]);
 
         $I->assertNotEmpty($I->getFileNamesFromTempFolder());
-
      }
+
+    public function cleanSqlDatabase(A $I)
+    {
+        // TODO: implement this function
+    }
+
+    public function backupDatabase(A $I)
+    {
+        $this->runTask($I,'create_new_passwords');
+    }
+
 
 
 
