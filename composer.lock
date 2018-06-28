@@ -956,16 +956,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/dumper.git",
-                "reference": "8dfb69939d7009f891d50ccec46a367701da5c49"
+                "reference": "3db071cb7f53994a04e98cc87fc1d155b82b66c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/dumper/zipball/8dfb69939d7009f891d50ccec46a367701da5c49",
-                "reference": "8dfb69939d7009f891d50ccec46a367701da5c49",
+                "url": "https://api.github.com/repos/fridde/dumper/zipball/3db071cb7f53994a04e98cc87fc1d155b82b66c3",
+                "reference": "3db071cb7f53994a04e98cc87fc1d155b82b66c3",
                 "shasum": ""
             },
             "require": {
                 "dg/mysql-dump": "^1.3",
+                "nesbot/carbon": "~1.22",
                 "php": ">=7.0.0"
             },
             "type": "library",
@@ -984,7 +985,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-06-26T10:49:17+00:00"
+            "time": "2018-06-28T17:36:53+00:00"
         },
         {
             "name": "fridde/essentials",
