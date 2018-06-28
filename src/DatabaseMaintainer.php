@@ -31,7 +31,7 @@ class DatabaseMaintainer
                 $date_string = explode('_', $file)[0];
                 $date = new Carbon($date_string);
 
-                if(!$this->isSafe($date)){
+                if(!$this->isWorthSaving($date)){
                     unlink($file);
                 }
             }
@@ -45,7 +45,7 @@ class DatabaseMaintainer
         $school_repo = $this->ORM->getRepository('School');
 
         $oldest_allowed_year = Carbon::today()->year - 2;
-        
+
         foreach($school_repo->findAll() as $school){
            $group_numbers = $school->getGroupNumbers();
            foreach($group_numbers as $startyear => $numbers){
@@ -58,7 +58,7 @@ class DatabaseMaintainer
        $this->ORM->EM->flush();
     }
 
-    private function isSafe(Carbon $date): bool
+    private function isWorthSaving(Carbon $date): bool
     {
         $today = Carbon::today();
         $age_in_days = $date->diffInDays($today);

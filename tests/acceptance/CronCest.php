@@ -320,6 +320,7 @@ class CronCest
         // TODO: implement this function
     }
 
+    // codecept run acceptance CronCest:backupDatabase --steps -f
     public function backupDatabase(A $I)
     {
         $this->runTask($I,'backup_database');
