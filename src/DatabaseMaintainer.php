@@ -28,8 +28,9 @@ class DatabaseMaintainer
         $files = glob(BASE_DIR . '/backup/*');
         foreach($files as $file){
             if(is_readable($file)){
-                $date_string = explode('_', $file)[0];
-                $date = new Carbon($date_string);
+                $file_piece = pathinfo($file, PATHINFO_FILENAME);
+                $date_string = explode('_', $file_piece)[0];
+                $date = Carbon::parse($date_string);
 
                 if(!$this->isWorthSaving($date)){
                     unlink($file);
