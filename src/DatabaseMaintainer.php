@@ -25,7 +25,7 @@ class DatabaseMaintainer
 
     public function cleanOldBackups()
     {
-        $files = scandir(BASE_DIR . '/backup', SCANDIR_SORT_ASCENDING);
+        $files = glob(BASE_DIR . '/backup/*');
         foreach($files as $file){
             if(is_readable($file)){
                 $date_string = explode('_', $file)[0];
