@@ -23,7 +23,7 @@
                     {%- elseif cell.type == "select" -%}
                         <td data-search="{{ cell.value }}" data-order="{{ cell.value }}">
                             <select name="{{ property_name }}">
-                                {% if not cell.value %}
+                                {% if cell.value is null %}
                                     <option selected>Ingen</option>
                                 {% endif %}
                                 {% for option_value, option_text in cell.options %}

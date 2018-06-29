@@ -220,7 +220,7 @@ class Group
         return $this->has('Notes');
     }
 
-    public function getStatus()
+    public function getStatus(): int
     {
         return $this->Status;
     }

@@ -348,6 +348,11 @@ class CronCest
     }
 
     // codecept run acceptance CronCest:backupDatabaseChecker --steps -f
+    /**
+     * @skip
+     * @param AcceptanceTester $I
+     * @throws Exception
+     */
     public function backupDatabaseChecker(A $I)
     {
         $I->emptyFolder('backup');
