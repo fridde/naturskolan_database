@@ -141,8 +141,8 @@ class Task
     private function backupDatabase()
     {
         $DBM = new DatabaseMaintainer();
-        $DBM->backup();
         $DBM->cleanOldBackups();
+        $DBM->backup();
     }
 
     /**

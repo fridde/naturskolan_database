@@ -113,19 +113,19 @@ class AcceptanceTester extends \Codeception\Actor
         $this->setTestDate($modified->toIso8601String());
     }
 
-    public function emptyTempFolder(array $exceptions = ['.gitignore'])
+    public function emptyFolder(string $folder, array $exceptions = ['.gitignore'])
     {
-        foreach($this->getFileNamesFromTempFolder() as $file){
+        foreach($this->getFileNamesFromFolder($folder) as $file){
             if(!in_array($file, $exceptions, true)){
                $this->deleteFile($file);
             }
         }
     }
 
-    public function getFileNamesFromTempFolder()
+    public function getFileNamesFromFolder(string $folder)
     {
-        $temp_dir = codecept_root_dir() . '/temp';
-        return glob($temp_dir . '/*');
+        $dir_path = codecept_root_dir() . '/' . $folder;
+        return glob($dir_path . '/*');
     }
 
 }

@@ -14,7 +14,7 @@ class CronCest
         // codecept run acceptance HelperTestsCest:resetDatabase
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('natu', 'AuthKey'));
-        $I->setCookie('XDEBUG_SESSION', 'PHPSTORM');
+        //$I->setCookie('XDEBUG_SESSION', 'PHPSTORM');
         $I->amOnPage('/admin');
         $I->deleteAllEmails();
 
@@ -75,7 +75,7 @@ class CronCest
     private function runTaskAgain(A $I, $task)
     {
         $I->amOnPage('/cron/');
-        $I->wait(2);
+        $I->wait(1);
     }
 
     // codecept run acceptance CronCest:calendarGetsRebuild --steps -f
@@ -293,7 +293,7 @@ class CronCest
     // codecept run acceptance CronCest:createNewPasswords --steps -f
     public function createNewPasswords(A $I)
     {
-        $I->emptyTempFolder();
+        $I->emptyFolder('temp');
 
         $initial_pw_count = 23;
         $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
@@ -312,7 +312,7 @@ class CronCest
         $this->runTaskAgain($I, 'create_new_passwords');
         $I->seeNumRecords($initial_pw_count * 2, 'hashes', ['Category' => 3]);
 
-        $I->assertNotEmpty($I->getFileNamesFromTempFolder());
+        $I->assertNotEmpty($I->getFileNamesFromFolder('temp'));
      }
 
     public function cleanSqlDatabase(A $I)
@@ -323,7 +323,47 @@ class CronCest
     // codecept run acceptance CronCest:backupDatabase --steps -f
     public function backupDatabase(A $I)
     {
+        $I->emptyFolder('backup');
+        $I->assertEmpty($I->getFileNamesFromFolder('backup'));
+
+        $test_fixture = [
+            0 => 1, //06-01, day_nr: 151
+            4 => 2, //06-05, 154
+            10 => 2, //06-11, 161
+            29 => 2, //06-30, 180 (should stay forever)
+            30 => 3, //07-01, 181
+            119 => 2, //09-28, 245
+        ];
+
+        foreach($test_fixture as $days_to_add => $files_to_expect){
+            $I->changeTestDate('+' . $days_to_add . ' days');
+            if($days_to_add === 0){
+                $this->runTask($I,'backup_database');
+            } else {
+                $this->runTaskAgain($I,'backup_database');
+            }
+            $I->assertCount($files_to_expect, $I->getFileNamesFromFolder('backup'));
+        }
+
+    }
+
+    // codecept run acceptance CronCest:backupDatabaseChecker --steps -f
+    public function backupDatabaseChecker(A $I)
+    {
+        $I->emptyFolder('backup');
         $this->runTask($I,'backup_database');
+
+        foreach(range(1,500) as $days_to_add){
+            $I->changeTestDate('+' . $days_to_add . ' days');
+            $this->runTaskAgain($I,'backup_database');
+            $files = $I->getFileNamesFromFolder('backup');
+
+            $path = codecept_output_dir() . '/database_check_log.txt';
+            $data = "-----\n" . $days_to_add . "\n-----\n";
+            $data .= implode("\n", $files) . "\n\n";
+
+            file_put_contents($path, $data ,FILE_APPEND);
+        }
     }
 
 
