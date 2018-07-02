@@ -40,7 +40,7 @@ class ViewController extends BaseController {
         });
 
         $this->addToDATA($collection);
-        $this->setTemplate('food_order');
+        $this->setTemplate('admin/food_order');
     }
 
     public function viewBus()
@@ -71,7 +71,7 @@ class ViewController extends BaseController {
 
         $this->addToDATA($collection);
         $this->addToDATA('locations', $locations);
-        $this->setTemplate('bus_order');
+        $this->setTemplate('admin/bus_order');
     }
 
 

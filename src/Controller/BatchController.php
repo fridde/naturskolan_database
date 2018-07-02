@@ -42,7 +42,7 @@ class BatchController extends BaseController
             $topics
         );
 
-        $this->setTemplate('add_dates');
+        $this->setTemplate('admin/add_dates');
         $this->addToDATA('topics', $topic_array);
     }
 
@@ -177,7 +177,7 @@ class BatchController extends BaseController
 
 
         $this->addToDATA('date_columns', $date_columns);
-        $this->setTemplate('set_visits');
+        $this->setTemplate('admin/set_visits');
     }
 
     public function setColleagues()
@@ -214,13 +214,13 @@ class BatchController extends BaseController
             $future_visits
         );
         $this->addToDATA($DATA);
-        $this->setTemplate('set_colleagues');
+        $this->setTemplate('admin/set_colleagues');
     }
 
 
     public function setGroupCount()
     {
-        $this->setTemplate('set_group_count');
+        $this->setTemplate('admin/set_group_count');
     }
 
     public function setBookings()
@@ -228,7 +228,7 @@ class BatchController extends BaseController
         /* @var VisitRepository $visit_repo  */
         $visit_repo = $this->N->ORM->getRepository('Visit');
 
-        $this->setTemplate('set_bookings');
+        $this->setTemplate('admin/set_bookings');
         $visits = $visit_repo->findFutureVisits();
 
         $visits = array_filter(

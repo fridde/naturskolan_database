@@ -62,7 +62,7 @@ class Mail extends AbstractMessageController
 
     protected function prepareAdminSummary()
     {
-        $this->setTemplate('admin_summary');
+        $this->setTemplate('mail/admin_summary');
         $receiver = SETTINGS['admin']['summary']['admin_adress'];
         $this->Mailer->set('receiver', $receiver);
         $this->Mailer->set('subject', 'Dagliga sammanfattningen av databasen');
@@ -72,7 +72,7 @@ class Mail extends AbstractMessageController
 
     protected function preparePasswordRecover()
     {
-        $this->setTemplate('password_recover');
+        $this->setTemplate('mail/password_recover');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Naturskolan: Återställning av lösenord');
         $this->Mailer->set('SMTPDebug', 0);
@@ -81,7 +81,7 @@ class Mail extends AbstractMessageController
 
     protected function prepareUpdateProfileReminder()
     {
-        $this->setTemplate('incomplete_profile');
+        $this->setTemplate('mail/incomplete_profile');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Vi behöver mer information från dig!');
         $this->addToDATA($this->getParameter('data'));
@@ -90,7 +90,7 @@ class Mail extends AbstractMessageController
 
     protected function prepareConfirmVisit()
     {
-        $this->setTemplate('confirm_visit');
+        $this->setTemplate('mail/confirm_visit');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Bekräfta ditt besök!');
         $this->addAsVar($this->getParameter('data'));
@@ -115,7 +115,7 @@ class Mail extends AbstractMessageController
         $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
 
-        $this->setTemplate('changed_groups');
+        $this->setTemplate('mail/changed_groups');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
 
         $has_removed = !empty($groups['removed']);
@@ -152,7 +152,7 @@ class Mail extends AbstractMessageController
         );
         $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
-        $this->setTemplate('new_user_welcome');
+        $this->setTemplate('mail/new_user_welcome');
         $this->Mailer->set('receiver', $this->getParameter('receiver'));
         $this->Mailer->set('subject', 'Välkommen i Naturskolans databas');
     }
