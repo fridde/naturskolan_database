@@ -14,7 +14,7 @@ class CronCest
         // codecept run acceptance HelperTestsCest:resetDatabase
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('natu', 'AuthKey'));
-        //$I->setCookie('XDEBUG_SESSION', 'PHPSTORM');
+        $I->setCookie('XDEBUG_SESSION', 'PHPSTORM');
         $I->amOnPage('/admin');
         $I->deleteAllEmails();
 
