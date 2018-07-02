@@ -1,4 +1,4 @@
-{% extends "common/base_mail.twig" %}
+{% extends "mail/common/base_mail.twig" %}
 
 {%- set groups, group_row_padding = DATA.groups, 80 -%}
 {% if groups|length > 1 %}{% set group_row_padding = 10 %}{% endif %}
