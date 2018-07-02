@@ -35,7 +35,7 @@ class AdminController extends BaseController
         $this->addToDATA('tasks', $tasks);
         $this->addToDATA('segments', Group::getSegmentLabels());
         $this->addToDATA('school_id', $this->getParameter('school'));
-        $this->setTemplate('admin_area_overview');
+        $this->setTemplate('admin/admin_area_overview');
     }
 
 }
