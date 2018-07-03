@@ -245,6 +245,7 @@ class BatchController extends BaseController
                     $label = $visit->getTopic()->getShortName().' med ';
                     $label .= $visit->getGroup()->getName();
                     $label .= ' från '.$visit->getGroup()->getSchool()->getName();
+                    // TODO: Decide if row color is needed
 
                     return [
                         'id' => $visit->getId(),
@@ -254,6 +255,7 @@ class BatchController extends BaseController
                         'needs_food' => $visit->needsFoodOrder(),
                         'has_food' => $visit->getFoodIsBooked(),
                         'has_bus' => $visit->getBusIsBooked(),
+                        // here goes row color if needed
                     ];
                 },
                 $visits
