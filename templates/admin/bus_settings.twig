@@ -8,12 +8,12 @@
         <table>
             <tr>
                 <th></th>
-            {% for location in locations  %}
-                <th data-location-id="{{ location.id }}">{{ location.label }}</th>
-            {% endfor %}
+                {% for location in locations %}
+                    <th data-location-id="{{ location.id }}">{{ location.label }}</th>
+                {% endfor %}
             </tr>
-            {% for school in schools  %}
-                <tr data-school-id="{{ school.id }}">
+            {% for school in schools %}
+            <tr data-school-id="{{ school.id }}">
                 <td>{{ school.label }}</td>
                 {% for location in locations %}
                     {% set field_class, icon = 'toggle-label', 'minus' %}
@@ -23,7 +23,8 @@
                     {% endif %}
                     <td class="toggle-label"><i class="fas fa-{{ icon }} fa-2x"></i></td>
                 {% endfor %}
-                </tr>
+            {% endfor %}
+            </tr>
         </table>
     </div>
 {% endblock %}
