@@ -271,7 +271,7 @@ class BatchController extends BaseController
         /* @var LocationRepository $location_repo */
         /* @var School $school */
         $school_repo = $this->N->ORM->getRepository('School');
-        $location_repo = $this->N->ORM->getRepository('Visit');
+        $location_repo = $this->N->ORM->getRepository('Location');
 
         $schools = $school_repo->findAll();
         $locations = $location_repo->findAll();
