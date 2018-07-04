@@ -30,7 +30,7 @@ class School
     /** @Column(type="integer", nullable=true) */
     protected $VisitOrder;
 
-    /** @Column(type="integer") */
+    /** @Column(type="integer", options={"default" : 0}) */
     protected $BusRule = 0;
 
     /** @OneToMany(targetEntity="Group", mappedBy="School") */
@@ -125,14 +125,41 @@ class School
         $this->VisitOrder = $VisitOrder;
     }
 
-    public function getBusRule()
+    public function getBusRule(): int
     {
         return $this->BusRule;
     }
 
-    public function setBusRule($BusRule)
+    public function setBusRule(int $BusRule)
     {
         $this->BusRule = $BusRule;
+    }
+
+    public function addLocationToBusRule(Location $location)
+    {
+        $bus_rule = $this->getBusRule();
+        $location_bus_value = 1 << $location->getBusId();
+
+        $new_bus_rule = $bus_rule | $location_bus_value; // bitwise
+        $this->setBusRule($new_bus_rule);
+    }
+
+    public function removeLocationFromBusRule(Location $location)
+    {
+        $bus_rule = $this->getBusRule();
+        $location_bus_value = 1 << $location->getBusId();
+
+        if($bus_rule & $location_bus_value){  // i.e. needs bus
+            $bus_rule ^= $location_bus_value; // removes the corresponding bit
+        }
+        $this->setBusRule($bus_rule);
+    }
+
+    public function needsBus(Location $location)
+    {
+        $location_bus_value = 1 << $location->getBusId();
+
+        return $this->getBusRule() & $location_bus_value; // bitwise
     }
 
     public function getGroups()

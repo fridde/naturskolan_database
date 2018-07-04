@@ -12,14 +12,14 @@ class SchoolRepository extends CustomRepository
         return $this->getSchoolStaff('natu');
     }
 
-    public function getSchoolStaff($school_id)
+    public function getSchoolStaff(string $school_id)
     {
         return $this->find($school_id)->getUsers()->toArray();
     }
 
     public function getStaffWithNames($school_id = 'natu')
     {
-        $user_names = array_map(function($u){
+        $user_names = array_map(function(User $u){
             return [$u->getId(), $u->getFullName()];
         }, $this->getSchoolStaff($school_id));
         return array_column($user_names, 1, 0);

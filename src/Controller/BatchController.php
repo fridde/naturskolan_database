@@ -4,6 +4,10 @@ namespace Fridde\Controller;
 
 use Fridde\Entities\Group;
 use Fridde\Entities\GroupRepository;
+use Fridde\Entities\Location;
+use Fridde\Entities\LocationRepository;
+use Fridde\Entities\School;
+use Fridde\Entities\SchoolRepository;
 use Fridde\Entities\Topic;
 use Fridde\Entities\TopicRepository;
 use Fridde\Entities\User;
@@ -26,9 +30,6 @@ class BatchController extends BaseController
         parent::handleRequest();
     }
 
-    /**
-     * @route admin/batch/
-     */
     public function addDates()
     {
         /* @var \Fridde\Entities\TopicRepository $topic_repo */
@@ -182,8 +183,8 @@ class BatchController extends BaseController
 
     public function setColleagues()
     {
-        /* @var VisitRepository $visit_repo  */
-        /* @var UserRepository $user_repo  */
+        /* @var VisitRepository $visit_repo */
+        /* @var UserRepository $user_repo */
         $visit_repo = $this->N->ORM->getRepository('Visit');
         $user_repo = $this->N->ORM->getRepository('User');
 
@@ -225,7 +226,7 @@ class BatchController extends BaseController
 
     public function setBookings()
     {
-        /* @var VisitRepository $visit_repo  */
+        /* @var VisitRepository $visit_repo */
         $visit_repo = $this->N->ORM->getRepository('Visit');
 
         $this->setTemplate('admin/set_bookings');
@@ -245,6 +246,7 @@ class BatchController extends BaseController
                     $label = $visit->getTopic()->getShortName().' med ';
                     $label .= $visit->getGroup()->getName();
                     $label .= ' från '.$visit->getGroup()->getSchool()->getName();
+
                     // TODO: Decide if row color is needed
 
                     return [
@@ -261,5 +263,46 @@ class BatchController extends BaseController
                 $visits
             )
         );
+    }
+
+    public function setBusSettings()
+    {
+        /* @var SchoolRepository $school_repo */
+        /* @var LocationRepository $location_repo */
+        /* @var School $school */
+        $school_repo = $this->N->ORM->getRepository('School');
+        $location_repo = $this->N->ORM->getRepository('Visit');
+
+        $schools = $school_repo->findAll();
+        $locations = $location_repo->findAll();
+
+        $this->addToDATA(
+            'locations',
+            array_map(
+                function (Location $l) {
+                    return [
+                        'id' => $l->getId(),
+                        'label' => $l->getName(),
+                    ];
+                },
+                $locations
+            )
+        );
+
+        $school_data = [];
+        foreach($schools as $school){
+            $id = $school->getId();
+            $school_data[$id]['id'] = $id;
+            $school_data[$id]['label'] = $school->getName();
+            $school_data[$id]['bus_needed'] = [];
+            foreach($locations as $location){
+                if($school->needsBus($location)){
+                    $school_data[$id]['bus_needed'][] = $location->getId();
+                }
+            }
+        }
+
+        $this->addToDATA('schools', $school_data);
+        $this->setTemplate('admin/bus_settings');
     }
 }

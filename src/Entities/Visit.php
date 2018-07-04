@@ -332,11 +332,10 @@ class Visit
         if (!$this->hasGroup()) {
             return false;
         }
-        $bus_id = $this->getTopic()->getLocation()->getBusId();
-        $bus_rule = $this->getGroup()->getSchool()->getBusRule();
-        $location_value = empty($bus_id) ? 0 : 2 ** $bus_id;
+        $location = $this->getTopic()->getLocation();
+        $school = $this->getGroup()->getSchool();
 
-        return $bus_rule & $location_value; // bitwise AND !
+        return $school->needsBus($location);
     }
 
     public function needsFoodOrder()

@@ -50,6 +50,9 @@ NAV_SETTINGS:
            label: 'Uppdatera önskat antal grupper per skola'
            url: 'admin/batch/set_group_count'
          -
+           label: 'Redigera bussinställningar'
+           url: 'admin/batch/set_bus_settings'
+         -
            label: 'Redigera kalendern'
            url: 'table/Event'
          -

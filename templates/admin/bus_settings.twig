@@ -1,0 +1,32 @@
+{%- extends "admin/admin_area.twig" -%}
+
+{% set schools, locations = DATA.schools, DATA.locations %}
+
+{% block content %}
+    <h1>Change settings for bus orders</h1>
+    <div class="bus-settings">
+        <table>
+            <tr>
+                <th></th>
+            {% for location in locations  %}
+                <th data-location-id="{{ location.id }}">{{ location.label }}</th>
+            {% endfor %}
+            </tr>
+            {% for school in schools  %}
+                <tr data-school-id="{{ school.id }}">
+                <td>{{ school.label }}</td>
+                {% for location in locations %}
+                    {% set field_class, icon = 'toggle-label', 'minus' %}
+                    {% if location.id in school.bus_needed %}
+                        {% set field_class = field_class ~ ' active' %}
+                        {% set icon = 'bus' %}
+                    {% endif %}
+                    <td class="toggle-label"><i class="fas fa-{{ icon }} fa-2x"></i></td>
+                {% endfor %}
+                </tr>
+        </table>
+    </div>
+{% endblock %}
+
+
+
