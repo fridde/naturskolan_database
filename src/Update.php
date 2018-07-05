@@ -10,7 +10,10 @@ use Fridde\Entities\Group;
 use Carbon\Carbon;
 use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Hash;
+use Fridde\Entities\Location;
+use Fridde\Entities\LocationRepository;
 use Fridde\Entities\School;
+use Fridde\Entities\SchoolRepository;
 use Fridde\Security\Authenticator;
 
 
@@ -40,6 +43,7 @@ class Update extends DefaultUpdate
         'logChange' => ['event', 'trackables'],
         'sliderUpdate' => ['entity_class', 'entity_id', 'property', 'value'],
         'updateVisitOrder' => ['order'],
+        'updateBusRule' => ['school_id', 'location_id', 'needs_bus'],
         'confirmVisit' => ['visit_id'],
         'changeGroupName' => ['entity_id', 'value'],
         'batchSetGroupCount' => ['group_numbers', 'start_year'],
@@ -226,9 +230,27 @@ class Update extends DefaultUpdate
         $this->updateProperty('Group', $entity_id, 'Name', $value)->flush();
     }
 
+    public function updateBusRule(string $school_id, int $location_id, bool $needs_bus)
+    {
+        /* @var SchoolRepository $school_repo  */
+        /* @var LocationRepository $location_repo  */
+        /* @var School $school  */
+        /* @var Location $location  */
+        $school_repo = $this->ORM->getRepository('School');
+        $location_repo = $this->ORM->getRepository('Location');
+
+        $school = $school_repo->find($school_id);
+        $location = $location_repo->find($location_id);
+
+        $school->updateBusRule($location, $needs_bus);
+
+        return $this->flush();
+    }
+
     /**
-     * @param $segment
-     * @param null $start_year
+     * @param string $segment_id
+     * @param int $start_year
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function createMissingGroups(string $segment_id, int $start_year = null)
     {

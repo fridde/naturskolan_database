@@ -21,7 +21,7 @@
                         {% set field_class = field_class ~ ' active' %}
                         {% set icon = 'bus' %}
                     {% endif %}
-                    <td class="toggle-label"><i class="fas fa-{{ icon }} fa-2x"></i></td>
+                    <td class="{{ field_class }}"><i class="fas fa-{{ icon }} fa-2x"></i></td>
                 {% endfor %}
             {% endfor %}
             </tr>

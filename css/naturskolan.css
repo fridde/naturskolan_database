@@ -7,6 +7,10 @@
 FFEC97
 */
 
+:root {
+    --dark-blue: #2B3D54
+}
+
 html,
 body {
     width: 100vw;
@@ -66,27 +70,26 @@ div.set-colleagues table, div.set-colleagues th, div.set-colleagues td {
     font-weight: bold;
 }
 
-div.set-colleagues td.toggle-label {
-    text-align: center;
-    min-width: 40px;
-    cursor: pointer;
-}
-
 div.set-colleagues td.active {
-    border-style: dotted;
-    border-width: thick;
-    border-color: whitesmoke;
+    border: thick dotted whitesmoke;
 }
 
-div.set-bookings table, div.set-bookings th, div.set-bookings td {
+div.set-bookings table, div.set-bookings th, div.set-bookings td,
+div.bus-settings table, div.bus-settings th, div.bus-settings td
+{
     border: 1px solid black;
     border-collapse: collapse;
     padding: 5px;
+    margin: 5px;
 }
 
-div.set-bookings td.toggle-label {
+div.set-colleagues td.toggle-label,
+div.set-bookings td.toggle-label,
+div.bus-settings td.toggle-label,
+div.bus-settings th
+{
     text-align: center;
-    min-width: 40px;
+    min-width: 30px;
     cursor: pointer;
 }
 
@@ -98,6 +101,16 @@ div.set-bookings td.toggle-label.not-needed-td {
 
 div.set-bookings td.active {
     background-color:forestgreen;
+}
+
+div.bus-settings table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+div.bus-settings th {
+    /* transform:rotate(270deg); */
+    overflow-wrap: break-word;
 }
 
 div.toolbar {
@@ -200,7 +213,7 @@ a:focus,
 a:active,
 a.active {
     outline: 0;
-    color: #2B3D54;
+    color: var(--dark-blue);
 }
 
 h1,
@@ -234,21 +247,21 @@ hr.star-primary:after {
 }
 
 hr.star-light {
-    border-color: #fff;
+    border-color: white;
 }
 
 hr.star-light:after {
-    color: #fff;
-    background-color: #2B3D54;
+    color: white;
+    background-color: var(--dark-blue);
 }
 
 hr.star-primary {
-    border-color: #2B3D54;
+    border-color: var(--dark-blue);
 }
 
 hr.star-primary:after {
     color: #2c3e50;
-    background-color: #fff;
+    background-color: white;
 }
 
 
@@ -302,7 +315,7 @@ section h2 {
 }
 
 section.success {
-    color: #fff;
+    color: white;
     background: #18bc9c;
 }
 
@@ -317,9 +330,9 @@ section.success a.active {
 
 .btn-outline {
     margin-top: 15px;
-    border: solid 2px #fff;
+    border: solid 2px white;
     font-size: 20px;
-    color: #fff;
+    color: white;
     background: 0 0;
     transition: all .3s ease-in-out;
 }
@@ -328,9 +341,9 @@ section.success a.active {
 .btn-outline:focus,
 .btn-outline:active,
 .btn-outline.active {
-    border: solid 2px #fff;
+    border: solid 2px white;
     color: #18bc9c;
-    background: #fff;
+    background: white;
 }
 
 .floating-label-form-group {
@@ -355,7 +368,7 @@ section.success a.active {
 }
 
 footer {
-    color: #fff;
+    color: white;
 }
 
 footer h3 {

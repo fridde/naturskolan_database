@@ -36,15 +36,14 @@ $(document).ready(function () {
     /**
      * Configuration of callbacks for several elements
      */
-    $editable = $(".editable");
     $('.group-container .editable').change('group', Edit.change);
     //$('table.editable :input').not(".datepicker").change("tableInput", Edit.change);
     $('table.editable :input').change("tableInput", Edit.change);
 
     $('.visits.set-colleagues td.toggle-label').click('work_schedule', Edit.change);
 
-    $('.set-bookings td.toggle-label:not(.not-needed-td)').click('food_bus_bookings', Edit.change)
-
+    $('.set-bookings td.toggle-label:not(.not-needed-td)').click('food_bus_bookings', Edit.change);
+    $('.bus-settings td.toggle-label').click('bus_settings', Edit.change);
 
     $("#group-change-modal input").change("groupModal", Edit.change);
 

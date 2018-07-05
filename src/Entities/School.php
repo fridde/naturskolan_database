@@ -130,12 +130,12 @@ class School
         return $this->BusRule;
     }
 
-    public function setBusRule(int $BusRule)
+    public function setBusRule(int $BusRule): void
     {
         $this->BusRule = $BusRule;
     }
 
-    public function addLocationToBusRule(Location $location)
+    public function addLocationToBusRule(Location $location): void
     {
         $bus_rule = $this->getBusRule();
         $location_bus_value = 1 << $location->getBusId();
@@ -144,7 +144,7 @@ class School
         $this->setBusRule($new_bus_rule);
     }
 
-    public function removeLocationFromBusRule(Location $location)
+    public function removeLocationFromBusRule(Location $location): void
     {
         $bus_rule = $this->getBusRule();
         $location_bus_value = 1 << $location->getBusId();
@@ -155,14 +155,23 @@ class School
         $this->setBusRule($bus_rule);
     }
 
-    public function needsBus(Location $location)
+    public function updateBusRule(Location $location, bool $needs_bus): void
+    {
+        if($needs_bus){
+            $this->addLocationToBusRule($location);
+        } else {
+            $this->removeLocationFromBusRule($location);
+        }
+    }
+
+    public function needsBus(Location $location): bool
     {
         $location_bus_value = 1 << $location->getBusId();
 
         return $this->getBusRule() & $location_bus_value; // bitwise
     }
 
-    public function getGroups()
+    public function getGroups(): array
     {
         return $this->Groups->toArray();
     }
@@ -232,13 +241,11 @@ class School
     /** @PrePersist */
     public function prePersist()
     {
-        $GLOBALS['CONTAINER']->get('Naturskolan')->setCalendarTo('dirty');
     }
 
     /** @PreUpdate */
     public function preUpdate()
     {
-        $GLOBALS['CONTAINER']->get('Naturskolan')->setCalendarTo('dirty');
     }
 
     /** @PreRemove */

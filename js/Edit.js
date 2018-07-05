@@ -6,10 +6,10 @@ let Edit = {
         if (recentChange !== false) {
             clearTimeout(recentChange);
         }
-        if (typeof event.data === "object") {
+        if (event.data instanceof Object) {
             option = event.data[0];
             specialInfo = event.data[1];
-        } else if (typeof event.data === "string") {
+        } else if (typeof event.data === 'string') {
             option = event.data;
         }
 
@@ -41,8 +41,9 @@ let Edit = {
                     data.return = {'old_id': data.entity_id};
                     data.updateMethod = 'createNewEntity';
                     data.properties = {};
-                    if(typeof $(".additional-information").data() !== 'undefined'){
-                        data.properties = $(".additional-information").data().defaultProperties;
+                    let $addInfo = $(".additional-information");
+                    if(typeof $addInfo.data() !== 'undefined'){
+                        data.properties = $addInfo.data().defaultProperties;
                     }
                     if(typeof $(this).closest("tr").data('properties') !== 'undefined'){
                         let props = JSON.parse($(this).closest("tr").data('properties'));
@@ -108,7 +109,19 @@ let Edit = {
                 data.value = $(this).hasClass('active') ? 1 : 0;
                 break;
 
+            case 'bus_settings':
+                let $td = $(this);
+                let $icon = $td.find('i');
+                let $tr = $icon.closest('tr');
+                $icon.toggleClass('fa-minus').toggleClass('fa-bus');
+                $td.toggleClass('active');
 
+                data.updateMethod = "updateBusRule";
+                data.school_id = $tr.data("school-id");
+                data.location_id = $icon.closest('table')
+                    .find('th').eq($td.index()).data('location-id');
+                data.needs_bus = $td.hasClass('active') ? 1 : 0;
+                break;
         }
 
         if ($(this).prop("type") === "checkbox") {
@@ -124,7 +137,7 @@ let Edit = {
             data.value = valueArray.join();
         }
 
-        if (["Food", "Mobil"].indexOf(data.property) !== -1) {
+        if (["Food", "Mobil"].includes(data.property)) {
             Tooltip.check(this, data);
         }
 

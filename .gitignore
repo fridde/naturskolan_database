@@ -28,5 +28,3 @@ vendor/
 /tests/method_stubs.php
 /tests/table_filler.php
 /tests/sample_data/
-
-/tests/acceptance/future_tests.md
