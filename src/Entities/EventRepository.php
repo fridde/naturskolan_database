@@ -32,7 +32,7 @@ class EventRepository extends CustomRepository
             $event->setSummary($ev->getTitle());
             $event->setDescription($ev->getDescription() ?? '');
             $event->setLocation($ev->getLocation() ?? '');
-            //$event->setUseTimezone(true);
+
             $ics_events[] = $event;
         }
         return $ics_events;

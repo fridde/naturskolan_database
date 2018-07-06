@@ -3,7 +3,7 @@
 namespace Fridde;
 
 use Eluceo\iCal\Component\Calendar as Cal;
-use Eluceo\iCal\Component\Event;
+use Eluceo\iCal\Component\Event as IcalEvent;
 use Carbon\Carbon;
 use Fridde\Entities\EventRepository;
 use Fridde\Entities\Visit;
@@ -31,12 +31,12 @@ class Calendar
         }
     }
 
-    private function createFormattedEventsFromVisits()
+    private function getEventsFromVisitsTable()
     {
         $cal_settings = $this->settings['calendar'];
         $visits = $this->ORM->getRepository('Visit')->findAll();
 
-        $formatted_events = [];
+        $ics_events = [];
 
         foreach ($visits as $visit) {
             /* @var Visit $visit */
@@ -45,13 +45,15 @@ class Calendar
             $start_DT = $date->copy();
             $end_DT = $date->copy();
 
+            $event = new IcalEvent();
+
             if (!$visit->hasGroup()) { // i.e. is an extra visit for backup-purposes
-                $row['whole_day'] = true;
-                $row['start_date_time'] = $start_DT->toIso8601String();
-                $row['end_date_time'] = $end_DT->toIso8601String();
+                $event->setNoTime(true);
+                $event->setDtStart($start_DT);
+                $event->setDtEnd($start_DT);
                 $title = 'Reservtillfälle för '.$topic->getShortName();
-                $row['title'] = $title;
-                $formatted_events[] = $row;
+                $event->setSummary($title);
+                $ics_events[] = $event;
                 continue;
             }
 
@@ -75,11 +77,9 @@ class Calendar
                 $end_DT->hour($cal_settings['default_end_time'][0]);
                 $end_DT->minute($cal_settings['default_end_time'][1]);
             }
-
-            $row['start_date_time'] = $start_DT->toIso8601String();
-            $row['end_date_time'] = $end_DT->toIso8601String();
-
-            $row['whole_day'] = false;
+            $event->setDtStart($start_DT);
+            $event->setDtEnd($end_DT);
+            $event->setNoTime(false);
 
             $title = '';
             if ($visit->hasColleagues()) {
@@ -87,11 +87,11 @@ class Calendar
             }
             $title .= $visit->getLabel('TGSU');
             //temadag med åk från skola (klass, lärare)
-            $row['title'] = $title;
-            $row['location'] = $location->getName();
+            $event->setSummary($title);
+            $event->setLocation($location->getName());
 
             $desc = [];
-            $desc[] = 'Tid: '.$start_DT->toTimeString().'-'.$end_DT->toTimeString();
+            $desc[] = 'Tid: '.$start_DT->format('H:i').'-'.$end_DT->format('H:i');
             $desc[] = 'Lärare: '.$teacher->getFullName();
             $desc[] = 'Årskurs: '.$group->getSegmentLabel();
             $desc[] = 'Mobil: '.$teacher->getMobil();
@@ -104,42 +104,12 @@ class Calendar
             if ($group->hasNotes()) {
                 $desc[] = 'Interna anteckningar: '.$group->getNotes();
             }
-            $row['description'] = $desc;
+            $event->setDescription(implode("\r\n", $desc));
 
-            $formatted_events[] = $row;
+            $ics_events[] = $event;
         }
 
-        return $formatted_events;
-    }
-
-    private function convertToComponents(array $array): array
-    {
-        $component_array = [];
-        foreach ($array as $row) {
-            $event = new Event();
-            $event->setDtStart(new \DateTime($row['start_date_time']));
-            $event->setDtEnd(new \DateTime($row['end_date_time']));
-            if ($row['whole_day']) {
-                $event->setNoTime(true);
-            }
-            $event->setSummary($row['title']);
-            if (!empty($row['description'])) {
-                $event->setDescription(implode("\r\n", $row['description']));
-            }
-            if (!empty($row['location'])) {
-                $event->setLocation($row['location']);
-            }
-
-            //$event->setUseTimezone(true);
-            $component_array[] = $event;
-        }
-        return $component_array;
-    }
-
-    public function getEventsFromVisitsTable(): array
-    {
-        $formatted_events = $this->createFormattedEventsFromVisits();
-        return $this->convertToComponents($formatted_events);
+        return $ics_events;
     }
 
     public function getEventsFromEventsTable(): array
