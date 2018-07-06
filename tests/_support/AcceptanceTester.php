@@ -176,9 +176,8 @@ class AcceptanceTester extends \Codeception\Actor
         $this->wait(2);
     }
 
-    public function seeStringsInFile(string $file_path, ...$strings)
+    public function seeStringsInThisFile(...$strings)
     {
-        $this->openFile($file_path);
         foreach($strings as $string){
             $this->seeInThisFile($string);
         }

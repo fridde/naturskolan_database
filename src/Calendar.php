@@ -130,7 +130,7 @@ class Calendar
                 $event->setLocation($row['location']);
             }
 
-            $event->setUseTimezone(true);
+            //$event->setUseTimezone(true);
             $component_array[] = $event;
         }
         return $component_array;
@@ -156,6 +156,7 @@ class Calendar
         $cal->setName('SigtunaNaturskola Schema');
 
         foreach ($array as $event) {
+            $event->setUseTimezone(true);
             $cal->addComponent($event);
         }
 
