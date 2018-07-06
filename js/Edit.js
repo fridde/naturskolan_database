@@ -2,7 +2,7 @@ let Edit = {
 
     change: function (event) {
         let data = {};
-        let option, specialInfo, $tr;
+        let option, specialInfo, $tr, $td, $icon;
         if (recentChange !== false) {
             clearTimeout(recentChange);
         }
@@ -110,9 +110,9 @@ let Edit = {
                 break;
 
             case 'bus_settings':
-                let $td = $(this);
-                let $icon = $td.find('i');
-                let $tr = $icon.closest('tr');
+                $td = $(this);
+                $icon = $td.find('i');
+                $tr = $icon.closest('tr');
                 $icon.toggleClass('fa-minus').toggleClass('fa-bus');
                 $td.toggleClass('active');
 

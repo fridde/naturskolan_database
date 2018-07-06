@@ -27,7 +27,6 @@ st_per:
           - 'Information om gruppen'
           
 paths:
-    last_staff_row: '//table[@data-entity="User"]//tbody//tr[last()]//input[@name="FirstName"]'
     teacher_for_2a: '//div[@data-entity-id="44"]//select[@name="User"]'
     visits_for_2a: '//div[@data-entity-id="44"]//ul[@class="group-visit-list"]'
     rebuild_calendar_cb: '//input[@name="rebuild_calendar"]'

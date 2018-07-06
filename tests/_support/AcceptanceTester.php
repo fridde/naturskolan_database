@@ -1,6 +1,7 @@
 <?php
 
 use Carbon\Carbon;
+use Codeception\Util\Locator;
 use Symfony\Component\Yaml\Yaml;
 
 
@@ -126,6 +127,27 @@ class AcceptanceTester extends \Codeception\Actor
     {
         $dir_path = codecept_root_dir() . '/' . $folder;
         return glob($dir_path . '/*');
+    }
+
+    public function getAddRowButton()
+    {
+        return Locator::find('button', ['id' => 'add-row-btn']);
+    }
+
+    public function getTableRows(string $entity)
+    {
+        $row_path = '//table[@data-entity="' . $entity . '"]//tbody//tr';
+        return $this->grabMultiple($row_path);
+    }
+
+    public function getFieldFromLastRow(string $entity, string $name)
+    {
+        $path = '//table[@data-entity="';
+        $path .= ucfirst($entity);
+        $path .= '"]//tbody//tr[last()]//input[@name="';
+        $path .= ucfirst($name);
+        $path .= '"]';
+        return $path;
     }
 
 }

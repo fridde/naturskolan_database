@@ -63,15 +63,15 @@ class SchoolPageCest
     public function rowIsAdded(A $I)
     {
         $I->amOnPage('/skola/pers/staff');
-        $row_btn = Locator::find('button', ['id' => 'add-row-btn']);
+        //$row_btn = Locator::find('button', ['id' => 'add-row-btn']);
+        $row_btn = $I->getAddRowButton();
         $I->canSeeElement($row_btn);
         $I->click($row_btn);
         $I->wait(3);
-        $row_path = '//table[@data-entity="User"]//tbody//tr';
-        $rows = $I->grabMultiple($row_path);
+        $rows = $I->getTableRows('User');
         $I->assertCount(9, $rows);
         $num_users_before = $I->grabNumRecords('users');
-        $I->fillField($I->get('paths', 'last_staff_row'), 'Ronald');
+        $I->fillField($I->getFieldFromLastRow('User', 'FirstName'), 'Ronald');
         $I->clickWithLeftButton(null, 0, -50);
         $I->wait(3);
         $I->seeInDatabase('users', ['FirstName' => 'Ronald']);
