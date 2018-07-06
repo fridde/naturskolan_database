@@ -51,42 +51,16 @@ class CronCest
         $I->assertSame(0, $newest_status['rebuild_calendar']);
     }
 
-    private function runTask(A $I, $task)
-    {
-        $I->amOnPage('/admin');
-        $cron_tasks = array_keys($I->get('cron_items'));
-        if(!in_array($task, $cron_tasks, true)){
-            throw new \Exception('The task "'. $task . '" was not defined in the test settings');
-        }
-
-        foreach ($cron_tasks as $cron_task) {
-            $path = '//input[@name="'.$cron_task.'"]';
-            if ($cron_task === $task) {
-                $I->checkOption($path);
-            } else {
-                $I->uncheckOption($path);
-            }
-
-        }
-        $I->amOnPage('/cron/');
-        $I->wait(2);
-    }
-
-    private function runTaskAgain(A $I, $task)
-    {
-        $I->amOnPage('/cron/');
-        $I->wait(1);
-    }
 
     // codecept run acceptance CronCest:calendarGetsRebuild --steps -f
     public function calendarGetsRebuild(A $I)
     {
-        $cal_path = __DIR__.'/../../kalender.ics';
+        $cal_path = codecept_root_dir() .'/kalender.ics';
         if (file_exists($cal_path)) {
             $I->deleteFile($cal_path);
         }
-        $this->runTask($I, 'rebuild_calendar');
-        $I->seeFileFound('kalender.ics', __DIR__.'/../../');
+        $I->runCronTask('rebuild_calendar');
+        $I->seeFileFound('kalender.ics', codecept_root_dir());
         $I->seeInDatabase('systemstatus', ['id' => 'last_run.rebuild_calendar']);
     }
 
@@ -94,30 +68,33 @@ class CronCest
     // codecept run acceptance CronCest:calendarDoesntGetRebuild --steps -f
     public function calendarDoesntGetRebuild(A $I)
     {
-        $cal_path = __DIR__.'/../../kalender.ics';
-        $path_args = ['kalender.ics', __DIR__.'/../../'];
+        $cal_path = codecept_root_dir() .'/kalender.ics';
+        $path_args = ['kalender.ics', codecept_root_dir()];
         $last_run = ['systemstatus', ['Value' => null], ['id' => 'last_run.rebuild_calendar']];
-        $this->runTask($I, 'rebuild_calendar');
+        $I->runCronTask('rebuild_calendar');
         if (file_exists($cal_path)) {
             $I->deleteFile($cal_path);
         }
-        $this->runTask($I, 'rebuild_calendar');
+        $I->runActivatedCronTasks();
         $I->dontSeeFileFound(...$path_args);
+
         $last_rebuild = $I->grabFromDatabase('systemstatus', 'Value', ['id' => 'last_run.rebuild_calendar']);
+
         $last_run[1]['Value'] = Carbon::parse($last_rebuild)->subMinutes(10)->toIso8601String();
         $I->updateInDatabase(...$last_run);
-        $this->runTask($I, 'rebuild_calendar');
+        $I->runActivatedCronTasks();
         $I->dontSeeFileFound(...$path_args);
+
         $last_run[1]['Value'] = Carbon::parse($last_rebuild)->subMinutes(20)->toIso8601String();
         $I->updateInDatabase(...$last_run);
-        $this->runTask($I, 'rebuild_calendar');
+        $I->runActivatedCronTasks();
         $I->seeFileFound(...$path_args);
     }
 
     // codecept run acceptance CronCest:visitConfirmationMessage --steps -f
     public function visitConfirmationMessage(A $I)
     {
-        $this->runTask($I, 'send_visit_confirmation_message');
+        $I->runCronTask('send_visit_confirmation_message');
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
         $mails = [
@@ -141,7 +118,7 @@ class CronCest
     // codecept run acceptance CronCest:adminSummaryMail --steps -f
     public function adminSummaryMail(A $I)
     {
-        $this->runTask($I, 'send_admin_summary_mail');
+        $I->runCronTask('send_admin_summary_mail');
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(1);
 
@@ -168,7 +145,7 @@ class CronCest
     // codecept run acceptance CronCest:sendChangedGroupleaderMail --steps -f
     public function sendChangedGroupleaderMail(A $I)
     {
-        $this->runTask($I, 'send_changed_groupleader_mail');
+        $I->runCronTask('send_changed_groupleader_mail');
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
         //checking that no new mails are sent
@@ -218,7 +195,7 @@ class CronCest
 
         $heinz_welcome_mail = ['User_id' => 102, 'Subject' => 1, 'Carrier' => 0, 'Status' => 1];
         $I->dontSeeInDatabase('messages', $heinz_welcome_mail);
-        $this->runTask($I, 'send_new_user_mail');
+        $I->runCronTask('send_new_user_mail');
         $I->seeInDatabase('messages', $heinz_welcome_mail);
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails($expected_mail_nr);
@@ -245,14 +222,14 @@ class CronCest
         $I->updateInDatabase('users', ['Status' => 1], ['id' => 103]);
         // run task again, but only a few hours after
         $I->changeTestDate('+2 hours');
-        $this->runTaskAgain($I, 'send_new_user_mail');
+        $I->runActivatedCronTasks();
         $I->fetchEmails();
         // expect no new mail
         $I->haveNumberOfUnreadEmails($expected_mail_nr);
 
         // run task again much later
         $I->changeTestDate('+3 days');
-        $this->runTaskAgain($I, 'send_new_user_mail');
+        $I->runActivatedCronTasks();
         $I->fetchEmails();
         // expect one new mail
         $I->haveNumberOfUnreadEmails($expected_mail_nr + 1);
@@ -263,7 +240,7 @@ class CronCest
     {
         $expected_mail_nr = 1 ;
 
-        $this->runTask($I, 'send_update_profile_reminder');
+        $I->runCronTask('send_update_profile_reminder');
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails($expected_mail_nr);
 
@@ -279,13 +256,13 @@ class CronCest
         ];
         $I->checkEmail($mail);
 
-        $this->runTaskAgain($I, 'send_update_profile_reminder');
+        $I->runActivatedCronTasks();
         // no new mail as there is no change
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails($expected_mail_nr);
 
         $I->changeTestDate('+5 days'); // more than the annoyance interval, so the user will be contacted again
-        $this->runTaskAgain($I, 'send_update_profile_reminder');
+        $I->runActivatedCronTasks();
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails($expected_mail_nr + 1);
     }
@@ -298,18 +275,18 @@ class CronCest
         $initial_pw_count = 23;
         $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
 
-        $this->runTask($I,'create_new_passwords');
+        $I->runCronTask('create_new_passwords');
         // the there are no passwords that expire before "today + 1/2 year"
         $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
 
         $I->changeTestDate('+6 weeks'); // now the task is due, but still no old passwords
-        $this->runTaskAgain($I, 'create_new_passwords');
+        $I->runActivatedCronTasks();
         $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
 
 
         $I->changeTestDate('+8 months'); // = 2019-02-01
         // now all passwords should be renewed
-        $this->runTaskAgain($I, 'create_new_passwords');
+        $I->runActivatedCronTasks();
         $I->seeNumRecords($initial_pw_count * 2, 'hashes', ['Category' => 3]);
 
         $I->assertNotEmpty($I->getFileNamesFromFolder('temp'));
@@ -338,9 +315,9 @@ class CronCest
         foreach($test_fixture as $days_to_add => $files_to_expect){
             $I->changeTestDate('+' . $days_to_add . ' days');
             if($days_to_add === 0){
-                $this->runTask($I,'backup_database');
+                $I->runCronTask('backup_database');
             } else {
-                $this->runTaskAgain($I,'backup_database');
+                $I->runActivatedCronTasks();
             }
             $I->assertCount($files_to_expect, $I->getFileNamesFromFolder('backup'));
         }
@@ -356,11 +333,11 @@ class CronCest
     public function backupDatabaseChecker(A $I)
     {
         $I->emptyFolder('backup');
-        $this->runTask($I,'backup_database');
+        $I->runCronTask('backup_database');
 
         foreach(range(1,500) as $days_to_add){
             $I->changeTestDate('+' . $days_to_add . ' days');
-            $this->runTaskAgain($I,'backup_database');
+            $I->runActivatedCronTasks();
             $files = $I->getFileNamesFromFolder('backup');
 
             $path = codecept_output_dir() . '/database_check_log.txt';

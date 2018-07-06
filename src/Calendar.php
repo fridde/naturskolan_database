@@ -6,7 +6,6 @@ use Eluceo\iCal\Component\Calendar as Cal;
 use Eluceo\iCal\Component\Event;
 use Carbon\Carbon;
 use Fridde\Entities\EventRepository;
-use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 
 class Calendar
@@ -14,11 +13,11 @@ class Calendar
     public $settings;
     private $ORM;
 
-    public $formatted_array;
     public $file_name = 'kalender.ics';
 
     public function __construct()
     {
+        date_default_timezone_set('Europe/Stockholm');
         $this->setConfiguration();
         $this->ORM = new ORM();
     }
@@ -32,12 +31,12 @@ class Calendar
         }
     }
 
-    public function rebuild()
+    private function createFormattedEventsFromVisits()
     {
         $cal_settings = $this->settings['calendar'];
         $visits = $this->ORM->getRepository('Visit')->findAll();
 
-        $cal = [];
+        $formatted_events = [];
 
         foreach ($visits as $visit) {
             /* @var Visit $visit */
@@ -52,7 +51,7 @@ class Calendar
                 $row['end_date_time'] = $end_DT->toIso8601String();
                 $title = 'Reservtillfälle för '.$topic->getShortName();
                 $row['title'] = $title;
-                $cal[] = $row;
+                $formatted_events[] = $row;
                 continue;
             }
 
@@ -107,24 +106,15 @@ class Calendar
             }
             $row['description'] = $desc;
 
-            $cal[] = $row;
+            $formatted_events[] = $row;
         }
-        $this->formatted_array = $cal;
 
-        return $cal;
+        return $formatted_events;
     }
 
-
-    public function convertToIcs(array $array)
+    private function convertToComponents(array $array): array
     {
-        /* @var EventRepository $event_repo  */
-        $event_repo = $this->ORM->getRepository('Event');
-
-        date_default_timezone_set('Europe/Stockholm');
-
-        $cal = new Cal('SigtunaNaturskola');
-        $cal->setName('SigtunaNaturskola Schema');
-
+        $component_array = [];
         foreach ($array as $row) {
             $event = new Event();
             $event->setDtStart(new \DateTime($row['start_date_time']));
@@ -141,20 +131,48 @@ class Calendar
             }
 
             $event->setUseTimezone(true);
-            $cal->addComponent($event);
+            $component_array[] = $event;
         }
+        return $component_array;
+    }
 
-        foreach ($event_repo->getEvents() as $ievent) {
-            $cal->addComponent($ievent);
+    public function getEventsFromVisitsTable(): array
+    {
+        $formatted_events = $this->createFormattedEventsFromVisits();
+        return $this->convertToComponents($formatted_events);
+    }
+
+    public function getEventsFromEventsTable(): array
+    {
+        /* @var EventRepository $event_repo  */
+        $event_repo = $this->ORM->getRepository('Event');
+        return $event_repo->getEvents();
+    }
+
+
+    public function convertEventArrayToIcs(array $array): string
+    {
+        $cal = new Cal('SigtunaNaturskola');
+        $cal->setName('SigtunaNaturskola Schema');
+
+        foreach ($array as $event) {
+            $cal->addComponent($event);
         }
 
         return $cal->render();
     }
 
+    public function getAllEvents()
+    {
+        return array_merge(
+            $this->getEventsFromVisitsTable(),
+            $this->getEventsFromEventsTable()
+        );
+    }
+
     public function render()
     {
-        $calendar_array = $this->rebuild();
-        return $this->convertToIcs($calendar_array);
+        return $this->convertEventArrayToIcs($this->getAllEvents());
     }
 
     public function save($file_name = null)

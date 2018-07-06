@@ -232,7 +232,7 @@ class Event
 
     public function isWholeDay()
     {
-        return empty($this->getEndTime()) || empty($this->getStartTime());
+        return empty($this->getStartTime());
     }
 
     public function isValid()

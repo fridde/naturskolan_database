@@ -150,4 +150,38 @@ class AcceptanceTester extends \Codeception\Actor
         return $path;
     }
 
+    public function runCronTask($task)
+    {
+
+        $cron_tasks = array_keys($this->get('cron_items'));
+        if(!in_array($task, $cron_tasks, true)){
+            throw new \Exception('The task "'. $task . '" was not defined in the test settings');
+        }
+
+        $this->amOnPage('/admin');
+        foreach ($cron_tasks as $cron_task) {
+            $path = '//input[@name="'.$cron_task.'"]';
+            if ($cron_task === $task) {
+                $this->checkOption($path);
+            } else {
+                $this->uncheckOption($path);
+            }
+        }
+        $this->runActivatedCronTasks();
+    }
+
+    public function runActivatedCronTasks()
+    {
+        $this->amOnPage('/cron/');
+        $this->wait(2);
+    }
+
+    public function seeStringsInFile(string $file_path, ...$strings)
+    {
+        $this->openFile($file_path);
+        foreach($strings as $string){
+            $this->seeInThisFile($string);
+        }
+    }
+
 }

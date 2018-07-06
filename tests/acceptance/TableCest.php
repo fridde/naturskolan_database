@@ -49,6 +49,11 @@ class TableCest
         $I->wait(2);
         $I->assertSame($initial_event_count + 1, $I->grabNumRecords('events'));
 
+        $I->runCronTask('rebuild_calendar');
+        $I->seeFileFound('kalender.ics', codecept_root_dir());
+
+        $I->seeInThisFile('tandläkaren');
+
     }
 
 
