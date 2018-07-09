@@ -1217,12 +1217,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/utility.git",
-                "reference": "13da005c8d8e4b8fe6225d3b8c7a6953cccf6cfb"
+                "reference": "607b2025e45a9a9ec893454a57a4c5ca2c7d4dee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/utility/zipball/13da005c8d8e4b8fe6225d3b8c7a6953cccf6cfb",
-                "reference": "13da005c8d8e4b8fe6225d3b8c7a6953cccf6cfb",
+                "url": "https://api.github.com/repos/fridde/utility/zipball/607b2025e45a9a9ec893454a57a4c5ca2c7d4dee",
+                "reference": "607b2025e45a9a9ec893454a57a4c5ca2c7d4dee",
                 "shasum": ""
             },
             "require": {
@@ -1245,7 +1245,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-06-17T08:58:19+00:00"
+            "time": "2018-07-09T20:45:34+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
