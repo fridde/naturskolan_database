@@ -16,14 +16,15 @@ class EventRepository extends CustomRepository
         foreach ($all_events as $ev) {
             $event = new IcalEvent();
             $start_date_time = $ev->getStartDate();
-            $end_date_time = $ev->hasEndDate() ? $ev->getEndDate() : $start_date_time;
+            $end_date_time = $ev->hasEndDate() ? $ev->getEndDate() : $start_date_time->copy();
 
             if (!$ev->isWholeDay()) {
-                $start_date_time->setTime($ev->getStartHour(), $ev->getStartMinute());
+                $start_date_time->setTimeFromTimeString($ev->getStartTime());
                 if(!$ev->hasEndTime()){
-                    $end_date_time = T::addDuration($this->getStandardDuration(), $start_date_time);
+                    $end_date_time = $start_date_time->copy();
+                    T::addDuration($this->getStandardDuration(), $end_date_time);
                 } else {
-                    $end_date_time->setTime($ev->getEndHour(), $ev->getEndMinute());
+                    $end_date_time->setTimeFromTimeString($ev->getEndTime());
                 }
             }
             $event->setNoTime($ev->isWholeDay());

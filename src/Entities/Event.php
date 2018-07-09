@@ -146,25 +146,6 @@ class Event
         $this->EndTime = $EndTime;
     }
 
-    public function getStartHour(): int
-    {
-        return (int) substr($this->getStartTime(), 0, -2);
-    }
-
-    public function getStartMinute(): int
-    {
-        return (int) substr($this->getStartTime(), -2);
-    }
-    
-    public function getEndHour(): int
-    {
-        return (int) substr($this->getEndTime(), 0, -2);
-    }
-
-    public function getEndMinute(): int
-    {
-        return (int) substr($this->getEndTime(), -2);
-    }
 
     /**
      * @return string
