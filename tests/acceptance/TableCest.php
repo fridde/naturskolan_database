@@ -52,6 +52,7 @@ class TableCest
         $I->runCronTask('rebuild_calendar');
         $I->seeFileFound('kalender.ics', codecept_root_dir());
 
+        //$I->seeStringsInThisFile('tandläkaren', )
         $I->seeInThisFile('tandläkaren');
 
     }
