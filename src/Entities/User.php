@@ -253,7 +253,7 @@ class User
 
     public function setLastChange($LastChange)
     {
-        if (!is_string($LastChange)) {
+        if ($LastChange instanceof Carbon) {
             $LastChange = $LastChange->toIso8601String();
         }
         $this->LastChange = $LastChange;
@@ -384,7 +384,7 @@ class User
                 } elseif (empty($b->getTimestamp())) {
                     return -1;
                 } else {
-                    return ($a->getTimestamp()->lt($b->getTimestamp())) ? -1 : 1;
+                    return $a->getTimestamp()->lt($b->getTimestamp()) ? -1 : 1;
                 }
 
             }
@@ -469,7 +469,7 @@ class User
     {
     }
 
-    public function getNonNullableFieldNames($class_name = self::class)
+    public function getNonNullableFieldNames(string $class_name = self::class)
     {
 
         $N = $GLOBALS['CONTAINER']->get('Naturskolan');
@@ -484,7 +484,6 @@ class User
         }
 
         return $return;
-
     }
 
 
