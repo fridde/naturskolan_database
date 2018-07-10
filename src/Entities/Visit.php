@@ -227,7 +227,7 @@ class Visit
         $this->Confirmed = (int)$Confirmed;
     }
 
-    public function getConfirmedOptions()
+    public static function getConfirmedOptions()
     {
         return [1 => '']; // This is necessary to create the yes or no checkbox
     }

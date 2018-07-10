@@ -194,17 +194,15 @@ class User
         return $labels[$this->getRole()] ?? null;
     }
 
-    public function getRoleLabels()
+    public static function getRoleLabels()
     {
-        $labels = [
+        return [
             self::ROLE_STAKEHOLDER => 'stakeholder',
             self::ROLE_TEACHER => 'teacher',
             self::ROLE_SCHOOL_MANAGER => 'school_manager',
             self::ROLE_ADMIN => 'admin',
             self::ROLE_SUPERUSER => 'superuser'
         ];
-
-        return $labels;
     }
 
     public function hasRole(int $role)
@@ -230,17 +228,12 @@ class User
 
     public function getStatusString()
     {
-        return $this->getStatusOptions()[$this->getStatus()];
+        return self::getStatusOptions()[$this->getStatus()];
     }
 
-    public function getStatusOptions()
+    public static function getStatusOptions()
     {
-        return array_flip(
-            [
-                'archived' => self::ARCHIVED,
-                'active' => self::ACTIVE,
-            ]
-        );
+        return Group::getStatusOptions();
     }
 
     public function setStatus($Status)
@@ -439,12 +432,12 @@ class User
     public function standardizeMobNr($number = null, $just_check = false)
     {
         $number = !empty($number) ? $number : $this->Mobil;
-        $nr = preg_replace('/[^0-9]/', '', $number);
+        $nr = preg_replace('/[\D]/', '', $number);
         $trim_characters = ['0', '4', '6']; // we need to trim from left to right order
         foreach ($trim_characters as $char) {
             $nr = ltrim($nr, $char);
         }
-        if (in_array(substr($nr, 0, 2), ['70', '72', '73', '76'])) {
+        if (in_array(substr($nr, 0, 2), ['70', '72', '73', '76'], true)) {
             $nr = '+46'.$nr;
             $standardized = true;
         } else {
@@ -459,14 +452,14 @@ class User
     }
 
     /** @PrePersist */
-    public function prePersist($event)
+    public function prePersist()
     {
         $this->setCreatedAt(Carbon::now());
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
     /** @PreUpdate */
-    public function preUpdate($event)
+    public function preUpdate()
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
     }

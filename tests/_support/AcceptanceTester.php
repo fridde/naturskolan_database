@@ -176,7 +176,7 @@ class AcceptanceTester extends \Codeception\Actor
         $this->wait(2);
     }
 
-    public function seeStringsInThisFile(...$strings)
+    public function seeStringsInThisFile(array $strings)
     {
         foreach($strings as $string){
             $this->seeInThisFile($string);

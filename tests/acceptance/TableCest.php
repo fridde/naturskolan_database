@@ -38,7 +38,7 @@ class TableCest
 
 
 
-        $I->fillField($I->getFieldFromLastRow('Event', 'Title'), 'Åka till tandläkaren');
+        $I->fillField($I->getFieldFromLastRow('Event', 'Title'), 'Ekorrens dag enligt FN');
         $I->clickWithLeftButton(null, 0, -50);
         $I->wait(2);
         // as we have only entered the title and not a start date yet
@@ -53,13 +53,15 @@ class TableCest
         $I->seeFileFound('kalender.ics', codecept_root_dir());
 
         $strings = [
-            'SUMMARY:Åka till tandläkaren',
-
+            'SUMMARY:Ekorrens dag',
+            'DTSTART;TZID=Europe/Stockholm:20180801T103700',
+            'DTEND;TZID=Europe/Stockholm:20180801T113700',
+            'SUMMARY:Lösningar med 5a från S:t Pers skola (Tomas S)',
+            'DESCRIPTION:Tid: 08:15-13:30',
+            'preferenser: Halal\, fisk-allergi'
         ];
 
-        //$I->seeStringsInThisFile('tandläkaren', )
-        $I->seeInThisFile('SUMMARY:Åka till tandläkaren');
-
+        $I->seeStringsInThisFile($strings);
     }
 
 

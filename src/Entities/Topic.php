@@ -82,7 +82,7 @@ class Topic
         return $labels[$this->getSegment()];
     }
 
-    public function getSegmentLabels()
+    public static function getSegmentLabels()
     {
         return Group::getSegmentLabels();
     }
@@ -180,7 +180,7 @@ class Topic
 
     public function getIsLektion()
     {
-        return (boolean)$this->IsLektion;
+        return (boolean) $this->IsLektion;
     }
 
     public function isLektion()
@@ -188,7 +188,7 @@ class Topic
         return $this->getIsLektion();
     }
 
-    public function getIsLektionOptions()
+    public static function getIsLektionOptions()
     {
         return [0 => 'No', 1 => 'Yes'];
     }

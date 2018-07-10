@@ -225,14 +225,12 @@ class Group
         return $this->Status;
     }
 
-    public function getStatusOptions()
+    public static function getStatusOptions()
     {
-        return array_flip(
-            [
-                'archived' => self::ARCHIVED,
-                'active' => self::ACTIVE,
-            ]
-        );
+        return [
+                self::ARCHIVED => 'archived',
+                self::ACTIVE => 'active',
+            ];
     }
 
     public function setStatus(int $Status)

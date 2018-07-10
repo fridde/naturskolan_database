@@ -1,0 +1,120 @@
+_sortable_tables: [Topic, School]
+
+_common:
+  id: &id
+    value: getId
+    type: ignored
+  Status: &status
+    options: getStatusOptions
+  LastChange: &last_change
+    type: readonly
+  CreatedAt: &created_at
+    type: readonly
+  School: &school
+    value: getSchoolId
+    options: [School, findAllSchoolLabels]
+  Segment: &segment
+    options: getSegmentLabels
+  VisitOrder: &visit_order
+    type: readonly
+
+
+Event:
+  - id: *id
+  - Title
+  - StartDate:
+      type: date
+      value: getStartDateString
+  - StartTime
+  - EndDate:
+      type: date
+      value: getEndDateString
+  - EndTime
+  - Description
+  - Location
+
+Group:
+  - id: *id
+  - Name
+  - User:
+      value: getUserId
+      options: [User, findAllUsersWithSchools]
+  - StartYear:
+      type: integer
+  - NumberStudents:
+      type: integer
+  - Food:
+      type: textarea
+  - Info:
+      type: textarea
+  - Notes:
+      type: textarea
+  - Status: *status
+  - LastChange: *last_change
+  - CreatedAt: *created_at
+  - School: *school
+  - Segment: *segment
+
+Location:
+  - id: *id
+  - Name
+  - Coordinates
+
+School:
+  - VisitOrder: *visit_order
+  - id: *id
+  - Name
+  - Coordinates
+  - GroupNumbers:
+      value: getGroupNumbersAsString
+      type: readonly
+
+Topic:
+  - id: *id
+  - Segment: *segment
+  - VisitOrder: *visit_order
+  - ShortName
+  - LongName
+  - Location:
+      value: getLocationId
+      options: [Location, findAllLocationLabels]
+  - Food
+  - Url
+  - IsLektion:
+      type: radio
+      options: getIsLektionOptions
+
+User:
+  - id: *id
+  - FirstName
+  - LastName
+  - Mobil:
+      type: tel
+  - Mail:
+      type: email
+  - Role:
+      options: getRoleLabels
+  - Acronym
+  - Status: *status
+  - LastChange: *last_change
+  - CreatedAt: *created_at
+  - School: *school
+
+Visit:
+  - id: *id
+  - Group:
+      value: getGroupId
+      options: [Group, findAllGroupsWithNameAndSchool]
+  - Date:
+      value: getDateString
+      type: date
+  - Topic:
+     value: getTopicId
+     options: [Topic, findLabelsForTopics]
+  - Colleagues:
+      value: getColleaguesAsAcronymString
+      type: readonly
+  - Confirmed:
+      type: checkbox
+      options: getConfirmedOptions
+  - Time
