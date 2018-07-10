@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use AcceptanceTester as A;
 use Codeception\Util\Locator;
 
-// codecept run acceptance AdminCest --steps -f
+// codecept run acceptance TableCest --steps -f
 class TableCest
 {
     public function _before(A $I)
@@ -62,6 +62,49 @@ class TableCest
         ];
 
         $I->seeStringsInThisFile($strings);
+    }
+
+    // codecept run acceptance TableCest:editGroupTable --steps -f
+    public function editGroupTable(A $I)
+    {
+        $initial_group_count = 9;
+
+        $I->amOnPage('/table/Group');
+        $I->assertCount($initial_group_count, $I->getTableRows('Group'));
+        $I->assertSame($initial_group_count, $I->grabNumRecords('groups'));
+
+        $button = $I->getAddRowButton();
+        $I->seeElement($button);
+        $I->click($button);
+        $I->assertCount($initial_group_count + 1, $I->getTableRows('Group'));
+
+
+
+        $I->fillField($I->getFieldFromLastRow('Group', 'Name'), 'Herr Jönssons grupp');
+        $I->clickWithLeftButton(null, 0, -50);
+        $I->wait(2);
+        // as we have only entered the title and not a start date yet
+        $I->assertSame($initial_group_count, $I->grabNumRecords('events'));
+        /*
+                $I->fillField($I->getFieldFromLastRow('Event', 'StartDate'), '2018-08-05');
+                $I->clickWithLeftButton(null, 0, -50);
+                $I->wait(2);
+                $I->assertSame($initial_event_count + 1, $I->grabNumRecords('events'));
+
+                $I->runCronTask('rebuild_calendar');
+                $I->seeFileFound('kalender.ics', codecept_root_dir());
+
+                $strings = [
+                    'SUMMARY:Ekorrens dag',
+                    'DTSTART;TZID=Europe/Stockholm:20180801T103700',
+                    'DTEND;TZID=Europe/Stockholm:20180801T113700',
+                    'SUMMARY:Lösningar med 5a från S:t Pers skola (Tomas S)',
+                    'DESCRIPTION:Tid: 08:15-13:30',
+                    'preferenser: Halal\, fisk-allergi'
+                ];
+
+                $I->seeStringsInThisFile($strings);
+                */
     }
 
 

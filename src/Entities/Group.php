@@ -50,7 +50,7 @@ class Group
     /** @Column(type="string", nullable=true) */
     protected $LastChange;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $CreatedAt;
 
     /** @OneToMany(targetEntity="Visit", mappedBy="Group")     * */
