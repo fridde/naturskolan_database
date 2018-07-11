@@ -61,7 +61,7 @@ div.set-dates li.sortable-disabled {
     cursor: not-allowed;
 }
 
-table.editable {
+table.editable.table-responsive {
     overflow: visible;
 }
 
