@@ -140,11 +140,12 @@ class AcceptanceTester extends \Codeception\Actor
         return $this->grabMultiple($row_path);
     }
 
-    public function getFieldFromLastRow(string $entity, string $name)
+    public function getFieldFromLastRow(string $entity, string $name, string $element_type = 'input')
     {
         $path = '//table[@data-entity="';
         $path .= ucfirst($entity);
-        $path .= '"]//tbody//tr[last()]//input[@name="';
+        $path .= '"]//tbody//tr[last()]//';
+        $path .= $element_type . '[@name="';
         $path .= ucfirst($name);
         $path .= '"]';
         return $path;

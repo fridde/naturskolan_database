@@ -78,13 +78,17 @@ class TableCest
         $I->click($button);
         $I->assertCount($initial_group_count + 1, $I->getTableRows('Group'));
 
-
-
         $I->fillField($I->getFieldFromLastRow('Group', 'Name'), 'Herr Jönssons grupp');
         $I->clickWithLeftButton(null, 0, -50);
         $I->wait(2);
-        // as we have only entered the title and not a start date yet
-        $I->assertSame($initial_group_count, $I->grabNumRecords('events'));
+        // as we have only entered the Name and not the Status
+        $I->assertSame($initial_group_count, $I->grabNumRecords('groups'));
+
+        $I->selectOption($I->getFieldFromLastRow('Group', 'Status', 'select'), 'active');
+        $I->clickWithLeftButton(null, 0, -50);
+        $I->wait(2);
+        // now all required fields are entered
+        $I->assertSame($initial_group_count + 1, $I->grabNumRecords('groups'));
         /*
                 $I->fillField($I->getFieldFromLastRow('Event', 'StartDate'), '2018-08-05');
                 $I->clickWithLeftButton(null, 0, -50);

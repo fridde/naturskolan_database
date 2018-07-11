@@ -125,7 +125,8 @@ class Group
 
     public function getSchoolId()
     {
-        return $this->getSchool()->getId();
+        $school = $this->getSchool();
+        return empty($school) ? null : $school->getId();
     }
 
     public function setSchool($School)
