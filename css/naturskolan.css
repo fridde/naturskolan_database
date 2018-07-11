@@ -61,6 +61,10 @@ div.set-dates li.sortable-disabled {
     cursor: not-allowed;
 }
 
+table.editable {
+    overflow: visible;
+}
+
 div.set-colleagues table, div.set-colleagues th, div.set-colleagues td {
     border: 1px solid black;
     border-collapse: collapse;
