@@ -66,10 +66,10 @@ class Calendar
                 $time = $visit->getTimeAsArray();
                 $start_DT->hour($time['start']['hh'])->minute($time['start']['mm']);
                 if (empty($time['end'])) {
+                    $end_DT = $start_DT->copy();
                     $dur = $is_lektion
                         ? $cal_settings['lektion_duration']
                         : $cal_settings['default_event_duration'];
-                    $end_DT = $start_DT->copy();
                     Timing::addDuration($dur, $end_DT);
                 } else {
                     $end_DT->hour($time['end']['hh'])->minute($time['end']['mm']);
