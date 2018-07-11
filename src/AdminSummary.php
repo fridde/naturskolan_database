@@ -394,7 +394,7 @@ class AdminSummary
             if ($not_checked && $in_future) {
                 if ($check_bus || $check_food) {
                     $row = $visit->getLabel().' har ';
-                    if ($visit->getStatus() === Visit::ARCHIVED) {
+                    if ($visit->getStatus() === Visit::STATUS_ARCHIVED) {
                         $row .= ' tagits bort.';
                     } else {
                         $row .= ' förändrats.';

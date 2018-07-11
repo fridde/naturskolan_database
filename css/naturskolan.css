@@ -62,7 +62,7 @@ div.set-dates li.sortable-disabled {
 }
 
 table.editable.table-responsive {
-    overflow: visible;
+    overflow-x: visible;
 }
 
 div.set-colleagues table, div.set-colleagues th, div.set-colleagues td {

@@ -143,7 +143,7 @@ class Group
     {
         $labels = self::getSegmentLabels();
 
-        return $labels[$this->Segment];
+        return $labels[$this->Segment] ?? null;
     }
 
     public static function getSegmentLabels()

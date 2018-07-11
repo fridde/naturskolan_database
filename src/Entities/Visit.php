@@ -35,13 +35,13 @@ class Visit
     protected $Colleagues;
 
     /** @Column(type="integer") */
-    protected $Confirmed = self::UNCONFIRMED;
+    protected $Confirmed = self::IS_UNCONFIRMED;
 
     /** @Column(type="string", nullable=true) */
     protected $Time;
 
     /** @Column(type="integer") */
-    protected $Status = self::ACTIVE;
+    protected $Status = self::STATUS_ACTIVE;
 
     /** @Column(type="integer", nullable=true) */
     protected $BusIsBooked;
@@ -51,10 +51,11 @@ class Visit
 
     public const AUTO_CREATED = ['Confirmed', 'Status'];
 
-    public const ARCHIVED = 0;
-    public const ACTIVE = 1;
-    public const UNCONFIRMED = 0;
-    public const CONFIRMED = 1;
+    public const STATUS_ARCHIVED = 0;
+    public const STATUS_ACTIVE = 1;
+
+    public const IS_UNCONFIRMED = 0;
+    public const IS_CONFIRMED = 1;
 
     public function __construct()
     {
@@ -219,12 +220,12 @@ class Visit
 
     public function getConfirmed()
     {
-        return $this->Confirmed ?? self::UNCONFIRMED;
+        return $this->Confirmed ?? self::IS_UNCONFIRMED;
     }
 
     public function setConfirmed($Confirmed)
     {
-        $this->Confirmed = (int)$Confirmed;
+        $this->Confirmed = (int) $Confirmed;
     }
 
     public static function getConfirmedOptions()
@@ -256,7 +257,7 @@ class Visit
         return !empty($this->Time);
     }
 
-    public function timeStringToArray($time_string)
+    public function timeStringToArray(string $time_string): array
     {
         $parts = explode('-', $time_string);
         $parts = preg_replace('%\D%', '', $parts); // remove all non-digits
@@ -281,7 +282,7 @@ class Visit
      */
     public function getStatus()
     {
-        return $this->Status ?? self::ACTIVE;
+        return $this->Status ?? self::STATUS_ACTIVE;
     }
 
     /**

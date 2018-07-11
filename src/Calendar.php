@@ -62,12 +62,15 @@ class Calendar
             $location = $topic->getLocation();
             $is_lektion = $topic->getIsLektion();
 
-            if ($is_lektion && $visit->hasTime()) {
+            if ($visit->hasTime()) {
                 $time = $visit->getTimeAsArray();
                 $start_DT->hour($time['start']['hh'])->minute($time['start']['mm']);
                 if (empty($time['end'])) {
-                    $dur = $cal_settings['lektion_duration'];
-                    $end_DT = $start_DT->copy()->addMinutes($dur);
+                    $dur = $is_lektion
+                        ? $cal_settings['lektion_duration']
+                        : $cal_settings['default_event_duration'];
+                    $end_DT = $start_DT->copy();
+                    Timing::addDuration($dur, $end_DT);
                 } else {
                     $end_DT->hour($time['end']['hh'])->minute($time['end']['mm']);
                 }
@@ -114,8 +117,9 @@ class Calendar
 
     public function getEventsFromEventsTable(): array
     {
-        /* @var EventRepository $event_repo  */
+        /* @var EventRepository $event_repo */
         $event_repo = $this->ORM->getRepository('Event');
+
         return $event_repo->getEvents();
     }
 
@@ -153,7 +157,7 @@ class Calendar
         if (!$file_name) {
             throw new \Exception('Tried to save the Calendar without a file name.');
         }
-        $file_name = empty($dir) ? $file_name : $dir. '/' . $file_name;
+        $file_name = empty($dir) ? $file_name : $dir.'/'.$file_name;
 
         return file_put_contents($file_name, $this->render());
     }
@@ -161,6 +165,7 @@ class Calendar
     public function dateStringToArray($date_string)
     {
         $d = new Carbon($date_string);
+
         return [$d->year, $d->month, $d->day];
     }
 
