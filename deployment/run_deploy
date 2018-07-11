@@ -19,7 +19,7 @@ STAGING_PROJECT_PATH=$STAGING_PATH/$PROJECT_NAME
 GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
 
 if [ $SKIP -lt 1 ]; then
-    read -p "Backup DB and export to test-DB..."
+    read -p "[1] Backup DB and export to test-DB..."
     cd $PROJECT_PATH/misc/scripts
 	set -x
     php -e export_database.php default > $TESTDB_PATH
@@ -34,7 +34,7 @@ if [ $SKIP -lt 1 ]; then
 fi
 
 if [ $SKIP -lt 2 ]; then
-   read -p "Check git status of test repo..."
+   read -p "[2] Checking git status of test repo..."
    cd $TESTING_PATH/$PROJECT_NAME
    if [ -n "$(git status -s)" ]; then
        git status
@@ -52,7 +52,7 @@ if [ $SKIP -lt 2 ]; then
 fi
 
 if [ $SKIP -lt 3 ]; then
-    read -p 'Synchronizing the work in vendor with the toolbox...'
+    read -p '[3] Synchronizing the work in vendor with the toolbox...'
     cd ~    
 	filecomparer
 	
@@ -65,21 +65,14 @@ if [ $SKIP -lt 3 ]; then
 fi
 
 if [ $SKIP -lt 4 ]; then    
-	read -p "Updating composer packages in dev directory..."
+	read -p "[4] Updating composer packages in dev directory..."
     cd $PROJECT_PATH
     composer update fridde/*
     composer install
+	read -p 'Checking git status of dev repo...'	
     if [ -n "$(git status -s)" ]; then
 		git status
-		while true; do
-			read -p "Is the .gitignore file correctly configured?  " yn
-				case $yn in
-					[Yy]* ) break;;
-					[Nn]* ) exit;;
-					* ) echo "Please answer Y or N!";;
-			esac
-		done		
-		read -p "Adding files from dev repo..."
+		read -p 'Proceed if your .gitignore file is configured correctly!'		
 		git add -A
 		git commit -m "More work"
 		git push
@@ -87,7 +80,7 @@ if [ $SKIP -lt 4 ]; then
 fi
 
 if [ $SKIP -lt 5 ]; then    
-	read -p "Preparing and backing up the test directory..."
+	read -p "[5] Preparing and backing up the test directory..."
 	cd $TESTING_PATH
     delete_old_files
     quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME &
@@ -104,7 +97,7 @@ if [ $SKIP -lt 5 ]; then
 fi
 
 if [ $SKIP -lt 6 ]; then
-    read -p "Setting up local testing environment..."    
+    read -p "[6] Setting up local testing environment..."    
     cd ~/bin_win
     cmd /C start java -jar selenium-server.jar &
     cmd /C start MailHog.exe &
@@ -114,7 +107,7 @@ if [ $SKIP -lt 6 ]; then
 fi
 
 if [ $SKIP -lt 7 ]; then
-    echo 'Creating the local staging copy...'
+    echo '[7] Creating the local staging copy...'
     cd $STAGING_PATH    
     quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
     chmod -R 0777 $PROJECT_NAME && mv $PROJECT_NAME "dir_to_delete"
@@ -127,6 +120,7 @@ if [ $SKIP -lt 7 ]; then
 fi
 
 if [ $SKIP -lt 8 ]; then
+	read -p '[8] Copying deployment settings from dev to deploy...'
 	cd $STAGING_PROJECT_PATH    
     cp {$PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment.ini
     cp $PROJECT_PATH/config/settings_prod.yml $STAGING_PROJECT_PATH/config/settings_local.yml	
