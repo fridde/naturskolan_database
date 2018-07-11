@@ -95,19 +95,6 @@ class TableCest
                 $I->wait(2);
                 $I->assertSame($initial_event_count + 1, $I->grabNumRecords('events'));
 
-                $I->runCronTask('rebuild_calendar');
-                $I->seeFileFound('kalender.ics', codecept_root_dir());
-
-                $strings = [
-                    'SUMMARY:Ekorrens dag',
-                    'DTSTART;TZID=Europe/Stockholm:20180801T103700',
-                    'DTEND;TZID=Europe/Stockholm:20180801T113700',
-                    'SUMMARY:Lösningar med 5a från S:t Pers skola (Tomas S)',
-                    'DESCRIPTION:Tid: 08:15-13:30',
-                    'preferenser: Halal\, fisk-allergi'
-                ];
-
-                $I->seeStringsInThisFile($strings);
                 */
     }
 
