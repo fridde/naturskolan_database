@@ -54,11 +54,19 @@ class TableCest
 
         $strings = [
             'SUMMARY:Ekorrens dag',
-            'DTSTART;TZID=Europe/Stockholm:20180801T103700',
-            'DTEND;TZID=Europe/Stockholm:20180801T113700',
+            'DTSTART;TZID=Europe/Stockholm:20180801T103700', //custom event with custom start
+            'DTEND;TZID=Europe/Stockholm:20180801T123700', // custom event with default duration
             'SUMMARY:Lösningar med 5a från S:t Pers skola (Tomas S)',
             'DESCRIPTION:Tid: 08:15-13:30',
-            'preferenser: Halal\, fisk-allergi'
+            'preferenser: Halal\, fisk-allergi',
+            'DTSTART;TZID=Europe/Stockholm:20190214T143600',  // custom timed start time
+            'DTEND;TZID=Europe/Stockholm:20190214T153600',  // default duration for lektion
+            'DTSTART;TZID=Europe/Stockholm:20190213T145300', // custom start (with defined end)
+            'DTEND;TZID=Europe/Stockholm:20190213T160100', // custom end
+            'DTSTART;TZID=Europe/Stockholm:20181113T062500', // custom start with 3 digits
+            'DTEND;TZID=Europe/Stockholm:20181113T095500',  // custom end with 3 digits
+            'DTSTART;TZID=Europe/Stockholm:20181217T090700', // just a custom start
+            'DTEND;TZID=Europe/Stockholm:20181217T110700' // default duration for visit
         ];
 
         $I->seeStringsInThisFile($strings);
@@ -89,13 +97,6 @@ class TableCest
         $I->wait(2);
         // now all required fields are entered
         $I->assertSame($initial_group_count + 1, $I->grabNumRecords('groups'));
-        /*
-                $I->fillField($I->getFieldFromLastRow('Event', 'StartDate'), '2018-08-05');
-                $I->clickWithLeftButton(null, 0, -50);
-                $I->wait(2);
-                $I->assertSame($initial_event_count + 1, $I->grabNumRecords('events'));
-
-                */
     }
 
 
