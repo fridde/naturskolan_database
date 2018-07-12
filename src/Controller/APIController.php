@@ -128,4 +128,9 @@ class APIController extends BaseController
         $this->setReturnType(self::RETURN_JSON);
     }
 
+    public function updateReceivedSMS()
+    {
+        // TODO: Implement this function using SMS::updateReceivedSms
+    }
+
 }
