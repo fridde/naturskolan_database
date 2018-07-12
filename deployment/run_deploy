@@ -30,7 +30,7 @@ if [ $SKIP -lt 1 ]; then
 	set +x
     read -p "Delete old files..."
     cd ../SQL_data
-    delete_old_files
+    delete_old_files.py
 fi
 
 if [ $SKIP -lt 2 ]; then
@@ -82,7 +82,7 @@ fi
 if [ $SKIP -lt 5 ]; then    
 	read -p "[5] Preparing and backing up the test directory..."
 	cd $TESTING_PATH
-    delete_old_files
+    delete_old_files.py
     quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME &
 	echo "Wait for rsync to be finished before continuing"
 	echo ""
@@ -112,7 +112,7 @@ if [ $SKIP -lt 7 ]; then
     quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
     chmod -R 0777 $PROJECT_NAME && mv $PROJECT_NAME "dir_to_delete"
 	rm -rf "dir_to_delete" &
-	delete_old_files
+	delete_old_files.py
 
     git clone --depth 1 $GITHUB_PROJECT
     cd $PROJECT_NAME
