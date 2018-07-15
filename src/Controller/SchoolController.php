@@ -11,7 +11,6 @@ use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 use Fridde\Security\Authorizer;
 use Fridde\Timing as T;
-use Fridde\Utility;
 
 class SchoolController extends BaseController
 {

@@ -49,7 +49,7 @@ class Naturskolan
         $this->ORM = new ORM();
         $this->PWH = new PWH();
         $this->Auth = new Authenticator($this->ORM, $this->PWH);
-        $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber());
+        $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber($this->ORM));
     }
 
     /**

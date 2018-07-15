@@ -5,7 +5,8 @@ namespace Fridde\Entities;
 use Doctrine\Common\Collections\ArrayCollection;
 use Carbon\Carbon;
 use Fridde\Naturskolan;
-use Fridde\Update;
+//use Doctrine\ORM\Mapping as ORM;
+use Fridde\Annotations\Loggable;
 
 /**
  * @Entity(repositoryClass="Fridde\Entities\GroupRepository")
@@ -17,7 +18,8 @@ class Group
     /** @Id @Column(type="integer") @GeneratedValue */
     protected $id;
 
-    /** @Column(type="string", nullable=true) */
+    /** @Column(type="string", nullable=true)
+     * @Loggable */
     protected $Name;
 
     /** @ManyToOne(targetEntity="User", inversedBy="Groups")     * */

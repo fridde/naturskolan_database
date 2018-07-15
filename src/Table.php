@@ -116,7 +116,7 @@ class Table
     private function ensureAtLeastOne(array $entities)
     {
         if (empty($entities)) {
-            $class_name = $this->getClassName();
+            $class_name = $this->getFullyQualifiedClassName();
             $entities[] = new $class_name();
         }
 

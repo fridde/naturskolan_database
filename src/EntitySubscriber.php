@@ -19,6 +19,14 @@ class EntitySubscriber implements EventSubscriber
     private $UoW;
     /* @var ChangeRepository $change_repo */
     private $change_repo;
+    /* @var ORM $ORM  */
+    private $ORM;
+
+    public function __construct(ORM $ORM)
+    {
+        $this->ORM = $ORM;
+    }
+
 
     private $changes_to_log = [
         'Visit' => ['Group', 'Date', 'Time', 'Topic'],
@@ -48,13 +56,12 @@ class EntitySubscriber implements EventSubscriber
     {
         $loggable_changes = [];
         $UoW_entities = [
-            'update' => $this->UoW->getScheduledEntityUpdates(),
-            'insertion' => $this->UoW->getScheduledEntityInsertions(),
-            'deletion' => $this->UoW->getScheduledEntityDeletions(),
+            Change::UPDATE => $this->UoW->getScheduledEntityUpdates(),
+            Change::INSERTION => $this->UoW->getScheduledEntityInsertions(),
+            Change::DELETION => $this->UoW->getScheduledEntityDeletions(),
         ];
 
-        foreach ($UoW_entities as $change_type => $entity_array) {
-            $change_type_int = constant(Change::class . '::' . strtoupper($change_type));
+        foreach ($UoW_entities as $change_type_int => $entity_array) {
             foreach ($entity_array as $entity) {
                 if($change_type_int === Change::INSERTION){
                     continue;
@@ -72,7 +79,9 @@ class EntitySubscriber implements EventSubscriber
                     $loggable_changes[] = $change;
                 } elseif ($change_type_int === Change::UPDATE){
 
-                    $loggable_properties = $this->changes_to_log[$class_name] ?? [];
+                    //$loggable_properties = $this->changes_to_log[$class_name] ?? [];
+                    $loggable_properties = $this->getLoggablePropertiesFromClass(get_class($entity));
+
                     $change_set = $this->UoW->getEntityChangeSet($entity);
                     $common_properties = array_intersect($loggable_properties, array_keys($change_set));
                     foreach ($common_properties as $property_name) {
@@ -91,6 +100,25 @@ class EntitySubscriber implements EventSubscriber
         }
 
         return $loggable_changes;
+    }
+
+    private function getLoggablePropertiesFromClass(string $class): array
+    {
+        $reflectionClass = new \ReflectionClass($class);
+        $class_properties = $reflectionClass->getProperties();
+        $reader = $this->ORM->getAnnotationReader();
+
+        $loggable_properties = [];
+
+        foreach($class_properties as $property){
+            $annot = $reader->getPropertyAnnotation($property, 'Loggable');
+            if(!empty($annot)){
+                $loggable_properties[] = $property->getName();
+            }
+        }
+
+        return $loggable_properties;
+
     }
 
     private function standardizeOldValue($old_value)

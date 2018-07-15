@@ -1109,12 +1109,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/orm.git",
-                "reference": "3a705c3ad7fae9aa35274df5d8fb5c6d1212ca37"
+                "reference": "163fc79afc9a4e43102fb34f4431b1e9021835a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/orm/zipball/3a705c3ad7fae9aa35274df5d8fb5c6d1212ca37",
-                "reference": "3a705c3ad7fae9aa35274df5d8fb5c6d1212ca37",
+                "url": "https://api.github.com/repos/fridde/orm/zipball/163fc79afc9a4e43102fb34f4431b1e9021835a1",
+                "reference": "163fc79afc9a4e43102fb34f4431b1e9021835a1",
                 "shasum": ""
             },
             "require": {
@@ -1138,7 +1138,7 @@
                 }
             ],
             "description": "A simple wrapper for Doctrine's data wrapper. A wrapper wrapper!",
-            "time": "2018-07-10T16:32:23+00:00"
+            "time": "2018-07-15T09:52:35+00:00"
         },
         {
             "name": "fridde/slacker",
@@ -1217,12 +1217,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/utility.git",
-                "reference": "607b2025e45a9a9ec893454a57a4c5ca2c7d4dee"
+                "reference": "cbc6d8b18697cdabdecf421500112b56d56e44a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/utility/zipball/607b2025e45a9a9ec893454a57a4c5ca2c7d4dee",
-                "reference": "607b2025e45a9a9ec893454a57a4c5ca2c7d4dee",
+                "url": "https://api.github.com/repos/fridde/utility/zipball/cbc6d8b18697cdabdecf421500112b56d56e44a0",
+                "reference": "cbc6d8b18697cdabdecf421500112b56d56e44a0",
                 "shasum": ""
             },
             "require": {
@@ -1245,7 +1245,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-07-09T20:45:34+00:00"
+            "time": "2018-07-15T09:51:56+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

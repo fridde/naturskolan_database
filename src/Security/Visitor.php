@@ -66,6 +66,7 @@ class Visitor
         $key = $this->getSessionKey() ?? $this->getCookieKey();
         $this->setUserFromKey($key);
         $this->setSchoolFromKey($key);
+        echo "";
     }
 
     public function setUserFromKey(string $key = null)
