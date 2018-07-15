@@ -1,19 +1,20 @@
 <?php
+
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
 
 /**
-* @Entity(repositoryClass="Fridde\Entities\ChangeRepository")
-* @Table(name="changes")
-* @HasLifecycleCallbacks
-*/
+ * @Entity(repositoryClass="Fridde\Entities\ChangeRepository")
+ * @Table(name="changes")
+ * @HasLifecycleCallbacks
+ */
 class Change
 {
-    /** @Id @Column(type="integer") @GeneratedValue    */
+    /** @Id @Column(type="integer") @GeneratedValue */
     protected $id;
 
-    /** @Column(type="integer")    */
+    /** @Column(type="integer") */
     protected $Type;
 
     /** @Column(type="string") */
@@ -34,12 +35,19 @@ class Change
     /** @Column(type="string") */
     protected $Timestamp;
 
-    public const DELETION = -1;
-    public const UPDATE = 0;
-    public const INSERTION = 1;
+    public const TYPE_DELETION = -1;
+    public const TYPE_UPDATE = 0;
+    public const TYPE_INSERTION = 1;
 
-    public function getId(){return $this->id;}
-    public function setId($id){$this->id = $id;}
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
 
     /**
      * @return integer
@@ -60,34 +68,67 @@ class Change
     public function typeToString(int $type)
     {
         $types = [
-            'deletion' => self::DELETION,
-            'update' => self::UPDATE,
-            'insertion' => self::INSERTION
+            self::TYPE_DELETION => 'deletion',
+            self::TYPE_UPDATE => 'update',
+            self::TYPE_INSERTION => 'insertion',
         ];
 
-        return array_search($type, $types, true) ?: null;
+        return $types[$type] ?? null;
     }
 
 
+    public function getEntityClass()
+    {
+        return $this->EntityClass;
+    }
 
-    public function getEntityClass(){return $this->EntityClass;}
-    public function setEntityClass($EntityClass){$this->EntityClass = $EntityClass;}
-    public function getEntityId(){return $this->EntityId;}
-    public function setEntityId($EntityId){$this->EntityId = $EntityId;}
-    public function getProperty(){return $this->Property;}
-    public function setProperty($Property){$this->Property = $Property;}
-    public function getOldValue(){return $this->OldValue;}
-    public function setOldValue($OldValue){$this->OldValue = $OldValue;}
+    public function setEntityClass($EntityClass)
+    {
+        $this->EntityClass = $EntityClass;
+    }
+
+    public function getEntityId()
+    {
+        return $this->EntityId;
+    }
+
+    public function setEntityId($EntityId)
+    {
+        $this->EntityId = $EntityId;
+    }
+
+    public function getProperty()
+    {
+        return $this->Property;
+    }
+
+    public function setProperty($Property)
+    {
+        $this->Property = $Property;
+    }
+
+    public function getOldValue()
+    {
+        return $this->OldValue;
+    }
+
+    public function setOldValue($OldValue)
+    {
+        $this->OldValue = $OldValue;
+    }
+
     public function getProcessed()
     {
-        if(is_string($this->Processed)){
+        if (is_string($this->Processed)) {
             return new Carbon($this->Processed);
         }
+
         return $this->Processed;
     }
+
     public function setProcessed($Processed)
     {
-        if(!is_string($Processed)){
+        if ($Processed instanceof Carbon) {
             $Processed = $Processed->toIso8601String();
         }
         $this->Processed = $Processed;
@@ -95,15 +136,16 @@ class Change
 
     public function getTimestamp()
     {
-        if(is_string($this->Timestamp)){
+        if (is_string($this->Timestamp)) {
             return new Carbon($this->Timestamp);
         }
+
         return $this->Timestamp;
     }
 
     public function setTimestamp($Timestamp)
     {
-        if($Timestamp instanceof Carbon){
+        if ($Timestamp instanceof Carbon) {
             $Timestamp = $Timestamp->toIso8601String();
         }
         $this->Timestamp = $Timestamp;
@@ -114,9 +156,15 @@ class Change
     {
         $this->setTimestamp(Carbon::now());
     }
+
     /** @PreUpdate */
-    public function preUpdate(){}
+    public function preUpdate()
+    {
+    }
+
     /** @PreRemove */
-    public function preRemove(){}
+    public function preRemove()
+    {
+    }
 
 }

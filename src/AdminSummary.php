@@ -373,7 +373,7 @@ class AdminSummary
         $visit_repo = $this->N->ORM->getRepository('Visit');
 
         $crit = [['EntityClass', 'Visit']];
-        $crit[] = ['Type', Change::UPDATE];
+        $crit[] = ['Type', Change::TYPE_UPDATE];
         $crit[] = ['in', 'Property', ['Group', 'Topic', 'Time']];
 
         $visit_changes = $change_repo->findNewChanges($crit);
