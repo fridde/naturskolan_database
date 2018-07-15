@@ -56,20 +56,20 @@ class EntitySubscriber implements EventSubscriber
     {
         $loggable_changes = [];
         $UoW_entities = [
-            Change::UPDATE => $this->UoW->getScheduledEntityUpdates(),
-            Change::INSERTION => $this->UoW->getScheduledEntityInsertions(),
-            Change::DELETION => $this->UoW->getScheduledEntityDeletions(),
+            Change::TYPE_UPDATE => $this->UoW->getScheduledEntityUpdates(),
+            Change::TYPE_INSERTION => $this->UoW->getScheduledEntityInsertions(),
+            Change::TYPE_DELETION => $this->UoW->getScheduledEntityDeletions(),
         ];
 
         foreach ($UoW_entities as $change_type_int => $entity_array) {
             foreach ($entity_array as $entity) {
-                if($change_type_int === Change::INSERTION){
+                if($change_type_int === Change::TYPE_INSERTION){
                     continue;
                 }
                 $class_name = $this->getShortClassName($entity);
                 $entity_id = $entity->getId();
 
-                if($change_type_int === Change::DELETION){
+                if($change_type_int === Change::TYPE_DELETION){
 
                     $change = new Change();
                     $change->setType($change_type_int);
@@ -77,7 +77,7 @@ class EntitySubscriber implements EventSubscriber
                     $change->setEntityId($entity_id);
 
                     $loggable_changes[] = $change;
-                } elseif ($change_type_int === Change::UPDATE){
+                } elseif ($change_type_int === Change::TYPE_UPDATE){
 
                     //$loggable_properties = $this->changes_to_log[$class_name] ?? [];
                     $loggable_properties = $this->getLoggablePropertiesFromClass(get_class($entity));
@@ -111,6 +111,7 @@ class EntitySubscriber implements EventSubscriber
         $loggable_properties = [];
 
         foreach($class_properties as $property){
+            $annotations = $reader->getPropertyAnnotations($property);
             $annot = $reader->getPropertyAnnotation($property, 'Loggable');
             if(!empty($annot)){
                 $loggable_properties[] = $property->getName();

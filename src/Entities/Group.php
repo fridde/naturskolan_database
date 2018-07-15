@@ -19,7 +19,8 @@ class Group
     protected $id;
 
     /** @Column(type="string", nullable=true)
-     * @Loggable */
+     *  @Loggable
+     */
     protected $Name;
 
     /** @ManyToOne(targetEntity="User", inversedBy="Groups")     * */
