@@ -5,8 +5,6 @@ namespace Fridde\Entities;
 use Doctrine\Common\Collections\ArrayCollection;
 use Carbon\Carbon;
 use Fridde\Naturskolan;
-//use Doctrine\ORM\Mapping as ORM;
-use Fridde\Annotations\Loggable;
 
 /**
  * @Entity(repositoryClass="Fridde\Entities\GroupRepository")
@@ -19,11 +17,11 @@ class Group
     protected $id;
 
     /** @Column(type="string", nullable=true)
-     *  @Loggable
      */
     protected $Name;
 
-    /** @ManyToOne(targetEntity="User", inversedBy="Groups")     * */
+    /** @ManyToOne(targetEntity="User", inversedBy="Groups")
+     *  @Loggable     * */
     protected $User;
 
     /** @ManyToOne(targetEntity="School", inversedBy="Groups")     * */
@@ -35,13 +33,16 @@ class Group
     /** @Column(type="integer", nullable=true) */
     protected $StartYear;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="integer", nullable=true)
+     *  @Loggable  */
     protected $NumberStudents;
 
-    /** @Column(type="text", nullable=true) */
+    /** @Column(type="text", nullable=true)
+     *  @Loggable      */
     protected $Food;
 
-    /** @Column(type="text", nullable=true) */
+    /** @Column(type="text", nullable=true)
+     *  @Loggable  */
     protected $Info;
 
     /** @Column(type="text", nullable=true) */

@@ -8,6 +8,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
+use Fridde\Annotations\Loggable;
 use Fridde\Entities\Change;
 use Fridde\Entities\ChangeRepository;
 
@@ -26,12 +27,6 @@ class EntitySubscriber implements EventSubscriber
     {
         $this->ORM = $ORM;
     }
-
-
-    private $changes_to_log = [
-        'Visit' => ['Group', 'Date', 'Time', 'Topic'],
-        'Group' => ['User', 'Food', 'NumberStudents', 'Info'],
-    ];
 
     public function getSubscribedEvents()
     {
@@ -111,8 +106,7 @@ class EntitySubscriber implements EventSubscriber
         $loggable_properties = [];
 
         foreach($class_properties as $property){
-            $annotations = $reader->getPropertyAnnotations($property);
-            $annot = $reader->getPropertyAnnotation($property, 'Loggable');
+            $annot = $reader->getPropertyAnnotation($property, Loggable::class);
             if(!empty($annot)){
                 $loggable_properties[] = $property->getName();
             }

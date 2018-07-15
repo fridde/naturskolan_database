@@ -16,16 +16,19 @@ class Visit
     /** @Id @Column(type="integer") @GeneratedValue */
     protected $id;
 
-    /** @ManyToOne(targetEntity="Group", inversedBy="Visits")   * */
+    /** @ManyToOne(targetEntity="Group", inversedBy="Visits")
+     *  @Loggable  * */
     protected $Group;
 
-    /** @Column(type="string") */
+    /** @Column(type="string")
+     *  @Loggable  */
     protected $Date;
 
     /** @Column(type="string", nullable=true) */
     protected $LastChange;
 
-    /** @ManyToOne(targetEntity="Topic", inversedBy="Visits")   * */
+    /** @ManyToOne(targetEntity="Topic", inversedBy="Visits")
+     *  @Loggable  * */
     protected $Topic;
 
     /** This is the owning side. The visit has many colleagues (=users)
@@ -37,7 +40,8 @@ class Visit
     /** @Column(type="integer") */
     protected $Confirmed = self::IS_UNCONFIRMED;
 
-    /** @Column(type="string", nullable=true) */
+    /** @Column(type="string", nullable=true)
+     *  @Loggable  */
     protected $Time;
 
     /** @Column(type="integer") */

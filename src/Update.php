@@ -100,7 +100,7 @@ class Update extends DefaultUpdate
         foreach ($dates as $date_string) {
             $date_string = trim($date_string);
             if(substr_count($date_string, ':') === 1){
-                list(,$date) = explode(':', $date_string);
+                [$x,$date] = explode(':', $date_string);
             } else {
                 $date = $date_string;
             }
