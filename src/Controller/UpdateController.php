@@ -53,7 +53,7 @@ class UpdateController extends BaseController
         }
         $authorized = $this->Authorizer->authorize($this, $update_method);
         if ($authorized && $this->checkIfValidUpdate($update_method)) {
-            $args = U::pluck($this->getFromRequest(), Update::getMethodArgs($update_method));
+            $args = U::pluck($this->getFromRequest(), $update->getMethodArgs($update_method));
             call_user_func_array([$update, $update_method], $args);
             $update->flush();
             $return = $update->getReturn();

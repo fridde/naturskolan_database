@@ -20,7 +20,7 @@ class EntitySubscriber implements EventSubscriber
     private $UoW;
     /* @var ChangeRepository $change_repo */
     private $change_repo;
-    /* @var ORM $ORM  */
+    /* @var ORM $ORM */
     private $ORM;
 
     public function __construct(ORM $ORM)
@@ -58,13 +58,14 @@ class EntitySubscriber implements EventSubscriber
 
         foreach ($UoW_entities as $change_type_int => $entity_array) {
             foreach ($entity_array as $entity) {
-                if($change_type_int === Change::TYPE_INSERTION){
+                if ($change_type_int === Change::TYPE_INSERTION) {
                     continue;
                 }
                 $class_name = $this->getShortClassName($entity);
+                $fqcn = $this->getFQCN($entity);
                 $entity_id = $entity->getId();
 
-                if($change_type_int === Change::TYPE_DELETION){
+                if ($change_type_int === Change::TYPE_DELETION) {
 
                     $change = new Change();
                     $change->setType($change_type_int);
@@ -72,14 +73,17 @@ class EntitySubscriber implements EventSubscriber
                     $change->setEntityId($entity_id);
 
                     $loggable_changes[] = $change;
-                } elseif ($change_type_int === Change::TYPE_UPDATE){
-
-                    //$loggable_properties = $this->changes_to_log[$class_name] ?? [];
-                    $loggable_properties = $this->getLoggablePropertiesFromClass(get_class($entity));
-
+                } elseif ($change_type_int === Change::TYPE_UPDATE) {
                     $change_set = $this->UoW->getEntityChangeSet($entity);
-                    $common_properties = array_intersect($loggable_properties, array_keys($change_set));
-                    foreach ($common_properties as $property_name) {
+
+                    $loggable_properties = array_filter(
+                        array_keys($change_set),
+                        function (string $property_name) use ($fqcn) {
+                            return $this->isLoggable($fqcn, $property_name);
+                        }
+                    );
+
+                    foreach ($loggable_properties as $property_name) {
                         $change = new Change();
                         $change->setType($change_type_int);
                         $change->setEntityClass($class_name);
@@ -97,23 +101,9 @@ class EntitySubscriber implements EventSubscriber
         return $loggable_changes;
     }
 
-    private function getLoggablePropertiesFromClass(string $class): array
+    private function isLoggable(string $class, string $property): bool
     {
-        $reflectionClass = new \ReflectionClass($class);
-        $class_properties = $reflectionClass->getProperties();
-        $reader = $this->ORM->getAnnotationReader();
-
-        $loggable_properties = [];
-
-        foreach($class_properties as $property){
-            $annot = $reader->getPropertyAnnotation($property, Loggable::class);
-            if(!empty($annot)){
-                $loggable_properties[] = $property->getName();
-            }
-        }
-
-        return $loggable_properties;
-
+        return $this->ORM->getAnnotationReader()->hasPropertyAnnotation($class, $property, Loggable::class);
     }
 
     private function standardizeOldValue($old_value)
@@ -123,6 +113,11 @@ class EntitySubscriber implements EventSubscriber
         }
 
         return $old_value;
+    }
+
+    private function getFQCN($entity)
+    {
+        return (new \ReflectionClass($entity))->getName();
     }
 
     private function getShortClassName($entity)

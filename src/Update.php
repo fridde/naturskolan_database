@@ -25,13 +25,6 @@ class Update extends DefaultUpdate
     /** @var Naturskolan $N */
     protected $N;
 
-    /** @var array  */
-    protected static $object_required = [
-        'User' => ['School'],
-        'Group' => ['User'],
-        'Visit' => ['Group', 'Topic'],
-    ];
-
     /* @var array */
     public const METHOD_ARGUMENTS = [
         'checkPassword' => ['password', 'school_id'],
@@ -52,6 +45,23 @@ class Update extends DefaultUpdate
         'fillEmptyGroupNames' => ['segment'],
     ];
 
+// checkPassword => "password, school_id"
+// addDates => "topic_id, dates"
+// addDatesForMultipleTopics => "dates"
+// setVisits => "value"
+// setCookie => "school, url"
+// removeCookie => "hash"
+// logChange => "event, trackables"
+// sliderUpdate => "entity_class, entity_id, property, value"
+// updateVisitOrder => "order"
+// updateBusRule => "school_id, location_id, needs_bus"
+// confirmVisit => "visit_id"
+// changeGroupName => "entity_id, value"
+// batchSetGroupCount => "group_numbers, start_year"
+// changeTaskActivation => "task_name, status"
+// createMissingGroups => "segment"
+// fillEmptyGroupNames => "segment"
+
     /**
      * Update constructor.
      * @param array $request_data
@@ -60,11 +70,6 @@ class Update extends DefaultUpdate
     {
         $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
         parent::__construct($request_data, $this->N->ORM);
-    }
-
-    public static function getMethodArgs(string $method_name, array $additional = [])
-    {
-        return parent::getMethodArgs($method_name, self::METHOD_ARGUMENTS);
     }
 
     /**
@@ -193,9 +198,6 @@ class Update extends DefaultUpdate
     {
         $login_controller = new LoginController();
         $login_controller->logout();
-
-        //$cookie = $this->N->getRepo('Hash')->findByHash($hash);
-        //$this->ORM->delete($cookie);
     }
 
 
