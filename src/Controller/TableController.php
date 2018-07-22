@@ -9,13 +9,12 @@ use Fridde\Table;
 class TableController extends BaseController
 {
 
-    protected $Security_Levels = [
-        'view' => Authorizer::ACCESS_ADMIN_ONLY,
-    ];
-
     /* @var Table $table  */
     private $table;
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
     public function view()
     {
         $this->table = new Table($this->params['entity'], $this->N->ORM);

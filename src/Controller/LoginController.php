@@ -11,18 +11,20 @@ use Fridde\Utility;
 class LoginController extends BaseController
 {
 
-    protected $Security_Levels = [
-        'renderPasswordModal' => Authorizer::ACCESS_ALL,
-        'login' => Authorizer::ACCESS_ALL,
-        'logout' => Authorizer::ACCESS_ALL
-    ];
-
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
     public function renderPasswordModal()
     {
         $this->setTemplate('password_modal');
         $this->addToDATA('school_id', $this->getParameter('school'));
     }
 
+    /**
+     * @throws \Exception
+     *
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
     public function login()
     {
         $code = $this->getParameter('code');
@@ -39,6 +41,9 @@ class LoginController extends BaseController
 
     }
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
     public function logout()
     {
         $this->N->Auth->removeCookieKeyFromBrowser();

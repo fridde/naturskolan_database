@@ -8,16 +8,15 @@ class PageController extends BaseController
 {
     protected $ActionTranslator = ['visit_confirmed' => 'VisitConfirmed'];
 
-    protected $Security_Levels = [
-        'viewPage' => Authorizer::ACCESS_ALL,
-    ];
-
     public function handleRequest()
     {
         $this->addAction('viewPage');
         parent::handleRequest();
     }
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
     public function viewPage()
     {
         if (empty($this->getParameter('url'))) {

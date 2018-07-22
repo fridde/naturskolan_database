@@ -10,9 +10,6 @@ use Fridde\Task;
 
 class AdminController extends BaseController
 {
-    protected $Security_Levels = [
-        'assembleAdminOverview' => Authorizer::ACCESS_ADMIN_ONLY
-    ];
 
     public function handleRequest()
     {
@@ -21,6 +18,9 @@ class AdminController extends BaseController
         parent::handleRequest();
     }
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
     public function assembleAdminOverview()
     {
         $task_keys = array_keys($this->N::getSetting('cronjobs', 'intervals'));

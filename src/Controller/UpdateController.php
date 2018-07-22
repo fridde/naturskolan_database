@@ -2,40 +2,15 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Annotations\NeedsSameSchool;
 use Fridde\Entities\Group;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
-use Fridde\Security\Authorizer;
 use Fridde\Update;
 use Fridde\Utility as U;
 
 class UpdateController extends BaseController
 {
-
-    protected $Security_Levels = [
-        'updateProperty' => Authorizer::ACCESS_ALL_EXCEPT_GUEST,
-        'createNewEntity' => Authorizer::ACCESS_ALL_EXCEPT_GUEST,
-        'batchUpdateProperties' => Authorizer::ACCESS_ADMIN_ONLY,
-        'checkPassword' => Authorizer::ACCESS_ALL,
-        'addDates' => Authorizer::ACCESS_ADMIN_ONLY,
-        'addDatesForMultipleTopics' => Authorizer::ACCESS_ADMIN_ONLY,
-        'setVisits' => Authorizer::ACCESS_ADMIN_ONLY,
-        'sliderUpdate' => Authorizer::ACCESS_ALL_EXCEPT_GUEST,
-        'updateVisitOrder' => Authorizer::ACCESS_ADMIN_ONLY,
-        'confirmVisit' => Authorizer::ACCESS_ALL,
-        'changeGroupName' => Authorizer::ACCESS_ALL_EXCEPT_GUEST,
-        'createMissingGroups' => Authorizer::ACCESS_ADMIN_ONLY,
-        'fillEmptyGroupNames' => Authorizer::ACCESS_ADMIN_ONLY,
-        'batchSetGroupCount' => Authorizer::ACCESS_ADMIN_ONLY,
-        'changeTaskActivation' => Authorizer::ACCESS_ADMIN_ONLY,
-    ];
-
-    protected static $needs_same_school = [
-        'updateProperty',
-        'createNewEntity',
-        'sliderUpdate',
-        'changeGroupName',
-    ];
 
     protected static $allowed_by_user = ['User', 'Group'];
 
@@ -51,7 +26,7 @@ class UpdateController extends BaseController
         if (empty($update_method)) {
             throw new \InvalidArgumentException('Missing updateMethod in $_REQUEST');
         }
-        $authorized = $this->Authorizer->authorize($this, $update_method);
+        $authorized = $this->Authorizer->authorize(Update::class, $update_method);
         if ($authorized && $this->checkIfValidUpdate($update_method)) {
             $args = U::pluck($this->getFromRequest(), $update->getMethodArgs($update_method));
             call_user_func_array([$update, $update_method], $args);
@@ -66,7 +41,7 @@ class UpdateController extends BaseController
 
     protected function checkIfValidUpdate(string $method): bool
     {
-        if (!in_array($method, self::$needs_same_school, true)){
+        if ($this->needsSameSchool($method)){
             return true;
         }
         if ($this->Authorizer->getVisitorSecurityLevel() === User::ROLE_ADMIN) {
@@ -105,6 +80,13 @@ class UpdateController extends BaseController
             }
         }
         return false;
+    }
+
+    private function needsSameSchool(string $method_name)
+    {
+        $reader = $this->N->ORM->getAnnotationReader();
+
+        return $reader->hasMethodAnnotation(Update::class, $method_name, NeedsSameSchool::class);
     }
 
 }

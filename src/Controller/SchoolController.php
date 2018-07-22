@@ -14,11 +14,6 @@ use Fridde\Timing as T;
 
 class SchoolController extends BaseController
 {
-    protected $Security_Levels = [
-        'createGroupPage' => Authorizer::ACCESS_ADMIN_ONLY,
-        'createStaffPage' => Authorizer::ACCESS_ADMIN_ONLY
-    ];
-
     /** @var School $request_school */
     public $request_school;
     
@@ -37,7 +32,6 @@ class SchoolController extends BaseController
     public function handleRequest()
     {
         $page = $this->getParameter('page') ?? self::GROUPS_PAGE;
-        /* @var School $school  */
 
         $methods = [
             self::GROUPS_PAGE => 'createGroupPage',
@@ -46,7 +40,7 @@ class SchoolController extends BaseController
 
         $method = $methods[$page];
         if($this->Authorizer->getVisitor()->isFromSchool($this->request_school)){
-            $this->Security_Levels[$method] = Authorizer::ACCESS_ALL_EXCEPT_GUEST;
+            $this->Authorizer->changeSecurityLevel(get_class($this), $method,  Authorizer::ACCESS_ALL_EXCEPT_GUEST);
         }
 
         $this->addAction($method);
@@ -55,12 +49,18 @@ class SchoolController extends BaseController
         parent::handleRequest();
     }
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
     public function createStaffPage()
     {
         $this->addToDATA($this->getAllUsers($this->request_school));
         $this->setTemplate('staff_list');
     }
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
     public function createGroupPage()
     {
         $this->addToDATA($this->getAllGroups($this->request_school));

@@ -18,11 +18,15 @@ use Fridde\Security\Authorizer;
 use Fridde\Utility as U;
 use Fridde\Utility;
 
+
+/**
+ * Class BatchController
+ * @package Fridde\Controller
+ *
+ * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+ */
 class BatchController extends BaseController
 {
-    protected $Security_Levels = ['*' => Authorizer::ACCESS_ADMIN_ONLY];
-
-
     public function handleRequest()
     {
         $this->addToDATA('school_id', 'natu');

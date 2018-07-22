@@ -10,10 +10,6 @@ class CronController extends BaseController
 {
     private $intervals;
 
-    protected $Security_Levels = [
-        'run' => Authorizer::ACCESS_ADMIN_ONLY,
-    ];
-
     public function __construct(array $params)
     {
         parent::__construct($params, true);
@@ -30,12 +26,15 @@ class CronController extends BaseController
 
         $this->addAction('run');
         if ($this->isAuthorizedViaAuthkey()) {
-            $this->Security_Levels['run'] = Authorizer::ACCESS_ALL;
+            $this->Authorizer->changeSecurityLevel(get_class($this), 'run', Authorizer::ACCESS_ALL);
         }
         parent::handleRequest();
     }
 
-    public function run()
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
+    public function run(): void
     {
         $active_tasks = array_filter($this->N->getCronTaskActivationStatus());
         foreach (array_keys($active_tasks) as $task_type) {
@@ -50,7 +49,7 @@ class CronController extends BaseController
     }
 
     // careful, this task is executed no matter the status of the system
-    public function executeTaskNow()
+    public function executeTaskNow(): void
     {
         $task = new Task($this->getParameter('type'));
         if(!($task->isExempted() || $this->isAuthorizedViaAuthkey())){
@@ -64,7 +63,7 @@ class CronController extends BaseController
 
     }
 
-    private function checkIfRightTime(string $task_type)
+    private function checkIfRightTime(string $task_type): bool
     {
         $last_completion = $this->N->getLastRun($task_type);
         if (empty($last_completion)) {

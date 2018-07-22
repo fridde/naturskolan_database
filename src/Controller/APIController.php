@@ -13,23 +13,22 @@ use Fridde\Security\Authorizer;
 
 class APIController extends BaseController
 {
-    protected $Security_Levels = [
-        'confirmVisit' =>  Authorizer::ACCESS_ALL,
-        'confirmVisitUsingId' => Authorizer::ACCESS_ALL_EXCEPT_GUEST,
-        'getPasswordForSchool' => Authorizer::ACCESS_ALL_EXCEPT_GUEST,
-        'sendPasswordRecoverMail' => Authorizer::ACCESS_ALL,
-        'updateTestDate' => Authorizer::ACCESS_ADMIN_ONLY
-    ];
 
     public function __construct(array $params = [], bool $slim = true)
     {
         parent::__construct($params, $slim);
         if(in_array(SETTINGS['environment'], ['dev', 'test'], true)){
-            $this->Security_Levels['updateTestDate'] = Authorizer::ACCESS_ALL;
+            $this->Authorizer->changeSecurityLevel(get_class($this), 'updateTestDate', Authorizer::ACCESS_ALL);
         }
     }
 
 
+    /**
+     * @param string $visit_id
+     * @throws \Exception
+     *
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
+     */
     public function confirmVisitUsingId(string $visit_id): void
     {
         /* @var Visit $visit  */
@@ -42,6 +41,13 @@ class APIController extends BaseController
         $this->updateVisitStatus($visit, $school->getId());
     }
 
+    /**
+     * @param string $code
+     * @param string $authentication
+     * @throws \Exception
+     *
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
     public function confirmVisit(string $code, string $authentication = 'code'): void
     {
         if($authentication === 'code'){
@@ -79,6 +85,12 @@ class APIController extends BaseController
 
     }
 
+    /**
+     * @param string $school_id
+     * @throws \Exception
+     *
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
+     */
     public function getPasswordForSchool(string $school_id): void
     {
         $this->setReturnType(self::RETURN_JSON);
@@ -93,6 +105,11 @@ class APIController extends BaseController
         }
     }
 
+    /**
+     * @param string $mail_adress
+     *
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
+     */
     public function sendPasswordRecoverMail(string $mail_adress): void
     {
         $this->setReturnType(self::RETURN_JSON);
@@ -120,6 +137,11 @@ class APIController extends BaseController
         $this->addToDATA('errors', $response->getErrors() ?? []);
     }
 
+    /**
+     * @param string $date_time
+     *
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
     public function updateTestDate(string $date_time)
     {
         $date_time = html_entity_decode($date_time);

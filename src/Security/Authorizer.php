@@ -3,14 +3,19 @@
 
 namespace Fridde\Security;
 
-use Fridde\Controller\BaseController;
+use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\User;
 use Fridde\ORM;
 
 class Authorizer
 {
-   /* @var Visitor $Visitor */
+    /* @var ORM $ORM  */
+    private $ORM;
+
+    /* @var Visitor $Visitor */
     public $Visitor;
+
+    private $custom_security_levels = [];
 
     public const ROLE_GUEST = 1;
 
@@ -21,26 +26,35 @@ class Authorizer
 
     public function __construct(ORM $ORM, Authenticator $Auth)
     {
-
+        $this->ORM = $ORM;
         $this->setVisitor(new Visitor($Auth));
     }
 
 
-    public function authorize(BaseController $controller, string $method_string): bool
+    public function authorize(string $controller_name, string $method_string): bool
     {
-        $security_levels = $controller->getSecurityLevels();
-
-        if(isset($security_levels['*'])){
-            $method_level = $security_levels['*'];
-        } else {
-            $method_level = $security_levels[$method_string] ?? User::ROLE_ADMIN;
-        }
+        $method_level = $this->getMethodSecurityLevel($controller_name, $method_string);
 
         return (bool) ($method_level & $this->getVisitorSecurityLevel());
-
     }
 
-    public function getVisitorSecurityLevel()
+    private function getMethodSecurityLevel(string $controller_name, string $method_string): int
+    {
+        $custom_level = $this->custom_security_levels[$controller_name][$method_string] ?? null;
+
+        if(null !== $custom_level){
+            return $custom_level;
+        }
+        $reader = $this->ORM->getAnnotationReader();
+
+        $lvl = $reader->getAnnotationForMethod($controller_name, $method_string, SecurityLevel::class);
+        $lvl = $lvl->value ?? $reader->getAnnotationForClass($controller_name, SecurityLevel::class);
+        $lvl = $lvl->value ?? User::ROLE_ADMIN;
+
+        return $lvl;
+    }
+
+    public function getVisitorSecurityLevel(): int
     {
         $visitor = $this->getVisitor();
         if ($visitor->isUser() && $visitor->hasRole(User::ROLE_SUPERUSER)) {
@@ -73,6 +87,11 @@ class Authorizer
     public function setVisitor(Visitor $Visitor): void
     {
         $this->Visitor = $Visitor;
+    }
+
+    public function changeSecurityLevel(string $class, string $method, int $level)
+    {
+        $this->custom_security_levels[$class][$method] = $level;
     }
 
 

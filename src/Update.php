@@ -1,7 +1,4 @@
 <?php
-/**
- * Contains the class Update.
- */
 
 namespace Fridde;
 
@@ -14,7 +11,7 @@ use Fridde\Entities\Location;
 use Fridde\Entities\LocationRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
-use Fridde\Security\Authenticator;
+
 
 
 /**
@@ -24,43 +21,6 @@ class Update extends DefaultUpdate
 {
     /** @var Naturskolan $N */
     protected $N;
-
-    /* @var array */
-    public const METHOD_ARGUMENTS = [
-        'checkPassword' => ['password', 'school_id'],
-        'addDates' => ['topic_id', 'dates'],
-        'addDatesForMultipleTopics' => ['dates'],
-        'setVisits' => ['value'],
-        'setCookie' => ['school', 'url'],
-        'removeCookie' => ['hash'],
-        'logChange' => ['event', 'trackables'],
-        'sliderUpdate' => ['entity_class', 'entity_id', 'property', 'value'],
-        'updateVisitOrder' => ['order'],
-        'updateBusRule' => ['school_id', 'location_id', 'needs_bus'],
-        'confirmVisit' => ['visit_id'],
-        'changeGroupName' => ['entity_id', 'value'],
-        'batchSetGroupCount' => ['group_numbers', 'start_year'],
-        'changeTaskActivation' => ['task_name', 'status'],
-        'createMissingGroups' => ['segment'],
-        'fillEmptyGroupNames' => ['segment'],
-    ];
-
-// checkPassword => "password, school_id"
-// addDates => "topic_id, dates"
-// addDatesForMultipleTopics => "dates"
-// setVisits => "value"
-// setCookie => "school, url"
-// removeCookie => "hash"
-// logChange => "event, trackables"
-// sliderUpdate => "entity_class, entity_id, property, value"
-// updateVisitOrder => "order"
-// updateBusRule => "school_id, location_id, needs_bus"
-// confirmVisit => "visit_id"
-// changeGroupName => "entity_id, value"
-// batchSetGroupCount => "group_numbers, start_year"
-// changeTaskActivation => "task_name, status"
-// createMissingGroups => "segment"
-// fillEmptyGroupNames => "segment"
 
     /**
      * Update constructor.
@@ -78,6 +38,9 @@ class Update extends DefaultUpdate
      *
      * @param string $password
      * @return void
+     *
+     * @PostArgs("password, school_id")
+     * @SecurityLevel(Authorizer::ACCESS_ALL)
      */
     public function checkPassword(string $password, $school_id = null): void
     {
@@ -94,8 +57,11 @@ class Update extends DefaultUpdate
     /**
      * Creates new Visits having certain topic using the dates given.
      *
-     * Expects $RQ['entity_id'] to contain the id of the topic and $RQ['value'] to be
+     * Expects $RQ['topic_id'] to contain the id of the topic and $RQ['dates'] to be
      * the date array in the format ['YYYY-MM-DD', 'YYYY-MM-DD', ...]
+     *
+     * @PostArgs("topic_id, dates")
+     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
      */
     public function addDates(int $topic_id, array $dates = [], $flush = true)
     {
@@ -120,6 +86,13 @@ class Update extends DefaultUpdate
         }
     }
 
+    /**
+     * @param array $dates
+     * @throws \Exception
+     *
+     * @PostArgs("dates")
+     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     */
     public function addDatesForMultipleTopics(array $dates = [])
     {
         $dates_by_topic = [];
@@ -129,7 +102,7 @@ class Update extends DefaultUpdate
                 $this->addError('The string "' . $topic_date_string . '" has an invalid format.');
                 return;
             }
-            list($topic_id, $date) = $topic_date_array;
+            [$topic_id, $date] = $topic_date_array;
             $dates_by_topic[$topic_id][] = $date;
         }
 
@@ -142,6 +115,9 @@ class Update extends DefaultUpdate
     /**
      * @param array $big_array An array of
      * @throws \Exception
+     *
+     * @PostArgs("value")
+     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
      */
     public function setVisits(array $big_array)
     {
@@ -184,6 +160,12 @@ class Update extends DefaultUpdate
         $this->ORM->EM->flush();
     }
 
+    /**
+     * @param string $school_id
+     * @return string
+     *
+     * @PostArgs("school, url")
+     */
     protected function setCookie(string $school_id)
     {
         $category = Hash::CATEGORY_SCHOOL_COOKIE_KEY;
@@ -194,13 +176,30 @@ class Update extends DefaultUpdate
         return $hash_string;
     }
 
+    /**
+     * @param string $hash
+     *
+     * @PostArgs("hash")
+     */
     public function removeCookie(string $hash)
     {
+        // TODO: clean up this function. why hash?
         $login_controller = new LoginController();
         $login_controller->logout();
     }
 
 
+    /**
+     * @param $entity_class
+     * @param $entity_id
+     * @param $property
+     * @param $value
+     * @return $this
+     *
+     * @PostArgs("entity_class, entity_id, property, value")
+     * @SecurityLevel(Authorizer::ACCESS_ALL_EXCEPT_GUEST)
+     * @NeedsSameSchool
+     */
     public function sliderUpdate($entity_class, $entity_id, $property, $value)
     {
         $this->setReturnFromRequest(['sliderId', 'sliderLabelId']);
@@ -209,6 +208,13 @@ class Update extends DefaultUpdate
         return $this->updateProperty($entity_class, $entity_id, $property, $value)->flush();
     }
 
+    /**
+     * @param array $order
+     * @return $this
+     *
+     * @PostArgs("order")
+     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     */
     public function updateVisitOrder(array $order)
     {
         foreach ($order as $index => $id) {
@@ -218,6 +224,13 @@ class Update extends DefaultUpdate
         return $this->flush();
     }
 
+    /**
+     * @param int $visit_id
+     * @return $this
+     *
+     * @PostArgs("visit_id")
+     * @SecurityLevel(Authorizer::ACCESS_ALL)
+     */
     public function confirmVisit(int $visit_id)
     {
         return $this->updateProperty('Visit', $visit_id, 'Confirmed', true);
@@ -225,6 +238,14 @@ class Update extends DefaultUpdate
     }
 
 
+    /**
+     * @param $entity_id
+     * @param $value
+     *
+     * @PostArgs("entity_id, value")
+     * @SecurityLevel(Authorizer::ACCESS_ALL_EXCEPT_GUEST)
+     * @NeedsSameSchool
+     */
     public function changeGroupName($entity_id, $value)
     {
         $this->setReturn('groupId', $entity_id);
@@ -232,6 +253,15 @@ class Update extends DefaultUpdate
         $this->updateProperty('Group', $entity_id, 'Name', $value)->flush();
     }
 
+    /**
+     * @param string $school_id
+     * @param int $location_id
+     * @param bool $needs_bus
+     * @return $this
+     *
+     * @PostArgs("school_id, location_id, needs_bus")
+     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     */
     public function updateBusRule(string $school_id, int $location_id, bool $needs_bus)
     {
         /* @var SchoolRepository $school_repo  */
@@ -253,6 +283,9 @@ class Update extends DefaultUpdate
      * @param string $segment_id
      * @param int $start_year
      * @throws \Doctrine\ORM\OptimisticLockException
+     *
+     * @PostArgs("segment")
+     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
      */
     public function createMissingGroups(string $segment_id, int $start_year = null)
     {
@@ -280,6 +313,14 @@ class Update extends DefaultUpdate
         $this->ORM->EM->flush();
     }
 
+    /**
+     * @param string $segment_id
+     * @param int|null $start_year
+     * @throws \Doctrine\ORM\OptimisticLockException
+     *
+     * @PostArgs("segment")
+     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     */
     public function fillEmptyGroupNames(string $segment_id, int $start_year = null)
     {
         /* @var GroupRepository $group_repo  */
@@ -307,6 +348,9 @@ class Update extends DefaultUpdate
      * @param array $group_numbers An array of strings where each string contains 3
      *        comma-separated values: The school_id, the segment and the new number of groups
      * @param int|null $start_year
+     *
+     * @PostArgs("group_numbers, start_year")
+     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
      */
     public function batchSetGroupCount(array $group_numbers, int $start_year = null)
     {
@@ -319,9 +363,16 @@ class Update extends DefaultUpdate
         $this->ORM->EM->flush();
     }
 
+    /**
+     * @param string $task_name
+     * @param $status
+     *
+     * @PostArgs("task_name, status")
+     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     */
     public function changeTaskActivation(string $task_name, $status)
     {
-        $status = (int) in_array($status, [1, 'true', true], true);
+        $status = (int) in_array($status, [1, '1', 'true', true], true);
         $this->N->setCronTask($task_name, $status);
     }
 

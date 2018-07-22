@@ -8,13 +8,15 @@ use Fridde\HTML;
 use Carbon\Carbon;
 use Fridde\Security\Authorizer;
 
+/**
+ * Class ViewController
+ * @package Fridde\Controller
+ *
+ * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+ */
 class ViewController extends BaseController {
 
     protected $ActionTranslator = ['food_order' => 'viewFoodOrder', 'bus_order' => 'viewBus'];
-
-    protected $Security_Levels = [
-        '*' => Authorizer::ACCESS_ADMIN_ONLY,
-    ];
 
     public function handleRequest()
     {

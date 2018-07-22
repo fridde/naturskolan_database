@@ -73,7 +73,7 @@ class BaseController
             if (empty($method)) {
                 continue;
             }
-            if (!$this->Authorizer->authorize($this, $method)) {
+            if (!$this->Authorizer->authorize(get_class($this), $method)) {
                 $login_controller = new LoginController($this->getParameter());
                 $login_controller->addAction('renderPasswordModal');
 
@@ -432,7 +432,7 @@ class BaseController
         return null;
     }
 
-    public function getRequest($content_type = null)
+    public function getRequest(string $content_type = null)
     {
         $possible_content_types = ['json', 'urlencoded'];
         if (empty($content_type) && function_exists('getallheaders')) {
@@ -453,6 +453,10 @@ class BaseController
         }
         $defined_CT = array_shift($content_types);
 
+        if ($defined_CT === 'urlencoded') {
+            return $_REQUEST;
+        }
+
         if ($defined_CT === 'json') {
             $string = file_get_contents('php://input');
             json_decode($string, true);
@@ -462,11 +466,7 @@ class BaseController
             }
 
             return null;
-
-        } elseif ($defined_CT === 'urlencoded') {
-            return $_REQUEST;
         }
-
     }
 
     public function getFromRequest($key = null)
@@ -477,11 +477,5 @@ class BaseController
 
         return $this->REQ[$key] ?? null;
     }
-
-    public function getSecurityLevels(): array
-    {
-        return $this->Security_Levels ?? [];
-    }
-
 
 }
