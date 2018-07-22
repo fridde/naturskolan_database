@@ -2,8 +2,6 @@
 
 namespace Fridde\Controller;
 
-use Fridde\Security\Authorizer;
-
 class PageController extends BaseController
 {
     protected $ActionTranslator = ['visit_confirmed' => 'VisitConfirmed'];

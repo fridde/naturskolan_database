@@ -16,8 +16,8 @@ class Visitor
     private $Auth;
     /* @var School $school */
     private $school;
-    /* @var User $user */
-    private $user;
+    /* @var User $User */
+    private $User;
     /* @var string $cookie_key */
     private $cookie_key;
     /* @var string $session_key */
@@ -66,7 +66,6 @@ class Visitor
         $key = $this->getSessionKey() ?? $this->getCookieKey();
         $this->setUserFromKey($key);
         $this->setSchoolFromKey($key);
-        echo "";
     }
 
     public function setUserFromKey(string $key = null)
@@ -124,15 +123,15 @@ class Visitor
      */
     public function getUser(): ?User
     {
-        return $this->user;
+        return $this->User;
     }
 
     /**
-     * @param User $user
+     * @param User $User
      */
-    public function setUser(User $user = null): void
+    public function setUser(User $User = null): void
     {
-        $this->user = $user;
+        $this->User = $User;
     }
 
     public function isUser()

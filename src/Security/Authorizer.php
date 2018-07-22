@@ -48,10 +48,14 @@ class Authorizer
         $reader = $this->ORM->getAnnotationReader();
 
         $lvl = $reader->getAnnotationForMethod($controller_name, $method_string, SecurityLevel::class);
-        $lvl = $lvl->value ?? $reader->getAnnotationForClass($controller_name, SecurityLevel::class);
-        $lvl = $lvl->value ?? User::ROLE_ADMIN;
-
-        return $lvl;
+        if(!empty($lvl)){
+            return $lvl->value;
+        }
+        $lvl = $reader->getAnnotationForClass($controller_name, SecurityLevel::class);
+        if(!empty($lvl)){
+            return $lvl->value;
+        }
+        return User::ROLE_ADMIN;
     }
 
     public function getVisitorSecurityLevel(): int
