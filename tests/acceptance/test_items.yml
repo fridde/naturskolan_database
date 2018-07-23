@@ -10,8 +10,8 @@ gala:
     pw: 'stövlar.jänta.korg'
 
 st_per:
-    pw: 'kaktus.tjusig.stan'
-    AuthKey: '30469d4e8ce44841310f368951d11561'
+    pw: 'kaktus.tjusig.stan' # matches hash with id 37 in table 'hashes'
+    AuthKey: '30469d4e8ce44841310f368951d11561' # matches hash with id 51 in table 'hashes'
     teachers:
           - 'Tomas Samuelsson'
           - 'Anna Svensson'
