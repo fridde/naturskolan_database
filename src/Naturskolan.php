@@ -428,7 +428,7 @@ class Naturskolan
 
     /**
      * @param string $msg
-     * @param $source
+     * @param mixed $source
      */
     public function log(string $msg, $source = '')
     {

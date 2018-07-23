@@ -20,6 +20,7 @@ use Fridde\Messenger\SMS;
 use Fridde\Security\PasswordHandler;
 use Fridde\Utility as U;
 use Fridde\Timing as T;
+use Tracy\BlueScreen;
 
 
 /**
@@ -75,7 +76,9 @@ class Task
             $msg = 'Failed task: '.$this->type;
             $msg .= '. Error message: '.$e->getMessage();
             $this->N->log($msg, __METHOD__);
-
+            if(!empty(DEBUG)){
+                throw $e;
+            }
             return false;
         }
         $this->N->log('Executed task: '.$this->type, __METHOD__);

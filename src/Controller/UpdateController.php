@@ -41,44 +41,47 @@ class UpdateController extends BaseController
 
     protected function checkIfValidUpdate(string $method): bool
     {
-        if ($this->needsSameSchool($method)){
+        if (!$this->needsSameSchool($method)) {
             return true;
         }
         if ($this->Authorizer->getVisitorSecurityLevel() === User::ROLE_ADMIN) {
             return true;
         }
         $visitor_school = $this->Authorizer->getVisitor()->getSchool();
-        if(!($visitor_school instanceof School)){
+        if (!($visitor_school instanceof School)) {
             return false;
         }
         $entity_class = $this->getFromRequest('entity_class');
         $entity_id = $this->getFromRequest('entity_id');
 
-        if(!in_array($entity_class, self::$allowed_by_user, true)){
+        if (!in_array($entity_class, self::$allowed_by_user, true)) {
             return false;
         }
 
-        if($entity_class === 'Group'){
+        // the method requires that the visitor is from the same school as the User or Group the update concerns
+        if ($entity_class === 'Group') {
             $group = $this->N->ORM->find('Group', $entity_id);
-            if($group instanceof Group){
+            if ($group instanceof Group) {
                 return $group->getSchoolId() === $visitor_school->getId();
             }
             throw new \Exception('Tried to update a group that doesn\'t exist');
         }
-        if($entity_class === 'User' && $method === 'createNewEntity'){
+        if ($entity_class === 'User' && $method === 'createNewEntity') {
             $user_school_id = $this->getFromRequest('properties')['School'] ?? null;
             $user_school = $this->N->ORM->find('School', $user_school_id);
-            if($user_school instanceof School){
+            if ($user_school instanceof School) {
                 return $user_school->getId() === $visitor_school->getId();
             }
+
             return false;
         }
-        if($entity_class === 'User'){
+        if ($entity_class === 'User') {
             $user = $this->N->ORM->find('User', $entity_id);
-            if($user instanceof User){
+            if ($user instanceof User) {
                 return $user->getSchoolId() === $visitor_school->getId();
             }
         }
+
         return false;
     }
 

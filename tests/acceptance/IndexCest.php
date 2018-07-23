@@ -117,7 +117,7 @@ class IndexCest
         $I->fillField($hidden_pw_field, $I->get('st_per', 'pw'));
         $login_button = Locator::find('button', ['id' => 'login_modal_submit']);
         $I->click($login_button);
-        $I->wait(3);
+        $I->wait(5);
         $user_nav_items = $I->get('nav_items', 'user');
         $I->checkMultiple('canSee', $user_nav_items, ['.nav']);
         $AuthKey = $I->grabCookie('AuthKey');

@@ -1,6 +1,7 @@
 <?php
 
 use Fridde\Controller\BaseController;
+use Tracy\BlueScreen;
 
 $controller_namespace = '\\Fridde\\Controller\\';
 
@@ -24,6 +25,9 @@ try {
 } catch( Exception $e){
     $N = $container->get('Naturskolan')->log($e->getMessage(), $e->getFile() . ':' . $e->getLine());
     header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error', true, 500);
+    if(!empty(DEBUG)){
+        (new BlueScreen())->render($e);
+    }
     exit();
 }
 
