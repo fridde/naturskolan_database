@@ -32,6 +32,49 @@ class Update extends DefaultUpdate
         parent::__construct($request_data, $this->N->ORM);
     }
 
+
+    /**
+     * @param mixed ...$args
+     * @return DefaultUpdate
+     *
+     * @PostArgs("entity_class, entity_id, property, value")
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
+     * @NeedsSameSchool
+     */
+    public function updateProperty(string $entity_class, $entity_id, string $property, $value)
+    {
+        return parent::updateProperty($entity_class, $entity_id, $property, $value);
+    }
+
+    /**
+     * @param array $array_of_updates
+     * @return $this|void
+     *
+     * @PostArgs("array_of_updates")
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
+    public function batchUpdateProperties(array $array_of_updates)
+    {
+        return parent::batchUpdateProperties($array_of_updates);
+    }
+
+    /**
+     * @param string $entity_class
+     * @param array $properties
+     * @param bool $flush
+     * @return $this
+     *
+     * @PostArgs("entity_class, properties")
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
+     * @NeedsSameSchool
+     */
+    public function createNewEntity(string $entity_class, array $properties = [], bool $flush = true)
+    {
+        return parent::createNewEntity($entity_class, $properties, $flush);
+    }
+
+
+
     /**
      * Checks if password corresponds to any school and saves the matching
      * school_id into $RETURN for the callback to receive.
@@ -40,7 +83,7 @@ class Update extends DefaultUpdate
      * @return void
      *
      * @PostArgs("password, school_id")
-     * @SecurityLevel(Authorizer::ACCESS_ALL)
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
     public function checkPassword(string $password, $school_id = null): void
     {
@@ -61,7 +104,7 @@ class Update extends DefaultUpdate
      * the date array in the format ['YYYY-MM-DD', 'YYYY-MM-DD', ...]
      *
      * @PostArgs("topic_id, dates")
-     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function addDates(int $topic_id, array $dates = [], $flush = true)
     {
@@ -91,7 +134,7 @@ class Update extends DefaultUpdate
      * @throws \Exception
      *
      * @PostArgs("dates")
-     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function addDatesForMultipleTopics(array $dates = [])
     {
@@ -117,7 +160,7 @@ class Update extends DefaultUpdate
      * @throws \Exception
      *
      * @PostArgs("value")
-     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function setVisits(array $big_array)
     {
@@ -197,7 +240,7 @@ class Update extends DefaultUpdate
      * @return $this
      *
      * @PostArgs("entity_class, entity_id, property, value")
-     * @SecurityLevel(Authorizer::ACCESS_ALL_EXCEPT_GUEST)
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
      * @NeedsSameSchool
      */
     public function sliderUpdate($entity_class, $entity_id, $property, $value)
@@ -213,7 +256,7 @@ class Update extends DefaultUpdate
      * @return $this
      *
      * @PostArgs("order")
-     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function updateVisitOrder(array $order)
     {
@@ -229,7 +272,7 @@ class Update extends DefaultUpdate
      * @return $this
      *
      * @PostArgs("visit_id")
-     * @SecurityLevel(Authorizer::ACCESS_ALL)
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
     public function confirmVisit(int $visit_id)
     {
@@ -243,7 +286,7 @@ class Update extends DefaultUpdate
      * @param $value
      *
      * @PostArgs("entity_id, value")
-     * @SecurityLevel(Authorizer::ACCESS_ALL_EXCEPT_GUEST)
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
      * @NeedsSameSchool
      */
     public function changeGroupName($entity_id, $value)
@@ -260,7 +303,7 @@ class Update extends DefaultUpdate
      * @return $this
      *
      * @PostArgs("school_id, location_id, needs_bus")
-     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function updateBusRule(string $school_id, int $location_id, bool $needs_bus)
     {
@@ -285,7 +328,7 @@ class Update extends DefaultUpdate
      * @throws \Doctrine\ORM\OptimisticLockException
      *
      * @PostArgs("segment")
-     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function createMissingGroups(string $segment_id, int $start_year = null)
     {
@@ -319,7 +362,7 @@ class Update extends DefaultUpdate
      * @throws \Doctrine\ORM\OptimisticLockException
      *
      * @PostArgs("segment")
-     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function fillEmptyGroupNames(string $segment_id, int $start_year = null)
     {
@@ -350,7 +393,7 @@ class Update extends DefaultUpdate
      * @param int|null $start_year
      *
      * @PostArgs("group_numbers, start_year")
-     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function batchSetGroupCount(array $group_numbers, int $start_year = null)
     {
@@ -368,7 +411,7 @@ class Update extends DefaultUpdate
      * @param $status
      *
      * @PostArgs("task_name, status")
-     * @SecurityLevel(Authorizer::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function changeTaskActivation(string $task_name, $status)
     {
