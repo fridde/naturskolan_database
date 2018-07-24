@@ -99,6 +99,35 @@ class TableCest
         $I->assertSame($initial_group_count + 1, $I->grabNumRecords('groups'));
     }
 
+    // codecept run acceptance TableCest:editSchoolTable --steps -f
+    public function editSchoolTable(A $I)
+    {
+        $school_count = 23;
+
+        $I->amOnPage('/table/School');
+        $I->assertCount($school_count, $I->getTableRows('School'));
+        $I->assertSame($school_count, $I->grabNumRecords('schools'));
+
+        $josefina_row = $I->get('paths', 'josefina_row');
+        $central_row = $I->get('paths', 'central_row');
+
+        $first_school_row_field = $I->get('paths', 'first_school_row_field');
+
+        $I->seeInDatabase('schools', ['id' => 'cent', 'VisitOrder' => 1]);
+        $I->seeInField($first_school_row_field, 'Centralskolan');
+
+        $I->dragAndDrop($josefina_row, $central_row);
+        $I->wait(2);
+        $I->makeScreenshot('reordered');
+
+        $I->seeInField($first_school_row_field, 'Josefinaskolan');
+
+        //$I->click()
+
+    }
+
+
+
 
 
 

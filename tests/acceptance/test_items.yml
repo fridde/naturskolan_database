@@ -30,6 +30,9 @@ paths:
     teacher_for_2a: '//div[@data-entity-id="44"]//select[@name="User"]'
     visits_for_2a: '//div[@data-entity-id="44"]//ul[@class="group-visit-list"]'
     rebuild_calendar_cb: '//input[@name="rebuild_calendar"]'
+    josefina_row: '//tr[@data-id="jose"]//td[@class="sorting_1"]'
+    central_row: '//tr[@data-id="cent"]//td[@class="sorting_1"]'
+    first_school_row_field: '//tbody/tr[1]//input[@type="text" and @name="Name"]'
 
 nav_items:
     admin: ['skolor', 'verktyg', 'tabeller']
