@@ -29,4 +29,6 @@ modules:
         - Mailhog:
             url: http://localhost
             port: 8025
+extensions:
+    enabled: [Codeception\Extension\Logger]
 
