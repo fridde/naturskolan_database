@@ -116,15 +116,22 @@ class TableCest
         $I->seeInDatabase('schools', ['id' => 'cent', 'VisitOrder' => 1]);
         $I->seeInField($first_school_row_field, 'Centralskolan');
 
+        // Check if the reordering works
         $I->dragAndDrop($josefina_row, $central_row);
         $I->wait(2);
         $I->makeScreenshot('reordered');
 
         $I->seeInField($first_school_row_field, 'Josefinaskolan');
 
-        //$I->click()
+        $button_path = '//div[@class="dt-buttons btn-group"]//button'; // Button for "Spara besöksordningen"
+        $I->click($button_path);
+        $I->wait(2);
 
+        $I->seeInDatabase('schools', ['id' => 'jose', 'VisitOrder' => 1]);
+        $I->seeInDatabase('schools', ['id' => 'cent', 'VisitOrder' => 2]);
     }
+
+
 
 
 

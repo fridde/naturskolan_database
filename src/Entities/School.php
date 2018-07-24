@@ -21,7 +21,7 @@ class School
     /** @Column(type="string") */
     protected $Name;
 
-    /** @Column(type="json_array", nullable=true) */
+    /** @Column(type="json", nullable=true) */
     protected $GroupNumbers;
 
     /** @Column(type="string", nullable=true) */
@@ -67,6 +67,9 @@ class School
 
     public function getGroupNumbersAsString()
     {
+        $group_numbers = $this->getGroupNumbers();
+        $encoded = json_encode($group_numbers);
+
         return json_encode($this->getGroupNumbers() ?? []);
     }
 

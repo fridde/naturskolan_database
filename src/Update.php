@@ -35,7 +35,7 @@ class Update extends DefaultUpdate
 
     /**
      * @param mixed ...$args
-     * @return DefaultUpdate
+     * @return Update
      *
      * @PostArgs("entity_class, entity_id, property, value")
      * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
@@ -43,19 +43,23 @@ class Update extends DefaultUpdate
      */
     public function updateProperty(string $entity_class, $entity_id, string $property, $value)
     {
-        return parent::updateProperty($entity_class, $entity_id, $property, $value);
+        parent::updateProperty($entity_class, $entity_id, $property, $value);
+
+        return $this;
     }
 
     /**
      * @param array $array_of_updates
-     * @return $this|void
+     * @return $this
      *
      * @PostArgs("array_of_updates")
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function batchUpdateProperties(array $array_of_updates)
     {
-        return parent::batchUpdateProperties($array_of_updates);
+        parent::batchUpdateProperties($array_of_updates);
+
+        return $this;
     }
 
     /**
@@ -70,7 +74,9 @@ class Update extends DefaultUpdate
      */
     public function createNewEntity(string $entity_class, array $properties = [], bool $flush = true)
     {
-        return parent::createNewEntity($entity_class, $properties, $flush);
+        parent::createNewEntity($entity_class, $properties, $flush);
+
+        return $this;
     }
 
 
