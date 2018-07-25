@@ -261,13 +261,13 @@ class Update extends DefaultUpdate
      * @param array $order
      * @return $this
      *
-     * @PostArgs("order")
+     * @PostArgs("order, entity_class")
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function updateVisitOrder(array $order)
+    public function updateVisitOrder(array $order, string $entity_class)
     {
         foreach ($order as $index => $id) {
-            $this->updateProperty('School', $id, 'VisitOrder', $index + 1);
+            $this->updateProperty($entity_class, $id, 'VisitOrder', $index + 1);
         }
 
         return $this->flush();

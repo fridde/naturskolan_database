@@ -21,7 +21,7 @@ let DataTableConfigurator = {
                     {
                         text: "Spara besöksordningen",
                         action: function(e, dt, node, config){
-                            e.data = ["tableReorder", "School"];
+                            e.data = ["tableReorder", ["School"]];
                             return Edit.change(e);
                         }
                     }

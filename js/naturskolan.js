@@ -33,6 +33,14 @@ $(document).ready(function () {
 
     $(Batch.listIdentifier).sortable(Batch.sortableOptions);
 
+    $('.sortable.topic-visit-order').each(function(){
+        $(this).on("sortstop", function(event){
+            let segment = $(this).data('segment') ;
+            event.data = ["tableReorder", ["Topic", segment]];
+            return Edit.change(event);
+        });
+    });
+
     /**
      * Configuration of callbacks for several elements
      */

@@ -300,6 +300,7 @@ class BatchController extends BaseController
             $school_data[$id]['label'] = $school->getName();
             $school_data[$id]['bus_needed'] = [];
             foreach($locations as $location){
+                /* @var Location $location  */
                 if($school->needsBus($location)){
                     $school_data[$id]['bus_needed'][] = $location->getId();
                 }
@@ -308,5 +309,24 @@ class BatchController extends BaseController
 
         $this->addToDATA('schools', $school_data);
         $this->setTemplate('admin/bus_settings');
+    }
+
+    public function setVisitOrderForTopics()
+    {
+        /* @var TopicRepository $topic_repo  */
+        $topic_repo = $this->N->ORM->getRepository('Topic');
+
+        $topics = $topic_repo->findTopicsOrderedBySegments();
+        
+        array_walk_recursive($topics, function(Topic &$topic){
+            $topic = [
+                'id' => $topic->getId(),
+                'label' => $topic->getShortName()
+            ];
+        });
+
+        $this->addToDATA('topics', $topics);
+        $this->setTemplate('admin/topic_visit_order');
+
     }
 }

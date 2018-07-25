@@ -1,4 +1,4 @@
-_sortable_tables: [Topic, School]
+_sortable_tables: [School]
 
 _common:
   id: &id

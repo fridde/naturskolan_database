@@ -22,9 +22,9 @@ let Batch = {
 			});
 		},
 		change: function(){
-			$sortable = $(this);
-			$statics = $('.'+ disabledClass, this).detach();
-			$helper = $('<li></li>').prependTo(this);
+			let $sortable = $(this);
+            let $statics = $('.'+ disabledClass, this).detach();
+            let $helper = $('<li></li>').prependTo(this);
 			$statics.each(function(){
 				let $this = $(this);
 				let target = $this.data('pos');

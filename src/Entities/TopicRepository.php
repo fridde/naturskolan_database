@@ -1,6 +1,7 @@
 <?php
 namespace Fridde\Entities;
 
+use function foo\func;
 use Fridde\CustomRepository;
 
 class TopicRepository extends CustomRepository
@@ -38,6 +39,28 @@ class TopicRepository extends CustomRepository
             }
         );
         return $topics;
+
+    }
+
+    /**
+     * @return Topic[]
+     */
+    public function findTopicsOrderedBySegments(): array
+    {
+        $topics = $this->findAll();
+        $ordered_topics = [];
+
+        foreach($topics as $topic){
+            /* @var Topic $topic  */
+            $ordered_topics[$topic->getSegment()][] = $topic;
+        }
+        array_walk($ordered_topics, function(&$segment_topics){
+            usort($segment_topics, function(Topic $t1, Topic $t2){
+                return (int) $t1->getVisitOrder() - (int) $t2->getVisitOrder();
+            });
+        });
+
+        return $ordered_topics;
 
     }
 }

@@ -50,6 +50,9 @@ NAV_SETTINGS:
            label: 'Uppdatera önskat antal grupper per skola'
            url: 'admin/batch/set_group_count'
          -
+           label: 'Ordna om besöksordningen för teman'
+           url: 'admin/batch/set_visit_order_for_topics'
+         -
            label: 'Redigera bussinställningar'
            url: 'admin/batch/set_bus_settings'
          -

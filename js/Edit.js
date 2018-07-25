@@ -2,7 +2,7 @@ let Edit = {
 
     change: function (event) {
         let data = {};
-        let option, specialInfo, $tr, $td, $icon;
+        let option, specialInfo, $tr, $td, $icon, list;
         if (recentChange !== false) {
             clearTimeout(recentChange);
         }
@@ -68,10 +68,13 @@ let Edit = {
 
             case "tableReorder":
                 data.updateMethod = "updateVisitOrder";
-                data.entity_class = specialInfo; // the button should have a data-entity attribute
-                data.property = "VisitOrder";
-                data.order = $('table[data-entity="' + data.entity_class + '"] tbody')
-                    .sortable("toArray", {attribute: "data-id"});
+                data.entity_class = specialInfo[0]; // the button should have a data-entity attribute
+                if(data.entity_class === 'School') {
+                    list = $('table[data-entity="School"] tbody');
+                } else if(data.entity_class === 'Topic') {
+                    list = $('ul.topic-visit-order[data-segment="'+ specialInfo[1] + '"]');
+                }
+                data.order = list.sortable("toArray", {attribute: "data-id"});
                 data.onReturn = "reloadPage";
                 break;
 

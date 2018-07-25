@@ -61,6 +61,11 @@ div.set-dates li.sortable-disabled {
     cursor: not-allowed;
 }
 
+ul.list-group {
+    cursor: move;
+    width: 15%;
+}
+
 table.editable.table-responsive {
     overflow-x: visible;
 }
