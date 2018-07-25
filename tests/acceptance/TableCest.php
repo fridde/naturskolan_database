@@ -108,6 +108,9 @@ class TableCest
         $I->assertCount($school_count, $I->getTableRows('School'));
         $I->assertSame($school_count, $I->grabNumRecords('schools'));
 
+        $I->canSee('{"2017":{"2":0,"5":0,"fbk":0},"2018":{"2":0,"5":0,"fbk":0},"2019":{"2":0,"5":0,"fbk":0}}');
+
+
         $josefina_row = $I->get('paths', 'josefina_row');
         $central_row = $I->get('paths', 'central_row');
 
@@ -129,6 +132,17 @@ class TableCest
 
         $I->seeInDatabase('schools', ['id' => 'jose', 'VisitOrder' => 1]);
         $I->seeInDatabase('schools', ['id' => 'cent', 'VisitOrder' => 2]);
+    }
+
+    // codecept run acceptance TableCest:editTopicTable --steps -f
+    public function editTopicTable(A $I)
+    {
+        $topic_count = 19;
+
+        $I->amOnPage('/table/Topic');
+
+        $I->assertCount($topic_count, $I->getTableRows('Topic'));
+        $I->assertSame($topic_count, $I->grabNumRecords('topics'));
     }
 
 

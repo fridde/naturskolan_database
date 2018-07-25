@@ -2,8 +2,8 @@
 
 namespace Fridde\Entities;
 
+use Carbon\Carbon;
 use Doctrine\Common\Collections\ArrayCollection;
-use Fridde\Entities\Group;
 
 /**
  * @Entity(repositoryClass="Fridde\Entities\TopicRepository")
