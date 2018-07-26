@@ -32,7 +32,7 @@ class User
     protected $School;
 
     /** @Column(type="integer", nullable=true) */
-    protected $Role = 0;
+    protected $Role = self::ROLE_STAKEHOLDER;
 
     /** @Column(type="string", nullable=true) */
     protected $Acronym;
@@ -47,7 +47,7 @@ class User
     protected $CreatedAt;
 
     /** @ManyToMany(targetEntity="Visit", mappedBy="Colleagues")
-     * @JoinTable(name="Colleagues_Visits")
+     *  @JoinTable(name="Colleagues_Visits")
      */
     protected $Visits;
 
@@ -159,9 +159,10 @@ class User
         return $this->School;
     }
 
-    public function getSchoolId()
+    public function getSchoolId(): ?string
     {
-        return $this->getSchool()->getId();
+        $school = $this->getSchool();
+        return (empty($school) ? null : $school->getId());
     }
 
     public function setSchool(School $School)

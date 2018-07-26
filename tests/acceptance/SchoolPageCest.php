@@ -72,7 +72,7 @@ class SchoolPageCest
         $I->assertCount(9, $rows);
         $num_users_before = $I->grabNumRecords('users');
         $I->fillField($I->getFieldFromLastRow('User', 'FirstName'), 'Ronald');
-        $I->clickWithLeftButton(null, 0, -50);
+        $I->clickAway();
         $I->wait(3);
         $I->seeInDatabase('users', ['FirstName' => 'Ronald']);
         $num_users_after = $I->grabNumRecords('users');
@@ -94,7 +94,7 @@ class SchoolPageCest
         $I->checkMultiple('seeInSource', $I->get('st_per', 'teachers'));
         $I->dontSeeInPageSource('Stefan Eriksson'); // different school
         $I->selectOption($teacher_for_2a_field_path, 'Anna Svensson'); // teacher with id 24
-        $I->clickWithLeftButton(null,-50,0);
+        $I->clickAway();
         $I->wait(2);
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 24]);
         $I->seeInDatabase('changes', [

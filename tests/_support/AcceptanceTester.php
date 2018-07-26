@@ -184,4 +184,9 @@ class AcceptanceTester extends \Codeception\Actor
         }
     }
 
+    public function clickAway()
+    {
+        $this->clickWithLeftButton(null, 0, -50);
+    }
+
 }

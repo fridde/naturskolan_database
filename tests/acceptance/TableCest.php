@@ -39,13 +39,13 @@ class TableCest
 
 
         $I->fillField($I->getFieldFromLastRow('Event', 'Title'), 'Ekorrens dag enligt FN');
-        $I->clickWithLeftButton(null, 0, -50);
+        $I->clickAway();
         $I->wait(2);
         // as we have only entered the title and not a start date yet
         $I->assertSame($initial_event_count, $I->grabNumRecords('events'));
 
         $I->fillField($I->getFieldFromLastRow('Event', 'StartDate'), '2018-08-05');
-        $I->clickWithLeftButton(null, 0, -50);
+        $I->clickAway();
         $I->wait(2);
         $I->assertSame($initial_event_count + 1, $I->grabNumRecords('events'));
 
@@ -87,13 +87,13 @@ class TableCest
         $I->assertCount($initial_group_count + 1, $I->getTableRows('Group'));
 
         $I->fillField($I->getFieldFromLastRow('Group', 'Name'), 'Herr Jönssons grupp');
-        $I->clickWithLeftButton(null, 0, -50);
+        $I->clickAway();
         $I->wait(2);
         // as we have only entered the Name and not the Status
         $I->assertSame($initial_group_count, $I->grabNumRecords('groups'));
 
         $I->selectOption($I->getFieldFromLastRow('Group', 'Status', 'select'), 'active');
-        $I->clickWithLeftButton(null, 0, -50);
+        $I->clickAway();
         $I->wait(2);
         // now all required fields are entered
         $I->assertSame($initial_group_count + 1, $I->grabNumRecords('groups'));
@@ -173,6 +173,64 @@ class TableCest
     // codecept run acceptance TableCest:editUserTable --steps -f
     public function editUserTable(A $I)
     {
+        $last_name_selector = $I->get('paths', 'elena_last_name');
+        $role_selector = $I->get('paths', 'elena_role');
+
+        $I->amOnPage('/table/User');
+
+        $I->seeInDatabase('users', ['id' => '11', 'LastName' => 'Staffansson']);
+
+        $I->seeElement($last_name_selector);
+        $I->fillField($last_name_selector, 'Isaksson');
+        $I->clickAway();
+        $I->wait(3);
+
+        $I->seeInDatabase('users', ['id' => '11', 'LastName' => 'Isaksson']);
+
+        $I->seeInDatabase('users', ['id' => '11', 'Role' => 4]);
+
+        $I->seeElement($role_selector);
+        $I->selectOption($role_selector, 'stakeholder');
+        $I->clickAway();
+        $I->wait(3);
+
+        $I->seeInDatabase('users', ['id' => '11', 'Role' => 2]);
+
+        $I->reloadPage();
+        $I->wait(3);
+        $I->see('2018-06-01T12:00:00+02:00', '//tr[@data-id="11"]');
+
+        $row_btn = $I->getAddRowButton();
+        $I->canSeeElement($row_btn);
+        $I->click($row_btn);
+        $I->wait(3);
+
+        $first_name_field = $I->getFieldFromLastRow('User', 'FirstName');
+
+        $I->fillField($first_name_field, 'Barbro');
+        $I->clickAway();
+        $I->wait(3);
+        $I->seeInDatabase('users', ['id' => 104, 'FirstName' => 'Barbro']);
+
+        $barbro_row = '//tr[@data-id="104"]';
+
+        $I->reloadPage();
+        $I->wait(3);
+        $I->checkMultiple('see', ['stakeholder', 'Ingen'], [null, $barbro_row]);
+    }
+
+    // codecept run acceptance TableCest:editVisitTable --steps -f
+    public function editVisitTable(A $I)
+    {
+        $I->amOnPage('/table/Visit');
+
+        $I->wait(3);
+        $group_selector = '//tr[@data-id="10"]//select[@name="Group"]';
+        $I->seeElement($group_selector);
+
+        $I->selectOption($group_selector, '46');
+
+        // TODO: Continue this method
 
     }
 

@@ -36,6 +36,8 @@ paths:
     universum_segment_select: '//tr[@data-id="1"]//select[@name="Segment"]'
     universum_food_select: '//tr[@data-id="1"]//select[@name="Location"]'
     universum_lektion_select: '//tr[@data-id="1"]//input[@name="IsLektion#1"]'
+    elena_last_name: '//tr[@data-id="11"]//input[@name="LastName"]'
+    elena_role: '//tr[@data-id="11"]//select[@name="Role"]'
 
 nav_items:
     admin: ['skolor', 'verktyg', 'tabeller']
