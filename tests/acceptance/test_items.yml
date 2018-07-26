@@ -33,6 +33,9 @@ paths:
     josefina_row: '//tr[@data-id="jose"]//td[@class="sorting_1"]'
     central_row: '//tr[@data-id="cent"]//td[@class="sorting_1"]'
     first_school_row_field: '//tbody/tr[1]//input[@type="text" and @name="Name"]'
+    universum_segment_select: '//tr[@data-id="1"]//select[@name="Segment"]'
+    universum_food_select: '//tr[@data-id="1"]//select[@name="Location"]'
+    universum_lektion_select: '//tr[@data-id="1"]//input[@name="IsLektion#1"]'
 
 nav_items:
     admin: ['skolor', 'verktyg', 'tabeller']

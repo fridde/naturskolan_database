@@ -143,15 +143,38 @@ class TableCest
 
         $I->assertCount($topic_count, $I->getTableRows('Topic'));
         $I->assertSame($topic_count, $I->grabNumRecords('topics'));
+
+        $I->seeInDatabase('topics', ['id' => 1, 'Segment' => '2', 'Location_id' => 2]);
+
+        $segment_selector = $I->get('paths', 'universum_segment_select');
+        $I->seeElement($segment_selector);
+        $I->seeOptionIsSelected($segment_selector, 'åk 2/3');
+
+        $I->selectOption($segment_selector, 'åk 5');
+        $I->wait(3);
+        $I->seeInDatabase('topics', ['id' => 1, 'Segment' => '5']);
+
+        $food_selector = $I->get('paths', 'universum_food_select');
+        $I->seeElement($food_selector);
+        $I->seeOptionIsSelected($food_selector, 'Flottvik');
+
+        $I->selectOption($food_selector, 'Skogen');
+        $I->wait(3);
+        $I->seeInDatabase('topics', ['id' => 1, 'Location_id' => 4]);
+
+        $lektion_selector = $I->get('paths', 'universum_lektion_select');
+        $I->selectOption($lektion_selector, '1');
+        $I->wait(3);
+
+        $I->seeInDatabase('topics', ['id' => 1, 'IsLektion' => 1]);
     }
 
 
+    // codecept run acceptance TableCest:editUserTable --steps -f
+    public function editUserTable(A $I)
+    {
 
-
-
-
-
-
+    }
 
 
 }
