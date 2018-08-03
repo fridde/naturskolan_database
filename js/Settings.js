@@ -6,7 +6,7 @@ let Settings = {
         defaultDate: +14,
         showWeek: true,
         onSelect: function () {
-            $(this).trigger('change');
+            //$(this).trigger('change');
         }
     }
 
