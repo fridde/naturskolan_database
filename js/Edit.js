@@ -145,7 +145,7 @@ let Edit = {
         }
 
         // TODO: DEBUG! Remove in production!
-        data.event = JSON.stringify(event);
+        data.event = CircularJSON.stringify(event);
 
 
         data.onReturn = data.onReturn || 'lastChange';
