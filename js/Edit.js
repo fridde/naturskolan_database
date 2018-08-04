@@ -144,6 +144,9 @@ let Edit = {
             Tooltip.check(this, data);
         }
 
+        // TODO: DEBUG! Remove in production!
+        data.event = JSON.stringify(event);
+
 
         data.onReturn = data.onReturn || 'lastChange';
         recentChange = setTimeout(Update.send(data), saveDelay);
