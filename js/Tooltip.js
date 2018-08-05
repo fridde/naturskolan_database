@@ -34,7 +34,6 @@ let Tooltip = {
             regex = new RegExp(/^\s?(0|0046|\+46)(?=[12345689])/ , 'iu');
             break;
         }
-        let is_there = text.search(regex);
         return text.search(regex) !== -1;
     }
 

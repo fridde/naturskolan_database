@@ -46,7 +46,8 @@ $(document).ready(function () {
      */
     $('.group-container .editable').change('group', Edit.change);
     //$('table.editable :input').not(".datepicker").change("tableInput", Edit.change);
-    $('table.editable :input').change("tableInput", Edit.change);
+    $('table.editable :input').not('.datepicker').change("tableInput", Edit.change);
+
 
     $('.visits.set-colleagues td.toggle-label').click('work_schedule', Edit.change);
 
@@ -77,7 +78,12 @@ $(document).ready(function () {
     let datepicker = $.fn.datepicker.noConflict();
     $.fn.BSdatepicker = datepicker;
     $('.datepicker').BSdatepicker(Settings.datepickerOptions);
-
+    $('input.datepicker').on('change', function(event){
+        if($(this).val().length > 0){
+            event.data = 'tableInput';
+            Edit.change(event);
+        }
+    });
 
     $("#group-change-modal").dialog({
         autoOpen: false,

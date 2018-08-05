@@ -224,13 +224,13 @@ class TableCest
     {
         $I->amOnPage('/table/Visit');
         $I->pause();
-/*
+
         $group_selector = '//tr[@data-id="10"]//select[@name="Group"]';
         $I->seeElement($group_selector);
         $I->selectOption($group_selector, '46');
         $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Group_id' => 46]);
-*/
+
         $date_picker = '//tr[@data-id="10"]//input[@name="Date"]';
         $I->seeElement($date_picker);
         $I->pauseExecution();  // only in debug mode
@@ -238,7 +238,7 @@ class TableCest
         $I->clickAway(0, 70);
         $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Date' => '2019-05-06']);
-/*
+
         $topic_selector = '//tr[@data-id="10"]//select[@name="Topic"]';
         $I->seeElement($topic_selector);
         $I->selectOption($topic_selector, '14');
@@ -250,7 +250,7 @@ class TableCest
         $I->selectOption($confirmed_selector, '1');
         $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Confirmed' => 1]);
-*/
+
 
     }
 

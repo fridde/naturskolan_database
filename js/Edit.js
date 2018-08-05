@@ -1,6 +1,7 @@
 let Edit = {
 
     change: function (event) {
+        let $this = $(event.target);
         let data = {};
         let option, specialInfo, $tr, $td, $icon, list;
         if (recentChange !== false) {
@@ -18,22 +19,22 @@ let Edit = {
             case "group":
                 data.updateMethod = "updateProperty";
                 data.entity_class = "Group";
-                data.entity_id = $(this).closest(".group-container").data("entity-id");
-                data.property = $(this).prop("name").split('#').shift();
-                data.value = $(this).val();
+                data.entity_id = $this.closest(".group-container").data("entity-id");
+                data.property = $this.prop("name").split('#').shift();
+                data.value = $this.val();
                 break;
 
             case "tableInput":
 
-                data.entity_class = $(this).closest("table").data("entity");
-                data.entity_id = $(this).closest("tr").data("id").toString();
-                data.property = $(this).prop("name").split('#').shift();
-                if ($(this).attr("type") === "radio") {
-                    data.value = $(this)
-                        .closest("tr").find("[name='" + $(this).attr("name") + "']:checked")
+                data.entity_class = $this.closest("table").data("entity");
+                data.entity_id = $this.closest("tr").data("id").toString();
+                data.property = $this.prop("name").split('#').shift();
+                if ($this.attr("type") === "radio") {
+                    data.value = $this
+                        .closest("tr").find("[name='" + $this.attr("name") + "']:checked")
                         .val();
                 } else {
-                    data.value = $(this).val();
+                    data.value = $this.val();
                 }
 
                 if (data.entity_id.charAt(0) === '#') {  // i.e. is a new object
@@ -45,8 +46,8 @@ let Edit = {
                     if(typeof $addInfo.data() !== 'undefined'){
                         data.properties = $addInfo.data().defaultProperties;
                     }
-                    if(typeof $(this).closest("tr").data('properties') !== 'undefined'){
-                        let props = JSON.parse($(this).closest("tr").data('properties'));
+                    if(typeof $this.closest("tr").data('properties') !== 'undefined'){
+                        let props = JSON.parse($this.closest("tr").data('properties'));
                         Object.assign(data.properties, props);
                     }
                     data.properties[data.property] = data.value;
@@ -54,16 +55,16 @@ let Edit = {
                     data.updateMethod = "updateProperty";
                 }
                 // setting the new data-order and data-search for DataTables
-                $(this).data("search", data.value).data("order", data.value)
+                $this.data("search", data.value).data("order", data.value)
                     .attr("data-search", data.value).attr("data-order", data.value);
                 break;
 
             case "groupModal":
                 data.updateMethod = "updateGroupName";
                 data.entity_class = "group";
-                data.entity_id = $(this).closest("#group-change-modal").data("entity-id");
-                data.property = $(this).prop("name").split('#').shift();
-                data.value = $(this).val();
+                data.entity_id = $this.closest("#group-change-modal").data("entity-id");
+                data.property = $this.prop("name").split('#').shift();
+                data.value = $this.val();
                 break;
 
             case "tableReorder":
@@ -81,7 +82,7 @@ let Edit = {
             case "visitConfirm":
                 data.updateMethod = "updateProperty";
                 data.entity_class = "Visit";
-                data.entity_id = $(this).data("visit-id");
+                data.entity_id = $this.data("visit-id");
                 data.property = "Confirmed";
                 data.value = true;
                 data.onReturn = "changeConfirmedLink";
@@ -89,8 +90,8 @@ let Edit = {
                 break;
 
             case "work_schedule":
-                $(this).toggleClass('active');
-                $tr = $(this).closest('tr');
+                $this.toggleClass('active');
+                $tr = $this.closest('tr');
                 data.updateMethod = "updateProperty";
                 data.entity_class = "Visit";
                 data.entity_id = $tr.data("id");
@@ -103,17 +104,17 @@ let Edit = {
                 break;
 
             case 'food_bus_bookings':
-                $(this).toggleClass('active');
-                $tr = $(this).closest('tr');
+                $this.toggleClass('active');
+                $tr = $this.closest('tr');
                 data.updateMethod = "updateProperty";
                 data.entity_class = "Visit";
                 data.entity_id = $tr.data("id");
-                data.property = $(this).data('booking-type') === 'food' ? 'FoodIsBooked' : 'BusIsBooked';
-                data.value = $(this).hasClass('active') ? 1 : 0;
+                data.property = $this.data('booking-type') === 'food' ? 'FoodIsBooked' : 'BusIsBooked';
+                data.value = $this.hasClass('active') ? 1 : 0;
                 break;
 
             case 'bus_settings':
-                $td = $(this);
+                $td = $this;
                 $icon = $td.find('i');
                 $tr = $icon.closest('tr');
                 $icon.toggleClass('fa-minus').toggleClass('fa-bus');
@@ -127,13 +128,13 @@ let Edit = {
                 break;
         }
 
-        if ($(this).prop("type") === "checkbox") {
-            data.property = $(this).prop("name").split('#').shift();
+        if ($this.prop("type") === "checkbox") {
+            data.property = $this.prop("name").split('#').shift();
             if (data.property.endsWith('[]')) {
                 data.property = data.property.slice(0, -2);
             }
             let valueArray = [];
-            let checkedBoxes = $(this).closest("fieldset").find(":checked");
+            let checkedBoxes = $this.closest("fieldset").find(":checked");
             checkedBoxes.each(function (index, element) {
                 valueArray.push($(element).val());
             });
@@ -141,12 +142,8 @@ let Edit = {
         }
 
         if (["Food", "Mobil"].includes(data.property)) {
-            Tooltip.check(this, data);
+            Tooltip.check($this.get(0), data);
         }
-
-        // TODO: DEBUG! Remove in production!
-        data.event = CircularJSON.stringify(event);
-
 
         data.onReturn = data.onReturn || 'lastChange';
         recentChange = setTimeout(Update.send(data), saveDelay);
