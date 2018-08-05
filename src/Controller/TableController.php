@@ -31,7 +31,7 @@ class TableController extends BaseController
         $this->addJs('DT', HTML::INC_ABBREVIATION);
         $this->addJs('js/DT_config', HTML::INC_ADDRESS);
 
-        $this->setCss(['DT']);
+        $this->addCss('DT');
     }
 
 }

@@ -306,6 +306,11 @@ class BaseController
         $this->css = $css;
     }
 
+    public function addCss($css, $type = HTML::INC_ABBREVIATION)
+    {
+        $this->css[] = [$css, $type];
+    }
+
     /**
      * @return string
      */
