@@ -7,5 +7,4 @@ let Settings = {
         todayHighlight: true,
         calendarWeeks: true
     }
-
 };
