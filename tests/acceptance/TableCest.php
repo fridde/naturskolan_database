@@ -40,13 +40,13 @@ class TableCest
 
         $I->fillField($I->getFieldFromLastRow('Event', 'Title'), 'Ekorrens dag enligt FN');
         $I->clickAway();
-        $I->wait(2);
+        $I->pause(0.7);
         // as we have only entered the title and not a start date yet
         $I->assertSame($initial_event_count, $I->grabNumRecords('events'));
 
         $I->fillField($I->getFieldFromLastRow('Event', 'StartDate'), '2018-08-05');
         $I->clickAway();
-        $I->wait(2);
+        $I->pause(0.7);
         $I->assertSame($initial_event_count + 1, $I->grabNumRecords('events'));
 
         $I->runCronTask('rebuild_calendar');
@@ -88,13 +88,13 @@ class TableCest
 
         $I->fillField($I->getFieldFromLastRow('Group', 'Name'), 'Herr Jönssons grupp');
         $I->clickAway();
-        $I->wait(2);
+        $I->pause(0.7);
         // as we have only entered the Name and not the Status
         $I->assertSame($initial_group_count, $I->grabNumRecords('groups'));
 
         $I->selectOption($I->getFieldFromLastRow('Group', 'Status', 'select'), 'active');
         $I->clickAway();
-        $I->wait(2);
+        $I->pause(0.7);
         // now all required fields are entered
         $I->assertSame($initial_group_count + 1, $I->grabNumRecords('groups'));
     }
@@ -121,14 +121,14 @@ class TableCest
 
         // Check if the reordering works
         $I->dragAndDrop($josefina_row, $central_row);
-        $I->wait(2);
+        $I->pause(0.7);
         $I->makeScreenshot('reordered');
 
         $I->seeInField($first_school_row_field, 'Josefinaskolan');
 
         $button_path = '//div[@class="dt-buttons btn-group"]//button'; // Button for "Spara besöksordningen"
         $I->click($button_path);
-        $I->wait(2);
+        $I->pause(0.7);
 
         $I->seeInDatabase('schools', ['id' => 'jose', 'VisitOrder' => 1]);
         $I->seeInDatabase('schools', ['id' => 'cent', 'VisitOrder' => 2]);
@@ -151,7 +151,7 @@ class TableCest
         $I->seeOptionIsSelected($segment_selector, 'åk 2/3');
 
         $I->selectOption($segment_selector, 'åk 5');
-        $I->wait(3);
+        $I->pause();
         $I->seeInDatabase('topics', ['id' => 1, 'Segment' => '5']);
 
         $food_selector = $I->get('paths', 'universum_food_select');
@@ -159,12 +159,12 @@ class TableCest
         $I->seeOptionIsSelected($food_selector, 'Flottvik');
 
         $I->selectOption($food_selector, 'Skogen');
-        $I->wait(3);
+        $I->pause();
         $I->seeInDatabase('topics', ['id' => 1, 'Location_id' => 4]);
 
         $lektion_selector = $I->get('paths', 'universum_lektion_select');
         $I->selectOption($lektion_selector, '1');
-        $I->wait(3);
+        $I->pause();
 
         $I->seeInDatabase('topics', ['id' => 1, 'IsLektion' => 1]);
     }
@@ -183,7 +183,7 @@ class TableCest
         $I->seeElement($last_name_selector);
         $I->fillField($last_name_selector, 'Isaksson');
         $I->clickAway();
-        $I->wait(3);
+        $I->pause(1.5);
 
         $I->seeInDatabase('users', ['id' => '11', 'LastName' => 'Isaksson']);
 
@@ -192,30 +192,30 @@ class TableCest
         $I->seeElement($role_selector);
         $I->selectOption($role_selector, 'stakeholder');
         $I->clickAway();
-        $I->wait(3);
+        $I->pause();
 
         $I->seeInDatabase('users', ['id' => '11', 'Role' => 2]);
 
         $I->reloadPage();
-        $I->wait(3);
+        $I->pause();
         $I->see('2018-06-01T12:00:00+02:00', '//tr[@data-id="11"]');
 
         $row_btn = $I->getAddRowButton();
         $I->canSeeElement($row_btn);
         $I->click($row_btn);
-        $I->wait(3);
+        $I->pause();
 
         $first_name_field = $I->getFieldFromLastRow('User', 'FirstName');
 
         $I->fillField($first_name_field, 'Barbro');
         $I->clickAway();
-        $I->wait(3);
+        $I->pause();
         $I->seeInDatabase('users', ['id' => 104, 'FirstName' => 'Barbro']);
 
         $barbro_row = '//tr[@data-id="104"]';
 
         $I->reloadPage();
-        $I->wait(3);
+        $I->pause();
         $I->checkMultiple('see', ['stakeholder', 'Ingen'], [null, $barbro_row]);
     }
 
@@ -223,31 +223,32 @@ class TableCest
     public function editVisitTable(A $I)
     {
         $I->amOnPage('/table/Visit');
-        $I->wait(3);
+        $I->pause();
 
         $group_selector = '//tr[@data-id="10"]//select[@name="Group"]';
         $I->seeElement($group_selector);
         $I->selectOption($group_selector, '46');
-        $I->wait(3);
+        $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Group_id' => 46]);
 
         $date_picker = '//tr[@data-id="10"]//input[@name="Date"]';
         $I->seeElement($date_picker);
+        $I->pauseExecution();  // only in debug mode
         $I->fillField($date_picker, '2019-05-06');
-        $I->clickAway();
-        $I->wait(3);
+        $I->clickAway(0, 70);
+        $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Date' => '2019-05-06']);
 
         $topic_selector = '//tr[@data-id="10"]//select[@name="Topic"]';
         $I->seeElement($topic_selector);
         $I->selectOption($topic_selector, '14');
-        $I->wait(3);
+        $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Topic_id' => 14]);
 
         $confirmed_selector = '//tr[@data-id="10"]//input[@name="Confirmed#10"]';
         $I->seeElement($confirmed_selector);
         $I->selectOption($confirmed_selector, '1');
-        $I->wait(3);
+        $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Confirmed' => 1]);
 
 

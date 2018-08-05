@@ -30,6 +30,8 @@ class AcceptanceTester extends \Codeception\Actor
 
     private $test_items;
 
+    private $wait_time = 3.0;
+
     public function get(...$keys)
     {
         if (empty($this->test_items)) {
@@ -41,6 +43,27 @@ class AcceptanceTester extends \Codeception\Actor
         }
 
         return ($array ?? null);
+    }
+
+    /**
+     * @return float
+     */
+    public function getWaitTime(): float
+    {
+        return $this->wait_time;
+    }
+
+    /**
+     * @param float $wait_time
+     */
+    public function setWaitTime(float $wait_time): void
+    {
+        $this->wait_time = $wait_time;
+    }
+
+    public function pause(float $wait_factor = 1.0)
+    {
+        return $this->wait($this->wait_time * $wait_factor);
     }
 
 
@@ -103,7 +126,7 @@ class AcceptanceTester extends \Codeception\Actor
     {
         $test_date = $test_date ?? $this->get('test_date');
         $this->amOnPage('/api/updateTestDate/' . htmlentities($test_date));
-        $this->wait(2);
+        $this->pause(0.7);
     }
 
     public function changeTestDate(string $modifier)
@@ -174,7 +197,7 @@ class AcceptanceTester extends \Codeception\Actor
     public function runActivatedCronTasks()
     {
         $this->amOnPage('/cron/');
-        $this->wait(2);
+        $this->pause(0.7);
     }
 
     public function seeStringsInThisFile(array $strings)
@@ -184,9 +207,9 @@ class AcceptanceTester extends \Codeception\Actor
         }
     }
 
-    public function clickAway()
+    public function clickAway(int $dx = 0, int $dy = -50)
     {
-        $this->clickWithLeftButton(null, 0, -50);
+        return $this->clickWithLeftButton(null, $dx, $dy);
     }
 
 }

@@ -15,7 +15,7 @@ class SchoolPageCest
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('st_per', 'AuthKey'));
         $I->amOnPage('/skola/pers');
-        $I->wait(2);
+        $I->pause(0.7);
     }
 
     public function _after(A $I)
@@ -36,7 +36,7 @@ class SchoolPageCest
         $last_change_before = $I->grabFromDatabase('users', 'LastChange', ['id' => 102]);
         $I->fillField($heinz_field, 'Albus');
         $I->click($krumbichel_field);
-        $I->wait(3);
+        $I->pause();
         $I->seeInDatabase('users', ['FirstName' => 'Albus']);
 
         $last_change_after = $I->grabFromDatabase('users', 'LastChange', ['id' => 102]);
@@ -67,13 +67,13 @@ class SchoolPageCest
         $row_btn = $I->getAddRowButton();
         $I->canSeeElement($row_btn);
         $I->click($row_btn);
-        $I->wait(3);
+        $I->pause();
         $rows = $I->getTableRows('User');
         $I->assertCount(9, $rows);
         $num_users_before = $I->grabNumRecords('users');
         $I->fillField($I->getFieldFromLastRow('User', 'FirstName'), 'Ronald');
         $I->clickAway();
-        $I->wait(3);
+        $I->pause();
         $I->seeInDatabase('users', ['FirstName' => 'Ronald']);
         $num_users_after = $I->grabNumRecords('users');
         $I->assertSame($num_users_after, $num_users_before + 1);
@@ -95,7 +95,7 @@ class SchoolPageCest
         $I->dontSeeInPageSource('Stefan Eriksson'); // different school
         $I->selectOption($teacher_for_2a_field_path, 'Anna Svensson'); // teacher with id 24
         $I->clickAway();
-        $I->wait(2);
+        $I->pause(0.7);
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 24]);
         $I->seeInDatabase('changes', [
             'EntityClass' => 'Group',
@@ -112,7 +112,7 @@ class SchoolPageCest
         
         $I->cantSee('5A');
         $I->click('//a[@href="#tab_5"]');
-        $I->wait(2);
+        $I->pause(0.7);
         $I->canSee('5A');
     }
 

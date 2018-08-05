@@ -26,7 +26,7 @@ class IndexCest
     public function frontpageWorksForVisitor(A $I)
     {
         $I->amOnPage('/');
-        $I->wait(2);
+        $I->pause(0.7);
         $I->makeScreenshot('frontpage_visitor');
         $schools_on_fp = $I->get('schools','frontpage') ?? [];
         foreach ($schools_on_fp as $index => $school_name) {
@@ -66,7 +66,7 @@ class IndexCest
         $link = Locator::find('a', ['href' => $I->get('BASE') . '/skola/pers']);
         $I->seeElement($link);
         $I->click($link);
-        $I->wait(3);
+        $I->pause();
         $I->see('Ange skolans lösenord');
         $I->makeScreenshot('login_modal');
         $hide_pw_cb = Locator::find('input', ['name' => 'hide-password', 'type' => 'checkbox']);
@@ -79,7 +79,7 @@ class IndexCest
         $I->fillField($hidden_pw_field, $bad_pw);
         $I->makeScreenshot('password_hidden');
         $I->uncheckOption($hide_pw_cb);
-        $I->wait(3);
+        $I->pause();
         $I->cantSeeElement($hidden_pw_field);
         $I->seeElement($visible_pw_field);
         $I->makeScreenshot('password_visible');
@@ -112,17 +112,17 @@ class IndexCest
         $I->resetCookie('AuthKey');
         $link = Locator::find('a', ['href' => $I->get('BASE') . '/skola/pers']);
         $I->click($link);
-        $I->wait(3);
+        $I->pause();
         $hidden_pw_field = Locator::find('input', ['name' => 'password', 'type' => 'password']);
         $I->fillField($hidden_pw_field, $I->get('st_per', 'pw'));
         $login_button = Locator::find('button', ['id' => 'login_modal_submit']);
         $I->click($login_button);
-        $I->wait(5);
+        $I->pause(1.5);
         $user_nav_items = $I->get('nav_items', 'user');
         $I->checkMultiple('canSee', $user_nav_items, ['.nav']);
         $AuthKey = $I->grabCookie('AuthKey');
         $I->assertNotEmpty($AuthKey);
-        $I->wait(3);
+        $I->pause();
         $I->seeInDatabase('hashes', ['Category' => 2, 'Owner_id' => 'pers']);
     }
 
@@ -135,7 +135,7 @@ class IndexCest
         $I->amOnPage('/skola/pers');
 
         $I->click('//a[@href="logout"]');
-        $I->wait(2);
+        $I->pause(0.7);
         $I->dontSeeCookie('AuthKey');
         $I->dontSeeInCurrentUrl('skola/pers');
     }
