@@ -74,8 +74,9 @@ $(document).ready(function () {
         container: 'body'
     });
 
-
-    $('.datepicker').datepicker(Settings.datepickerOptions);
+    let datepicker = $.fn.datepicker.noConflict();
+    $.fn.BSdatepicker = datepicker;
+    $('.datepicker').BSdatepicker(Settings.datepickerOptions);
 
 
     $("#group-change-modal").dialog({
