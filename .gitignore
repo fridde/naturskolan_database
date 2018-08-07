@@ -15,11 +15,9 @@ vendor/
 /src/Controller/SandboxController.php
 /deployment/deployment.ini
 /templates/sandbox.twig
-/config/settings_prod.yml
-/config/settings_default.yml
-/config/settings_local.yml
-/config/settings_test.yml
+/config/settings_*.yml
 /config/.key
+/.env_*
 
 /tests/_data/*
 /tests/_output/*

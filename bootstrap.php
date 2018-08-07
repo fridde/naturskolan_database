@@ -13,6 +13,7 @@ if(empty($_SERVER['argv'][0])){
 /** START OF BOOTSTRAP  */
 Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl(__DIR__);
+Essentials::setEnvironment();
 Settings::setSettings();
 if(in_array(SETTINGS['environment'], ['dev','test'])){
     Essentials::activateDebug(['tracy']);
