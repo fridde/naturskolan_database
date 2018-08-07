@@ -137,12 +137,12 @@ class TableCest
     // codecept run acceptance TableCest:editTopicTable --steps -f
     public function editTopicTable(A $I)
     {
-        $topic_count = 19;
+        $initial_topic_count = 19;
 
         $I->amOnPage('/table/Topic');
 
-        $I->assertCount($topic_count, $I->getTableRows('Topic'));
-        $I->assertSame($topic_count, $I->grabNumRecords('topics'));
+        $I->assertCount($initial_topic_count, $I->getTableRows('Topic'));
+        $I->assertSame($initial_topic_count, $I->grabNumRecords('topics'));
 
         $I->seeInDatabase('topics', ['id' => 1, 'Segment' => '2', 'Location_id' => 2]);
 
@@ -154,11 +154,11 @@ class TableCest
         $I->pause();
         $I->seeInDatabase('topics', ['id' => 1, 'Segment' => '5']);
 
-        $food_selector = $I->get('paths', 'universum_food_select');
-        $I->seeElement($food_selector);
-        $I->seeOptionIsSelected($food_selector, 'Flottvik');
+        $location_selector = $I->get('paths', 'universum_location_select');
+        $I->seeElement($location_selector);
+        $I->seeOptionIsSelected($location_selector, 'Flottvik');
 
-        $I->selectOption($food_selector, 'Skogen');
+        $I->selectOption($location_selector, 'Skogen');
         $I->pause();
         $I->seeInDatabase('topics', ['id' => 1, 'Location_id' => 4]);
 
@@ -173,9 +173,25 @@ class TableCest
         $I->click($row_btn);
         $I->pause();
 
-        $I->assertCount($topic_count + 1, $I->getTableRows('Topic'));
+        $I->assertCount($initial_topic_count + 1, $I->getTableRows('Topic'));
 
+        $food_field = $I->getFieldFromLastRow('Topic', 'Food');
+        $food_value = 'Ärtsoppa med blodpudding';
+        $I->fillField($food_field, $food_value);
+        $I->clickAway();
+        $I->pause();
 
+        $I->dontSeeInDatabase('topics', ['Food' => $food_value]);
+        $I->assertSame($initial_topic_count, $I->grabNumRecords('topics'));
+
+        $short_name_field = $I->getFieldFromLastRow('Topic', 'ShortName');
+        $short_name_value = 'Plastikkirurgi';
+        $I->fillField($short_name_field, $short_name_value);
+        $I->clickAway();
+        $I->pause();
+
+        $I->seeInDatabase('topics', ['Food' => $food_value, 'ShortName' => $short_name_value]);
+        $I->assertSame($initial_topic_count + 1, $I->grabNumRecords('topics'));
     }
 
 

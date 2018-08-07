@@ -52,7 +52,8 @@ class TopicRepository extends CustomRepository
 
         foreach($topics as $topic){
             /* @var Topic $topic  */
-            $ordered_topics[$topic->getSegment()][] = $topic;
+            $segment = $topic->getSegment() ?? 'ingen';
+            $ordered_topics[$segment][] = $topic;
         }
         array_walk($ordered_topics, function(&$segment_topics){
             usort($segment_topics, function(Topic $t1, Topic $t2){

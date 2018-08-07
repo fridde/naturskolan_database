@@ -34,7 +34,7 @@ paths:
     central_row: '//tr[@data-id="cent"]//td[@class="sorting_1"]'
     first_school_row_field: '//tbody/tr[1]//input[@type="text" and @name="Name"]'
     universum_segment_select: '//tr[@data-id="1"]//select[@name="Segment"]'
-    universum_food_select: '//tr[@data-id="1"]//select[@name="Location"]'
+    universum_location_select: '//tr[@data-id="1"]//select[@name="Location"]'
     universum_lektion_select: '//tr[@data-id="1"]//input[@name="IsLektion#1"]'
     elena_last_name: '//tr[@data-id="11"]//input[@name="LastName"]'
     elena_role: '//tr[@data-id="11"]//select[@name="Role"]'
@@ -82,3 +82,10 @@ schools:
         anna: 'Annan skola'
         natu: 'Naturskolan'
         
+strings:
+    group_count_text: |
+        pers, 2,     8
+
+        pers,fri,5
+
+# important that the last line remains, as it could possibly cause an error (which to test for!)

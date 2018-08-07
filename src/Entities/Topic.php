@@ -133,14 +133,18 @@ class Topic
         return $long;
     }
 
-    public function getLocation(): Location
+    public function getLocation(): ?Location
     {
         return $this->Location;
     }
 
     public function getLocationId()
     {
-        return $this->getLocation()->getId();
+        $location = $this->getLocation();
+        if(empty($location)){
+            return null;
+        }
+        return $location->getId();
     }
 
     public function setLocation($Location)

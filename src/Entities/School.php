@@ -67,9 +67,6 @@ class School
 
     public function getGroupNumbersAsString()
     {
-        $group_numbers = $this->getGroupNumbers();
-        $encoded = json_encode($group_numbers);
-
         return json_encode($this->getGroupNumbers() ?? []);
     }
 
@@ -81,7 +78,7 @@ class School
         return $this->GroupNumbers;
     }
 
-    public function getGroupNumber($segment, int $start_year = null): int
+    public function getGroupNumber(string $segment, int $start_year = null): int
     {
         $start_year = $start_year ?? Carbon::today()->year;
         $groupNumbers = $this->getGroupNumbers();

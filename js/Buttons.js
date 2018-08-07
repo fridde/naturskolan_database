@@ -48,7 +48,7 @@ $(document).ready(function () {
     });
 
     $('.set-group-count button#clean').click(function () {
-        let $textElement = $("textarea.group-count-lines");
+        let $textElement = $("#group-count-lines");
         $textElement.val(cleanLines($textElement.val()));
     });
 
@@ -78,10 +78,12 @@ $(document).ready(function () {
     });
 
     $('.set-group-count button#update').click(function () {
-        let $text = $("textarea.group-count-lines");
-        let lines = $text.val().split(/\r|\n/).map(function (i) {
-            return i.split(',').map(function (j) {
-                return j.trim()
+        let $text = $("#group-count-lines");
+        let lines = $text.val().split(/\r|\n/).filter(function (line) {
+            return line.trim().length > 0
+        }).map(function (line) {
+            return line.split(',').map(function (item) {
+                return item.trim()
             });
         });
         let data = {
