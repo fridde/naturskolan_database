@@ -30,7 +30,7 @@ class AcceptanceTester extends \Codeception\Actor
 
     private $test_items;
 
-    private $wait_time = 3.0;
+    private $wait_time = 4.0;
 
     public function get(...$keys)
     {

@@ -46,7 +46,7 @@ class TableCest
 
         $I->fillField($I->getFieldFromLastRow('Event', 'StartDate'), '2018-08-05');
         $I->clickAway();
-        $I->pause(0.7);
+        $I->pause(1);
         $I->assertSame($initial_event_count + 1, $I->grabNumRecords('events'));
 
         $I->runCronTask('rebuild_calendar');
@@ -167,6 +167,15 @@ class TableCest
         $I->pause();
 
         $I->seeInDatabase('topics', ['id' => 1, 'IsLektion' => 1]);
+
+        $row_btn = $I->getAddRowButton();
+        $I->canSeeElement($row_btn);
+        $I->click($row_btn);
+        $I->pause();
+
+        $I->assertCount($topic_count + 1, $I->getTableRows('Topic'));
+
+
     }
 
 
@@ -233,7 +242,6 @@ class TableCest
 
         $date_picker = '//tr[@data-id="10"]//input[@name="Date"]';
         $I->seeElement($date_picker);
-        $I->pauseExecution();  // only in debug mode
         $I->fillField($date_picker, '2019-05-06');
         $I->clickAway(0, 70);
         $I->pause();
@@ -251,6 +259,43 @@ class TableCest
         $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Confirmed' => 1]);
 
+        $time_field = '//tr[@data-id="10"]//input[@name="Time"]';
+        $I->seeElement($time_field);
+        $I->fillField($time_field, '1939-1945');
+        $I->clickAway();
+        $I->pause();
+        $I->seeInDatabase('visits', ['id' => 10, 'Time' => '19:39-19:45']);
+
+        $I->runCronTask('rebuild_calendar');
+        $I->seeFileFound('kalender.ics', codecept_root_dir());
+        $strings = [
+            'DTSTART;TZID=Europe/Stockholm:20190506T193900',
+            'DTEND;TZID=Europe/Stockholm:20190506T194500'
+        ];
+        $I->seeStringsInThisFile($strings);
+
+        $I->amOnPage('/table/Visit');
+        $I->pause();
+
+        $initial_visit_count = 29;
+
+        $button = $I->getAddRowButton();
+        $I->seeElement($button);
+        $I->click($button);
+        $I->pause();
+        $I->assertCount($initial_visit_count + 1, $I->getTableRows('Visit'));
+
+        $last_time_field = $I->getFieldFromLastRow('Visit', 'Time');
+        $I->fillField($last_time_field, '1618-1648');
+        $I->clickAway();
+        $I->pause();
+        $I->assertSame($initial_visit_count, $I->grabNumRecords('visits'));
+
+        $last_date_field = $I->getFieldFromLastRow('Visit', 'Date');
+        $I->fillField($last_date_field, '2019-05-07');
+        $I->clickAway();
+        $I->pause();
+        $I->assertSame($initial_visit_count + 1, $I->grabNumRecords('visits'));
 
     }
 

@@ -153,9 +153,13 @@ class Visit
         return $this->Topic;
     }
 
-    public function getTopicId()
+    public function getTopicId(): ?int
     {
-        return $this->getTopic()->getId();
+        $topic = $this->getTopic();
+        if(empty($topic)){
+            return null;
+        }
+        return $topic->getId();
     }
 
     public function setTopic($Topic)
@@ -256,9 +260,16 @@ class Visit
         return $this->timeStringToArray($this->Time);
     }
 
-    public function setTime($Time)
+    public function setTime(string $Time): void
     {
-        $this->Time = $Time;
+        $time = $this->timeStringToArray($Time);
+
+        $string = $time['start']['hh'] . ':' . $time['start']['mm'];
+        if(!empty($time['end'])){
+            $string .= '-' . $time['end']['hh'] . ':' . $time['end']['mm'];
+        }
+
+        $this->Time = $string;
     }
 
     public function hasTime()
