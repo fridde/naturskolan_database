@@ -120,7 +120,8 @@ fi
 
 if [ $SKIP -lt 8 ]; then
 	read -p '[8] Copying deployment settings from dev to deploy...'
-	cd $STAGING_PROJECT_PATH    
+	cd $STAGING_PROJECT_PATH
+    touch .env_prod
     cp {$PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment.ini
     cp $PROJECT_PATH/config/settings_prod.yml $STAGING_PROJECT_PATH/config/	
 	

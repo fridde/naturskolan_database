@@ -3,6 +3,7 @@
 require __DIR__.'/vendor/autoload.php';
 
 use Fridde\Essentials;
+use Fridde\Naturskolan;
 use Fridde\Settings;
 use Carbon\Carbon;
 
@@ -14,12 +15,10 @@ if(empty($_SERVER['argv'][0])){
 Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl(__DIR__);
 Essentials::setEnvironment();
+Essentials::activateDebugIfNecessary(['tracy']);
 Settings::setSettings();
-if(in_array(SETTINGS['environment'], ['dev','test'])){
-    Essentials::activateDebug(['tracy']);
-}
 
-$services[] = ['Naturskolan', \Fridde\Naturskolan::class];
+$services[] = ['Naturskolan', Naturskolan::class];
 
 $base_url = rtrim(parse_url(APP_URL, PHP_URL_PATH), '/');
 $services[] = ['Router', 'AltoRouter', Essentials::getRoutes(), $base_url];
@@ -32,7 +31,7 @@ Essentials::registerDBLogger($em, Essentials::getLogger());
 setlocale(LC_TIME, 'swedish');
 Carbon::setUtf8(true);
 if(SETTINGS['environment'] === 'test'){
-    /* @var \Fridde\Naturskolan $N  */
+    /* @var Naturskolan $N  */
     $N = $container->get('Naturskolan');
     $test_time = $N->getStatus('test.datetime')
         ?? (Carbon::parse(SETTINGS['debug']['test_date'])

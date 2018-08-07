@@ -1244,12 +1244,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/essentials.git",
-                "reference": "1a78f93dbaa7381ebf45365c6bf950b8925b47c1"
+                "reference": "450daade98ab1da7a772ce9f649b11426b8a0325"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/essentials/zipball/1a78f93dbaa7381ebf45365c6bf950b8925b47c1",
-                "reference": "1a78f93dbaa7381ebf45365c6bf950b8925b47c1",
+                "url": "https://api.github.com/repos/fridde/essentials/zipball/450daade98ab1da7a772ce9f649b11426b8a0325",
+                "reference": "450daade98ab1da7a772ce9f649b11426b8a0325",
                 "shasum": ""
             },
             "require": {
@@ -1279,7 +1279,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-08-07T18:45:03+00:00"
+            "time": "2018-08-07T19:37:40+00:00"
         },
         {
             "name": "fridde/html",
@@ -1287,12 +1287,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/html.git",
-                "reference": "7ce5015f756b284cd25c0257455c95b27c5cd32b"
+                "reference": "f5a73916be0f39b217fb5a25ef63ed8ef9f07952"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/html/zipball/7ce5015f756b284cd25c0257455c95b27c5cd32b",
-                "reference": "7ce5015f756b284cd25c0257455c95b27c5cd32b",
+                "url": "https://api.github.com/repos/fridde/html/zipball/f5a73916be0f39b217fb5a25ef63ed8ef9f07952",
+                "reference": "f5a73916be0f39b217fb5a25ef63ed8ef9f07952",
                 "shasum": ""
             },
             "require": {
@@ -1316,7 +1316,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-08-05T21:03:43+00:00"
+            "time": "2018-08-07T19:21:44+00:00"
         },
         {
             "name": "fridde/mailer",
