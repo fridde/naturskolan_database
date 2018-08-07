@@ -5,9 +5,9 @@ use Tracy\BlueScreen;
 
 $controller_namespace = '\\Fridde\\Controller\\';
 
-try {
-    require 'bootstrap.php';
+require 'bootstrap.php';
 
+try {
     $request_url = rawurldecode($_SERVER['REQUEST_URI']);
     $request_url = rtrim($request_url, '/\\');
 
