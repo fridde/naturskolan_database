@@ -13,7 +13,6 @@ use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
 
 
-
 /**
  * Contains the logic to update records in the database.
  */
@@ -80,7 +79,6 @@ class Update extends DefaultUpdate
     }
 
 
-
     /**
      * Checks if password corresponds to any school and saves the matching
      * school_id into $RETURN for the callback to receive.
@@ -94,9 +92,10 @@ class Update extends DefaultUpdate
     public function checkPassword(string $password, $school_id = null): void
     {
         $school = $this->N->Auth->getSchoolFromPassword($password);
-        if(empty($school) || $school->getId() !== $school_id){
+        if (empty($school) || $school->getId() !== $school_id) {
             $this->addError('Wrong password!');
             usleep(1000 * 2000); // to avoid brute force methods
+
             return;
         }
         $hash_string = $this->setCookie($school_id);
@@ -119,18 +118,18 @@ class Update extends DefaultUpdate
         $properties = ['Topic' => $topic];
         foreach ($dates as $date_string) {
             $date_string = trim($date_string);
-            if(substr_count($date_string, ':') === 1){
-                [$x,$date] = explode(':', $date_string);
+            if (substr_count($date_string, ':') === 1) {
+                [$x, $date] = explode(':', $date_string);
             } else {
                 $date = $date_string;
             }
-            if(preg_match($pattern, $date) !== 1){
-                throw new \Exception('The date' . $date . 'didn\'t match ISO 8601.');
+            if (preg_match($pattern, $date) !== 1) {
+                throw new \Exception('The date'.$date.'didn\'t match ISO 8601.');
             }
             $properties['Date'] = $date;
             $this->createNewEntity('Visit', $properties, false);
         }
-        if($flush){
+        if ($flush) {
             $this->flush();
         }
     }
@@ -145,17 +144,18 @@ class Update extends DefaultUpdate
     public function addDatesForMultipleTopics(array $dates = [])
     {
         $dates_by_topic = [];
-        foreach($dates as $topic_date_string){
+        foreach ($dates as $topic_date_string) {
             $topic_date_array = explode(':', $topic_date_string);
-            if(count($topic_date_array) !== 2){
-                $this->addError('The string "' . $topic_date_string . '" has an invalid format.');
+            if (count($topic_date_array) !== 2) {
+                $this->addError('The string "'.$topic_date_string.'" has an invalid format.');
+
                 return;
             }
             [$topic_id, $date] = $topic_date_array;
             $dates_by_topic[$topic_id][] = $date;
         }
 
-        foreach($dates_by_topic as $topic_id => $date_array){
+        foreach ($dates_by_topic as $topic_id => $date_array) {
             $this->addDates($topic_id, $date_array, false);
         }
         $this->flush();
@@ -313,10 +313,10 @@ class Update extends DefaultUpdate
      */
     public function updateBusRule(string $school_id, int $location_id, bool $needs_bus)
     {
-        /* @var SchoolRepository $school_repo  */
-        /* @var LocationRepository $location_repo  */
-        /* @var School $school  */
-        /* @var Location $location  */
+        /* @var SchoolRepository $school_repo */
+        /* @var LocationRepository $location_repo */
+        /* @var School $school */
+        /* @var Location $location */
         $school_repo = $this->ORM->getRepository('School');
         $location_repo = $this->ORM->getRepository('Location');
 
@@ -336,27 +336,34 @@ class Update extends DefaultUpdate
      * @PostArgs("segment")
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function createMissingGroups(string $segment_id, int $start_year = null)
+    public function createMissingGroups(string $segment_id, int $start_year = null): void
     {
         $all_schools = $this->N->getRepo('School')->findAll();
-        /* @var \Fridde\Entities\School $school */
-        foreach ($all_schools as $school) {
-            $actual_count = $school->getActiveGroupsBySegmentAndYear($segment_id, $start_year);
-            $expected_count = $school->getGroupNumber($segment_id, $start_year);
-            $diff = $expected_count - $actual_count;
+        $start_years = (array)$start_year;
+        if (empty($start_years)) {
+            $this_year = Carbon::today()->year;
+            $start_years = [$this_year, $this_year + 1];
+        }
+        foreach ($start_years as $year) {
+            /* @var \Fridde\Entities\School $school */
+            foreach ($all_schools as $school) {
+                $actual_count = $school->getNrActiveGroupsBySegmentAndYear($segment_id, $year);
+                $expected_count = $school->getGroupNumber($segment_id, $year);
+                $diff = $expected_count - $actual_count;
 
-            for ($i = 0; $i < $diff; $i++) {
-                $group = new Group();
-                $group->setName();
-                $group->setSchool($school);
-                $group->setSegment($segment_id);
-                $group->setStartYear($start_year);
-                $group->setStatus(1);
-                $this->ORM->EM->persist($group);
-            }
+                for ($i = 0; $i < $diff; $i++) {
+                    $group = new Group();
+                    $group->setName('Grupp ' .  Naturskolan::getRandomAnimalName());
+                    $group->setSchool($school);
+                    $group->setSegment($segment_id);
+                    $group->setStartYear($year);
+                    $group->setStatus(Group::ACTIVE);
+                    $this->ORM->EM->persist($group);
+                }
 
-            if ($diff < 0) { // too many groups
-                // TODO: log this situation somewhere
+                if ($diff < 0) { // too many groups
+                    // TODO: log this situation somewhere
+                }
             }
         }
         $this->ORM->EM->flush();
@@ -372,7 +379,7 @@ class Update extends DefaultUpdate
      */
     public function fillEmptyGroupNames(string $segment_id, int $start_year = null)
     {
-        /* @var GroupRepository $group_repo  */
+        /* @var GroupRepository $group_repo */
         $group_repo = $this->N->ORM->getRepository('Group');
 
         $start_year = $start_year ?? Carbon::today()->year;
@@ -387,7 +394,7 @@ class Update extends DefaultUpdate
         array_walk(
             $groups_without_name,
             function (Group &$g) {
-                $g->setName();
+                $g->setName('Grupp ' .  Naturskolan::getRandomAnimalName());
             }
         );
         $this->N->ORM->EM->flush();
@@ -421,7 +428,7 @@ class Update extends DefaultUpdate
      */
     public function changeTaskActivation(string $task_name, $status)
     {
-        $status = (int) in_array($status, [1, '1', 'true', true], true);
+        $status = (int)in_array($status, [1, '1', 'true', true], true);
         $this->N->setCronTask($task_name, $status);
     }
 

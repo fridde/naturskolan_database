@@ -123,7 +123,7 @@ class DatabaseMaintainer
         array_walk(
             $nameless,
             function (Group $g) {
-                $g->setName();
+                $g->setName('Grupp ' .  Naturskolan::getRandomAnimalName());
             }
         );
 

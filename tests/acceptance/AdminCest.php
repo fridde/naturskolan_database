@@ -65,10 +65,21 @@ class AdminCest
         $I->assertEquals(0, strlen($new_text));
     }
 
-    // codecept run acceptance AdminCest:setWorkSchedule --steps -f
-    public function setWorkSchedule(A $I)
+    // codecept run acceptance AdminCest:addMissingGroups --steps -f
+    public function addMissingGroups(A $I)
     {
+        $I->amOnPage('admin');
+        $I->pause(0.5);
 
+        $pers_groups = $I->getGroupNumbersForSchool('pers');
+
+
+        $missing_group_btn = '//div[@id="missingGroups"]//button';
+        $I->seeElement($missing_group_btn);
+
+
+
+        $I->click($missing_group_btn);
 
     }
 

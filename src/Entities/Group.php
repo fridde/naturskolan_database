@@ -4,7 +4,6 @@ namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Carbon\Carbon;
-use Fridde\Naturskolan;
 
 /**
  * @Entity(repositoryClass="Fridde\Entities\GroupRepository")
@@ -78,12 +77,8 @@ class Group
         return $this->Name;
     }
 
-    public function setName($Name = null)
+    public function setName($Name)
     {
-        if (empty($Name)) {
-            $alias_names = Naturskolan::getSetting('defaults', 'placeholder', 'animals');
-            $Name = 'Grupp '.$alias_names[random_int(0, count($alias_names) - 1)];
-        }
         $this->Name = trim($Name);
     }
 

@@ -456,4 +456,10 @@ class Naturskolan
         return $school->getId() === self::ADMIN_SCHOOL;
     }
 
+    public static function getRandomAnimalName()
+    {
+        $alias_names = self::getSetting('defaults', 'placeholder', 'animals');
+        return $alias_names[random_int(0, count($alias_names) - 1)];
+    }
+
 }
