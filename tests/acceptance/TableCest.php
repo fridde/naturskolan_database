@@ -241,7 +241,7 @@ class TableCest
 
         $I->reloadPage();
         $I->pause();
-        $I->checkMultiple('see', ['stakeholder', 'Ingen'], [null, $barbro_row]);
+        $I->checkMultiple('see', ['stakeholder', 'Ingen'], $barbro_row);
     }
 
     // codecept run acceptance TableCest:editVisitTable --steps -f

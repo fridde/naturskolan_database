@@ -108,7 +108,7 @@ class SchoolPageCest
         $visits_for_2a = ['2018-06-04', 'Universum', '2018-11-13', 'Vårvandring', '2019-02-07', 'Forntidsdag'];
         //
         $visit_locator_for_2a = $I->get('paths', 'visits_for_2a');
-        $I->checkMultiple('see', $visits_for_2a, [$visit_locator_for_2a]);
+        $I->checkMultiple('see', $visits_for_2a, $visit_locator_for_2a);
         
         $I->cantSee('5A');
         $I->click('//a[@href="#tab_5"]');

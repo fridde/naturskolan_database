@@ -85,8 +85,22 @@ let Update = {
         }
     },
 
-    showChange: function () {
-        // TODO: implement this function to show the result of the operation
+    showChange: function (data) {
+        switch (data.method){
+            case 'addMissingGroups':
+                let text = '<h5>Tillagda grupper:</h5>';
+                if(data.added_groups.length === 0){
+                    text += '<p>Inga grupper har lagts till.</p>';
+                } else {
+                    text += '<ul><li>';
+                    text += data.added_groups.join('</li><li>');
+                    text += '</li></ul>';
+                }
+                $('#missingGroups div.result-box').html(text);
+                break;
+
+        }
+
     },
 
     setSliderLabel: function (data) {

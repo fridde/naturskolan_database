@@ -344,6 +344,8 @@ class Update extends DefaultUpdate
             $this_year = Carbon::today()->year;
             $start_years = [$this_year, $this_year + 1];
         }
+
+        $added_groups = [];
         foreach ($start_years as $year) {
             /* @var \Fridde\Entities\School $school */
             foreach ($all_schools as $school) {
@@ -359,6 +361,11 @@ class Update extends DefaultUpdate
                     $group->setStartYear($year);
                     $group->setStatus(Group::ACTIVE);
                     $this->ORM->EM->persist($group);
+
+                    $label = $group->getName() . ', ';
+                    $label .= $group->getSegmentLabel() . ', ';
+                    $label .= $group->getSchool()->getName();
+                    $added_groups[] = $label;
                 }
 
                 if ($diff < 0) { // too many groups
@@ -367,6 +374,9 @@ class Update extends DefaultUpdate
             }
         }
         $this->ORM->EM->flush();
+
+        $this->setReturn('added_groups', $added_groups);
+        $this->setReturn('method', 'addMissingGroups');
     }
 
     /**

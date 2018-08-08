@@ -47,7 +47,7 @@ class IndexCest
         $I->amOnPage('/');
         $I->makeScreenshot('frontpage_admin');
         $admin_nav_items = $I->get('nav_items','admin');
-        $I->checkMultiple('cantSee', $admin_nav_items, ['.nav']);
+        $I->checkMultiple('cantSee', $admin_nav_items, '.nav');
 
         $I->setCookie('AuthKey', $I->get('natu','AuthKey'));
         $I->reloadPage();
@@ -93,13 +93,13 @@ class IndexCest
         $exclusive_items = array_diff($user_nav_items, $visitor_nav_items);
 
         //TODO: Change to a better test as soon as there is a better response
-        $I->checkMultiple('cantSee', $exclusive_items, ['.navbar']);
+        $I->checkMultiple('cantSee', $exclusive_items, '.navbar');
 
         $I->wantTo('Enter a valid pw, but for wrong school');
         $I->fillField($visible_pw_field, $I->get('gala', 'pw'));
         $I->click($login_button);
-        $I->checkMultiple('cantSee', $exclusive_items, ['.navbar']);
-        $I->checkMultiple('canSee', $I->get('nav_items','visitor'), ['.navbar']);
+        $I->checkMultiple('cantSee', $exclusive_items, '.navbar');
+        $I->checkMultiple('canSee', $I->get('nav_items','visitor'), '.navbar');
 
 
     }
@@ -119,7 +119,7 @@ class IndexCest
         $I->click($login_button);
         $I->pause(1.5);
         $user_nav_items = $I->get('nav_items', 'user');
-        $I->checkMultiple('canSee', $user_nav_items, ['.nav']);
+        $I->checkMultiple('canSee', $user_nav_items, '.nav');
         $AuthKey = $I->grabCookie('AuthKey');
         $I->assertNotEmpty($AuthKey);
         $I->pause();

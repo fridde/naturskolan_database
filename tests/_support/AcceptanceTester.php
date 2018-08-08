@@ -67,12 +67,11 @@ class AcceptanceTester extends \Codeception\Actor
     }
 
 
-    public function checkMultiple(string $function_name, array $elements = [], array $default_args = [])
+    public function checkMultiple(string $function_name, array $elements = [], ...$extra_args)
     {
         foreach ($elements as $element) {
-            $element = (array)$element;
-            $element += $default_args;
-            call_user_func_array([$this, $function_name], $element);
+            $args = array_merge((array)$element, $extra_args);
+            call_user_func_array([$this, $function_name], $args);
         }
     }
 
@@ -104,7 +103,7 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function seeInSubject(string $subject)
     {
-        if(mb_detect_encoding($subject, 'ASCII', true) === false){
+        if (mb_detect_encoding($subject, 'ASCII', true) === false) {
             $subject = str_replace(' ', '_', $subject);
         }
         $this->seeInOpenedEmailSubject($subject);
@@ -114,7 +113,7 @@ class AcceptanceTester extends \Codeception\Actor
     public function seeInBody(...$parts)
     {
         foreach ($parts as $part) {
-            if(mb_detect_encoding($part, 'ASCII', true) === false){
+            if (mb_detect_encoding($part, 'ASCII', true) === false) {
                 //$part = quoted_printable_encode($part);
             }
             $this->seeInOpenedEmailBody($part);
@@ -125,7 +124,7 @@ class AcceptanceTester extends \Codeception\Actor
     public function setTestDate(string $test_date = null)
     {
         $test_date = $test_date ?? $this->get('test_date');
-        $this->amOnPage('/api/updateTestDate/' . htmlentities($test_date));
+        $this->amOnPage('/api/updateTestDate/'.htmlentities($test_date));
         $this->pause(0.7);
     }
 
@@ -139,17 +138,18 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function emptyFolder(string $folder, array $exceptions = ['.gitignore'])
     {
-        foreach($this->getFileNamesFromFolder($folder) as $file){
-            if(!in_array($file, $exceptions, true)){
-               $this->deleteFile($file);
+        foreach ($this->getFileNamesFromFolder($folder) as $file) {
+            if (!in_array($file, $exceptions, true)) {
+                $this->deleteFile($file);
             }
         }
     }
 
     public function getFileNamesFromFolder(string $folder)
     {
-        $dir_path = codecept_root_dir() . '/' . $folder;
-        return glob($dir_path . '/*');
+        $dir_path = codecept_root_dir().'/'.$folder;
+
+        return glob($dir_path.'/*');
     }
 
     public function getAddRowButton()
@@ -159,7 +159,8 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function getTableRows(string $entity)
     {
-        $row_path = '//table[@data-entity="' . $entity . '"]//tbody//tr';
+        $row_path = '//table[@data-entity="'.$entity.'"]//tbody//tr';
+
         return $this->grabMultiple($row_path);
     }
 
@@ -168,18 +169,19 @@ class AcceptanceTester extends \Codeception\Actor
         $path = '//table[@data-entity="';
         $path .= ucfirst($entity);
         $path .= '"]//tbody//tr[last()]//';
-        $path .= $element_type . '[@name="';
+        $path .= $element_type.'[@name="';
         $path .= ucfirst($name);
         $path .= '"]';
+
         return $path;
     }
 
-    public function runCronTask($task)
+    public function runCronTask(string $task)
     {
 
         $cron_tasks = array_keys($this->get('cron_items'));
-        if(!in_array($task, $cron_tasks, true)){
-            throw new \Exception('The task "'. $task . '" was not defined in the test settings');
+        if (!in_array($task, $cron_tasks, true)) {
+            throw new \Exception('The task "'.$task.'" was not defined in the test settings');
         }
 
         $this->amOnPage('/admin');
@@ -202,7 +204,7 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function seeStringsInThisFile(array $strings)
     {
-        foreach($strings as $string){
+        foreach ($strings as $string) {
             $this->seeInThisFile($string);
         }
     }
@@ -214,7 +216,8 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function getGroupNumbersForSchool(string $school_id): ?array
     {
-        $group_numbers = $this->grabColumnFromDatabase('schools','GroupNumbers', ['id' => $school_id]);
+        $group_numbers = $this->grabColumnFromDatabase('schools', 'GroupNumbers', ['id' => $school_id]);
+
         return json_decode($group_numbers[0], true);
     }
 

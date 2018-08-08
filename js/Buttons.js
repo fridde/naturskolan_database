@@ -151,11 +151,13 @@ $(document).ready(function () {
     $('#missingGroups button').click(function () {
         let data = {
             updateMethod: "createMissingGroups",
-            segment: $('#missingGroups select[name="segment"]').val(),
+            segment: $('#missingGroups select[name="Segment"]').val(),
             onReturn: 'showStatus'
         };
         Update.send(data);
     });
+
+    /* REMOVED, maybe later
 
     $('#fill-empty-group-names button').click(function () {
         let data = {
@@ -165,6 +167,7 @@ $(document).ready(function () {
         };
         Update.send(data);
     });
+    */
 
     $('#cron-task-activation :checkbox').click(function () {
         let data = {
