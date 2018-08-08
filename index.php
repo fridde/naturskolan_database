@@ -1,13 +1,14 @@
 <?php
 
 use Fridde\Controller\BaseController;
+use Fridde\Naturskolan;
 use Tracy\BlueScreen;
 
 $controller_namespace = '\\Fridde\\Controller\\';
 
-require 'bootstrap.php';
-
 try {
+    require 'bootstrap.php';
+
     $request_url = rawurldecode($_SERVER['REQUEST_URI']);
     $request_url = rtrim($request_url, '/\\');
 
@@ -22,10 +23,11 @@ try {
         }
         exit();
     }
-} catch( Exception $e){
-    $N = $container->get('Naturskolan')->log($e->getMessage(), $e->getFile() . ':' . $e->getLine());
+} catch (Exception $e) {
+
+    (new Naturskolan())->log($e->getMessage(), $e->getFile().':'.$e->getLine());
     header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error', true, 500);
-    if(!empty(DEBUG)){
+    if (!empty(DEBUG)) {
         (new BlueScreen())->render($e);
     }
     exit();
