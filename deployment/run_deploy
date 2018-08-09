@@ -83,7 +83,7 @@ if [ $SKIP -lt 5 ]; then
 	read -p "[5] Preparing and backing up the test directory..."
 	cd $TESTING_PATH
     delete_old_files.py
-    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME &
+    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME test &
 	echo "Wait for rsync to be finished before continuing"
 	echo ""
 	read -p "Bringing the test directory up to current status (git/composer).[WAIT]"
@@ -108,7 +108,7 @@ fi
 if [ $SKIP -lt 7 ]; then
     echo '[7] Creating the local staging copy...'
     cd $STAGING_PATH    
-    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME
+    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME staging
     chmod -R 0777 $PROJECT_NAME && mv $PROJECT_NAME "dir_to_delete"
 	rm -rf "dir_to_delete" &
 	delete_old_files.py
