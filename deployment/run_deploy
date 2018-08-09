@@ -60,7 +60,7 @@ if [ $SKIP -lt 3 ]; then
 	read -p "Checking git status of each directory in toolbox..."
     gitstatus_dir.py -author fridde --save 
     compare_package_date.py --before
-	read -p 'If some repos have to be pushed, use Ctrl+Shift+E to open a new split window.'
+	read -p 'If some repos have to be pushed, use Ctrl+Shift+E to open a new split window...'
 	compare_package_date.py
 fi
 
@@ -81,12 +81,12 @@ fi
 
 if [ $SKIP -lt 5 ]; then    
 	read -p "[5] Preparing and backing up the test directory..."
-	cd $TESTING_PATH
-    delete_old_files.py
-    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME test &
+	cd $TESTING_PATH    
+    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME "_test" &
+	delete_old_files.py
 	echo "Wait for rsync to be finished before continuing"
 	echo ""
-	read -p "Bringing the test directory up to current status (git/composer).[WAIT]"
+	read -p "Bringing the test directory up to current status (git/composer).[WAIT]"	
     cd $PROJECT_NAME
     git pull
     composer install --no-suggest
@@ -108,7 +108,7 @@ fi
 if [ $SKIP -lt 7 ]; then
     echo '[7] Creating the local staging copy...'
     cd $STAGING_PATH    
-    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME staging
+    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME "_staging" 
     chmod -R 0777 $PROJECT_NAME && mv $PROJECT_NAME "dir_to_delete"
 	rm -rf "dir_to_delete" &
 	delete_old_files.py
