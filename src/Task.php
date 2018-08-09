@@ -570,7 +570,7 @@ class Task
         );
 
         $date = preg_replace('/[^[:alnum:]]/', '_', Carbon::now()->toIso8601String());
-        $file_name = BASE_DIR.'\temp\new_'.$date;
+        $file_name = BASE_DIR.'/temp/new_'.$date;
         if (false === file_put_contents($file_name, $pw_string)) {
             throw new \Exception('The password file could not be written.');
         }
