@@ -126,7 +126,8 @@ if [ $SKIP -lt 8 ]; then
 	cd $STAGING_PROJECT_PATH
     touch .env_prod
     cp {$PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment.ini
-    cp $PROJECT_PATH/config/settings_{default,prod}.yml $STAGING_PROJECT_PATH/config/	
+    cp $PROJECT_PATH/config/settings_{default,prod}.yml $STAGING_PROJECT_PATH/config/
+	cp $PROJECT_PATH/config/.key $STAGING_PROJECT_PATH/config/
 	
 	read -p 'Uploading the changed files to the remote server...'
     ./vendor/bin/deployment deployment/deployment.ini

@@ -41,7 +41,7 @@ class PasswordHandler
     {
         if (empty($this->key)) {
             $key = file_get_contents($this->getConfigDirectory().'.key');
-            $key = preg_replace('/\s+/u', '', $key);
+            $key = preg_replace('/\s+/u', '', $key); //remove any whitespace
             $this->key = Key::loadFromAsciiSafeString($key);
         }
 
