@@ -17,13 +17,13 @@ class Message
     /** @ManyToOne(targetEntity="User", inversedBy="Messages")     * */
     protected $User;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="smallint", nullable=true) */
     protected $Subject;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="smallint", nullable=true) */
     protected $Carrier;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="smallint", nullable=true) */
     protected $Status;
 
     /** @Column(type="string", nullable=true) */

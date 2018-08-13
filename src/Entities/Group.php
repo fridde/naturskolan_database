@@ -29,10 +29,10 @@ class Group
     /** @Column(type="string", nullable=true) */
     protected $Segment;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="smallint", nullable=true) */
     protected $StartYear;
 
-    /** @Column(type="integer", nullable=true)
+    /** @Column(type="smallint", nullable=true)
      *  @Loggable  */
     protected $NumberStudents;
 
@@ -47,7 +47,7 @@ class Group
     /** @Column(type="text", nullable=true) */
     protected $Notes;
 
-    /** @Column(type="integer") */
+    /** @Column(type="smallint") */
     protected $Status = self::ACTIVE;
 
     /** @Column(type="string", nullable=true) */

@@ -15,7 +15,7 @@ class Hash
     /** @Id @Column(type="integer") @GeneratedValue */
     protected $id;
 
-    /** @Column(type="integer") */
+    /** @Column(type="smallint") */
     protected $Category;
 
     /** @Column(type="string", nullable=true) */
@@ -27,7 +27,7 @@ class Hash
     /** @Column(type="string") */
     protected $Owner_id;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="smallint", nullable=true) */
     protected $Rights;
 
     /** @Column(type="string", nullable=true) */

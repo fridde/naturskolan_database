@@ -27,7 +27,7 @@ class School
     /** @Column(type="string", nullable=true) */
     protected $Coordinates;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="smallint", nullable=true) */
     protected $VisitOrder;
 
     /** @Column(type="integer", options={"default" : 0}) */

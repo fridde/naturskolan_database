@@ -14,7 +14,7 @@ class Change
     /** @Id @Column(type="integer") @GeneratedValue */
     protected $id;
 
-    /** @Column(type="integer") */
+    /** @Column(type="smallint") */
     protected $Type;
 
     /** @Column(type="string") */

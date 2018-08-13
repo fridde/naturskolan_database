@@ -31,13 +31,13 @@ class User
     /** @ManyToOne(targetEntity="School", inversedBy="Users")     * */
     protected $School;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="smallint", nullable=true) */
     protected $Role = self::ROLE_STAKEHOLDER;
 
     /** @Column(type="string", nullable=true) */
     protected $Acronym;
 
-    /** @Column(type="integer", nullable=true) */
+    /** @Column(type="smallint", nullable=true) */
     protected $Status = 1;
 
     /** @Column(type="string", nullable=true) */
