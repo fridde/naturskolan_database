@@ -196,7 +196,7 @@ class AdminSummary
             $text .= ' Sista möte: ';
             $text .= empty($last_visit) ? 'Inga fler besök.' : $last_visit->getDate()->toDateString();
 
-            return $text;
+            return [$text];
         }
 
         return false;
@@ -470,7 +470,7 @@ class AdminSummary
         $files = array_diff($files, ['.', '..', '.gitignore']);
 
         array_walk($files, function(&$v){
-            return 'Filen ' . $v . ' finns fortfarande i /temp. Ta bort den snarast!';
+            $v = 'Filen ' . $v . ' finns fortfarande i /temp. Ta bort den snarast!';
         });
 
         return $files;
