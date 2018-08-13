@@ -1,9 +1,12 @@
 #!/bin/bash
 
 SKIP=0
-while getopts "s:" opts; do
+NO_TEST=0
+
+while getopts "s:n" opts; do
    case ${opts} in
       s) SKIP=${OPTARG} ;;
+	  n) NO_TEST=1 ;;
    esac
 done 
 
@@ -94,7 +97,7 @@ if [ $SKIP -lt 5 ]; then
 	cp $PROJECT_PATH/config/.key ./config/    
 fi
 
-if [ $SKIP -lt 6 ]; then
+if [ $SKIP -lt 6 ] && [ $NO_TEST -eq 0 ]; then
     read -p "[6] Setting up local testing environment..."    
     cd ~/bin_win
     cmd /C start java -jar selenium-server.jar &
