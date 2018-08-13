@@ -65,7 +65,7 @@ class School
         $this->Name = $Name;
     }
 
-    public function getGroupNumbersAsString()
+    public function getGroupNumbersAsString(): string
     {
         return json_encode($this->getGroupNumbers() ?? []);
     }
@@ -73,7 +73,7 @@ class School
     /**
      * @return array|null
      */
-    public function getGroupNumbers()
+    public function getGroupNumbers(): ?array
     {
         return $this->GroupNumbers;
     }
@@ -81,7 +81,7 @@ class School
     public function getGroupNumber(string $segment, int $start_year = null): int
     {
         $start_year = $start_year ?? Carbon::today()->year;
-        $groupNumbers = $this->getGroupNumbers();
+        $groupNumbers = $this->getGroupNumbers() ?? [];
 
         return $groupNumbers[$start_year][$segment] ?? 0;
     }

@@ -193,19 +193,19 @@ class Naturskolan
      * The array deactivates certain Tasks to help debug or to be able to tinker
      * without being interrupted by the cron task.
      *
-     * @return null|integer[] An array which each task name as index and either 0 or 1 as
+     * @return integer[] An array which each task name as index and either 0 or 1 as
      *                        deactivated or activated. Fridde\Task assumes a task as
      *                        'activated' if not present in this array.
      *
      */
-    public function getCronTaskActivationStatus()
+    public function getCronTaskActivationStatus(): array
     {
         $val = $this->getStatus('cron_tasks.activation');
         if (!empty($val)) {
             return json_decode($val, true);
         }
 
-        return null;
+        return [];
     }
 
     public function setCronTask(string $task_name, $status)
