@@ -85,7 +85,8 @@ fi
 if [ $SKIP -lt 5 ]; then    
 	read -p "[5] Preparing and backing up the test directory..."
 	cd $TESTING_PATH    
-    quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME "_test"
+    #quicktar backup_@$(date '+%Y%m%d_%H%M%S').tar $PROJECT_NAME "_test"
+	quicktar2 backup_test_@$(date '+%Y%m%d_%H%M%S').tar $PWD/ $PROJECT_NAME
 	read -p "Deleting old backups..."
 	delete_old_files.py	
 	read -p "Bringing the test directory up to current status (git/composer)..."	
