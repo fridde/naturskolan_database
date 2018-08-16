@@ -2,7 +2,12 @@ let Edit = {
 
     change: function (event) {
         //let $this = $(event.target);
-        let $this = $(this);
+        let $this;
+        if(event.this){
+            $this = $(event.this);
+        } else {
+            $this = $(this);
+        }
         let data = {};
         let option, specialInfo, $tr, $td, $icon, list;
         if (recentChange !== false) {

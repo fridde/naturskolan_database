@@ -1,0 +1,5 @@
+codecept run acceptance IndexCest --steps -f &&
+codecept run acceptance SchoolPageCest --steps -f &&
+codecept run acceptance AdminCest --steps -f &&
+codecept run acceptance CronCest --steps -f &&
+codecept run acceptance TableCest --steps -f

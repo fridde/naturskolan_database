@@ -80,6 +80,7 @@ $(document).ready(function () {
     $('.datepicker').BSdatepicker(Settings.datepickerOptions);
     $('input.datepicker').on('change', function(event){
         if($(this).val().length > 0){
+            event.this = this;
             event.data = 'tableInput';
             Edit.change(event);
         }
