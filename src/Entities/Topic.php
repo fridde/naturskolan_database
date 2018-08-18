@@ -96,7 +96,7 @@ class Topic
         $this->Segment = $Segment;
     }
 
-    public function getVisitOrder()
+    public function getVisitOrder(): ?int
     {
         return $this->VisitOrder;
     }
@@ -217,7 +217,7 @@ class Topic
     /**
      * @param boolean $OrderIsRelevant
      */
-    public function setOrderRelevant(bool $OrderIsRelevant): void
+    public function setOrderIsRelevant(bool $OrderIsRelevant): void
     {
         $this->OrderIsRelevant = $OrderIsRelevant;
     }

@@ -316,7 +316,9 @@ class BatchController extends BaseController
         /* @var TopicRepository $topic_repo  */
         $topic_repo = $this->N->ORM->getRepository('Topic');
 
-        $topics = $topic_repo->findTopicsOrderedBySegments();
+        $topics = $topic_repo->findOrderableTopics();
+        $topics = $topic_repo->sortByVisitOrder($topics);
+        $topics = $topic_repo->sliceBySegment($topics);
         
         array_walk_recursive($topics, function(Topic &$topic){
             $topic = [

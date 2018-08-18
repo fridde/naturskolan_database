@@ -3,13 +3,17 @@
 {% block content %}
     <h1>Update visit order for topics</h1>
     {% for segment, topics in DATA.topics  %}
-        <h2>{{ segment }}</h2>
+        <h2>{%- if segment == -1 -%}
+                Ingen
+            {%- else -%}
+                {{ segment }}
+            {%- endif -%}
+        </h2>
         <ul data-segment="{{ segment }}" class="list-group sortable topic-visit-order">
             {% for topic in topics  %}
                 <li data-id="{{ topic.id }}" class="list-group-item">{{ topic.label }}</li>
             {% endfor %}
         </ul>
     {% endfor %}
-    
     
 {% endblock %}
