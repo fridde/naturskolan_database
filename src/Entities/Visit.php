@@ -403,7 +403,8 @@ class Visit
     public function getLabel(string $pattern = 'DTGSU')
     {
         $label = '';
-        $topic_name = $this->getTopic()->getShortName();
+        $topic = $this->getTopic();
+        $topic_name = empty($topic) ? 'Obestämd' : $topic->getShortName();
         $has_group = $this->hasGroup();
 
         $include = [

@@ -81,13 +81,13 @@ class AdminCest
         $expected_vals_groups = $I->getGroupNumbersForSchool('vals');
         $criteria = [
             'fri_18' => ['School_id' => 'vals', 'Segment' => 'fri', 'StartYear' => 2018],
-            '2_19' => ['School_id' => 'vals', 'Segment' => '2', 'StartYear' => 2019]
+            '2_19' => ['School_id' => 'vals', 'Segment' => '2', 'StartYear' => 2019],
         ];
 
 
         $actual_before = [
             'fri_18' => $I->grabNumRecords('groups', $criteria['fri_18']),
-            '2_19' => $I->grabNumRecords('groups', $criteria['2_19'])
+            '2_19' => $I->grabNumRecords('groups', $criteria['2_19']),
         ];
 
         $I->assertNotSame($expected_vals_groups['2018']['fri'], $actual_before['fri_18']);
@@ -101,14 +101,14 @@ class AdminCest
             'Tillagda grupper:',
             'Grupp',
             'åk 2/3',
-            'Valstaskolan'
-            ];
+            'Valstaskolan',
+        ];
         $I->checkMultiple('see', $result_strings, $result_box);
 
 
         $actual_after = [
             'fri_18' => $I->grabNumRecords('groups', $criteria['fri_18']),
-            '2_19' => $I->grabNumRecords('groups', $criteria['2_19'])
+            '2_19' => $I->grabNumRecords('groups', $criteria['2_19']),
         ];
 
 
@@ -122,17 +122,34 @@ class AdminCest
         $result_strings = [
             'Grupp',
             'Fritids',
-            'Valstaskolan'
+            'Valstaskolan',
         ];
         $I->checkMultiple('see', $result_strings, $result_box);
 
         $last_after = [
             'fri_18' => $I->grabNumRecords('groups', $criteria['fri_18']),
-            '2_19' => $I->grabNumRecords('groups', $criteria['2_19'])
+            '2_19' => $I->grabNumRecords('groups', $criteria['2_19']),
         ];
 
         $I->assertSame($expected_vals_groups['2018']['fri'], $last_after['fri_18']);
         $I->assertSame($expected_vals_groups['2019']['2'], $last_after['2_19']);
+    }
+
+    // codecept run acceptance AdminCest:setColleagues --steps -f
+    public function setColleagues(A $I)
+    {
+        $I->amOnPage('admin/batch/set_colleagues');
+        $I->pause(0.7);
+
+        $first_row = '//tr[@data-id="102"]';
+        $I->seeElement($first_row);
+
+        $I->assertEquals(0, $I->grabNumRecords('colleagues_visits'));
+
+        $I->click($first_row . '//td[@data-colleague-id="1"]');
+        $I->pause(1);
+
+        $I->assertEquals(1, $I->grabNumRecords('colleagues_visits'));
     }
 
 
