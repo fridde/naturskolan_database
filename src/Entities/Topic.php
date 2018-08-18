@@ -43,6 +43,9 @@ class Topic
     /** @Column(type="smallint", nullable=true) */
     protected $IsLektion;
 
+    /** @Column(type="smallint", nullable=true) */
+    protected $OrderIsRelevant;
+
     /** @Column(type="string", nullable=true) */
     protected $LastChange;
 
@@ -202,6 +205,29 @@ class Topic
     {
         $this->IsLektion = (int)$IsLektion;
     }
+
+    /**
+     * @return bool
+     */
+    public function getOrderIsRelevant(): bool
+    {
+        return (bool) $this->OrderIsRelevant;
+    }
+
+    /**
+     * @param boolean $OrderIsRelevant
+     */
+    public function setOrderRelevant(bool $OrderIsRelevant): void
+    {
+        $this->OrderIsRelevant = $OrderIsRelevant;
+    }
+
+    public static function getOrderIsRelevantOptions()
+    {
+        return [0 => 'No', 1 => 'Yes'];
+    }
+
+
 
     public function getLastChange()
     {

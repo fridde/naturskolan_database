@@ -20,7 +20,8 @@ class Group
     protected $Name;
 
     /** @ManyToOne(targetEntity="User", inversedBy="Groups")
-     *  @Loggable     * */
+     * @Loggable     *
+     */
     protected $User;
 
     /** @ManyToOne(targetEntity="School", inversedBy="Groups")     * */
@@ -33,15 +34,18 @@ class Group
     protected $StartYear;
 
     /** @Column(type="smallint", nullable=true)
-     *  @Loggable  */
+     * @Loggable
+     */
     protected $NumberStudents;
 
     /** @Column(type="text", nullable=true)
-     *  @Loggable      */
+     * @Loggable
+     */
     protected $Food;
 
     /** @Column(type="text", nullable=true)
-     *  @Loggable  */
+     * @Loggable
+     */
     protected $Info;
 
     /** @Column(type="text", nullable=true) */
@@ -125,6 +129,7 @@ class Group
     public function getSchoolId()
     {
         $school = $this->getSchool();
+
         return empty($school) ? null : $school->getId();
     }
 
@@ -157,7 +162,7 @@ class Group
 
     public function isSegment($Segment)
     {
-        return $this->getSegment() === (string) $Segment;
+        return $this->getSegment() === (string)$Segment;
     }
 
     public function getStartYear()
@@ -228,9 +233,9 @@ class Group
     public static function getStatusOptions()
     {
         return [
-                self::ARCHIVED => 'archived',
-                self::ACTIVE => 'active',
-            ];
+            self::ARCHIVED => 'archived',
+            self::ACTIVE => 'active',
+        ];
     }
 
     public function setStatus(int $Status)
@@ -268,36 +273,12 @@ class Group
         return !$this->Visits->isEmpty();
     }
 
-    public function getVisits()
+    public function getVisits(): array
     {
-        return $this->Visits;
+        return $this->Visits->toArray();
     }
 
-    public function getFutureVisits()
-    {
-        return $this->getVisitsAfter(Carbon::today());
-    }
-
-    public function getVisitsAfter($date = null, $ordered = true)
-    {
-
-        if ($ordered) {
-            $this->sortVisits();
-        }
-        if (is_string($date)) {
-            $date = new Carbon($date);
-        } elseif (empty($date)) {
-            $date = Carbon::today();
-        }
-
-        return $this->getVisits()->filter(
-            function ($v) use ($date) {
-                return $v->isAfter($date);
-            }
-        );
-    }
-
-    public function getSortedVisits()
+    public function getFutureVisits(): array
     {
         $this->sortVisits();
 

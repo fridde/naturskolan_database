@@ -292,14 +292,14 @@ class User
         $this->Visits->removeElement($Visit);
     }
 
-    public function getMessages()
+    public function getMessages(): array
     {
-        return $this->Messages;
+        return $this->Messages->toArray();
     }
 
-    public function getFilteredMessages($properties, $messages = null)
+    public function getFilteredMessages($properties, array $messages = null)
     {
-        $messages = $messages ?? $this->getMessages()->toArray();
+        $messages = $messages ?? $this->getMessages();
 
         return array_filter(
             $messages,
@@ -319,9 +319,9 @@ class User
         $this->Messages->add($Message);
     }
 
-    public function getGroups()
+    public function getGroups(): array
     {
-        return $this->Groups;
+        return $this->Groups->toArray();
     }
 
     /**
@@ -330,12 +330,12 @@ class User
      */
     public function hasGroups(int $min = 1)
     {
-        return count($this->getGroups()->toArray()) >= $min;
+        return count($this->getGroups()) >= $min;
     }
 
     public function hasActiveGroups()
     {
-        $groups = $this->getGroups()->toArray();
+        $groups = $this->getGroups();
         return 1 <= count(array_filter($groups, function (Group $g){
             return $g->isActive();
         }));
@@ -345,10 +345,10 @@ class User
     public function getGroupIdArray()
     {
         return array_map(
-            function ($g) {
+            function (Group $g) {
                 return $g->getId();
             },
-            $this->getGroups()->toArray()
+            $this->getGroups()
         );
     }
 
@@ -408,7 +408,7 @@ class User
         if (!empty($properties)) {
             $msg = $this->getFilteredMessages($properties);
         } else {
-            $msg = $this->getMessages()->toArray();
+            $msg = $this->getMessages();
         }
 
         return array_pop($msg);

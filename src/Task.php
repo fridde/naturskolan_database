@@ -413,7 +413,7 @@ class Task
             if ($user->hasMail()) {
                 $data['fname'] = $user->getFirstName();
                 $data['user']['has_mobil'] = $user->hasMobil();
-                $data['groups'] = $user->getGroups()->toArray();
+                $data['groups'] = $user->getGroups();
                 $data['school_url'] = $this->N->generateUrl('school', ['school' => $user->getSchoolId()], true);
                 $data['user_login_url'] = $this->N->createLoginUrl($user);
 

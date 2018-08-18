@@ -169,12 +169,12 @@ class Visit
 
     public function hasColleagues()
     {
-        return !empty($this->getColleagues()->toArray());
+        return !empty($this->getColleagues());
     }
 
-    public function getColleagues()
+    public function getColleagues(): array
     {
-        return $this->Colleagues;
+        return $this->Colleagues->toArray();
     }
 
     public function getColleaguesIdArray()
@@ -183,7 +183,7 @@ class Visit
             function ($col) {
                 return $col->getId();
             },
-            $this->getColleagues()->toArray()
+            $this->getColleagues()
         );
     }
 
@@ -221,7 +221,7 @@ class Visit
                 function ($col) {
                     return $col->getAcronym() ?: $col->getId();
                 },
-                $this->getColleagues()->toArray()
+                $this->getColleagues()
             )
         );
     }

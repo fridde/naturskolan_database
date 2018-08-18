@@ -14,7 +14,7 @@ class SchoolRepository extends CustomRepository
 
     public function getSchoolStaff(string $school_id)
     {
-        return $this->find($school_id)->getUsers()->toArray();
+        return $this->find($school_id)->getUsers();
     }
 
     public function getStaffWithNames($school_id = 'natu')

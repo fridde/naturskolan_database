@@ -441,17 +441,25 @@ class AdminSummary
         $groups = $group_repo->findActiveGroups();
         /* @var Group $group  */
         foreach($groups as $group){
-            $visits = array_values($group->getVisitsAfter()->toArray());
+            $visits = array_values($group->getFutureVisits());
+            $visits = array_filter($visits, function(Visit $v){
+                $topic = $v->getTopic();
+                return (empty($topic) ? false : $topic->getOrderIsRelevant());
+            });
+
             $nr_visits = count($visits);
             if($nr_visits < 2){
                 continue;
             }
             /* @var Visit $visit  */
-            foreach(range(0,  $nr_visits - 2) as $key){
+            foreach($visits as $key => $visit){
                 /* @var Visit $first_visit */
                 $first_visit = $visits[$key];
                 /* @var Visit $second_visit */
-                $second_visit = $visits[$key+1];
+                $second_visit = $visits[$key+1] ?? null;
+                if(empty($second_visit)){
+                    continue;
+                }
                 if($first_visit->getTopic()->getVisitOrder() >= $second_visit->getTopic()->getVisitOrder()){
                     $row = 'För ' . $group->getName() . ' från ' .$group->getSchool()->getName() .': ';
                     $row .= $first_visit->getLabel('DT') . ' är före '. $second_visit->getLabel('DT');

@@ -177,9 +177,9 @@ class School
     }
 
 
-    public function getUsers()
+    public function getUsers(): array
     {
-        return $this->Users;
+        return $this->Users->toArray();
     }
 
     public function addUser($User)

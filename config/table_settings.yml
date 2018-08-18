@@ -83,6 +83,9 @@ Topic:
   - IsLektion:
       type: radio
       options: getIsLektionOptions
+  - OrderIsRelevant:
+      type: radio
+      options: getOrderIsRelevantOptions
 
 User:
   - id: *id

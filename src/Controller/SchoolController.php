@@ -72,7 +72,7 @@ class SchoolController extends BaseController
     public function getAllUsers(School $school)
     {
         $DATA = ['entity_class' => 'User'];
-        $users = $school->getUsers()->toArray();
+        $users = $school->getUsers();
         if (empty($users)) {
             $users[] = new User(); // dummy user
         }
@@ -103,7 +103,7 @@ class SchoolController extends BaseController
             function (User $u) {
                 return ['id' => $u->getId(), 'full_name' => $u->getFullName()];
             },
-            $school->getUsers()->toArray()
+            $school->getUsers()
         );
         $DATA['student_limits'] = SETTINGS['values']['min_max_students'];
         $DATA['school_name'] = $school->getName();
@@ -135,7 +135,7 @@ class SchoolController extends BaseController
 
                             return $r;
                         },
-                        $g->getSortedVisits()->toArray()
+                        $g->getSortedVisits()
                     );
 
                     return $r;
