@@ -65,7 +65,7 @@
                                                             {%- if visit.topic_url -%}
                                                                 <a href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
                                                             {%- else -%}
-                                                                visit.topic_short_name
+                                                                {{ visit.topic_short_name }}
                                                             {%- endif %}
                                                             <span class="confirmation-status">
                                                             {% if not visit.confirmed and visit.confirmation_url -%}
