@@ -5,10 +5,14 @@
 
 namespace Fridde;
 
+use Fridde\Entities\Group;
 use Fridde\Entities\Hash;
+use Fridde\Entities\Location;
 use Fridde\Entities\School;
 use Fridde\Entities\SystemStatus;
+use Fridde\Entities\Topic;
 use Fridde\Entities\User;
+use Fridde\Entities\Visit;
 use Fridde\Security\Authenticator;
 use Fridde\Security\PasswordHandler as PWH;
 use Fridde\Utility as U;
@@ -30,7 +34,7 @@ class Naturskolan
     private $Googl;
     /** @var \Fridde\Security\PasswordHandler Instance of PasswordHandler */
     private $PWH;
-    /* @var \Fridde\Security\Authenticator $Auth  */
+    /* @var \Fridde\Security\Authenticator $Auth */
     public $Auth;
     /** @var array A text array containing labels and other text bits */
     private $text_array;
@@ -100,14 +104,14 @@ class Naturskolan
     public function setStatus(string $id, string $value, bool $flush_after = true)
     {
         $status = $this->ORM->find('SystemStatus', $id);
-        if(empty($status)){
+        if (empty($status)) {
             $status = new SystemStatus();
             $status->setId($id);
         }
         $status->setValue($value);
         $this->ORM->EM->persist($status);
 
-        if($flush_after){
+        if ($flush_after) {
             $this->ORM->EM->flush();
         }
 
@@ -119,18 +123,18 @@ class Naturskolan
      */
     public function getLastRun(string $task): ?Carbon
     {
-        $last_run = $this->getStatus('last_run.' . $task);
-        if(!empty($last_run)){
+        $last_run = $this->getStatus('last_run.'.$task);
+        if (!empty($last_run)) {
             return Carbon::parse($last_run);
         }
+
         return null;
     }
 
     public function setLastRun(string $task)
     {
-       $this->setStatus('last_run.'. $task, Carbon::now()->toIso8601String());
+        $this->setStatus('last_run.'.$task, Carbon::now()->toIso8601String());
     }
-
 
 
     /**
@@ -151,18 +155,18 @@ class Naturskolan
 
     /**
      * Wrapper function to set the calendar.status in SystemStatus
-
-    public function setCalendarTo(string $new_status, bool $flush_after = false)
-    {
-
-        if($new_status === SystemStatus::CLEAN){
-            $now_string = Carbon::now()->toIso8601String();
-            $this->set('SystemStatus', 'calendar.last_rebuild', $now_string);
-        }
-        if($flush_after){
-            $this->ORM->EM->flush();
-        }
-    }
+     *
+     * public function setCalendarTo(string $new_status, bool $flush_after = false)
+     * {
+     *
+     * if($new_status === SystemStatus::CLEAN){
+     * $now_string = Carbon::now()->toIso8601String();
+     * $this->set('SystemStatus', 'calendar.last_rebuild', $now_string);
+     * }
+     * if($flush_after){
+     * $this->ORM->EM->flush();
+     * }
+     * }
      */
 
 
@@ -173,18 +177,19 @@ class Naturskolan
      */
     public function calendarIsDirty()
     {
-        $trackables = ['Group', 'Location', 'Topic', 'User', 'Visit'];
-        $last_rebuild = $this->getStatus('calendar.last_rebuild');
-        if(empty($last_rebuild)){
+        $trackables = [Group::class, Location::class, Topic::class, User::class, Visit::class];
+        $last_rebuild = $this->getStatus('last_run.rebuild_calendar');
+        if (empty($last_rebuild)) {
             return true;
         }
         $selector = ['gt', 'LastChange', $last_rebuild];
 
-        foreach($trackables as $entity_type){
-            if(count($this->ORM->getRepository($entity_type)->select([$selector])) > 0){
+        foreach ($trackables as $entity_type) {
+            if (count($this->ORM->getRepository($entity_type)->select([$selector])) > 0) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -216,29 +221,6 @@ class Naturskolan
     }
 
     /**
-     * Gets the time the calendar was rebuilt the last time.
-     *
-     * @return \Carbon\Carbon DateTime of last build
-     */
-    public function getLastRebuild()
-    {
-        $last_rebuild = $this->getStatus('calendar.last_rebuild');
-        return (empty($last_rebuild) ? null : new Carbon($last_rebuild));
-    }
-
-    /**
-     * Creates a password for a certain school for the current year.
-     *
-     * @param  string $school_id The id of the school.
-     * @return string            The password
-     */
-    public function createPassword($school_id, $custom_salt = false)
-    {
-        return $this->PWH->createPassword($school_id, $custom_salt);
-    }
-
-
-    /**
      *
      *
      * @param  User $user The User object
@@ -265,18 +247,19 @@ class Naturskolan
 
     public function shortenUrl($url)
     {
-        if(DEBUG ?? false){
+        if (DEBUG ?? false) {
             return $url;
         }
+
         return $this->getGoogl()->shorten($url);
     }
 
 
-    public function createConfirmationUrl($visit_id, string $security = 'check_hash',  $absolute = false)
+    public function createConfirmationUrl($visit_id, string $security = 'check_hash', $absolute = false)
     {
-        if($security === 'simple'){
-            $code = $visit_id . '/simple';
-        } elseif($security === 'check_hash'){
+        if ($security === 'simple') {
+            $code = $visit_id.'/simple';
+        } elseif ($security === 'check_hash') {
             $code = $this->Auth->createAndSaveCode($visit_id, Hash::CATEGORY_VISIT_CONFIRMATION_CODE);
         } else {
             throw new \InvalidArgumentException('The security argument is not implemented');
@@ -295,9 +278,10 @@ class Naturskolan
     public function checkPasswordForSchool(string $password, string $school_id)
     {
         $school = $this->Auth->getSchoolFromPassword($password);
-        if(empty($school)){
+        if (empty($school)) {
             return false;
         }
+
         return $school->getId() === $school_id;
     }
 
@@ -306,8 +290,8 @@ class Naturskolan
         /* @var \AltoRouter $router */
         $router = $GLOBALS['CONTAINER']->get('Router');
         $url = $router->generate($route_name, $params);
-        if($absolute && !empty(SETTINGS['debug']['base_path'])){
-            $url = SETTINGS['debug']['base_path'] . $url;
+        if ($absolute && !empty(SETTINGS['debug']['base_path'])) {
+            $url = SETTINGS['debug']['base_path'].$url;
         }
 
         return $url;
@@ -390,6 +374,7 @@ class Naturskolan
     {
         $path = $path ?? $this->text_path;
         $this->text_array = Settings::getArrayFromFile($path);
+
         return $this->text_array;
     }
 
@@ -399,7 +384,7 @@ class Naturskolan
             $this->setTextArrayfromFile($file_path);
         }
         $text = U::resolve($this->text_array, $index);
-        if (empty($text) || ! is_string($text)) {
+        if (empty($text) || !is_string($text)) {
             $e_msg = 'The path given couldn\'t be resolved to a valid string. The path: ';
             $e_msg .= var_export($index, true);
             throw new \InvalidArgumentException($e_msg);
@@ -411,6 +396,7 @@ class Naturskolan
     public function getTextArray(string $index = null)
     {
         $text = $this->text_array ?? $this->setTextArrayfromFile();
+
         return (empty($index) ? $text : U::resolve($text, $index));
     }
 
@@ -432,8 +418,8 @@ class Naturskolan
      */
     public function log(string $msg, $source = '')
     {
-        if(is_array($source)){
-            $source = $source[0] . '->' . $source[1] . '()';
+        if (is_array($source)) {
+            $source = $source[0].'->'.$source[1].'()';
         }
 
         $GLOBALS['CONTAINER']->get('Logger')->addInfo($msg, ['source' => $source]);
@@ -450,15 +436,17 @@ class Naturskolan
 
     public static function isAdminSchool(School $school = null): bool
     {
-        if(empty($school)){
+        if (empty($school)) {
             return false;
         }
+
         return $school->getId() === self::ADMIN_SCHOOL;
     }
 
     public static function getRandomAnimalName()
     {
         $alias_names = self::getSetting('defaults', 'placeholder', 'animals');
+
         return $alias_names[random_int(0, count($alias_names) - 1)];
     }
 
