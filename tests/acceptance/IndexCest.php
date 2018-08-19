@@ -118,6 +118,7 @@ class IndexCest
         $login_button = Locator::find('button', ['id' => 'login_modal_submit']);
         $I->click($login_button);
         $I->pause(1.5);
+        $I->pauseExecution();
         $user_nav_items = $I->get('nav_items', 'user');
         $I->checkMultiple('canSee', $user_nav_items, '.nav');
         $AuthKey = $I->grabCookie('AuthKey');

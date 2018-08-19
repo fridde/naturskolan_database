@@ -280,36 +280,37 @@ class Group
 
     public function getFutureVisits(): array
     {
-        $this->sortVisits();
+        $visits = $this->getSortedVisits();
 
-        return $this->getVisits();
+        return array_filter($visits, function(Visit $v){
+            $v->getDate()->gte(Carbon::today());
+        });
     }
 
-    private function sortVisits()
+    public function getSortedVisits(): array
     {
-        if ($this->Visits->isEmpty()) {
-            return $this->Visits; //empty collection
+        $visits = $this->getVisits();
+        if (empty($visits)){
+            return [];
         }
-        $visits = $this->Visits->getIterator();
 
-        $visits->uasort(
-            function ($a, $b) {
-                return ($a->getDate()->lt($b->getDate())) ? -1 : 1;
-            }
-        );
-        $this->Visits = new ArrayCollection(iterator_to_array($visits));
+        uasort($visits, function(Visit $v1, Visit $v2){
+            return $v1->getDate()->lt($v2->getDate()) ? -1 : 1;
+        });
+        return $visits;
 
-        return $this->Visits;
     }
 
-    public function getNextVisit()
+    public function sortVisits(): void
     {
-        $visits = $this->sortVisits($this->getFutureVisits());
-        if (!$visits->isEmpty()) {
-            return $visits->first();
-        } else {
-            return null;
-        }
+        $this->Visits = $this->getSortedVisits();
+    }
+
+    public function getNextVisit(): ?Visit
+    {
+        $visits = $this->getFutureVisits();
+
+        return array_shift($visits);
     }
 
     public function hasNextVisit()

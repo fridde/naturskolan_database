@@ -119,7 +119,7 @@ class Update extends DefaultUpdate
         foreach ($dates as $date_string) {
             $date_string = trim($date_string);
             if (substr_count($date_string, ':') === 1) {
-                [null, $date] = explode(':', $date_string);
+                $date = array_pop($x = explode(':', $date_string));
             } else {
                 $date = $date_string;
             }
@@ -350,7 +350,7 @@ class Update extends DefaultUpdate
             /* @var \Fridde\Entities\School $school */
             foreach ($all_schools as $school) {
                 $actual_count = $school->getNrActiveGroupsBySegmentAndYear($segment_id, $year);
-                $expected_count = $school->getGroupNumber($segment_id, $year);
+                $expected_count = $school->getGroupCountNumber($segment_id, $year);
                 $diff = $expected_count - $actual_count;
 
                 for ($i = 0; $i < $diff; $i++) {
@@ -366,10 +366,6 @@ class Update extends DefaultUpdate
                     $label .= $group->getSegmentLabel() . ', ';
                     $label .= $group->getSchool()->getName();
                     $added_groups[] = $label;
-                }
-
-                if ($diff < 0) { // too many groups
-                    // TODO: log this situation somewhere
                 }
             }
         }
@@ -424,7 +420,7 @@ class Update extends DefaultUpdate
         foreach ($group_numbers as [$school_id, $segment_id, $count]) {
             /* @var School $school */
             $school = $this->N->ORM->find('School', $school_id);
-            $school->setGroupNumber($segment_id, $count, $start_year);
+            $school->setGroupCount($segment_id, $count, $start_year);
         }
         $this->ORM->EM->flush();
     }

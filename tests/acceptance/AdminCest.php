@@ -25,12 +25,13 @@ class AdminCest
         $I->pause(0.5);
 
         $group_numbers = $I->getGroupCountsForSchool('pers');
-        $I->assertEquals($group_numbers['2018']['2'], 3);
-        $I->assertEquals($group_numbers['2017']['2'], 0);
-        $I->assertEquals($group_numbers['2017']['5'], 3);
-        $I->assertEquals($group_numbers['2019']['2'], 0);
-        $I->assertEquals($group_numbers['2019']['5'], 0);
-        $I->assertArrayNotHasKey('fri', $group_numbers['2019']);
+
+        $I->assertEquals($group_numbers['2018']['2'] ?? 0, 3);
+        $I->assertEquals($group_numbers['2017']['2'] ?? 0, 0);
+        $I->assertEquals($group_numbers['2017']['5'] ?? 0, 3);
+        $I->assertEquals($group_numbers['2019']['2'] ?? 0, 0);
+        $I->assertEquals($group_numbers['2019']['5'] ?? 0 ?? 0, 0);
+        $I->assertArrayNotHasKey('fri', $group_numbers['2019'] ?? []);
 
         $year_selector = '//select[@name="start-year"]';
         $I->seeElement($year_selector);
@@ -48,12 +49,12 @@ class AdminCest
         $I->pause(1.5);
 
         $group_numbers = $I->getGroupCountsForSchool('pers');
-        $I->assertEquals($group_numbers['2018']['2'], 3);
-        $I->assertEquals($group_numbers['2017']['2'], 0);
-        $I->assertEquals($group_numbers['2017']['5'], 3);
-        $I->assertEquals($group_numbers['2019']['2'], 8);
-        $I->assertEquals($group_numbers['2019']['5'], 0);
-        $I->assertEquals($group_numbers['2019']['fri'], 5);
+        $I->assertEquals($group_numbers['2018']['2'] ?? 0, 3);
+        $I->assertEquals($group_numbers['2017']['2'] ?? 0, 0);
+        $I->assertEquals($group_numbers['2017']['5'] ?? 0, 3);
+        $I->assertEquals($group_numbers['2019']['2'] ?? 0, 8);
+        $I->assertEquals($group_numbers['2019']['5'] ?? 0, 0);
+        $I->assertEquals($group_numbers['2019']['fri'] ?? 0, 5);
 
         $old_text = $I->grabValueFrom($textarea);
         $I->assertGreaterThan(0, strlen($old_text));
@@ -90,8 +91,8 @@ class AdminCest
             '2_19' => $I->grabNumRecords('groups', $criteria['2_19']),
         ];
 
-        $I->assertNotSame($expected_vals_groups['2018']['fri'], $actual_before['fri_18']);
-        $I->assertNotSame($expected_vals_groups['2019']['2'], $actual_before['2_19']);
+        $I->assertNotEquals($expected_vals_groups['2018']['fri'] ?? 0, $actual_before['fri_18']);
+        $I->assertNotEquals($expected_vals_groups['2019']['2'] ?? 0, $actual_before['2_19']);
 
         $I->click($missing_group_btn);
         $I->pause();
@@ -112,8 +113,8 @@ class AdminCest
         ];
 
 
-        $I->assertNotSame($expected_vals_groups['2018']['fri'], $actual_after['fri_18']);
-        $I->assertSame($expected_vals_groups['2019']['2'], $actual_after['2_19']);
+        $I->assertNotEquals($expected_vals_groups['2018']['fri'] ?? 0, $actual_after['fri_18']);
+        $I->assertEquals($expected_vals_groups['2019']['2'] ?? 0, $actual_after['2_19']);
 
         $I->selectOption($segment_selector, 'Fritids');
         $I->click($missing_group_btn);
@@ -131,8 +132,8 @@ class AdminCest
             '2_19' => $I->grabNumRecords('groups', $criteria['2_19']),
         ];
 
-        $I->assertSame($expected_vals_groups['2018']['fri'], $last_after['fri_18']);
-        $I->assertSame($expected_vals_groups['2019']['2'], $last_after['2_19']);
+        $I->assertEquals($expected_vals_groups['2018']['fri'] ?? 0, $last_after['fri_18']);
+        $I->assertEquals($expected_vals_groups['2019']['2'] ?? 0, $last_after['2_19']);
     }
 
     // codecept run acceptance AdminCest:setColleagues --steps -f

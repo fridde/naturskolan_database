@@ -216,10 +216,35 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function getGroupCountsForSchool(string $school_id): ?array
     {
-        // TODO: Rewrite this
-        $group_numbers = $this->grabColumnFromDatabase('schools', 'GroupCounts', ['id' => $school_id]);
 
-        return json_decode($group_numbers[0], true);
+        $columns = ['id', 'StartYear', 'Segment', 'Number'];
+
+        $group_counts = $this->grabRowsFromDatabase('group_counts', $columns, ['School_id' => $school_id]);
+
+        return $this->spliceGroupCounts($group_counts);
+    }
+
+    private function spliceGroupCounts(array $groupCounts)
+    {
+        $spliced = [];
+        foreach($groupCounts as $row){
+            $spliced[$row['StartYear']][$row['Segment']] = $row['Number'];
+        }
+
+        return $spliced;
+    }
+
+    public function grabRowsFromDatabase(string $table, array $columns, array $criteria = [])
+    {
+        $rows = [];
+        foreach($columns as $column){
+            $column_values = $this->grabColumnFromDatabase($table, $column, $criteria);
+            foreach($column_values as $index => $value){
+                $rows[$index][$column] = $value;
+            }
+        }
+        return $rows;
+
     }
 
 }

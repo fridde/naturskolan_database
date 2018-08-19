@@ -24,6 +24,22 @@ class GroupCount
     protected $Number;
 
     /**
+     * GroupCount constructor.
+     * @param $School
+     * @param $StartYear
+     * @param $Segment
+     * @param $Number
+     */
+    public function __construct(School $School = null, int $StartYear = null, string $Segment = null, int $Number = 0)
+    {
+        $this->School = $School;
+        $this->StartYear = $StartYear;
+        $this->Segment = $Segment;
+        $this->Number = $Number;
+    }
+
+
+    /**
      * @return int
      */
     public function getId()
@@ -97,16 +113,15 @@ class GroupCount
 
     public function matches(int $start_year, string $segment): bool
     {
-        if($this->getStartYear() !== $start_year){
+        if ($this->getStartYear() !== $start_year) {
             return false;
         }
-        if($this->getSegment() !== $segment){
+        if ($this->getSegment() !== $segment) {
             return false;
         }
+
         return true;
     }
-
-
 
 
 }

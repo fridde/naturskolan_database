@@ -29,7 +29,7 @@ class TableCest
 
         $I->amOnPage('/table/Event');
         $I->assertCount($initial_event_count, $I->getTableRows('Event'));
-        $I->assertSame($initial_event_count, $I->grabNumRecords('events'));
+        $I->assertEquals($initial_event_count, $I->grabNumRecords('events'));
 
         $button = $I->getAddRowButton();
         $I->seeElement($button);
@@ -42,12 +42,12 @@ class TableCest
         $I->clickAway();
         $I->pause(0.7);
         // as we have only entered the title and not a start date yet
-        $I->assertSame($initial_event_count, $I->grabNumRecords('events'));
+        $I->assertEquals($initial_event_count, $I->grabNumRecords('events'));
 
         $I->fillField($I->getFieldFromLastRow('Event', 'StartDate'), '2018-08-05');
         $I->clickAway();
         $I->pause(1);
-        $I->assertSame($initial_event_count + 1, $I->grabNumRecords('events'));
+        $I->assertEquals($initial_event_count + 1, $I->grabNumRecords('events'));
 
         $I->runCronTask('rebuild_calendar');
         $I->seeFileFound('kalender.ics', codecept_root_dir());
@@ -79,7 +79,7 @@ class TableCest
 
         $I->amOnPage('/table/Group');
         $I->assertCount($initial_group_count, $I->getTableRows('Group'));
-        $I->assertSame($initial_group_count, $I->grabNumRecords('groups'));
+        $I->assertEquals($initial_group_count, $I->grabNumRecords('groups'));
 
         $button = $I->getAddRowButton();
         $I->seeElement($button);
@@ -90,13 +90,13 @@ class TableCest
         $I->clickAway();
         $I->pause(0.7);
         // as we have only entered the Name and not the Status
-        $I->assertSame($initial_group_count, $I->grabNumRecords('groups'));
+        $I->assertEquals($initial_group_count, $I->grabNumRecords('groups'));
 
         $I->selectOption($I->getFieldFromLastRow('Group', 'Status', 'select'), 'active');
         $I->clickAway();
         $I->pause(0.7);
         // now all required fields are entered
-        $I->assertSame($initial_group_count + 1, $I->grabNumRecords('groups'));
+        $I->assertEquals($initial_group_count + 1, $I->grabNumRecords('groups'));
     }
 
     // codecept run acceptance TableCest:editSchoolTable --steps -f
@@ -106,7 +106,7 @@ class TableCest
 
         $I->amOnPage('/table/School');
         $I->assertCount($school_count, $I->getTableRows('School'));
-        $I->assertSame($school_count, $I->grabNumRecords('schools'));
+        $I->assertEquals($school_count, $I->grabNumRecords('schools'));
 
         $I->canSee('{"2017":{"2":0,"5":0,"fbk":0},"2018":{"2":0,"5":0,"fbk":0},"2019":{"2":0,"5":0,"fbk":0}}');
 
@@ -142,7 +142,7 @@ class TableCest
         $I->amOnPage('/table/Topic');
 
         $I->assertCount($initial_topic_count, $I->getTableRows('Topic'));
-        $I->assertSame($initial_topic_count, $I->grabNumRecords('topics'));
+        $I->assertEquals($initial_topic_count, $I->grabNumRecords('topics'));
 
         $I->seeInDatabase('topics', ['id' => 1, 'Segment' => '2', 'Location_id' => 2]);
 
@@ -182,7 +182,7 @@ class TableCest
         $I->pause();
 
         $I->dontSeeInDatabase('topics', ['Food' => $food_value]);
-        $I->assertSame($initial_topic_count, $I->grabNumRecords('topics'));
+        $I->assertEquals($initial_topic_count, $I->grabNumRecords('topics'));
 
         $short_name_field = $I->getFieldFromLastRow('Topic', 'ShortName');
         $short_name_value = 'Plastikkirurgi';
@@ -191,7 +191,7 @@ class TableCest
         $I->pause();
 
         $I->seeInDatabase('topics', ['Food' => $food_value, 'ShortName' => $short_name_value]);
-        $I->assertSame($initial_topic_count + 1, $I->grabNumRecords('topics'));
+        $I->assertEquals($initial_topic_count + 1, $I->grabNumRecords('topics'));
     }
 
 
@@ -305,13 +305,13 @@ class TableCest
         $I->fillField($last_time_field, '1618-1648');
         $I->clickAway();
         $I->pause();
-        $I->assertSame($initial_visit_count, $I->grabNumRecords('visits'));
+        $I->assertEquals($initial_visit_count, $I->grabNumRecords('visits'));
 
         $last_date_field = $I->getFieldFromLastRow('Visit', 'Date');
         $I->fillField($last_date_field, '2019-05-07');
         $I->clickAway();
         $I->pause();
-        $I->assertSame($initial_visit_count + 1, $I->grabNumRecords('visits'));
+        $I->assertEquals($initial_visit_count + 1, $I->grabNumRecords('visits'));
 
     }
 

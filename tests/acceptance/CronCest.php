@@ -44,11 +44,11 @@ class CronCest
         $I->checkOption($cb_path);
         $I->pause(1.5);
         $new_status = json_decode($I->grabFromDatabase(...$status_path), true);
-        $I->assertSame(1, $new_status['rebuild_calendar']);
+        $I->assertEquals(1, $new_status['rebuild_calendar']);
         $I->uncheckOption($cb_path);
         $I->pause(1.5);
         $newest_status = json_decode($I->grabFromDatabase(...$status_path), true);
-        $I->assertSame(0, $newest_status['rebuild_calendar']);
+        $I->assertEquals(0, $newest_status['rebuild_calendar']);
     }
 
 

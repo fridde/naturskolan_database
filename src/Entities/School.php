@@ -36,7 +36,7 @@ class School
     /** @OneToMany(targetEntity="User", mappedBy="School") */
     protected $Users;
 
-    /** @OneToMany(targetEntity="GroupCount", mappedBy="School") */
+    /** @OneToMany(targetEntity="GroupCount", mappedBy="School", cascade={"persist"}) */
     protected $GroupCounts;
 
     public function __construct()
@@ -79,7 +79,7 @@ class School
         return $this->GroupCounts->toArray();
     }
 
-    public function getGroupCount(string $segment, int $start_year = null): int
+    public function getGroupCount(string $segment, int $start_year = null): ?GroupCount
     {
         $start_year = $start_year ?? Carbon::today()->year;
         $groupCounts = $this->getGroupCounts() ?? [];
@@ -92,25 +92,48 @@ class School
         );
         $group_count = array_shift($group_count);
 
-        return empty($group_count) ? 0 : $group_count->getNumber() ;
+        return $group_count;
+
     }
 
-    public function setGroupCounts(array $GroupCounts)
+    public function getGroupCountNumber(string $segment, int $start_year = null): int
+    {
+        $group_count = $this->getGroupCount($segment, $start_year);
+
+        return empty($group_count) ? 0 : $group_count->getNumber();
+    }
+
+    public function setGroupCounts(array $GroupCounts): void
     {
         $this->GroupCounts = new ArrayCollection($GroupCounts);
     }
 
     /**
      * @param string $segment
-     * @param int $value
+     * @param int $number
      * @param int|null $start_year
      */
-    public function setGroupCount(string $segment, int $value = 0, int $start_year = null)
+    public function setGroupCount(string $segment, int $number = 0, int $start_year)
     {
-        $start_year = $start_year ?? Carbon::today()->year;
-
         $current_values = $this->getGroupCounts() ?? [];
-        $current_values[$start_year][$segment] = $value;
+
+        $args = [$start_year, $segment, $number];
+        $updated = false;
+
+        array_walk(
+            $current_values,
+            function (GroupCount &$gc) use ($args, &$updated) {
+                if ($gc->matches($args[0], $args[1])) {
+                    $gc->setNumber($args[2]);
+                    $updated = true;
+                }
+            }
+        );
+
+        if (!$updated) {
+            $current_values[] = new GroupCount($this, $start_year, $segment, $number);
+        }
+
         $this->setGroupCounts($current_values);
     }
 

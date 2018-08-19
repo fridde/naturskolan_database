@@ -76,7 +76,7 @@ class SchoolPageCest
         $I->pause();
         $I->seeInDatabase('users', ['FirstName' => 'Ronald']);
         $num_users_after = $I->grabNumRecords('users');
-        $I->assertSame($num_users_after, $num_users_before + 1);
+        $I->assertEquals($num_users_after, $num_users_before + 1);
     }
 
     // codecept run acceptance SchoolPageCest:groupPageWorks --steps -f
