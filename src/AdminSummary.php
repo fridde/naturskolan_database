@@ -313,7 +313,7 @@ class AdminSummary
             foreach (Group::getSegmentLabels() as $segment_id => $label) {
                 foreach($years_to_check as $start_year){
                     $active = $school->getNrActiveGroupsBySegmentAndYear($segment_id, $start_year);
-                    $expected = $school->getGroupNumber($segment_id, $start_year);
+                    $expected = $school->getGroupCountNumber($segment_id, $start_year);
                     if ($expected !== $active) {
                         $row = $school->getName().' har fel antal grupper i segment ';
                         $row .= $label.' och år '. $start_year.'. Det finns ';

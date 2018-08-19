@@ -177,13 +177,13 @@ class Message
             if ($prop === 'sent_after') {
                 $booleans[] = $this->wasSentAfter($val);
                 continue;
-            } else {
-                $method_name = 'get'.ucfirst($prop);
             }
+            $method_name = 'get'.ucfirst($prop);
+
             $actual_value = $this->$method_name();
             $possible_values = (array)$val;
 
-            $booleans[] = in_array($actual_value, $possible_values);
+            $booleans[] = in_array($actual_value, $possible_values, true);
         }
         $filtered = array_filter($booleans);
         switch ($return) {

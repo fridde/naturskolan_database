@@ -47,7 +47,7 @@ class User
     protected $CreatedAt;
 
     /** @ManyToMany(targetEntity="Visit", mappedBy="Colleagues")
-     *  @JoinTable(name="Colleagues_Visits")
+     * @JoinTable(name="Colleagues_Visits")
      */
     protected $Visits;
 
@@ -162,6 +162,7 @@ class User
     public function getSchoolId(): ?string
     {
         $school = $this->getSchool();
+
         return (empty($school) ? null : $school->getId());
     }
 
@@ -202,7 +203,7 @@ class User
             self::ROLE_TEACHER => 'teacher',
             self::ROLE_SCHOOL_MANAGER => 'school_manager',
             self::ROLE_ADMIN => 'admin',
-            self::ROLE_SUPERUSER => 'superuser'
+            self::ROLE_SUPERUSER => 'superuser',
         ];
     }
 
@@ -314,11 +315,6 @@ class User
         $this->Messages = $Messages;
     }
 
-    public function addMessage($Message)
-    {
-        $this->Messages->add($Message);
-    }
-
     public function getGroups(): array
     {
         return $this->Groups->toArray();
@@ -336,9 +332,15 @@ class User
     public function hasActiveGroups()
     {
         $groups = $this->getGroups();
-        return 1 <= count(array_filter($groups, function (Group $g){
-            return $g->isActive();
-        }));
+
+        return 1 <= count(
+                array_filter(
+                    $groups,
+                    function (Group $g) {
+                        return $g->isActive();
+                    }
+                )
+            );
 
     }
 
@@ -374,23 +376,26 @@ class User
 
     public function sortMessagesByDate()
     {
-        $messages = $this->getMessages()->getIterator();
+        $messages = $this->getMessages();
 
-        $messages->uasort(
+        uasort(
+            $messages,
             function (Message $a, Message $b) {
-                if (empty($a->getTimestamp()) && empty($b->getTimestamp())) {
+                $a_ts = $a->getTimestamp();
+                $b_ts = $b->getTimestamp();
+                if (empty($a_ts) && empty($b_ts)) {
                     return 0;
-                } elseif (empty($a->getTimestamp())) {
+                } elseif (empty($a_ts)) {
                     return 1;
-                } elseif (empty($b->getTimestamp())) {
+                } elseif (empty($b_ts)) {
                     return -1;
                 } else {
-                    return $a->getTimestamp()->lt($b->getTimestamp()) ? -1 : 1;
+                    return $a_ts->lt($b_ts) ? -1 : 1;
                 }
 
             }
         );
-        $this->Messages = new ArrayCollection(iterator_to_array($messages));
+        $this->Messages = new ArrayCollection($messages);
 
         return $this->Messages;
     }
