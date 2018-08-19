@@ -200,6 +200,7 @@ div.group-container {
 .pw-popover {
     font-size: 200%;
     color: #ff6600;
+    width: auto;
 }
 
 .nav-tabs .nav-link {

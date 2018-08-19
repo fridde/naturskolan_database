@@ -118,7 +118,7 @@ class SchoolController extends BaseController
                     $r['id'] = $g->getId();
                     $r['name'] = $g->getName();
                     $r['teacher_id'] = $g->getUser()->getId();
-                    $r['nr_students'] = $g->getNumberStudents();
+                    $r['nr_students'] = $g->getNumberStudents() ?? 0;
                     $r['food'] = $g->getFood();
                     $r['info'] = $g->getInfo();
                     $r['visits'] = array_map(
