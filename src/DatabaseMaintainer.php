@@ -46,7 +46,7 @@ class DatabaseMaintainer
         }
     }
 
-    public function cleanOldGroupNumbers()
+    public function cleanOldGroupCounts()
     {
         /* @var SchoolRepository $school_repo */
         /* @var School $school */
@@ -55,13 +55,14 @@ class DatabaseMaintainer
         $oldest_allowed_year = Carbon::today()->year - 2;
 
         foreach ($school_repo->findAll() as $school) {
-            $group_numbers = $school->getGroupNumbers();
-            foreach ($group_numbers as $startyear => $numbers) {
-                if ($startyear < $oldest_allowed_year) {
-                    unset($group_numbers[$startyear]);
+            $group_counts = $school->getGroupCounts();
+            foreach ($group_counts as $i => $gc) {
+
+                if ($gc->getStartYear() < $oldest_allowed_year) {
+                    unset($group_counts[$i]);
                 }
             }
-            $school->setGroupNumbers($group_numbers);
+            $school->setGroupCounts($group_counts);
         }
         $this->ORM->EM->flush();
     }

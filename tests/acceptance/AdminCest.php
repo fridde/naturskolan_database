@@ -24,7 +24,7 @@ class AdminCest
         $I->amOnPage('admin/batch/set_group_count');
         $I->pause(0.5);
 
-        $group_numbers = $I->getGroupNumbersForSchool('pers');
+        $group_numbers = $I->getGroupCountsForSchool('pers');
         $I->assertEquals($group_numbers['2018']['2'], 3);
         $I->assertEquals($group_numbers['2017']['2'], 0);
         $I->assertEquals($group_numbers['2017']['5'], 3);
@@ -47,7 +47,7 @@ class AdminCest
         $I->click('//button[@id="update"]');
         $I->pause(1.5);
 
-        $group_numbers = $I->getGroupNumbersForSchool('pers');
+        $group_numbers = $I->getGroupCountsForSchool('pers');
         $I->assertEquals($group_numbers['2018']['2'], 3);
         $I->assertEquals($group_numbers['2017']['2'], 0);
         $I->assertEquals($group_numbers['2017']['5'], 3);
@@ -78,7 +78,7 @@ class AdminCest
         $I->seeElement($segment_selector);
         $I->seeOptionIsSelected($segment_selector, 'åk 2/3');
 
-        $expected_vals_groups = $I->getGroupNumbersForSchool('vals');
+        $expected_vals_groups = $I->getGroupCountsForSchool('vals');
         $criteria = [
             'fri_18' => ['School_id' => 'vals', 'Segment' => 'fri', 'StartYear' => 2018],
             '2_19' => ['School_id' => 'vals', 'Segment' => '2', 'StartYear' => 2019],

@@ -21,9 +21,6 @@ class School
     /** @Column(type="string") */
     protected $Name;
 
-    /** @Column(type="json", nullable=true) */
-    protected $GroupNumbers;
-
     /** @Column(type="string", nullable=true) */
     protected $Coordinates;
 
@@ -39,10 +36,14 @@ class School
     /** @OneToMany(targetEntity="User", mappedBy="School") */
     protected $Users;
 
+    /** @OneToMany(targetEntity="GroupCount", mappedBy="School") */
+    protected $GroupCounts;
+
     public function __construct()
     {
         $this->Groups = new ArrayCollection();
         $this->Users = new ArrayCollection();
+        $this->GroupCounts = new ArrayCollection();
     }
 
     public function getId(): string
@@ -65,30 +66,38 @@ class School
         $this->Name = $Name;
     }
 
-    public function getGroupNumbersAsString(): string
+    public function getGroupCountsAsString(): string
     {
-        return json_encode($this->getGroupNumbers() ?? []);
+        return json_encode($this->getGroupCounts() ?? []);
     }
 
     /**
-     * @return array|null
+     * @return GroupCount[]|null
      */
-    public function getGroupNumbers(): ?array
+    public function getGroupCounts(): ?array
     {
-        return $this->GroupNumbers;
+        return $this->GroupCounts->toArray();
     }
 
-    public function getGroupNumber(string $segment, int $start_year = null): int
+    public function getGroupCount(string $segment, int $start_year = null): int
     {
         $start_year = $start_year ?? Carbon::today()->year;
-        $groupNumbers = $this->getGroupNumbers() ?? [];
+        $groupCounts = $this->getGroupCounts() ?? [];
 
-        return $groupNumbers[$start_year][$segment] ?? 0;
+        $group_count = array_filter(
+            $groupCounts,
+            function (GroupCount $gc) use ($start_year, $segment) {
+                return $gc->matches($start_year, $segment);
+            }
+        );
+        $group_count = array_shift($group_count);
+
+        return empty($group_count) ? 0 : $group_count->getNumber() ;
     }
 
-    public function setGroupNumbers(array $GroupNumbers)
+    public function setGroupCounts(array $GroupCounts)
     {
-        $this->GroupNumbers = $GroupNumbers;
+        $this->GroupCounts = new ArrayCollection($GroupCounts);
     }
 
     /**
@@ -96,13 +105,13 @@ class School
      * @param int $value
      * @param int|null $start_year
      */
-    public function setGroupNumber(string $segment, int $value = 0, int $start_year = null)
+    public function setGroupCount(string $segment, int $value = 0, int $start_year = null)
     {
         $start_year = $start_year ?? Carbon::today()->year;
 
-        $current_values = $this->getGroupNumbers() ?? [];
+        $current_values = $this->getGroupCounts() ?? [];
         $current_values[$start_year][$segment] = $value;
-        $this->setGroupNumbers($current_values);
+        $this->setGroupCounts($current_values);
     }
 
     public function getCoordinates()
@@ -149,7 +158,7 @@ class School
         $bus_rule = $this->getBusRule();
         $location_bus_value = 1 << $location->getBusId();
 
-        if($bus_rule & $location_bus_value){  // i.e. needs bus
+        if ($bus_rule & $location_bus_value) {  // i.e. needs bus
             $bus_rule ^= $location_bus_value; // removes the corresponding bit
         }
         $this->setBusRule($bus_rule);
@@ -157,7 +166,7 @@ class School
 
     public function updateBusRule(Location $location, bool $needs_bus): void
     {
-        if($needs_bus){
+        if ($needs_bus) {
             $this->addLocationToBusRule($location);
         } else {
             $this->removeLocationFromBusRule($location);
@@ -200,7 +209,7 @@ class School
             $this->getGroups(),
             function (Group $g) use ($segment_id, $start_year) {
                 $cond1 = $start_year !== false ? $g->getStartYear() === $start_year : true;
-                $cond2 = $g->getSegment() === (string) $segment_id;
+                $cond2 = $g->getSegment() === (string)$segment_id;
                 $cond3 = $g->isActive();
 
                 return $cond1 && $cond2 && $cond3;
@@ -210,7 +219,7 @@ class School
 
     public function hasSegment(string $segment_id)
     {
-        return ! empty($this->getActiveGroupsBySegmentAndYear($segment_id, false));
+        return !empty($this->getActiveGroupsBySegmentAndYear($segment_id, false));
     }
 
     public function getSegmentsAvailable($withLabels = false)

@@ -511,7 +511,7 @@ class Task
     private function cleanSQLDatabase()
     {
         $DBM = new DatabaseMaintainer();
-        $DBM->cleanOldGroupNumbers();
+        $DBM->cleanOldGroupCounts();
         $DBM->removeOldRows();
         $DBM->standardizeMobileNumbers();
         $DBM->prettifyMailAdresses();

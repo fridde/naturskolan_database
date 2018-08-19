@@ -6,7 +6,7 @@ use Fridde\CustomRepository;
 class GroupRepository extends CustomRepository
 {
 
-    public function findActiveGroups($segment = null)
+    public function findActiveGroups($segment_id = null)
     {
         $criteria = ['Status', Group::ACTIVE];
         if(!empty($segment_id)){

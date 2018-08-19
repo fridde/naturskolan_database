@@ -65,8 +65,8 @@ School:
   - id: *id
   - Name
   - Coordinates
-  - GroupNumbers:
-      value: getGroupNumbersAsString
+  - GroupCounts:
+      value: getGroupCountsAsString
       type: readonly
 
 Topic:

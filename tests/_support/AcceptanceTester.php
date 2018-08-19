@@ -214,9 +214,10 @@ class AcceptanceTester extends \Codeception\Actor
         return $this->clickWithLeftButton(null, $dx, $dy);
     }
 
-    public function getGroupNumbersForSchool(string $school_id): ?array
+    public function getGroupCountsForSchool(string $school_id): ?array
     {
-        $group_numbers = $this->grabColumnFromDatabase('schools', 'GroupNumbers', ['id' => $school_id]);
+        // TODO: Rewrite this
+        $group_numbers = $this->grabColumnFromDatabase('schools', 'GroupCounts', ['id' => $school_id]);
 
         return json_decode($group_numbers[0], true);
     }
