@@ -114,7 +114,7 @@ class Hash
     /**
      * @return mixed
      */
-    public function getExpiresAt()
+    public function getExpiresAt(): ?Carbon
     {
         if (empty($this->ExpiresAt)) {
             return null;

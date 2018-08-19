@@ -52,10 +52,10 @@ class BatchController extends BaseController
     }
 
     /**
-     * @example setVisitsExample.php
+     * @example distributeVisitsExample.php
      * @return void
      */
-    public function setVisits($segment_id = null, $start_year = null)
+    public function distributeVisits($segment_id = null, $start_year = null)
     {
         $segment_labels = Group::getSegmentLabels();
         $segment_id = $segment_id ?? array_keys($segment_labels)[0];
@@ -93,7 +93,7 @@ class BatchController extends BaseController
             array_map(
                 function ($val, $label) {
                     $r = ['label' => $label];
-                    $url_params = ['action' => 'set_visits', 'parameters' => $val];
+                    $url_params = ['action' => 'distribute_visits', 'parameters' => $val];
                     $r['url'] = $this->N->generateUrl('batch', $url_params);
 
                     return $r;
@@ -182,7 +182,7 @@ class BatchController extends BaseController
 
 
         $this->addToDATA('date_columns', $date_columns);
-        $this->setTemplate('admin/set_visits');
+        $this->setTemplate('admin/distribute_visits');
     }
 
     public function setColleagues()

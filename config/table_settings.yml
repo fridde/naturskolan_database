@@ -70,7 +70,8 @@ School:
       type: readonly
 
 Topic:
-  - id: *id
+  - id:
+      type: readonly
   - Segment: *segment
   - VisitOrder: *visit_order
   - ShortName

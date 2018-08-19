@@ -45,7 +45,7 @@ NAV_SETTINGS:
            url: 'admin/batch/add_dates'
          -
            label: 'Fördela besök på grupper'
-           url: 'admin/batch/set_visits'
+           url: 'admin/batch/distribute_visits'
          -
            label: 'Uppdatera önskat antal grupper per skola'
            url: 'admin/batch/set_group_count'

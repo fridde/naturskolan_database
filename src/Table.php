@@ -95,12 +95,14 @@ class Table
         $entities = $this->ORM->getRepository($this->entity_class)->findAll();
         $entities = $this->ensureAtLeastOne($entities);
 
-        return array_map(
+        $rows = array_map(
             function ($e) {
-                return $this->buildRow($e);
+                return [$e->getId(), $this->buildRow($e)];
             },
             $entities
         );
+
+        return array_column($rows, 1, 0);
     }
 
     public function getFullyQualifiedClassName()
@@ -110,7 +112,12 @@ class Table
 
     public function getColumnHeaders()
     {
-        return array_keys($this->getColumnSettings());
+        $columns = array_filter($this->getColumnSettings(), function($column){
+            return $column['type'] !== 'ignored';
+        });
+
+
+        return array_keys($columns);
     }
 
     private function ensureAtLeastOne(array $entities)

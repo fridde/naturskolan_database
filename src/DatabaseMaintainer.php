@@ -4,7 +4,7 @@ namespace Fridde;
 
 use Carbon\Carbon;
 use Fridde\{
-    Dumper, Entities\Group, Entities\School, Entities\SchoolRepository
+    Dumper, Entities\Change, Entities\Group, Entities\Hash, Entities\Message, Entities\School, Entities\SchoolRepository, Entities\User, Entities\UserRepository
 };
 
 class DatabaseMaintainer
@@ -83,9 +83,35 @@ class DatabaseMaintainer
         return $any;
     }
 
-    public function clean()
+    public function standardizeMobileNumbers()
     {
-        $entities = ['Change', 'Cookie', 'Group', 'Message'];
+        /* @var UserRepository $user_repo  */
+        $user_repo = $this->ORM->getRepository(User::class);
+
+        foreach($user_repo->findActiveUsers() as $user){
+            /* @var User $user  */
+            $nr = $user->standardizeMobNr();
+            $user->setMobil($nr);
+        }
+        $this->ORM->EM->flush();
+    }
+
+    public function prettifyMailAdresses()
+    {
+        /* @var UserRepository $user_repo  */
+        $user_repo = $this->ORM->getRepository(User::class);
+
+        foreach($user_repo->findActiveUsers() as $user){
+            /* @var User $user  */
+            $mail = strtolower(trim($user->getMail()));
+            $user->setMail($mail);
+        }
+        $this->ORM->EM->flush();
+    }
+
+    public function removeOldRows()
+    {
+        $entities = [Change::class, Hash::class, Group::class, Message::class];
         $remove = [];
         $nameless = [];
 
@@ -94,20 +120,20 @@ class DatabaseMaintainer
             $repo = $this->ORM->getRepository($entity);
 
             switch ($entity) {
-                case 'Change':
+                case Change::class:
                     $date = Carbon::today()->subDays(90);
                     $remove[] = $repo->findChangesOlderThan($date);
                     break;
-                case 'Cookie':
+                case Hash::class:
                     $date = Carbon::today()->subDays(300);
-                    $remove[] = $repo->findCookiesOlderThan($date);
+                    $remove[] = $repo->findHashesExpiredBefore($date);
                     break;
-                case 'Group':
+                case Group::class:
                     $date = Carbon::today()->subYears(2);
                     $remove[] = $repo->findGroupsOlderThan($date);
                     $nameless = $repo->findGroupsWithoutName();
                     break;
-                case 'Message':
+                case Message::class:
                     $date = Carbon::today()->subDays(400);
                     $remove[] = $repo->findMessagesOlderThan($date);
                     break;

@@ -119,7 +119,7 @@ class Update extends DefaultUpdate
         foreach ($dates as $date_string) {
             $date_string = trim($date_string);
             if (substr_count($date_string, ':') === 1) {
-                [$x, $date] = explode(':', $date_string);
+                [null, $date] = explode(':', $date_string);
             } else {
                 $date = $date_string;
             }
@@ -168,7 +168,7 @@ class Update extends DefaultUpdate
      * @PostArgs("value")
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function setVisits(array $big_array)
+    public function distributeVisits(array $big_array)
     {
         $row_to_group_translator = [];
         $group_dates = [];

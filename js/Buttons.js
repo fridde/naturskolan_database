@@ -17,7 +17,7 @@ $(document).ready(function () {
      */
 
     /**
-     * This button is used on /batch/set_visits/{segment}
+     * This button is used on /batch/distribute_visits/{segment}
      * and sends away all configurations as a big array
      *
      */
@@ -31,7 +31,7 @@ $(document).ready(function () {
             lists.push(rows);
         });
         let data = {
-            updateMethod: "setVisits",
+            updateMethod: "distributeVisits",
             value: lists,
             onReturn: 'showStatus'
         };
@@ -63,16 +63,16 @@ $(document).ready(function () {
         textarea.val(cleanLines(textarea.val()));
         let lines = textarea.val().split(/\r|\n/);
         let topic_id = $('select.date-lines').val();
-        let update_method = "addDates";
-        if (topic_id === "multiple") {
-            update_method = 'addDatesForMultipleTopics';
-        }
+        let update_method = (topic_id === 'multiple'
+                ? 'addDatesForMultipleTopics'
+                : 'addDates'
+        );
 
         let data = {
             updateMethod: update_method,
             topic_id: topic_id,
             dates: lines,
-            onReturn: "datesAdded"
+            onReturn: 'datesAdded'
         };
         Update.send(data);
     });

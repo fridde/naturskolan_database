@@ -432,7 +432,7 @@ class User
 
     public function standardizeMobNr($number = null, $just_check = false)
     {
-        $number = !empty($number) ? $number : $this->Mobil;
+        $number = empty($number) ? $this->getMobil() : $number;
         $nr = preg_replace('/[\D]/', '', $number);
         $trim_characters = ['0', '4', '6']; // we need to trim from left to right order
         foreach ($trim_characters as $char) {

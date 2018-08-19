@@ -9,15 +9,13 @@
         <thead>
         <tr>
             {% for header in headers %}
-                {% if header != "id" %}
-                    <th>{{ header }}</th>
-                {% endif %}
+               <th>{{ header }}</th>
             {% endfor %}
         </tr>
         </thead>
         <tbody {%- if DATA.sortable %} class="sortable"{% endif %}>
-        {%- for row in rows -%}
-            <tr data-id="{{ row.id.value }}" {% if row.id.value is empty %} hidden {%- endif -%} >
+        {%- for id, row in rows -%}
+            <tr data-id="{{ id }}" {% if id is empty %} hidden {%- endif -%} >
                 {% for property_name, cell in row -%}
                     {% if cell.type == "ignored" -%} {# do absolutely nothing #}
                     {%- elseif cell.type == "select" -%}

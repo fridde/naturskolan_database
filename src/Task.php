@@ -512,6 +512,9 @@ class Task
     {
         $DBM = new DatabaseMaintainer();
         $DBM->cleanOldGroupNumbers();
+        $DBM->removeOldRows();
+        $DBM->standardizeMobileNumbers();
+        $DBM->prettifyMailAdresses();
 
         // TODO: add more functionality to this function
     }

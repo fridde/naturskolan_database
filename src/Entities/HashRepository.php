@@ -61,6 +61,16 @@ class HashRepository extends CustomRepository
         return $oldest_hash->getVersion();
     }
 
+    public function findHashesExpiredBefore(Carbon $date): array
+    {
+        return array_filter(
+            $this->findAll(),
+            function (Hash $h) use ($date) {
+                return $date->gt($h->getExpiresAt());
+            }
+        );
+    }
+
     private function compareHashByVersion(Hash $hash1, Hash $hash2): int
     {
         return $hash1->getVersion() <= $hash2->getVersion() ? -1 : 1;
