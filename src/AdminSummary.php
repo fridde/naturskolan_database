@@ -494,7 +494,7 @@ class AdminSummary
         /* @var Change $change */
         foreach ($group_changes as $change) {
             /* @var Group $g */
-            $g = $this->N->ORM->find('Group', $change)->getEntityId();
+            $g = $this->N->ORM->find('Group', $change->getEntityId());
             $next_visit = $g->getNextVisit();
             if (!empty($next_visit) && $next_visit->isBefore($deadline)) {
                 $att = $change->getProperty();
