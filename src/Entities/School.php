@@ -68,7 +68,23 @@ class School
 
     public function getGroupCountsAsString(): string
     {
-        return json_encode($this->getGroupCounts() ?? []);
+        $group_counts = $this->getGroupCounts();
+        if(empty($group_counts)){
+            return '';
+        }
+
+        return  json_encode($this->spliceGroupCounts($group_counts));
+    }
+
+    private function spliceGroupCounts(array $groupCounts)
+    {
+        $spliced = [];
+        foreach($groupCounts as $gc){
+            /* @var GroupCount $gc  */
+            $spliced[$gc->getStartYear()][$gc->getSegment()] = $gc->getNumber();
+        }
+
+        return $spliced;
     }
 
     /**
