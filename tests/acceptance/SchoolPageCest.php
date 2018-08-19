@@ -114,6 +114,9 @@ class SchoolPageCest
         $I->click('//a[@href="#tab_5"]');
         $I->pause(0.7);
         $I->canSee('5A');
+
+        // TODO: Test group name editor
+
     }
 
 }

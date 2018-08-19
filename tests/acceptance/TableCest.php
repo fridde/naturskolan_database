@@ -108,8 +108,8 @@ class TableCest
         $I->assertCount($school_count, $I->getTableRows('School'));
         $I->assertEquals($school_count, $I->grabNumRecords('schools'));
 
-        //$I->canSee('{"2017":{"2":0,"5":0,"fbk":0},"2018":{"2":0,"5":0,"fbk":0},"2019":{"2":0,"5":0,"fbk":0}}');
-
+        $I->canSee('{"2017":{"5":3},"2018":{"2":3}}');
+        $I->canSee('{"2018":{"fri":2},"2019":{"2":6}}');
 
         $josefina_row = $I->get('paths', 'josefina_row');
         $central_row = $I->get('paths', 'central_row');
