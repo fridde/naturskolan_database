@@ -6,9 +6,11 @@ use Carbon\Carbon;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
+use Fridde\Mailer;
 use Fridde\Messenger\Mail;
 use Fridde\Update;
 use Fridde\Security\Authorizer;
+use GuzzleHttp\Client;
 
 
 class APIController extends BaseController
@@ -148,6 +150,47 @@ class APIController extends BaseController
         $this->N->setStatus('test.datetime', $date_time);
         Carbon::setTestNow($date_time);
         $this->setReturnType(self::RETURN_JSON);
+    }
+
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
+    public function sendMail()
+    {
+        $client = new Client();
+
+        $params = ['secret' => SETTINGS['captcha']['secret']];
+        $params['response'] = $this->getFromRequest('g-recaptcha-response');
+        $params['remoteip'] = $_SERVER['REMOTE_ADDR'];
+
+        $response = $client->post('https://www.google.com/recaptcha/api/siteverify', $params);
+
+        $resp_array = json_decode($response->getBody(), true);
+        $success = $resp_array['success'] ?? false;
+
+        if($success){
+            /*
+             * 'From', 'receiver', 'Host', 'Password', 'Username'];
+		['Subject', 'Body']
+             */
+            $m['receiver'] = SETTINGS['smtp_settings']['from'];
+            $m['Subject'] = 'Nytt meddelande från webbformuläret på NDB';
+
+            $body = 'Ett nytt meddelande har skickats från webbformuläret på ';
+            $body .= 'sigtunanaturskola.se/ndb/contact'. PHP_EOL;
+            $body .= 'Avsändaradress: ' . $this->getFromRequest('InputEmail');
+            $body .= PHP_EOL . PHP_EOL;
+            $body .= $this->getFromRequest('InputMessage');
+
+            $m['Body'] = $body;
+
+            $mailer = new Mailer($m);
+            $mailer->sendAway();
+
+            // TODO: convert this to a json-response
+            return;
+        }
+
     }
 
     public function updateReceivedSMS()
