@@ -23,7 +23,7 @@ class PageController extends BaseController
     {
        $section = $this->getParameter('section') ?? 'summary';
 
-       $this->setTemplate($section);
+       $this->setTemplate('help/' . $section);
     }
 
 
