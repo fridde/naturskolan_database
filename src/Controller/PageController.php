@@ -26,6 +26,16 @@ class PageController extends BaseController
        $this->setTemplate('help/' . $section);
     }
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
+    public function showContact()
+    {
+        $this->setTemplate('contact');
+    }
+
+//showContact
+
 
     public function showError()
     {

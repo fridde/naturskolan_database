@@ -1,0 +1,28 @@
+{%- extends "visitor_area.twig" -%}
+
+
+{%- block main_content -%}
+<h1>Kontakt</h1>
+    <p>Om du vill ringa oss eller kontakta en särskild person på Naturskolan, gå till</p>
+    <p>
+        <button type="button" class="btn btn-success">
+            <a target="_blank" href="//sigtunanaturskola.se/kontakta-oss">Naturskolans kontaktuppgifter</a>
+        </button>
+    </p>
+    <h2>Skicka din fråga</h2>
+    <p>Om du har frågor om besöksdatum, har upptäckt ett fel på hemsidan eller har ett förbättringsförslag, använd detta formulär.</p>
+    <form action="api/send_mail" id="send-question">
+        <div class="g-recaptcha" data-sitekey="6Lfb3GoUAAAAAPRRjKrCT2qXLvtr8gqyLF4jipHM"></div>
+        <button type="submit" class="btn btn-primary">Skicka</button>
+        <div class="form-group">
+            <label for="InputEmail">Mejladress</label>
+            <input type="email" class="form-control" id="InputEmail" placeholder="Din mejladress">
+            <small id="emailHelp" class="form-text text-muted">...för att vi ska kunna svara dig.</small>
+        </div>
+        <div class="form-group">
+            <label for="InputMessage">Ditt meddelande</label><br>
+            <textarea form="send-question" id="InputMessage" name="InputMessage" cols="50" rows="50"></textarea>
+        </div>
+
+    </form>
+{%- endblock -%}

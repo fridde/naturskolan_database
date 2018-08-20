@@ -63,7 +63,7 @@
                                                     {% for visit in group.visits -%}
                                                         <li>{{ visit.date }}:&nbsp;
                                                             {%- if visit.topic_url -%}
-                                                                <a href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
+                                                                <a target="_blank" href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
                                                             {%- else -%}
                                                                 {{ visit.topic_short_name }}
                                                             {%- endif %}
