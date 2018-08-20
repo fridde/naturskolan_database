@@ -1,1 +1,0 @@
-A=$(echo "codecept run acceptance "{Index,SchoolPage,Admin,Cron,Table}"Cest --steps -f &&")" :" && echo $A
