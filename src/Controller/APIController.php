@@ -163,16 +163,13 @@ class APIController extends BaseController
         $params['response'] = $this->getFromRequest('g-recaptcha-response');
         $params['remoteip'] = $_SERVER['REMOTE_ADDR'];
 
-        $response = $client->post('https://www.google.com/recaptcha/api/siteverify', $params);
+        $uri = 'https://www.google.com/recaptcha/api/siteverify';
+        $response = $client->post($uri, ['form_params' => $params]);
 
         $resp_array = json_decode($response->getBody(), true);
         $success = $resp_array['success'] ?? false;
 
         if($success){
-            /*
-             * 'From', 'receiver', 'Host', 'Password', 'Username'];
-		['Subject', 'Body']
-             */
             $m['receiver'] = SETTINGS['smtp_settings']['from'];
             $m['Subject'] = 'Nytt meddelande från webbformuläret på NDB';
 
