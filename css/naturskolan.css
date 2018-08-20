@@ -38,6 +38,10 @@ div.branding {
     font-size: 3em;
 }
 
+div.branding a:hover {
+    text-decoration: none;
+}
+
 div.set-dates {
     padding: 10px;
     float: left;

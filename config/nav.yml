@@ -5,7 +5,7 @@ NAV_SETTINGS:
   base:
     - &home
       label: 'Hem'
-      url: ''
+      url: '#'
     - &support
       label: 'Hjälp'
       url: 'support'
@@ -89,6 +89,8 @@ NAV_SETTINGS:
 
 
   guest:
+    -
+      <<: *home
     -
       <<: *support
     -
