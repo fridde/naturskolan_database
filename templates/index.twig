@@ -6,9 +6,9 @@
 {%- block content -%}
     <div class="row">
         <div class="col-md-3"></div>
-        <div class="col-md-6">
+        <div class="col-md-6 pt-5">
             <h1 class="center">Välj skola</h1>
-            <div class="flexbox">
+            <div class="flexbox pt-5">
                 {% for school in schools %}
                     <a href="{{ school.url }}">
                         <button type="button" class="btn btn-default school-choice">{{ school.label }}</button>
@@ -18,7 +18,4 @@
         </div>
         <div class="col-md-3"></div>
     </div>
-
-
-
 {%- endblock -%}
