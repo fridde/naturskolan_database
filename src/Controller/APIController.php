@@ -157,37 +157,42 @@ class APIController extends BaseController
      */
     public function sendMail()
     {
+        $this->setReturnType(self::RETURN_JSON);
+
         $client = new Client();
 
         $params = ['secret' => SETTINGS['captcha']['secret']];
-        $params['response'] = $this->getFromRequest('g-recaptcha-response');
+        $params['response'] = $this->getFromRequest('captcha');
         $params['remoteip'] = $_SERVER['REMOTE_ADDR'];
 
         $uri = 'https://www.google.com/recaptcha/api/siteverify';
         $response = $client->post($uri, ['form_params' => $params]);
 
         $resp_array = json_decode($response->getBody(), true);
-        $success = $resp_array['success'] ?? false;
+        $captcha_success = $resp_array['success'] ?? false;
 
-        if($success){
+        $mail_adress = $this->getFromRequest('input_email');
+        $address_success = !empty(trim($mail_adress));
+
+        $mail_status = false;
+        if($captcha_success && $address_success){
             $m['receiver'] = SETTINGS['smtp_settings']['from'];
             $m['Subject'] = 'Nytt meddelande från webbformuläret på NDB';
 
-            $body = 'Ett nytt meddelande har skickats från webbformuläret på ';
-            $body .= 'sigtunanaturskola.se/ndb/contact'. PHP_EOL;
-            $body .= 'Avsändaradress: ' . $this->getFromRequest('InputEmail');
-            $body .= PHP_EOL . PHP_EOL;
-            $body .= $this->getFromRequest('InputMessage');
+            $body = '<p>Ett nytt meddelande har skickats från webbformuläret på ';
+            $body .= 'sigtunanaturskola.se/ndb/contact <br>' . PHP_EOL;
+            $body .= 'Avsändaradress: ' . $mail_adress;
+            $body .= '</p>'. PHP_EOL . PHP_EOL .'<p>';
+            $body .= $this->getFromRequest('input_message') . '</p>';
 
             $m['Body'] = $body;
 
             $mailer = new Mailer($m);
-            $mailer->sendAway();
-
-            // TODO: convert this to a json-response
-            return;
+            $mail_status = $mailer->sendAway();
         }
-
+        $this->addToDATA('mail_success', $mail_status);
+        $this->addToDATA('address_success', $address_success);
+        $this->addToDATA('captcha_success', $captcha_success);
     }
 
     public function updateReceivedSMS()

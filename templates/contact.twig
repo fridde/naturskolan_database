@@ -11,18 +11,18 @@
     </p>
     <h2>Skicka din fråga</h2>
     <p>Om du har frågor om besöksdatum, har upptäckt ett fel på hemsidan eller har ett förbättringsförslag, använd detta formulär.</p>
-    <form action="api/send_mail" id="send-question" method="post">
+    <div id="send-question">
         <div class="g-recaptcha" data-sitekey="6Lfb3GoUAAAAAPRRjKrCT2qXLvtr8gqyLF4jipHM"></div>
         <button type="submit" class="btn btn-primary">Skicka</button>
         <div class="form-group">
             <label for="InputEmail">Mejladress</label>
-            <input type="email" class="form-control" name="InputEmail" id="InputEmail" placeholder="Din mejladress">
+            <input type="email" class="form-control" name="input_email" placeholder="Din mejladress">
             <small id="emailHelp" class="form-text text-muted">...för att vi ska kunna svara dig.</small>
         </div>
         <div class="form-group">
             <label for="InputMessage">Ditt meddelande</label><br>
-            <textarea form="send-question" id="InputMessage" name="InputMessage" cols="50" rows="50" placeholder="Ditt meddelande"></textarea>
+            <textarea form="send-question" name="input_message" cols="50" rows="50" placeholder="Ditt meddelande"></textarea>
         </div>
 
-    </form>
+    </div>
 {%- endblock -%}
