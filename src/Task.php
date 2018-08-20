@@ -130,8 +130,6 @@ class Task
             $cal = new Calendar();
             $cal->save();
             $this->N->log('Actually recalculated calendar', __METHOD__);
-        } else {
-            $this->N->log('No calendar recalculation needed', __METHOD__);
         }
     }
 

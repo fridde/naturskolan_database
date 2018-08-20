@@ -79,10 +79,10 @@ let Update = {
     checkPasswordResponse: function(data){
         let $rsp = $('#login-modal div.response-text');
         if (data.success === true) {
-            $rsp.html('<div class="alert alert-success">Lösenordet är korrekt!</div>');
+            $rsp.html('<div class="alert alert-success">Lösenordet är korrekt! <i class="far fa-grin fa-lg"></i></div>');
             setTimeout(function(){location.reload(true);}, 2000);
         } else {
-            $rsp.html('<div class="alert alert-danger">Lösenordet godkändes ej <i class="fas fa-sad-tear fa-2x"></i></div>');
+            $rsp.html('<div class="alert alert-danger">Lösenordet godkändes ej <i class="far fa-sad-tear fa-lg"></i></div>');
             console.log('Bad password');
         }
     },
