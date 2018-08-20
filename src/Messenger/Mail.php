@@ -44,7 +44,7 @@ class Mail extends AbstractMessageController
     public function send()
     {
         $body = $this->createMailBody();
-        $this->Mailer->set('body', $body);
+        $this->Mailer->setValue('body', $body);
 
         $debug_mail = SETTINGS['debug']['mail'] ?? null;
         $result = $this->Mailer->sendAway($debug_mail );
@@ -64,8 +64,8 @@ class Mail extends AbstractMessageController
     {
         $this->setTemplate('mail/admin_summary');
         $receiver = SETTINGS['admin']['summary']['admin_adress'];
-        $this->Mailer->set('receiver', $receiver);
-        $this->Mailer->set('subject', 'Dagliga sammanfattningen av databasen');
+        $this->Mailer->setValue('receiver', $receiver);
+        $this->Mailer->setValue('subject', 'Dagliga sammanfattningen av databasen');
 
         $this->addToDATA($this->getParameter('data'));
     }
@@ -73,17 +73,17 @@ class Mail extends AbstractMessageController
     protected function preparePasswordRecover()
     {
         $this->setTemplate('mail/password_recover');
-        $this->Mailer->set('receiver', $this->getParameter('receiver'));
-        $this->Mailer->set('subject', 'Naturskolan: Återställning av lösenord');
-        $this->Mailer->set('SMTPDebug', 0);
+        $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
+        $this->Mailer->setValue('subject', 'Naturskolan: Återställning av lösenord');
+        $this->Mailer->setValue('SMTPDebug', 0);
         $this->addToDATA($this->getParameter('data'));
     }
 
     protected function prepareUpdateProfileReminder()
     {
         $this->setTemplate('mail/incomplete_profile');
-        $this->Mailer->set('receiver', $this->getParameter('receiver'));
-        $this->Mailer->set('subject', 'Vi behöver mer information från dig!');
+        $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
+        $this->Mailer->setValue('subject', 'Vi behöver mer information från dig!');
         $this->addToDATA($this->getParameter('data'));
         $this->moveFromDataToVar('school_url', 'fname');
     }
@@ -91,8 +91,8 @@ class Mail extends AbstractMessageController
     protected function prepareConfirmVisit()
     {
         $this->setTemplate('mail/confirm_visit');
-        $this->Mailer->set('receiver', $this->getParameter('receiver'));
-        $this->Mailer->set('subject', 'Bekräfta ditt besök!');
+        $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
+        $this->Mailer->setValue('subject', 'Bekräfta ditt besök!');
         $this->addAsVar($this->getParameter('data'));
     }
 
@@ -116,7 +116,7 @@ class Mail extends AbstractMessageController
         $this->moveFromDataToVar('school_url', 'fname');
 
         $this->setTemplate('mail/changed_groups');
-        $this->Mailer->set('receiver', $this->getParameter('receiver'));
+        $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
 
         $has_removed = !empty($groups['removed']);
         $has_new = !empty($groups['new']);
@@ -129,7 +129,7 @@ class Mail extends AbstractMessageController
         } else {
             throw new \Exception('There were no groups given for this user.');
         }
-        $this->Mailer->set('subject', $subject);
+        $this->Mailer->setValue('subject', $subject);
     }
 
     /**
@@ -153,8 +153,8 @@ class Mail extends AbstractMessageController
         $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
         $this->setTemplate('mail/new_user_welcome');
-        $this->Mailer->set('receiver', $this->getParameter('receiver'));
-        $this->Mailer->set('subject', 'Välkommen i Naturskolans databas');
+        $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
+        $this->Mailer->setValue('subject', 'Välkommen i Naturskolans databas');
     }
 
     public function getMethods()
