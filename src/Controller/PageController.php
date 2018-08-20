@@ -31,6 +31,7 @@ class PageController extends BaseController
      */
     public function showContact()
     {
+        $this->addJs('captcha');
         $this->setTemplate('contact');
     }
 
