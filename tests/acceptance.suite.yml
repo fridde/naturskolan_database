@@ -14,7 +14,7 @@ modules:
         - \Helper\Acceptance
         - WebDriver:
             url: 'http://localhost/testing/naturskolan_database'
-            window_size: false # disabled in ChromeDriver
+            window_size: maximize # disabled in ChromeDriver
             port: 4444
             browser: chrome
             capabilities:

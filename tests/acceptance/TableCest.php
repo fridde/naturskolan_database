@@ -137,7 +137,7 @@ class TableCest
     // codecept run acceptance TableCest:editTopicTable --steps -f
     public function editTopicTable(A $I)
     {
-        $initial_topic_count = 19;
+        $initial_topic_count = 27;
 
         $I->amOnPage('/table/Topic');
 

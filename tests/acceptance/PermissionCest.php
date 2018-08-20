@@ -8,6 +8,8 @@ class PermissionCest
 {
     public function _before(A $I)
     {
+        $I->amOnPage('/');
+        $I->setCookie('AuthKey', $I->get('natu', 'AuthKey'));
         $I->setCookie('XDEBUG_SESSION', 'PHPSTORM');
     }
 
@@ -19,9 +21,12 @@ class PermissionCest
     public function canGetCalendar(A $I)
     {
         $I->runCronTask('rebuild_calendar');
+        $I->resetCookie('AuthKey');
         $I->pause();
 
-
+        $I->amOnPage('calendar');
+        $I->pause();
+        $I->makeScreenshot('calendar_downloaded');
 
     }
 

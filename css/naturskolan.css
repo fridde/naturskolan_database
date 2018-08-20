@@ -198,9 +198,9 @@ div.group-container {
 }
 
 .pw-popover {
-    font-size: 200%;
+    font-size: 150%;
     color: #ff6600;
-    width: auto;
+    word-wrap: normal;
 }
 
 .nav-tabs .nav-link {
