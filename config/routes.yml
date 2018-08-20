@@ -4,7 +4,7 @@ routes:
    admin : ['GET','/admin/[:action]?','Admin']
    api : ['GET|POST','/api/[:action]/[**:parameters]?', 'API']
    batch : ['GET','/admin/batch/[:action]/[**:parameters]?','Batch']
-   calendar: ['GET','/calendar','File']
+   calendar: ['GET','/calendar','File#getCalendar']
    cron : ['GET','/cron/[:AuthKey]?','Cron']
    file : ['GET','/file/[:file1]/[:file2]?/[:file3]?','File#include']
    login : ['GET', '/login/[:code]/[**:destination]?', 'Login#login']

@@ -4,29 +4,22 @@ namespace Fridde\Controller;
 
 class FileController extends BaseController
 {
-    protected $ActionTranslator = ['visit_confirmed' => 'VisitConfirmed'];
+    private const CALENDAR_FILE = 'aventyr_kalender.ics';
 
-    public function handleRequest()
-    {
-        $this->addAction('viewPage');
-        parent::handleRequest();
-    }
+    protected $ActionTranslator = ['visit_confirmed' => 'VisitConfirmed'];
 
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function viewPage()
+    public function getCalendar()
     {
-        if (empty($this->getParameter('url'))) {
-            $this->setTemplate('index');
-        }
-    }
+        $file = BASE_DIR . self::CALENDAR_FILE;
 
+        header('Content-type: text/calendar; charset=utf-8');
+        header('Content-Disposition: attachment; filename=aventyr_kalender.ics');
 
-    public function showError()
-    {
-        http_response_code(404);
-        echo 'The url '.implode('/', $this->getParameter()).' could not be resolved';
-        die();
+        echo file_get_contents($file);
+
+        exit;
     }
 }
