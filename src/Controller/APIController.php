@@ -110,12 +110,12 @@ class APIController extends BaseController
     /**
      * @param string $mail_adress
      *
-     * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
     public function sendPasswordRecoverMail(string $mail_adress): void
     {
         $this->setReturnType(self::RETURN_JSON);
-        $mail_adress = trim($mail_adress);
+        $mail_adress = strtolower(trim($mail_adress));
         /* @var User $user  */
         $user = $this->N->ORM->getRepository('User')->findOneBy(['Mail' => $mail_adress]);
 

@@ -16,7 +16,8 @@ let Response = {
         if (status === 'success') {
             let data = jqXHR.responseJSON;
 
-            if (!(this.checkData(data)) || this.hasErrors(data)){
+            this.logErrors(data);
+            if (!(this.checkData(data))){
                 return false;
             }
             this.logDataToConsole(data);
@@ -39,7 +40,7 @@ let Response = {
         return true;
     },
 
-    hasErrors: function (data) {
+    logErrors: function (data) {
         if (data.errors.length > 0) {
             console.group('ResponseErrors');
             console.log(data.errors);

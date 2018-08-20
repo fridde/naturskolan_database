@@ -91,7 +91,7 @@ class User
 
     public function setFirstName($FirstName)
     {
-        $this->FirstName = trim($FirstName);
+        $this->FirstName = ucfirst(trim($FirstName));
     }
 
     public function getLastName()
@@ -143,7 +143,7 @@ class User
 
     public function setMail($Mail)
     {
-        $this->Mail = trim($Mail);
+        $this->Mail = strtolower(trim($Mail));
     }
 
     public function hasMail()

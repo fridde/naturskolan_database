@@ -201,7 +201,7 @@ $(document).ready(function () {
 
     $('#forgot-pw-btn').click(function () {
         $('#login-modal').modal('hide');
-        $pw_modal = $('#password-modal').modal('show');
+        $('#password-modal').modal('show');
 
         $('#password-modal').show();
     });

@@ -77,11 +77,13 @@ let Update = {
     },
 
     checkPasswordResponse: function(data){
+        let $rsp = $('#login-modal div.response-text');
         if (data.success === true) {
-            location.reload(true);
+            $rsp.html('<div class="alert alert-success">Lösenordet är korrekt!</div>');
+            setTimeout(function(){location.reload(true);}, 2000);
         } else {
+            $rsp.html('<div class="alert alert-danger">Lösenordet godkändes ej <i class="fas fa-sad-tear fa-2x"></i></div>');
             console.log('Bad password');
-            // TODO: implement a feedback for a wrong password
         }
     },
 
