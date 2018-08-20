@@ -238,10 +238,14 @@ class Task
             }
 
             return (new Update)->createNewEntity('Message', $msg_props);
-        } else {
-            //TODO: log this failed trial to error table or equivalent
-            return new Update;
         }
+        //TODO: log this failed trial to error table or equivalent
+        $msg = 'The message of type ' . $msg_carrier . ' to receiver ';
+        $msg .= $user->getFullName() . ' with the subject ';
+        $msg .= $subject . ' could not be sent';
+        $this->N->log($msg);
+
+        return new Update;
     }
 
     private function logMessageArray(array $msg_array, bool $flush = true)

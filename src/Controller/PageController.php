@@ -6,20 +6,24 @@ class PageController extends BaseController
 {
     protected $ActionTranslator = ['visit_confirmed' => 'VisitConfirmed'];
 
-    public function handleRequest()
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
+    public function viewIndex()
     {
-        $this->addAction('viewPage');
-        parent::handleRequest();
+        if (empty($this->getParameter('url'))) {
+            $this->setTemplate('index');
+        }
     }
 
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function viewPage()
+    public function showSupport()
     {
-        if (empty($this->getParameter('url'))) {
-            $this->setTemplate('index');
-        }
+       $section = $this->getParameter('section') ?? 'summary';
+
+       $this->setTemplate($section);
     }
 
 
