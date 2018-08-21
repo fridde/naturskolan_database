@@ -47,16 +47,17 @@ class Visitor
 
     public function isFromAdminSchool()
     {
-        if($this->hasSchool()){
+        if ($this->hasSchool()) {
             return $this->getSchool()->getId() === Naturskolan::ADMIN_SCHOOL;
         }
     }
 
     public function isAdminUser()
     {
-        if($this->isUser()){
-            return (bool) ($this->getUser()->getRole() & (User::ROLE_ADMIN | User::ROLE_SUPERUSER));
+        if ($this->isUser()) {
+            return (bool)($this->getUser()->getRole() & (User::ROLE_ADMIN | User::ROLE_SUPERUSER));
         }
+
         return false;
 
     }
@@ -71,7 +72,7 @@ class Visitor
     public function setUserFromKey(string $key = null)
     {
         /* @var User $user */
-        $user = $this->Auth->getObjectFromCode($key, Hash::CATEGORY_USER_COOKIE_KEY, 'User');
+        $user = $this->Auth->getObjectFromCode($key, Hash::CATEGORY_USER_COOKIE_KEY, User::class);
         $this->setUser($user ?? null);
     }
 
@@ -79,22 +80,23 @@ class Visitor
     {
         if ($this->isUser()) {
             $this->setSchool($this->getUser()->getSchool());
+
             return;
         }
-        /* @var School $school  */
-        $school = $this->Auth->getObjectFromCode($key, Hash::CATEGORY_SCHOOL_COOKIE_KEY, 'School') ?? null;
+        /* @var School $school */
+        $school = $this->Auth->getObjectFromCode($key, Hash::CATEGORY_SCHOOL_COOKIE_KEY, School::class) ?? null;
         $this->setSchool($school);
 
     }
 
     public function isFromSchool(School $school)
     {
-        if($this->hasSchool()){
+        if ($this->hasSchool()) {
             return $this->getSchool()->getId() === $school->getId();
         }
+
         return false;
     }
-
 
 
     /**
@@ -141,9 +143,10 @@ class Visitor
 
     public function getUserRole(): ?int
     {
-        if($this->isUser()){
+        if ($this->isUser()) {
             return $this->getUser()->getRole();
         }
+
         return null;
 
     }

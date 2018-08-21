@@ -7,22 +7,17 @@ use Fridde\CustomRepository;
 
 class HashRepository extends CustomRepository
 {
-    public function findByPassword(string $password, int $cat, string $version = null)
-    {
-        $criteria[] = ['Category', $cat];
-        if (!empty($version)) {
-            $criteria[] = ['Version', $version];
+    public function findByPassword(
+        string $password,
+        int $cat,
+        bool $accept_expired = false
+    ): ?Hash {
+        $this->selectAllHashes()->havingCategory($cat)->matchingPassword($password);
+        if (!$accept_expired) {
+            $this->expiredBeforeToday();
         }
-        $criteria[] = ['gt', 'ExpiresAt', Carbon::now()->toIso8601String()];
 
-        $possible_hashes = $this->select($criteria);
-
-        $valid_hashes = array_filter(
-            $possible_hashes,
-            function (Hash $hash) use ($password) {
-                return password_verify($password, $hash->getValue());
-            }
-        );
+        $valid_hashes = $this->getSelection();
         if (count($valid_hashes) > 1) {
             throw new \Exception(
                 'The result of the search for a matching password entry was ambigous. This should never happen!'
@@ -35,7 +30,7 @@ class HashRepository extends CustomRepository
         return array_shift($valid_hashes);
     }
 
-    public function findHashesThatExpireAfter($date, int $category = null, $owner_id = null)
+    public function findHashesThatExpireAfter($date, int $category = null, string $owner_id = null)
     {
         if ($date instanceof Carbon) {
             $date = $date->toIso8601String();
@@ -46,6 +41,81 @@ class HashRepository extends CustomRepository
         $crit = array_filter($crit);
 
         return $this->select($crit);
+    }
+
+    public function matchingPassword(string $pw)
+    {
+        $this->selection = array_filter(
+            $this->selection,
+            function (Hash $h) use ($pw) {
+                return password_verify($pw, $h->getValue());
+            }
+        );
+
+        return $this;
+    }
+
+    public function havingCategory(int $category)
+    {
+        $this->selection = array_filter(
+            $this->selection,
+            function (Hash $h) use ($category) {
+                return $h->getCategory() === $category;
+            }
+        );
+
+        return $this;
+    }
+
+    public function havingOwnerId(string $owner_id)
+    {
+        $this->selection = array_filter(
+            $this->selection,
+            function (Hash $h) use ($owner_id) {
+                return $h->getCategory() === $owner_id;
+            }
+        );
+
+        return $this;
+
+    }
+
+    public function selectAllHashes()
+    {
+        $this->selection = $this->findAll();
+
+        return $this;
+    }
+
+    public function expiredBeforeToday()
+    {
+        return $this->expiredBefore(Carbon::today());
+    }
+
+    public function expiredBefore(Carbon $date)
+    {
+        $this->selection = array_filter(
+            $this->selection,
+            function (Hash $h) use ($date) {
+                return $h->expiredBefore($date);
+            }
+        );
+
+        return $this;
+    }
+
+    public function expiredAfter(Carbon $date)
+    {
+        $this->selection = array_filter(
+            $this->selection,
+            function (Hash $h) use ($date) {
+                $exp = $h->getExpiresAt();
+
+                return empty($exp) ? false : $date->lte($exp);
+            }
+        );
+
+        return $this;
     }
 
     public function findOldestValidVersion($owner_id, int $category)
@@ -61,15 +131,6 @@ class HashRepository extends CustomRepository
         return $oldest_hash->getVersion();
     }
 
-    public function findHashesExpiredBefore(Carbon $date): array
-    {
-        return array_filter(
-            $this->findAll(),
-            function (Hash $h) use ($date) {
-                return $date->gt($h->getExpiresAt());
-            }
-        );
-    }
 
     private function compareHashByVersion(Hash $hash1, Hash $hash2): int
     {

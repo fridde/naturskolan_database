@@ -542,6 +542,11 @@ class Task
         $version .= '_'.random_int(0, 999);
         $school_passwords = [];
         foreach ($schools as $school) {
+
+
+
+
+
             if (empty($hash_repo->findHashesThatExpireAfter($max_expiry_date))) {
                 $pw = $this->N->Auth->calculatePasswordForSchool($school, $version);
                 $school_passwords[$school->getId()] = $pw;

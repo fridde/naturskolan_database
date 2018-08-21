@@ -77,10 +77,15 @@ class Authenticator
         if (empty($code)) {
             return null;
         }
-        $hash = $this->getHashRepo()->findByPassword($code, $category);
+
+        $hash = $this->getHashRepo()->findByPassword($code, $category, true);
 
         if (empty($hash)) {
             return null;
+        }
+
+        if($hash->isExpired()){
+            throw new \Exception('The code you used to login has expired.');
         }
 
         return $this->ORM->find($object_class, $hash->getOwnerId());
@@ -88,12 +93,12 @@ class Authenticator
 
     public function getVisitFromCode(string $code)
     {
-        return $this->getObjectFromCode($code, Hash::CATEGORY_VISIT_CONFIRMATION_CODE, 'Visit');
+        return $this->getObjectFromCode($code, Hash::CATEGORY_VISIT_CONFIRMATION_CODE, Visit::class);
     }
 
     public function getUserFromUrlCode(string $code)
     {
-        return $this->getObjectFromCode($code, Hash::CATEGORY_USER_URL_CODE, 'User');
+        return $this->getObjectFromCode($code, Hash::CATEGORY_USER_URL_CODE, User::class);
     }
 
     public function getSchoolFromPassword($password): ?School

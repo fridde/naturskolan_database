@@ -3,6 +3,7 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
+
 //use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -130,6 +131,21 @@ class Hash
         }
 
         $this->ExpiresAt = $ExpiresAt;
+    }
+
+    public function expiredBefore(Carbon $date): bool
+    {
+        $expiration = $this->getExpiresAt();
+        if (empty($expiration)) {
+            return true;
+        }
+
+        return $expiration->lt($date);
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expiredBefore(Carbon::now());
     }
 
     public function getCreatedAt()
