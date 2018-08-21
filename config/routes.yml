@@ -8,7 +8,7 @@ routes:
    contact: ['GET', '/contact', 'Page#showContact']
    cron : ['GET','/cron/[:AuthKey]?','Cron']
    file : ['GET','/file/[:file1]/[:file2]?/[:file3]?','File#include']
-   login : ['GET', '/login/[:code]/[**:destination]?', 'Login#login']
+   login : ['GET', '/login/[:code]/[**:destination]?', 'Login#login_with_code']
    logout: ['GET', '/logout', 'Login#logout']
    pwrecover : ['GET','/passwordrecover/[:code]?','API#passwordRecover']
    sandbox: ['GET|POST','/sandbox/[:action]?/[**:parameters]?', 'Sandbox']

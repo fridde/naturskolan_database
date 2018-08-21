@@ -25,14 +25,18 @@ class LoginController extends BaseController
      *
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function login()
+    public function loginWithCode()
     {
         $code = $this->getParameter('code');
         $user = $this->N->Auth->getUserFromUrlCode($code);
         if (empty($user)) {
             throw new \Exception('Someone tried to enter with the invalid code '.$code);
         }
-        $this->N->Auth->createAndSaveCode($user->getId(), Hash::CATEGORY_USER_COOKIE_KEY);
+
+        $auth_key = $this->N->Auth->createAndSaveCode($user->getId(), Hash::CATEGORY_USER_COOKIE_KEY);
+        $exp_date = $this->N->Auth->getExpirationDate(Hash::CATEGORY_USER_COOKIE_KEY);
+        $this->N->Auth->setCookieKeyInBrowser($auth_key, $exp_date);
+
         $params['school'] = $user->getSchoolId();
         $params['page'] = $this->getParameter('destination') ?? 'staff';
         $url = $this->N->generateUrl('school', $params);

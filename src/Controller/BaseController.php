@@ -419,7 +419,7 @@ class BaseController
         return in_array($action, $this->getActions(), true);
     }
 
-    public function translateActionToMethod($action)
+    public function translateActionToMethod(string $action): ?string
     {
         $method = $action;
         if (method_exists($this, $method)) {
