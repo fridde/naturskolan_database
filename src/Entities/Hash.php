@@ -27,9 +27,6 @@ class Hash
     /** @Column(type="string") */
     protected $Owner_id;
 
-    /** @Column(type="smallint", nullable=true) */
-    protected $Rights;
-
     /** @Column(type="string", nullable=true) */
     protected $ExpiresAt;
 
@@ -133,16 +130,6 @@ class Hash
         }
 
         $this->ExpiresAt = $ExpiresAt;
-    }
-
-    public function getRights()
-    {
-        return $this->Rights;
-    }
-
-    public function setRights(int $Rights)
-    {
-        $this->Rights = $Rights;
     }
 
     public function getCreatedAt()

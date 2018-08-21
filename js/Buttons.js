@@ -263,7 +263,7 @@ $(document).ready(function () {
     $('div#send-question button[type="submit"]').click(function () {
         let $form = $('div#send-question');
         $.ajax({
-            url: 'api/send_mail',
+            url: 'api/send_contact_mail',
             method: 'POST',
             data: {
                 captcha: grecaptcha.getResponse(),

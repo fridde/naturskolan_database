@@ -155,7 +155,7 @@ class APIController extends BaseController
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function sendMail()
+    public function sendContactMail()
     {
         $this->setReturnType(self::RETURN_JSON);
 
@@ -182,8 +182,8 @@ class APIController extends BaseController
             $body = '<p>Ett nytt meddelande har skickats från webbformuläret på ';
             $body .= 'sigtunanaturskola.se/ndb/contact <br>' . PHP_EOL;
             $body .= 'Avsändaradress: ' . $mail_adress;
-            $body .= '</p>'. PHP_EOL . PHP_EOL .'<p>';
-            $body .= $this->getFromRequest('input_message') . '</p>';
+            $body .= '</p>'. PHP_EOL . PHP_EOL .'<p><pr>';
+            $body .= $this->getFromRequest('input_message') . '</pr></p>';
 
             $m['Body'] = $body;
 

@@ -227,7 +227,7 @@ class Naturskolan
      * @return string       The url a user can click to reach the school page
      *                      without writing any password.
      */
-    public function createLoginUrl(User $user, string $destination = 'staff', $absolute = true)
+    public function createLoginUrl(User $user, string $destination = 'staff', bool $absolute = true)
     {
         $params['code'] = $this->Auth->createAndSaveCode($user->getId(), Hash::CATEGORY_USER_URL_CODE);
         $params['destination'] = $destination;
@@ -285,13 +285,14 @@ class Naturskolan
         return $school->getId() === $school_id;
     }
 
-    public function generateUrl($route_name, array $params = [], bool $absolute = false)
+    public function generateUrl(string $route_name, array $params = [], bool $absolute = false)
     {
         /* @var \AltoRouter $router */
         $router = $GLOBALS['CONTAINER']->get('Router');
         $url = $router->generate($route_name, $params);
-        if ($absolute && !empty(SETTINGS['debug']['base_path'])) {
-            $url = SETTINGS['debug']['base_path'].$url;
+        if ($absolute) {
+            $base = rtrim(parse_url(APP_URL, PHP_URL_HOST), '/');
+            $url = '//' . $base . $url;
         }
 
         return $url;
