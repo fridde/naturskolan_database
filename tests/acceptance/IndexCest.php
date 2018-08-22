@@ -141,6 +141,12 @@ class IndexCest
         $I->dontSeeInCurrentUrl('skola/pers');
     }
 
+    // codecept run acceptance IndexCest:userCantGetPasswordMail --steps -f
+    public function userCantGetPasswordMail(A $I)
+    {
+
+    }
+
 
 
 
