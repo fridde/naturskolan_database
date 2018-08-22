@@ -72,6 +72,8 @@ class Mail extends AbstractMessageController
 
     protected function preparePasswordRecover()
     {
+        $this->moveFromDataToVar('school_url', 'fname');
+
         $this->setTemplate('mail/password_recover');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', 'Naturskolan: Återställning av lösenord');
@@ -99,7 +101,6 @@ class Mail extends AbstractMessageController
     protected function prepareChangedGroupsForUser()
     {
         $DATA = $this->getParameter('data');
-
 
         array_walk_recursive(
             $DATA['groups'],
