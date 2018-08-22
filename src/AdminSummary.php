@@ -331,6 +331,8 @@ class AdminSummary
     {
         $rows = [];
 
+        $forbidden_roles = [User::ROLE_SCHOOL_MANAGER, User::ROLE_ADMIN, User::ROLE_SUPERUSER];
+
         $groups = $this->N->getRepo('Group')->findActiveGroups();
         /* @var Group $group */
         foreach ($groups as $group) {
@@ -340,7 +342,7 @@ class AdminSummary
                 $reasons['nonexistent'] = true;
             } else {
                 $reasons['inactive'] = !$u->isActive();
-                $reasons['not_teacher'] = !$u->hasRole(User::ROLE_TEACHER);
+                $reasons['not_teacher'] = $u->hasOneOfRoles($forbidden_roles);
                 $reasons['wrong_school'] = $u->getSchool()->getId() !== $group->getSchool()->getId();
 
             }

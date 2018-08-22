@@ -32,7 +32,7 @@ class User
     protected $School;
 
     /** @Column(type="smallint", nullable=true) */
-    protected $Role = self::ROLE_STAKEHOLDER;
+    protected $Role = self::ROLE_TEACHER;
 
     /** @Column(type="string", nullable=true) */
     protected $Acronym;
@@ -210,6 +210,12 @@ class User
     public function hasRole(int $role)
     {
         return $this->getRole() === $role;
+    }
+
+    public function hasOneOfRoles(array $roles)
+    {
+        return in_array($this->getRole(), $roles, true);
+
     }
 
 
