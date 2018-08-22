@@ -11,11 +11,11 @@ use Fridde\TwigBaseExtension;
 
 class NavigationExtension extends TwigBaseExtension
 {
-    /* @var Authorizer $Auth  */
+    /* @var Authorizer $Auth */
     protected $Auth;
-    /* @var \AltoRouter $Router  */
+    /* @var \AltoRouter $Router */
     protected $Router;
-    /* @var ORM $ORM  */
+    /* @var ORM $ORM */
     protected $ORM;
 
     public const METHOD_DELIMITER = '->';
@@ -161,7 +161,7 @@ class NavigationExtension extends TwigBaseExtension
 
     public function getSchoolPageUrl(string $school_id = null, string $page = 'groups')
     {
-        if(empty($school_id)){
+        if (empty($school_id)) {
             return null;
         }
         $params['school'] = $school_id;
@@ -172,7 +172,7 @@ class NavigationExtension extends TwigBaseExtension
 
     public function getAllSchoolUrls(array $ignored_schools = [])
     {
-        /* @var SchoolRepository $school_repo  */
+        /* @var SchoolRepository $school_repo */
         $school_repo = $this->ORM->getRepository('School');
 
         $school_labels = $school_repo->findAllSchoolLabels();
@@ -194,13 +194,26 @@ class NavigationExtension extends TwigBaseExtension
 
     private static function getNavSettings(int $min_security_level = null): array
     {
-        $keys = [
-            Authorizer::ROLE_GUEST => 'guest',
-            User::ROLE_TEACHER => 'user',
-            User::ROLE_ADMIN => 'admin'
+        $nav_role = self::getNavRoleAsString($min_security_level);
+
+        return SETTINGS['NAV_SETTINGS'][$nav_role] ?? SETTINGS['NAV_SETTINGS'];
+    }
+
+    private static function getNavRoleAsString(int $min_security_level = null): string
+    {
+        $role_mapping = [
+            'guest' => [Authorizer::ROLE_GUEST],
+            'user' => [User::ROLE_STAKEHOLDER, User::ROLE_TEACHER, User::ROLE_SCHOOL_MANAGER],
+            'admin' => [User::ROLE_ADMIN, User::ROLE_SUPERUSER],
         ];
 
-        return SETTINGS['NAV_SETTINGS'][$keys[$min_security_level]] ?? SETTINGS['NAV_SETTINGS'];
+        foreach ($role_mapping as $string => $roles) {
+            if (in_array($min_security_level, $roles, true)) {
+                return $string;
+            }
+        }
+
+        return 'guest';
     }
 
 }
