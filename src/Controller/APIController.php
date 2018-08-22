@@ -127,7 +127,7 @@ class APIController extends BaseController
 
         $data = ['fname' => $user->getFirstName()];
         $data['password_link'] = $this->N->createLoginUrl($user, 'groups');
-        $data['school_url'] = $this->N->generateUrl('school', ['school' => $user->getSchoolId()]);
+        $data['school_url'] = $this->N->generateUrl('school', ['school' => $user->getSchoolId()], true);
         $params = ['purpose' => 'password_recover'];
         $params['data'] = $data;
         $params['receiver'] = $mail_adress;

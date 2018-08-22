@@ -72,13 +72,13 @@ class Mail extends AbstractMessageController
 
     protected function preparePasswordRecover()
     {
+        $this->addToDATA($this->getParameter('data'));
         $this->moveFromDataToVar('school_url', 'fname');
 
         $this->setTemplate('mail/password_recover');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', 'Naturskolan: Återställning av lösenord');
         $this->Mailer->setValue('SMTPDebug', 0);
-        $this->addToDATA($this->getParameter('data'));
     }
 
     protected function prepareUpdateProfileReminder()

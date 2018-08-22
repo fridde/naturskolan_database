@@ -274,9 +274,8 @@ class Task
 
         $data['fname'] = $v->getGroup()->getUser()->getFirstName();
         $school_id = $v->getGroup()->getSchoolId();
-        $absolute = !empty(DEBUG);
-        $data['school_url'] = $this->N->generateUrl('school', ['school' => $school_id], $absolute);
-        $visit_info['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), 'check_hash', $absolute);
+        $data['school_url'] = $this->N->generateUrl('school', ['school' => $school_id], true);
+        $visit_info['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), 'check_hash', true);
         $visit_info['date_string'] = $v->getDate()->formatLocalized('%e %B');
         $visit_info['group_name'] = $v->getGroup()->getName();
         $visit_info['topic_label'] = $v->getTopic()->getLongestName();
