@@ -14,7 +14,7 @@ class HashRepository extends CustomRepository
     ): ?Hash {
         $this->selectAllHashes()->havingCategory($cat)->matchingPassword($password);
         if (!$accept_expired) {
-            $this->expiredBeforeToday();
+            $this->expiredAfterToday();
         }
 
         $valid_hashes = $this->getSelection();
@@ -90,6 +90,11 @@ class HashRepository extends CustomRepository
     public function expiredBeforeToday()
     {
         return $this->expiredBefore(Carbon::today());
+    }
+
+    public function expiredAfterToday()
+    {
+        return $this->expiredAfter(Carbon::today());
     }
 
     public function expiredBefore(Carbon $date)
