@@ -44,7 +44,7 @@ class UpdateController extends BaseController
         if (!$this->needsSameSchool($method)) {
             return true;
         }
-        if ($this->Authorizer->getVisitorSecurityLevel() === User::ROLE_ADMIN) {
+        if ($this->Authorizer->getVisitorSecurityLevel() >= User::ROLE_ADMIN) {
             return true;
         }
         $visitor_school = $this->Authorizer->getVisitor()->getSchool();
