@@ -463,7 +463,9 @@ class Task
             function ($u) use ($annoyance_start, $msg_props) {
                 /* @var User $u */
                 // We don't need to remind users without groups or users that have recently gotten a message.
-                return $u->hasActiveGroups() && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
+                return empty($u->Pacified)
+                    && $u->hasActiveGroups()
+                    && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
             }
         );
         $messages = [];
@@ -541,11 +543,6 @@ class Task
         $version .= '_'.random_int(0, 999);
         $school_passwords = [];
         foreach ($schools as $school) {
-
-
-
-
-
             if (empty($hash_repo->findHashesThatExpireAfter($max_expiry_date))) {
                 $pw = $this->N->Auth->calculatePasswordForSchool($school, $version);
                 $school_passwords[$school->getId()] = $pw;
@@ -555,8 +552,6 @@ class Task
                 $hash->setCategory(Hash::CATEGORY_SCHOOL_PW);
                 $hash->setVersion($version);
                 $hash->setOwnerId($school->getId());
-                $rights = $this->N::isAdminSchool($school) ? Hash::RIGHTS_ALL_SCHOOLS : Hash::RIGHTS_SCHOOL_ONLY;
-                $hash->setRights($rights);
                 $hash->setExpiresAt($new_expiration_date);
                 $this->N->ORM->EM->persist($hash);
             }

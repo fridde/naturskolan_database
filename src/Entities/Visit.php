@@ -128,19 +128,24 @@ class Visit
      * @param string|Carbon $Date
      * @param string $input_format
      */
-    public function setDate($Date, string $input_format = 'Y-m-d')
+    public function setDate($Date, string $input_format = 'Y-m-d'): void
     {
         if (empty($Date)) {
             throw new \InvalidArgumentException('Date can\'t be empty!');
         }
         if ($Date instanceof Carbon) {
-            $Date = $Date->toDateString();
-        } elseif (is_string($Date)) {
-            // validates, too
-            $Date = Carbon::createFromFormat($input_format, $Date)->toDateString();
+            $this->Date = $Date->toDateString();
+            return;
         }
-        $this->Date = $Date;
+        if (is_string($Date)) {
+            // validates, too
+            $this->Date = Carbon::createFromFormat($input_format, $Date)->toDateString();
+            return;
+        }
+        throw new \InvalidArgumentException('The date "' . var_export($Date, true) . '" was not given in a valid format.');
     }
+
+
 
     public function getLastChange()
     {

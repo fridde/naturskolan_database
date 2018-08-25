@@ -46,6 +46,9 @@ class User
     /** @Column(type="string", nullable=true) */
     protected $CreatedAt;
 
+    /** @Column(type="smallint", nullable=true) */
+    public $Pacified;
+
     /** @ManyToMany(targetEntity="Visit", mappedBy="Colleagues")
      * @JoinTable(name="Colleagues_Visits")
      */
