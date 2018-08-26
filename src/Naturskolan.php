@@ -298,11 +298,6 @@ class Naturskolan
         return $url;
     }
 
-    public function getApiKey()
-    {
-        return SETTINGS['values']['api_key'] ?? null;
-    }
-
     public function getClient($new_client = false)
     {
         if (empty($this->Client) || $new_client) {

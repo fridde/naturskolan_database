@@ -135,6 +135,7 @@ if [ $SKIP -lt 8 ]; then
 	read -p 'Uploading the changed files to the remote server...'
     ./vendor/bin/deployment deployment/deployment.ini
 	
-	read -p 'Uploading the changed files to the remote testing directory...'
-	cp {$PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment_for_testing.ini
+	# read -p 'Uploading the changed files to the remote testing directory...'
+	# cp {$PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment_for_testing.ini
+	# ./vendor/bin/deployment deployment/deployment_for_testing.ini
 fi

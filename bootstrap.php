@@ -30,7 +30,7 @@ Essentials::registerDBLogger($em, Essentials::getLogger());
 
 setlocale(LC_TIME, 'swedish');
 Carbon::setUtf8(true);
-if(SETTINGS['environment'] === 'test'){
+if(defined('ENVIRONMENT') && ENVIRONMENT === 'test'){
     /* @var Naturskolan $N  */
     $N = $container->get('Naturskolan');
     $test_time = $N->getStatus('test.datetime')

@@ -1,6 +1,10 @@
 <?php
 
 use Fridde\Controller\BaseController;
+use Fridde\Error\ExceptionHandler;
+use Fridde\Error\NException;
+use Fridde\Error\Error;
+use Fridde\Essentials;
 use Fridde\Naturskolan;
 use Tracy\BlueScreen;
 
@@ -23,18 +27,16 @@ try {
         }
         exit();
     }
+    $args = [];
+    throw new NException(Error::PAGE_NOT_FOUND, $args);
+
 } catch (Exception $e) {
 
-    (new Naturskolan())->log($e->getMessage(), $e->getFile().':'.$e->getLine());
-    header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error', true, 500);
-    if (!empty(DEBUG)) {
-        (new BlueScreen())->render($e);
-    }
+    $e_handler = new ExceptionHandler($e, Essentials::getLogger());
+
+    $e_handler->handle();
     exit();
 }
 
-header($_SERVER['SERVER_PROTOCOL'].' 404 Not Found', true, 404);
-echo 'No match found. Requested url: '.PHP_EOL;
-echo $request_url;
-exit();
+
 

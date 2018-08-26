@@ -19,7 +19,7 @@ class APIController extends BaseController
     public function __construct(array $params = [], bool $slim = true)
     {
         parent::__construct($params, $slim);
-        if(in_array(SETTINGS['environment'], ['dev', 'test'], true)){
+        if (defined('ENVIRONMENT') && in_array(ENVIRONMENT, ['dev', 'test'], true)) {
             $this->Authorizer->changeSecurityLevel(get_class($this), 'updateTestDate', Authorizer::ACCESS_ALL);
         }
     }
@@ -33,11 +33,11 @@ class APIController extends BaseController
      */
     public function confirmVisitUsingId(string $visit_id): void
     {
-        /* @var Visit $visit  */
+        /* @var Visit $visit */
         $visit = $this->N->ORM->find('Visit', $visit_id);
         $school = $visit->getGroup()->getSchool();
         $visitor = $this->Authorizer->getVisitor();
-        if(!($visitor->isAdminUser() || $visitor->isFromAdminSchool()  || $visitor->isFromSchool($school))){
+        if (!($visitor->isAdminUser() || $visitor->isFromAdminSchool() || $visitor->isFromSchool($school))) {
             throw new \Exception('Unauthorized trial to confirm visit');
         }
         $this->updateVisitStatus($visit, $school->getId());
@@ -52,21 +52,21 @@ class APIController extends BaseController
      */
     public function confirmVisit(string $code, string $authentication = 'code'): void
     {
-        if($authentication === 'code'){
+        if ($authentication === 'code') {
             $this->updateVisitUsingCode($code);
-        } elseif($authentication === 'simple'){
+        } elseif ($authentication === 'simple') {
             $this->confirmVisitUsingId($code);
         } else {
-            throw new \Exception('The authentication method "'. $authentication . '" is not supported.');
+            throw new \Exception('The authentication method "'.$authentication.'" is not supported.');
         }
     }
 
     protected function updateVisitUsingCode(string $code)
     {
-        /* @var Visit $visit  */
+        /* @var Visit $visit */
         $visit = $this->N->Auth->getVisitFromCode($code);
 
-        if(empty($visit)){
+        if (empty($visit)) {
             return; // TODO: error page, log
         }
         $this->updateVisitStatus($visit, $visit->getGroup()->getSchoolId());
@@ -76,7 +76,7 @@ class APIController extends BaseController
     {
         $update = new Update();
         $return = $update->confirmVisit($visit->getId())->flush()->getReturn();
-        if(empty($return['success'])){
+        if (empty($return['success'])) {
             // TODO: error page, log
             return;
         }
@@ -97,12 +97,12 @@ class APIController extends BaseController
     {
         $this->setReturnType(self::RETURN_JSON);
         $visitor = $this->Authorizer->getVisitor();
-        /* @var School $request_school  */
+        /* @var School $request_school */
         $request_school = $this->N->ORM->find('School', $school_id);
-        if(!($request_school instanceof School)){
+        if (!($request_school instanceof School)) {
             throw new \Exception('The school_id in the request did not match any school.');
         }
-        if($visitor->isFromSchool($request_school) || $visitor->isFromAdminSchool()){
+        if ($visitor->isFromSchool($request_school) || $visitor->isFromAdminSchool()) {
             $this->addToDATA('password', $this->N->Auth->calculatePasswordForSchool($request_school));
         }
     }
@@ -116,11 +116,12 @@ class APIController extends BaseController
     {
         $this->setReturnType(self::RETURN_JSON);
         $mail_adress = strtolower(trim($mail_adress));
-        /* @var User $user  */
+        /* @var User $user */
         $user = $this->N->ORM->getRepository('User')->findOneBy(['Mail' => $mail_adress]);
 
-        if(empty($user) || !$user->isActive()){
+        if (empty($user) || !$user->isActive()) {
             $this->addToDATA('errors', ['No active user with this adress could be found']);
+
             // TODO: Log this and return
             return;
         }
@@ -175,15 +176,15 @@ class APIController extends BaseController
         $address_success = !empty(trim($mail_adress));
 
         $mail_status = false;
-        if($captcha_success && $address_success){
+        if ($captcha_success && $address_success) {
             $m['receiver'] = SETTINGS['smtp_settings']['from'];
             $m['Subject'] = 'Nytt meddelande från webbformuläret på NDB';
 
             $body = '<p>Ett nytt meddelande har skickats från webbformuläret på ';
-            $body .= 'sigtunanaturskola.se/ndb/contact <br>' . PHP_EOL;
-            $body .= 'Avsändaradress: ' . $mail_adress;
-            $body .= '</p>'. PHP_EOL . PHP_EOL .'<p><pr>';
-            $body .= $this->getFromRequest('input_message') . '</pr></p>';
+            $body .= 'sigtunanaturskola.se/ndb/contact <br>'.PHP_EOL;
+            $body .= 'Avsändaradress: '.$mail_adress;
+            $body .= '</p>'.PHP_EOL.PHP_EOL.'<p><pr>';
+            $body .= $this->getFromRequest('input_message').'</pr></p>';
 
             $m['Body'] = $body;
 
