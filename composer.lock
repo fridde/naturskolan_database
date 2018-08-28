@@ -1397,12 +1397,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/slacker.git",
-                "reference": "4bf603746ebca2a7e95a8d654934f842ef48cc02"
+                "reference": "e45f58e1921eb1fd9547c9091ff5abed9805a2c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/slacker/zipball/4bf603746ebca2a7e95a8d654934f842ef48cc02",
-                "reference": "4bf603746ebca2a7e95a8d654934f842ef48cc02",
+                "url": "https://api.github.com/repos/fridde/slacker/zipball/e45f58e1921eb1fd9547c9091ff5abed9805a2c6",
+                "reference": "e45f58e1921eb1fd9547c9091ff5abed9805a2c6",
                 "shasum": ""
             },
             "require": {
@@ -1425,7 +1425,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-08-26T21:12:12+00:00"
+            "time": "2018-08-28T08:26:18+00:00"
         },
         {
             "name": "fridde/sms",
