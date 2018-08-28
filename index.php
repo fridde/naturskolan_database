@@ -27,7 +27,7 @@ try {
         }
         exit();
     }
-    $args = [];
+    $args = ['url' => $request_url];
     throw new NException(Error::PAGE_NOT_FOUND, $args);
 
 } catch (Exception $e) {

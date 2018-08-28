@@ -7,6 +7,7 @@ namespace Fridde\Error;
 class Error
 {
     public const SEVERITY_FATAL = 0;
+    public const SEVERITY_LOW = 1;
 
     public const DEFAULT = 0;
     public const PAGE_NOT_FOUND = 1;
@@ -15,7 +16,8 @@ class Error
     public static function getAllErrors()
     {
         return [
-            self::SEVERITY_ => [
+            self::SEVERITY_LOW => [
+                self::PAGE_NOT_FOUND => 'The url %s could not be found on this server.',
                 self::DEFAULT => '',
             ],
 
