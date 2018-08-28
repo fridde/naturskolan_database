@@ -31,7 +31,7 @@ class ExceptionHandler
 
         if($severity === Error::SEVERITY_FATAL){
             header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error', true, 500);
-            echo '<h2>Internal error</h2><p>The site has encountered an internal error and could not respond to your request.</p><p>The admin has been informed. Try again later!</p>';
+            echo $msg;
             $slacker = new Slacker(SETTINGS['slacker']);
             $slacker->send('Kritiskt fel på NDB: ' . $msg);
         }

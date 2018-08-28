@@ -30,7 +30,7 @@ try {
     $args = [];
     throw new NException(Error::PAGE_NOT_FOUND, $args);
 
-} catch (Exception $e) {
+} catch (\Exception $e) {
 
     $e_handler = new ExceptionHandler($e, Essentials::getLogger());
 
