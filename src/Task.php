@@ -14,6 +14,8 @@ use Fridde\Entities\SchoolRepository;
 use Fridde\Entities\User;
 use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Messenger\AbstractMessageController;
 use Fridde\Messenger\Mail;
 use Fridde\Messenger\SMS;
@@ -576,7 +578,7 @@ class Task
         $date = preg_replace('/[^[:alnum:]]/', '_', Carbon::now()->toIso8601String());
         $file_name = BASE_DIR.'/temp/new_'.$date;
         if (false === file_put_contents($file_name, $pw_string)) {
-            throw new \Exception('The password file could not be written.');
+            throw new NException(Error::FILE_SYSTEM, ['password_file']);
         }
         $this->N->ORM->EM->flush();
 
@@ -585,7 +587,7 @@ class Task
     private function createNewAuthKey()
     {
         if (!empty($this->N->getStatus('cron.auth_key_hash'))) {
-            throw new \Exception('Failure: Tried to create a new AuthKey when there already was one.');
+            throw new NException(Error::UNAUTHORIZED_ACTION, ['Tried to create a new AuthKey when there already was one.']);
         }
 
         $key = PasswordHandler::createRandomKey();
@@ -593,7 +595,7 @@ class Task
 
         $success = file_put_contents(BASE_DIR.'/temp/auth_key', $key);
         if (!$success) {
-            throw new \Exception('The auth_key could not be saved.');
+            throw new NException(Error::FILE_SYSTEM, ['auth_key']);
         }
         $this->N->setStatus('cron.auth_key_hash', $hash);
 

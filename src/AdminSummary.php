@@ -12,6 +12,8 @@ use Fridde\Entities\User;
 use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Messenger\AbstractMessageController;
 use Fridde\Messenger\Mail;
 use Fridde\Timing as T;
@@ -386,7 +388,7 @@ class AdminSummary
             /* @var Visit $visit */
             $visit = $visit_repo->find($change->getEntityId());
             if (empty($visit)) {
-                throw new \Exception('Visit with id'.$change->getEntityId().'was not available.');
+                throw new NException(Error::DATABASE_INCONSISTENT, ['visit', $change->getEntityId()]);
             }
             $not_checked = !in_array($visit->getId(), $checked_visits, false);
             $in_future = $visit->isInFuture();

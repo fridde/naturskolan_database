@@ -7,6 +7,8 @@ use Eluceo\iCal\Component\Event as IcalEvent;
 use Carbon\Carbon;
 use Fridde\Entities\EventRepository;
 use Fridde\Entities\Visit;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 
 class Calendar
 {
@@ -27,7 +29,7 @@ class Calendar
     {
         $this->settings = $settings ?? (defined('SETTINGS') ? SETTINGS : false);
         if ($this->settings === false) {
-            throw new \Exception('No settings given or found in the global scope');
+            throw new NException(Error::MISSING_SETTINGS);
         }
     }
 
@@ -150,12 +152,12 @@ class Calendar
         return $this->convertEventArrayToIcs($this->getAllEvents());
     }
 
-    public function save($file_name = null)
+    public function save(string $file_name = null)
     {
         $dir = defined('BASE_DIR') ? BASE_DIR : '';
         $file_name = $file_name ?? ($this->file_name ?? false);
         if (!$file_name) {
-            throw new \Exception('Tried to save the Calendar without a file name.');
+            throw new NException(Error::INVALID_ARGUMENT, ['file_name']);
         }
         $file_name = empty($dir) ? $file_name : $dir.'/'.$file_name;
 

@@ -11,6 +11,8 @@ use Fridde\Entities\Location;
 use Fridde\Entities\LocationRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 
 
 /**
@@ -124,7 +126,7 @@ class Update extends DefaultUpdate
                 $date = $date_string;
             }
             if (preg_match($pattern, $date) !== 1) {
-                throw new \Exception('The date'.$date.'didn\'t match ISO 8601.');
+                throw new NException(Error::WRONG_FORMAT, [$date, 'ISO 8601']);
             }
             $properties['Date'] = $date;
             $this->createNewEntity('Visit', $properties, false);
@@ -163,7 +165,6 @@ class Update extends DefaultUpdate
 
     /**
      * @param array $big_array An array of
-     * @throws \Exception
      *
      * @PostArgs("value")
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
@@ -183,9 +184,7 @@ class Update extends DefaultUpdate
                 }
                 if ($class === 'group') {
                     if (empty($entity_id)) {
-                        $e_msg = 'Empty group given at row <'.$row_index;
-                        $e_msg .= '>. This is not supposed to happen.';
-                        throw new \Exception($e_msg);
+                        throw new NException(Error::LOGIC, ['Empty group at row ' . $row_index]);
                     }
                     $row_to_group_translator[$row_index] = $entity_id;
                 } elseif ($class === 'visit') {

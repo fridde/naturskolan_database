@@ -4,6 +4,7 @@
 namespace Fridde\Error;
 
 
+use Fridde\Controller\ErrorController;
 use Fridde\Slacker;
 use Monolog\Logger;
 use Tracy\BlueScreen;
@@ -13,6 +14,7 @@ class ExceptionHandler
 
     private $Exception;
     private $Logger;
+
     /**
      * ExceptionHandler constructor.
      */
@@ -33,9 +35,20 @@ class ExceptionHandler
             header($_SERVER['SERVER_PROTOCOL'].' 500 Internal Server Error', true, 500);
             echo $msg;
             $slacker = new Slacker(SETTINGS['slacker']);
-            $slacker->send('Kritiskt fel på NDB: ' . $msg);
+            $slacker->sendToAdmin('Kritiskt fel på NDB: ' . $msg);
         }
-        //if($severity === )
+        if($severity === Error::SEVERITY_BAD_DATA){
+            $slacker = new Slacker(SETTINGS['slacker']);
+            $slacker->sendToAdmin('För kännedom: ' . $msg);
+        }
+        if($severity === Error::SEVERITY_USER_INTERACTION){
+            $params = ['action' => 'displayErrorMessage'];
+            $params['message'] = $msg;
+            $error_controller = new ErrorController($params);
+
+            $error_controller->handleRequest();
+
+        }
 
 
         $this->Logger->addInfo($msg, ['source' => '']);

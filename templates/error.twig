@@ -1,1 +1,10 @@
-<p>The url <strong>{{ DATA.url }}</strong> was not associated with any template.</p>
+{% extends 'base.twig' %}
+
+{% block toolbar %}{% endblock %}
+
+{% block content %}
+    <h2>Oops...</h2>
+    {{ DATA.error_message }}
+{% endblock %}
+
+

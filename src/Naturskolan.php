@@ -13,6 +13,8 @@ use Fridde\Entities\SystemStatus;
 use Fridde\Entities\Topic;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Security\Authenticator;
 use Fridde\Security\PasswordHandler as PWH;
 use Fridde\Utility as U;
@@ -137,38 +139,6 @@ class Naturskolan
     }
 
 
-    /**
-     * Execute a certain database update without specifying any parameters.
-     *
-     * @param  string $shorthand The type of update to perform.
-     * @return void
-     */
-    public function quickSet($shorthand)
-    {
-        switch ($shorthand) {
-
-            default:
-                throw new \Exception('The parameter '.$shorthand.' is not defined.');
-                break;
-        }
-    }
-
-    /**
-     * Wrapper function to set the calendar.status in SystemStatus
-     *
-     * public function setCalendarTo(string $new_status, bool $flush_after = false)
-     * {
-     *
-     * if($new_status === SystemStatus::CLEAN){
-     * $now_string = Carbon::now()->toIso8601String();
-     * $this->set('SystemStatus', 'calendar.last_rebuild', $now_string);
-     * }
-     * if($flush_after){
-     * $this->ORM->EM->flush();
-     * }
-     * }
-     */
-
 
     /**
      * Check to see if calendar should be updated.
@@ -262,7 +232,7 @@ class Naturskolan
         } elseif ($security === 'check_hash') {
             $code = $this->Auth->createAndSaveCode($visit_id, Hash::CATEGORY_VISIT_CONFIRMATION_CODE);
         } else {
-            throw new \InvalidArgumentException('The security argument is not implemented');
+            throw new NException(Error::INVALID_OPTION, ['security']);
         }
 
         $params['parameters'] = $code;
@@ -381,9 +351,7 @@ class Naturskolan
         }
         $text = U::resolve($this->text_array, $index);
         if (empty($text) || !is_string($text)) {
-            $e_msg = 'The path given couldn\'t be resolved to a valid string. The path: ';
-            $e_msg .= var_export($index, true);
-            throw new \InvalidArgumentException($e_msg);
+            throw new NException(Error::NOT_RESOLVABLE, [var_export($index, true)]);
         }
 
         return $text;

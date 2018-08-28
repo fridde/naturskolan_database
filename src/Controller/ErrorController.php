@@ -12,4 +12,11 @@ class ErrorController extends BaseController {
         echo 'Visit NOT confirmed!';
     }
 
+    protected function displayErrorMessage()
+    {
+        $this->setTemplate('error');
+
+        $this->addToDATA('error_message', $this->getParameter('message'));
+    }
+
 }

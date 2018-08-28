@@ -2,6 +2,9 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Error\Error;
+use Fridde\Error\NException;
+
 class PageController extends BaseController
 {
     protected $ActionTranslator = ['visit_confirmed' => 'VisitConfirmed'];
@@ -21,9 +24,9 @@ class PageController extends BaseController
      */
     public function showSupport()
     {
-       $section = $this->getParameter('section') ?? 'summary';
+        $section = $this->getParameter('section') ?? 'summary';
 
-       $this->setTemplate('help/' . $section);
+        $this->setTemplate('help/'.$section);
     }
 
     /**

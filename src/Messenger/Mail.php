@@ -6,6 +6,8 @@ namespace Fridde\Messenger;
 
 use Fridde\Entities\Group;
 use Fridde\Entities\Message;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Mailer;
 
 class Mail extends AbstractMessageController
@@ -128,7 +130,7 @@ class Mail extends AbstractMessageController
         } elseif ($has_new) {
             $subject = 'Antal grupper du förvaltar har ökat.';
         } else {
-            throw new \Exception('There were no groups given for this user.');
+            throw new NException(Error::LOGIC, ['no groups for user']);
         }
         $this->Mailer->setValue('subject', $subject);
     }

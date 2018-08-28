@@ -4,6 +4,8 @@
 namespace Fridde;
 
 
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Symfony\Component\Yaml\Yaml;
 
 class Table
@@ -160,8 +162,7 @@ class Table
 
                     return $array;
                 }
-                $msg = 'The value '.var_export($value, true).' was neither string nor array.';
-                throw new \InvalidArgumentException($msg);
+                throw new NException(Error::INVALID_OPTION, [var_export($value, true)]);
             },
             []
 

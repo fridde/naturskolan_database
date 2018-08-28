@@ -4,6 +4,8 @@ namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Carbon\Carbon;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Update;
 
 /**
@@ -130,19 +132,16 @@ class Visit
      */
     public function setDate($Date, string $input_format = 'Y-m-d'): void
     {
-        if (empty($Date)) {
-            throw new \InvalidArgumentException('Date can\'t be empty!');
-        }
-        if ($Date instanceof Carbon) {
+        if (!empty($Date) && ($Date instanceof Carbon)) {
             $this->Date = $Date->toDateString();
             return;
         }
-        if (is_string($Date)) {
+        if (!empty($Date) && is_string($Date)) {
             // validates, too
             $this->Date = Carbon::createFromFormat($input_format, $Date)->toDateString();
             return;
         }
-        throw new \InvalidArgumentException('The date "' . var_export($Date, true) . '" was not given in a valid format.');
+        throw new NException(Error::INVALID_ARGUMENT, ['date']);
     }
 
 
@@ -338,7 +337,7 @@ class Visit
         if ($beforeOrAfter === 'after') {
             return $this->getDate()->gte($date);
         }
-        throw new \Exception('The comparison '.$beforeOrAfter.' is not defined.');
+        throw new NException(Error::INVALID_OPTION, ['beforeOrAfter']);
 
     }
 

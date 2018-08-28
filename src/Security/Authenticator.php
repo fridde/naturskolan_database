@@ -9,6 +9,8 @@ use Fridde\Entities\HashRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Naturskolan;
 use Fridde\ORM;
 use Fridde\Timing;
@@ -49,7 +51,7 @@ class Authenticator
             $version = $this->getLatestValidVersion($school->getId(), Hash::CATEGORY_SCHOOL_PW);
         }
         if (empty($version)) {
-            throw new \Exception('No valid password for this school could be found. This should never happen!');
+            throw new NException(Error::DATABASE_INCONSISTENT,  ['valid password', $school->getName()]);
         }
 
         return $this->PWH->calculatePasswordForId($school->getId(), $version);
@@ -85,7 +87,7 @@ class Authenticator
         }
 
         if($hash->isExpired()){
-            throw new \Exception('The code you used to login has expired.');
+            throw new NException(Error::EXPIRED_CODE,[$code]);
         }
 
         return $this->ORM->find($object_class, $hash->getOwnerId());
