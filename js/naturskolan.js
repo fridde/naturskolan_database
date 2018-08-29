@@ -13,7 +13,7 @@ $(document).ready(function () {
         dataType: 'json'
     });
 
-    $('[data-toggle="tooltip"]').tooltip();
+    //$('[data-toggle="tooltip"]').tooltip();
 
 
     /**
@@ -66,12 +66,20 @@ $(document).ready(function () {
         Slider.set($(this), "table");
     });
 
-    $(".has-tooltip").tooltip({
+    $("textarea.has-tooltip, input.has-tooltip").tooltip({
             title : function () {
-            return Tooltip.getContent($(this).attr('name'));
+                return Tooltip.getContent($(this).attr('name'));
         },
         html: true,
         trigger: 'manual',
+        container: 'body'
+    });
+
+    $("i.has-tooltip").tooltip({
+        title : function () {
+            return Tooltip.getContent($(this).attr('name'));
+        },
+        html: true,
         container: 'body'
     });
 

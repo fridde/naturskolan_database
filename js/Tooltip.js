@@ -20,6 +20,10 @@ let Tooltip = {
                 text += 'Du verkar ange ett fast nummer. Vi behöver ett mobilnummer ';
                 text += 'för att kunna nå dig i sista sekunden.';
                 break;
+            case 'user-question':
+                text += 'Om du saknar någon person här, gå till "Personal" i menyn och ';
+                text += 'lägg till den du saknar.';
+                break;
         }
         return text;
     },
