@@ -19,9 +19,12 @@ class SMS extends AbstractMessageController
     protected $response;
 
     public static $methods = [
-        'update_received_sms' => self::UPDATE,
-        'confirm_visit' => self::SEND | self::PREPARE,
-        'update_profile_reminder' => self::SEND | self::PREPARE,
+        Message::SUBJECT_UPDATE_RECEIVED_SMS =>
+           [self::UPDATE, 'ReceivedSms', null],
+        Message::SUBJECT_VISIT_CONFIRMATION =>
+            [self::SEND | self::PREPARE, 'ConfirmVisit', null],
+        Message::SUBJECT_PROFILE_UPDATE =>
+            [self::SEND | self::PREPARE, 'UpdateProfileReminder', null],
     ];
 
     public function __construct(array $params = [])
@@ -68,7 +71,8 @@ class SMS extends AbstractMessageController
         $event = strtolower($this->getParameter('event'));
         if ($event === 'update') {
             $msg_id = $this->getParameter('id');
-            $message = $this->N->ORM->findBy('Message', ['ExtId' => $msg_id]);
+            $messages = $this->N->ORM->findBy('Message', ['ExtId' => $msg_id]);
+            $message = array_shift($messages);
             if (!empty($message)) {
                 $e_id = $message->getId();
                 $val = strtolower($this->getParameter('status'));
@@ -87,8 +91,8 @@ class SMS extends AbstractMessageController
 
     protected function checkReceivedSmsForConfirmation()
     {
-        /* @var UserRepository $user_repo  */
-        /* @var GroupRepository $group_repo  */
+        /* @var UserRepository $user_repo */
+        /* @var GroupRepository $group_repo */
         $user_repo = $this->N->ORM->getRepository('User');
         $group_repo = $this->N->ORM->getRepository('Group');
 
@@ -123,7 +127,7 @@ class SMS extends AbstractMessageController
             $user_messages,
             function ($m) use ($n_visit) {
                 /* @var Message $m */
-                return (int) $m->getContent('visit_id') === $n_visit->getId();
+                return (int)$m->getContent('visit_id') === $n_visit->getId();
             }
         );
         if (count($message) === 0) {
@@ -155,7 +159,6 @@ class SMS extends AbstractMessageController
     {
         return self::$methods;
     }
-
 
 
 }

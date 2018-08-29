@@ -78,9 +78,10 @@ class Task
             $msg = 'Failed task: '.$this->type;
             $msg .= '. Error message: '.$e->getMessage();
             $this->N->log($msg, __METHOD__);
-            if(!empty(DEBUG)){
+            if (!empty(DEBUG)) {
                 throw $e;
             }
+
             return false;
         }
         $this->N->log('Executed task: '.$this->type, __METHOD__);
@@ -174,10 +175,10 @@ class Task
      */
     private function sendVisitConfirmationMessage()
     {
-        $subject = Message::SUBJECT_CONFIRMATION;
+        $subject_int = Message::SUBJECT_VISIT_CONFIRMATION;
         $annoyance_start = self::getStartDate('annoyance');
         $search_props['Status'] = ['sent', 'received'];
-        $search_props['Subject'] = $subject;
+        $search_props['Subject'] = $subject_int;
 
         $time = Naturskolan::getSetting('user_message', 'visit_confirmation_time');
         $deadline = T::addDurationToNow($time);
@@ -188,8 +189,10 @@ class Task
         foreach ($unconfirmed_visits as $v) {
             if ($v->hasGroup()) {
                 $user = $v->getGroup()->getUser();
+                if(empty($user) || $user->Pacified){
+                    continue;
+                }
                 $last_msg = $user->getLastMessage($search_props);
-
                 if (empty($last_msg)) {
                     if ($user->hasMail()) {
                         $response = $this->sendVisitConfirmationMail($v);
@@ -207,7 +210,7 @@ class Task
                     continue;
                 }
                 $msg_carrier = $response->getCarrierType();
-                $this->logMessage($response, $msg_carrier, $user, $subject)->flush();
+                $this->logMessage($response, $msg_carrier, $user, $subject_int)->flush();
             }
         }
     }
@@ -240,9 +243,9 @@ class Task
             return (new Update)->createNewEntity('Message', $msg_props);
         }
         //TODO: log this failed trial to error table or equivalent
-        $msg = 'The message of type ' . $msg_carrier . ' to receiver ';
-        $msg .= $user->getFullName() . ' with the subject ';
-        $msg .= $subject . ' could not be sent';
+        $msg = 'The message of type '.$msg_carrier.' to receiver ';
+        $msg .= $user->getFullName().' with the subject ';
+        $msg .= $subject.' could not be sent';
         $this->N->log($msg);
 
         return new Update;
@@ -266,12 +269,12 @@ class Task
      * Notice that no check about the validity of the visit is performed here.
      *
      * @param  \Fridde\Entities\Visit $visit The visit that the mail is about
-     * @return array The response object returned by the request
+     * @return Mail The response object returned by the request
      */
     private function sendVisitConfirmationMail(Visit $visit)
     {
         $v = $visit;
-        $params = ['purpose' => 'confirm_visit'];
+        $params = ['subject_int' => Message::SUBJECT_VISIT_CONFIRMATION];
         $params['receiver'] = $v->getGroup()->getUser()->getMail();
 
         $data['fname'] = $v->getGroup()->getUser()->getFirstName();
@@ -300,7 +303,7 @@ class Task
      */
     private function sendVisitConfirmationSMS(Visit $visit)
     {
-        $params = ['purpose' => 'confirm_visit'];
+        $params = ['subject_int' => Message::SUBJECT_VISIT_CONFIRMATION];
         $params['receiver'] = $visit->getGroup()->getUser()->getStandardizedMobil();
         $rep['date_string'] = $visit->getDate()->formatLocalized('%e %B');
         $rep['fname'] = $visit->getGroup()->getUser()->getFirstName();
@@ -332,7 +335,8 @@ class Task
      */
     private function sendChangedGroupLeaderMail()
     {
-        $subject = Message::SUBJECT_CHANGED_GROUPS;
+        $subject_int = Message::SUBJECT_CHANGED_GROUPS;
+
         $crit = [['EntityClass', 'Group'], ['Property', 'User']];
         $user_changes = $this->N->getRepo('Change')->findNewChanges($crit);
         $user_array = [];
@@ -360,7 +364,13 @@ class Task
         /** @var User $user */
         foreach ($user_array as $user_id => $g_changes) {
             $user = $this->N->ORM->find('User', $user_id);
-            $params = ['purpose' => 'changed_groups_for_user'];
+            if (empty($user)) {
+                throw new NException(Error::LOGIC, ['User couldn\'t be found anymore']);
+            }
+            if ($user->Pacified) {
+                continue;
+            }
+            $params = ['subject_int' => $subject_int];
             if ($user->hasMail()) {
                 $params['receiver'] = $user->getMail();
 
@@ -376,7 +386,7 @@ class Task
                 $mail = new Mail($params);
                 $response = $mail->buildAndSend();
 
-                $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject];
+                $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject_int];
             } else {
                 $msg = 'User '.$user->getFullName().' has no mailadress. Check this!';
                 $this->N->log($msg, __METHOD__);
@@ -394,8 +404,8 @@ class Task
 
     private function sendNewUserMail()
     {
-        $purpose = 'welcome_new_user';
-        $subject = Message::SUBJECT_WELCOME_NEW_USER;
+        $subject_int = Message::SUBJECT_WELCOME_NEW_USER;
+
         $sent_welcome_messages = $this->N->getRepo('Message')->getSentWelcomeMessages();
         $welcomed_user_ids = array_map(
             function (Message $m) {
@@ -412,7 +422,10 @@ class Task
         $messages = [];
         foreach ($users_without_welcome as $user) {
             /* @var User $user */
-            $params = ['purpose' => $purpose];
+            $params = ['subject_int' => $subject_int];
+            if($user->Pacified){
+                continue;
+            }
             if ($user->hasMail()) {
                 $data['fname'] = $user->getFirstName();
                 $data['user']['has_mobil'] = $user->hasMobil();
@@ -426,7 +439,7 @@ class Task
 
                 $response = $mail->buildAndSend();
 
-                $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject];
+                $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject_int];
             } else {
                 echo '';
                 // TODO: log this somewhere and inform admin
@@ -451,7 +464,8 @@ class Task
      */
     private function sendUpdateProfileReminder()
     {
-        $subject = Message::SUBJECT_PROFILE_UPDATE;
+        $subject_int = Message::SUBJECT_PROFILE_UPDATE;
+
         $annoyance_start = self::getStartDate('annoyance');
         $imm_start = self::getStartDate('immunity');
         /* @var UserRepository $user_repo */
@@ -459,7 +473,7 @@ class Task
         $incomplete_users = $user_repo->findIncompleteUsers($imm_start);
 
         $msg_props['Status'] = [Message::STATUS_SENT, Message::STATUS_RECEIVED];
-        $msg_props['Subject'] = $subject;
+        $msg_props['Subject'] = $subject_int;
         $incomplete_users = array_filter(
             $incomplete_users,
             function ($u) use ($annoyance_start, $msg_props) {
@@ -473,7 +487,7 @@ class Task
         $messages = [];
         /* @var User $user */
         foreach ($incomplete_users as $user) {
-            $params = ['purpose' => 'update_profile_reminder'];
+            $params = ['subject_int' => $subject_int];
             $data = ['fname' => $user->getFirstName()];
             $data['school_staff_url'] = $this->N->createLoginUrl($user, 'staff');
             $carrier = $user->hasMobil() ? Message::CARRIER_SMS : null;
@@ -500,7 +514,7 @@ class Task
                 $this->N->log($e_text, __METHOD__);
                 $return = null;
             }
-            $messages[] = [$return, $carrier, $user, $subject];
+            $messages[] = [$return, $carrier, $user, $subject_int];
         }
 
         $this->logMessageArray($messages);
@@ -559,8 +573,9 @@ class Task
             }
         }
 
-        if(empty($school_passwords)){
-            $this->N->log('Passwords checked, no new passwords had to be created.',__METHOD__);
+        if (empty($school_passwords)) {
+            $this->N->log('Passwords checked, no new passwords had to be created.', __METHOD__);
+
             return;
         }
 
@@ -587,7 +602,10 @@ class Task
     private function createNewAuthKey()
     {
         if (!empty($this->N->getStatus('cron.auth_key_hash'))) {
-            throw new NException(Error::UNAUTHORIZED_ACTION, ['Tried to create a new AuthKey when there already was one.']);
+            throw new NException(
+                Error::UNAUTHORIZED_ACTION,
+                ['Tried to create a new AuthKey when there already was one.']
+            );
         }
 
         $key = PasswordHandler::createRandomKey();

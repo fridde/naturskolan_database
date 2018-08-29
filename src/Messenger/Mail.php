@@ -16,14 +16,19 @@ class Mail extends AbstractMessageController
     protected $Mailer;
 
     public static $methods = [
-        'admin_summary' => self::SEND | self::PREPARE,
-        'password_recover' => self::SEND | self::PREPARE,
-        'confirm_visit' => self::SEND | self::PREPARE,
-        'update_profile_reminder' => self::SEND | self::PREPARE,
-        'changed_groups_for_user' => self::SEND | self::PREPARE,
-        'welcome_new_user' => self::SEND | self::PREPARE,
+        Message::SUBJECT_ADMIN_SUMMARY =>
+            [self::SEND | self::PREPARE, 'AdminSummary', 'Dagliga sammanfattningen av databasen'],
+        Message::SUBJECT_PASSWORD_RECOVERY =>
+            [self::SEND | self::PREPARE, 'PasswordRecovery', 'Naturskolan: Återställning av lösenord'],
+        Message::SUBJECT_VISIT_CONFIRMATION =>
+            [self::SEND | self::PREPARE, 'VisitConfirmation', 'Bekräfta ditt besök!'],
+        Message::SUBJECT_PROFILE_UPDATE =>
+            [self::SEND | self::PREPARE, 'UpdateProfileReminder', 'Vi behöver mer information från dig!'],
+        Message::SUBJECT_CHANGED_GROUPS =>
+            [self::SEND | self::PREPARE, 'ChangedGroupsForUser', null],
+        Message::SUBJECT_WELCOME_NEW_USER =>
+            [self::SEND | self::PREPARE, 'WelcomeNewUser', 'Välkommen i Naturskolans databas'],
     ];
-
 
 
     public function __construct(array $params = [])
@@ -49,7 +54,7 @@ class Mail extends AbstractMessageController
         $this->Mailer->setValue('body', $body);
 
         $debug_mail = SETTINGS['debug']['mail'] ?? null;
-        $result = $this->Mailer->sendAway($debug_mail );
+        $result = $this->Mailer->sendAway($debug_mail);
 
 
         if ($result === false) {
@@ -64,39 +69,47 @@ class Mail extends AbstractMessageController
 
     protected function prepareAdminSummary()
     {
+        $subject_int = $this->getParameter('subject_int');
+
         $this->setTemplate('mail/admin_summary');
         $receiver = SETTINGS['admin']['summary']['admin_adress'];
         $this->Mailer->setValue('receiver', $receiver);
-        $this->Mailer->setValue('subject', 'Dagliga sammanfattningen av databasen');
+        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
 
         $this->addToDATA($this->getParameter('data'));
     }
 
-    protected function preparePasswordRecover()
+    protected function preparePasswordRecovery()
     {
+        $subject_int = $this->getParameter('subject_int');
+
         $this->addToDATA($this->getParameter('data'));
         $this->moveFromDataToVar('school_url', 'fname');
 
         $this->setTemplate('mail/password_recover');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
-        $this->Mailer->setValue('subject', 'Naturskolan: Återställning av lösenord');
+        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
         $this->Mailer->setValue('SMTPDebug', 0);
     }
 
     protected function prepareUpdateProfileReminder()
     {
+        $subject_int = $this->getParameter('subject_int');
+
         $this->setTemplate('mail/incomplete_profile');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
-        $this->Mailer->setValue('subject', 'Vi behöver mer information från dig!');
+        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
         $this->addToDATA($this->getParameter('data'));
         $this->moveFromDataToVar('school_url', 'fname');
     }
 
-    protected function prepareConfirmVisit()
+    protected function prepareVisitConfirmation()
     {
+        $subject_int = $this->getParameter('subject_int');
+
         $this->setTemplate('mail/confirm_visit');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
-        $this->Mailer->setValue('subject', 'Bekräfta ditt besök!');
+        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
         $this->addAsVar($this->getParameter('data'));
     }
 
@@ -160,8 +173,13 @@ class Mail extends AbstractMessageController
         $this->Mailer->setValue('subject', 'Välkommen i Naturskolans databas');
     }
 
-    public function getMethods()
+    public function getMethods(): array
     {
         return self::$methods;
+    }
+
+    protected function getSubjectString(int $subject): string
+    {
+        return $this->getMethods()[$subject][2] ?? '';
     }
 }

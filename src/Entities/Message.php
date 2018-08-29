@@ -42,10 +42,13 @@ class Message
     public const CARRIER_MAIL = 0;
     public const CARRIER_SMS = 1;
 
-    public const SUBJECT_CONFIRMATION = 0;
+    public const SUBJECT_VISIT_CONFIRMATION = 0;
     public const SUBJECT_WELCOME_NEW_USER = 1;
     public const SUBJECT_PROFILE_UPDATE = 2;
     public const SUBJECT_CHANGED_GROUPS = 3;
+    public const SUBJECT_PASSWORD_RECOVERY = 4;
+    public const SUBJECT_ADMIN_SUMMARY = 5;
+    public const SUBJECT_UPDATE_RECEIVED_SMS = 6;
 
     public function getId()
     {

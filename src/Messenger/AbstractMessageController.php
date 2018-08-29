@@ -21,30 +21,43 @@ abstract class AbstractMessageController extends BaseController
 
     public function buildAndSend()
     {
-        $this->setActionsFromPurpose();
+        $this->setActionsFromSubject();
         foreach($this->getActions() as $action){
             call_user_func([$this, $action]);
         }
         return $this;
     }
 
-    protected function setActionsFromPurpose()
+    protected function setActionsFromSubject()
     {
-        $purpose = $this->getParameter('purpose');
+        $subject_int = $this->getParameter('subject_int');
 
-        $methods = $this->getMethods();
-        $method_value = $methods[$purpose] ?? 0 ;
+        $method_mask = $this->getMethodMaskForSubject($subject_int);
 
-
-        if($method_value & self::PREPARE){
-            $this->addAction(Utility::toCamelCase('prepare_' . $purpose));
+        if($method_mask & self::PREPARE){
+            $this->getMethodNameForSubject($subject_int, 'prepare');
+            $this->addAction($this->getMethodNameForSubject($subject_int, 'prepare'));
         }
-        if($method_value & self::SEND){
+        if($method_mask & self::SEND){
             $this->addAction('send');
         }
-        if($method_value & self::UPDATE){
-            $this->addAction(Utility::toCamelCase($purpose));
+        if($method_mask & self::UPDATE){
+            $this->addAction($this->getMethodNameForSubject($subject_int, 'update'));
         }
+    }
+
+    protected function getMethodNameForSubject(int $subject, string $prefix = '')
+    {
+        $suffix = $this->getMethods()[$subject][1] ?? '';
+
+        return $prefix . $suffix;
+    }
+
+    protected function getMethodMaskForSubject(int $subject): int
+    {
+        $methods = $this->getMethods();
+
+        return $methods[$subject][0] ?? 0;
     }
 
     /**

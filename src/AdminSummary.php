@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Fridde\Entities\Change;
 use Fridde\Entities\ChangeRepository;
 use Fridde\Entities\GroupRepository;
+use Fridde\Entities\Message;
 use Fridde\Entities\School;
 use Fridde\Entities\Topic;
 use Fridde\Entities\User;
@@ -74,7 +75,7 @@ class AdminSummary
         if (empty($this->summary)) {
             return null;
         }
-        $params = ['purpose' => 'admin_summary'];
+        $params = ['subject_int' => Message::SUBJECT_ADMIN_SUMMARY];
         $params['data']['errors'] = $this->summary;
         $params['data']['labels'] = $this->N->getTextArray('admin_summary');
         $mail = new Mail($params);
