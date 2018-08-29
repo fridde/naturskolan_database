@@ -190,7 +190,7 @@ class Update extends DefaultUpdate
                 } elseif ($class === 'visit') {
                     $group_dates[$row_index][] = $entity_id;
                 } else {
-                    throw new \Exception('The class <'.$class.'> is not implemented.');
+                    throw new NException(Error::LOGIC, [$class . ' not implemented']);
                 }
             }
         }
@@ -200,6 +200,7 @@ class Update extends DefaultUpdate
                 if (isset($group_id, $visit_id)) {
                     $visit = $this->findById('Visit', $visit_id);
                     $group = $this->findById('Group', $group_id);
+                    /** @noinspection NullPointerExceptionInspection */
                     $visit->setGroup($group);
                     $this->ORM->EM->persist($visit);
                 }

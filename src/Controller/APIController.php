@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Mailer;
 use Fridde\Messenger\Mail;
 use Fridde\Update;
@@ -37,8 +39,12 @@ class APIController extends BaseController
         $visit = $this->N->ORM->find('Visit', $visit_id);
         $school = $visit->getGroup()->getSchool();
         $visitor = $this->Authorizer->getVisitor();
-        if (!($visitor->isAdminUser() || $visitor->isFromAdminSchool() || $visitor->isFromSchool($school))) {
-            throw new \Exception('Unauthorized trial to confirm visit');
+        if (!(
+            $visitor->isAdminUser()
+            || $visitor->isFromAdminSchool()
+            || $visitor->isFromSchool($school)
+        )) {
+            throw new NException(Error::UNAUTHORIZED_ACTION, ['Visit confirmation']);
         }
         $this->updateVisitStatus($visit, $school->getId());
     }
@@ -57,7 +63,7 @@ class APIController extends BaseController
         } elseif ($authentication === 'simple') {
             $this->confirmVisitUsingId($code);
         } else {
-            throw new \Exception('The authentication method "'.$authentication.'" is not supported.');
+            throw new NException(Error::INVALID_OPTION, [$authentication]);
         }
     }
 
@@ -100,7 +106,7 @@ class APIController extends BaseController
         /* @var School $request_school */
         $request_school = $this->N->ORM->find('School', $school_id);
         if (!($request_school instanceof School)) {
-            throw new \Exception('The school_id in the request did not match any school.');
+            throw new NException(Error::LOGIC, [$school_id . ' not a valid school id']);
         }
         if ($visitor->isFromSchool($request_school) || $visitor->isFromAdminSchool()) {
             $this->addToDATA('password', $this->N->Auth->calculatePasswordForSchool($request_school));

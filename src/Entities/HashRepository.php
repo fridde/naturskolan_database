@@ -4,6 +4,8 @@ namespace Fridde\Entities;
 
 use Carbon\Carbon;
 use Fridde\CustomRepository;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 
 class HashRepository extends CustomRepository
 {
@@ -19,9 +21,7 @@ class HashRepository extends CustomRepository
 
         $valid_hashes = $this->getSelection();
         if (count($valid_hashes) > 1) {
-            throw new \Exception(
-                'The result of the search for a matching password entry was ambigous. This should never happen!'
-            );
+            throw new NException(Error::DATABASE_INCONSISTENT, ['Hashes', $cat.': '.$password]);
         }
         if (count($valid_hashes) === 0) {
             return null;

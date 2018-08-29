@@ -2,6 +2,8 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Security\Authorizer;
 use Fridde\Timing as T;
 use Fridde\Task;
@@ -53,7 +55,7 @@ class CronController extends BaseController
     {
         $task = new Task($this->getParameter('type'));
         if(!($task->isExempted() || $this->isAuthorizedViaAuthkey())){
-            throw new \Exception('Tried to execute task with bad/wrong AuthKey');
+            throw new NException(Error::UNAUTHORIZED_ACTION, [$task]);
         }
 
         $success = $task->execute();

@@ -3,6 +3,8 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 
 /**
  * @Entity(repositoryClass="Fridde\Entities\MessageRepository")
@@ -203,8 +205,7 @@ class Message
                 break;
 
             default:
-                throw new \Exception('The return type <'.$return.'> is not defined');
-                break;
+                throw new NException(Error::INVALID_OPTION, [$return]);
         }
     }
 

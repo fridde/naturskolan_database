@@ -78,10 +78,10 @@ $(document).ready(function () {
     });
 
     $('.set-group-count button#update').click(function () {
-        let $text = $("#group-count-lines");
-        let lines = $text.val().split(/\r|\n/).filter(function (line) {
-            return line.trim().length > 0
-        }).map(function (line) {
+        let $textElement = $("#group-count-lines");
+        $textElement.val(cleanLines($textElement.val()));
+
+        let lines = $textElement.val().split(/\n/).map(function (line) {
             return line.split(',').map(function (item) {
                 return item.trim()
             });

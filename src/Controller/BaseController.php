@@ -3,6 +3,8 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\HTML;
 use Fridde\Security\Authorizer;
 use Fridde\TwigExtension\NavigationExtension;
@@ -86,14 +88,14 @@ class BaseController
             }
         }
 
-        if ($this->getReturnType() === self::RETURN_HTML) {
+        $return_type = $this->getReturnType();
+        if ($return_type === self::RETURN_HTML) {
             return $this->renderAsHtml();
         }
-        if ($this->getReturnType() === self::RETURN_JSON) {
+        if ($return_type === self::RETURN_JSON) {
             return $this->returnAsJson();
         }
-        throw new \Exception('The return type '.$this->getReturnType().' is not defined.');
-
+        throw new NException(Error::INVALID_OPTION, ['Return type ' . $return_type]);
     }
 
     public function returnAsJson()
@@ -437,7 +439,7 @@ class BaseController
         return null;
     }
 
-    public function getRequest(string $content_type = null)
+    public function getRequest(string $content_type = null): ?array
     {
         $possible_content_types = ['json', 'urlencoded'];
         if (empty($content_type) && function_exists('getallheaders')) {
@@ -451,7 +453,7 @@ class BaseController
             }
         );
         if (count($content_types) > 1) {
-            throw new \Exception('This was a weird content-type: '.$content_type);
+            throw new NException(Error::INVALID_OPTION, [$content_type]);
         }
         if (empty($content_types)) {
             return $_REQUEST;

@@ -2,6 +2,8 @@
 namespace Fridde\Entities;
 
 use Fridde\CustomRepository;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 
 class GroupCountRepository extends CustomRepository
 {
@@ -14,10 +16,8 @@ class GroupCountRepository extends CustomRepository
         $group_counts = $this->select(...$criteria);
 
         if(count($group_counts) > 1){
-            $msg = 'The group count for ' . $school->getName();
-            $msg .= ' , year ' . $start_year . ', segment ' . $segment;
-            $msg .= ' has duplicate entries. This should never happen!';
-            throw new \Exception($msg);
+            $args = ['group count', $school->getName().', '.$start_year.', '.$segment];
+            throw new NException(Error::DATABASE_INCONSISTENT,  $args);
         }
 
         if(empty($group_counts)){

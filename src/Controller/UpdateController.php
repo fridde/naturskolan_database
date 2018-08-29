@@ -6,6 +6,8 @@ use Fridde\Annotations\NeedsSameSchool;
 use Fridde\Entities\Group;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Update;
 use Fridde\Utility as U;
 
@@ -24,7 +26,7 @@ class UpdateController extends BaseController
         $update = new Update($this->getFromRequest());
         $update_method = $this->getFromRequest('updateMethod') ?? $this->getFromRequest('update_method');
         if (empty($update_method)) {
-            throw new \InvalidArgumentException('Missing updateMethod in $_REQUEST');
+            throw new NException(Error::INVALID_ARGUMENT, ['updateMethod in $_REQUEST']);
         }
         $authorized = $this->Authorizer->authorize(Update::class, $update_method);
         if ($authorized && $this->checkIfValidUpdate($update_method)) {
@@ -64,7 +66,7 @@ class UpdateController extends BaseController
             if ($group instanceof Group) {
                 return $group->getSchoolId() === $visitor_school->getId();
             }
-            throw new \Exception('Tried to update a group that doesn\'t exist');
+            throw new NException(Error::UNAUTHORIZED_ACTION, ['Update group '. $entity_id]);
         }
         if ($entity_class === 'User' && $method === 'createNewEntity') {
             $user_school_id = $this->getFromRequest('properties')['School'] ?? null;

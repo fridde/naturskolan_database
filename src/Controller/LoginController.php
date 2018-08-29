@@ -3,6 +3,8 @@
 namespace Fridde\Controller;
 
 use Fridde\Entities\Hash;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 use Fridde\Security\Authorizer;
 use Fridde\Update;
 use Fridde\Utility;
@@ -30,7 +32,7 @@ class LoginController extends BaseController
         $code = $this->getParameter('code');
         $user = $this->N->Auth->getUserFromUrlCode($code);
         if (empty($user)) {
-            throw new \Exception('Someone tried to enter with the invalid code '.$code);
+            throw new NException(Error::UNAUTHORIZED_ACTION, ['login with code ' . $code]);
         }
 
         $auth_key = $this->N->Auth->createAndSaveCode($user->getId(), Hash::CATEGORY_USER_COOKIE_KEY);

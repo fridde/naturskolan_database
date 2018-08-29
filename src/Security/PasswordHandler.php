@@ -4,6 +4,8 @@ namespace Fridde\Security;
 
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Key;
+use Fridde\Error\Error;
+use Fridde\Error\NException;
 
 
 class PasswordHandler
@@ -134,7 +136,8 @@ class PasswordHandler
             }
         );
         if (count($files) === 0) {
-            throw new \Exception('No matching word file found in '.$this->getWordDirectory());
+            $args = ['Word file missing in '.$this->getWordDirectory()];
+            throw new NException(Error::FILE_SYSTEM, $args);
         }
 
         return $files;

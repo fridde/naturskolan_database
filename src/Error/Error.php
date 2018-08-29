@@ -43,7 +43,7 @@ class Error
             self::SEVERITY_FATAL => [
                 self::DEFAULT => '',
                 self::CRASH => '<h2>Internal error</h2><p>The site has encountered an internal error and could not respond to your request.</p><p>The admin has been informed. Try again later!</p>',
-                self::DATABASE_INCONSISTENT => 'A matching entity of "%s" with the criteria "%s" could not be found. This should not happen.',
+                self::DATABASE_INCONSISTENT => 'A matching entity of "%s" with the criteria "%s" was not found or was duplicate. This should not happen.',
                 self::MISSING_SETTINGS => 'No settings given or found in the global scope',
                 self::INVALID_ARGUMENT => 'An important variable was missing or in the wrong format: %s',
                 self::INVALID_OPTION => 'The option %s is not implemented in this function.',
