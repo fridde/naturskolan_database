@@ -29,7 +29,7 @@
                                                 <i class="fas fa-edit fa-xs" title="Ändra gruppnamn" data-fa-transform="shrink-8"></i>
                                                 <input class="group-name-input"/>
                                             </h1>
-
+                                            <i class="fas fa-question-circle fa-xs" title="Hur lägger jag till personal?" data-fa-transform="shrink-8"></i>
                                             <label for="select_user_{{ group.id }}">Ansvarig lärare</label>
                                             <select name="User" id="select_user_{{ group.id }}" class="editable">
                                                 {% for teacher in teachers -%}
@@ -39,6 +39,7 @@
                                                     </option>
                                                 {%- endfor %}
                                             </select>
+
                                             <label for="slider_{{ group.id }}">Antal elever</label>
                                             <div class="input-slider" id="slider_{{ group.id }}"
                                                  data-min={{ student_limits.min }} data-max={{ student_limits.max }}
