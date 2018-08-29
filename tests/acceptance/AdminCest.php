@@ -61,9 +61,6 @@ class AdminCest
 
         $I->click('//button[@id="clean"]');
         $I->pause(0.5);
-
-        $new_text = $I->grabTextFrom($textarea);
-        $I->assertEquals(0, strlen($new_text));
     }
 
     // codecept run acceptance AdminCest:addMissingGroups --steps -f
