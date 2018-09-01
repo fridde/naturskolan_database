@@ -5,7 +5,7 @@ use Fridde\CustomRepository;
 
 class ChangeRepository extends CustomRepository
 {
-    public function findNewChanges($criteria = [])
+    public function findNewChanges(array $criteria = [])
     {
         $criteria[] = ['isNull', 'Processed'];
         return $this->select($criteria);

@@ -31,10 +31,6 @@ class VisitRepository extends CustomRepository
      */
     public function findFutureVisitsUntil(Carbon $until = null)
     {
-        if (!empty($until) && is_string($until)) {
-            $until = new Carbon($until);
-        }
-
         $methods[] = ['isAfter', true, [Carbon::today()]];
         if (!empty($until)) {
             $methods[] = ['isBefore', true, [$until]];
@@ -91,7 +87,7 @@ class VisitRepository extends CustomRepository
     {
         usort(
             $visits,
-            function ($v1, $v2) {
+            function (Visit $v1, Visit $v2) {
                 return $v1->getDate()->lte($v2->getDate()) ? -1 : 1;
             }
         );

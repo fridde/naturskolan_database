@@ -96,6 +96,7 @@ class AdminSummary
         $summary = [];
         foreach (self::$method_translator as $error_type => $method_name) {
             $summary[$error_type] = call_user_func([$this, $method_name]);
+            $this->N->ORM->EM->flush();
         }
 
         $this->summary = array_filter($summary);

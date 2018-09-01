@@ -212,8 +212,11 @@ class School
         }
     }
 
-    public function needsBus(Location $location): bool
+    public function needsBus(Location $location = null): bool
     {
+        if(empty($location)){
+            return false;
+        }
         $location_bus_value = 1 << $location->getBusId();
 
         return $this->getBusRule() & $location_bus_value; // bitwise

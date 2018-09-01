@@ -112,18 +112,19 @@ class Visit
         return !empty($this->getGroup());
     }
 
-    public function getDate(): Carbon
+    public function getDate(): ?Carbon
     {
-        if(!($this->Date instanceof Carbon)){
-            $this->Date = Carbon::parse($this->Date);
+        if(empty($this->Date)){
+            return null;
         }
-
-        return $this->Date;
+        return Carbon::parse($this->Date);
     }
 
-    public function getDateString()
+    public function getDateString(): ?string
     {
-        return $this->getDate()->toDateString();
+        $date = $this->getDate();
+
+        return empty($date) ? null : $date->toDateString();
     }
 
     /**
@@ -132,7 +133,7 @@ class Visit
      */
     public function setDate($Date, string $input_format = 'Y-m-d'): void
     {
-        if (!empty($Date) && ($Date instanceof Carbon)) {
+        if ($Date instanceof Carbon) {
             $this->Date = $Date->toDateString();
             return;
         }
@@ -192,7 +193,7 @@ class Visit
     public function getColleaguesIdArray()
     {
         return array_map(
-            function ($col) {
+            function (User $col) {
                 return $col->getId();
             },
             $this->getColleagues()
@@ -230,7 +231,7 @@ class Visit
         return implode(
             '+',
             array_map(
-                function ($col) {
+                function (User $col) {
                     return $col->getAcronym() ?: $col->getId();
                 },
                 $this->getColleagues()
@@ -341,27 +342,27 @@ class Visit
 
     }
 
-    public function isAfter($date)
+    public function isAfter($date): bool
     {
         return $this->isBeforeOrAfter($date, 'after');
     }
 
-    public function isBefore($date)
+    public function isBefore($date): bool
     {
         return $this->isBeforeOrAfter($date, 'before');
     }
 
-    public function isInFuture()
+    public function isInFuture(): bool
     {
         return $this->isAfter(Carbon::today());
     }
 
-    public function isLessThanNrDaysAway($days)
+    public function isLessThanNrDaysAway($days): bool
     {
         return $this->isBefore(Carbon::today()->addDays($days));
     }
 
-    public function needsBus()
+    public function needsBus(): bool
     {
         if (!$this->hasGroup()) {
             return false;
