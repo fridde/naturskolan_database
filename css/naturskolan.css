@@ -21,7 +21,7 @@ body {
     overflow-x: visible;
     overflow-y: visible;
     font-family: 'Muli', "Helvetica", Arial, sans-serif;
-    margin-bottom: var(--footer-size);
+    padding-bottom: var(--footer-size);
 }
 
 
@@ -155,7 +155,7 @@ button.school-choice {
 
 .save-time {
     height: 50px;
-    width: 100px;
+    width: 200px;
     visibility: hidden;
     font-size: x-small;
 }
@@ -209,6 +209,10 @@ div.group-container {
     font-size: 150%;
     color: #ff6600;
     word-wrap: normal;
+}
+
+.tooltip a {
+	color: yellow;
 }
 
 .nav-tabs .nav-link {
@@ -387,7 +391,7 @@ section.success a.active {
 
 footer {
     color: white;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     width: 100%;
     /* Set the fixed height of the footer here */

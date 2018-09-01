@@ -21,8 +21,9 @@ let Tooltip = {
                 text += 'för att kunna nå dig i sista sekunden.';
                 break;
             case 'user-question':
-                text += 'Om du saknar någon person här, gå till "Personal" i menyn och ';
-                text += 'lägg till den du saknar.';
+                text += 'Om du saknar någon person här, gå till <a href="skola/';
+				text += $("div.additional-information").data('default-properties').School;
+				text += '/staff">Personal</a> i menyn och lägg till den du saknar.';
                 break;
         }
         return text;

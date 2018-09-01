@@ -122,7 +122,6 @@ class AdminSummary
 
     private function formatGroupChange($change, string $property_name)
     {
-        $text = '';
         /* @var Group $g */
         $g = $change['group'];
 
@@ -212,16 +211,17 @@ class AdminSummary
     {
         $rows = [];
         $range = Naturskolan::getSetting('admin', 'summary', 'allowed_group_size');
-        /* @var Group $g */
+
         $ill_sized_groups = array_filter(
             $this->N->getRepo('Group')->findActiveGroups(),
-            function ($g) use ($range) {
+            function (Group $g) use ($range) {
                 $nr_students = $g->getNumberStudents();
 
                 return $nr_students > 0 && ($nr_students < $range[0] || $nr_students > $range[1]);
             }
         );
         foreach ($ill_sized_groups as $g) {
+            /* @var Group $g */
             $row = $g->getName().', '.$g->getSegmentLabel().', ';
             $row .= 'från '.$g->getSchool()->getName();
             $row .= ' har '.$g->getNumberStudents().' elever.';
@@ -306,7 +306,7 @@ class AdminSummary
     private function getWrongGroupCounts()
     {
         $years_to_check = [Carbon::today()->year];
-        $years_to_check[] = Carbon::today()->subMonths(6)->year;
+        $years_to_check[] = Carbon::today()->copy()->subMonths(6)->year;
         $years_to_check = array_unique($years_to_check);
 
         $rows = [];

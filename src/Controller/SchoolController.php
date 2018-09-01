@@ -117,7 +117,8 @@ class SchoolController extends BaseController
                 function (Group $g) {
                     $r['id'] = $g->getId();
                     $r['name'] = $g->getName();
-                    $r['teacher_id'] = $g->getUser()->getId();
+                    $user = $g->getUser();
+                    $r['teacher_id'] = empty($user) ? null : $user->getId();
                     $r['nr_students'] = $g->getNumberStudents() ?? 0;
                     $r['food'] = $g->getFood();
                     $r['info'] = $g->getInfo();

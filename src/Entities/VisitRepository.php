@@ -63,7 +63,7 @@ class VisitRepository extends CustomRepository
     {
         return array_filter(
             $this->findFutureVisitsUntil($until),
-            function ($v) {
+            function (Visit $v) {
                 return !$v->isConfirmed();
             }
         );
