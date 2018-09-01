@@ -64,7 +64,7 @@ class UserRepository extends CustomRepository
         );
     }
 
-    public function getActiveColleagues()
+    public function getActiveColleagues(): array
     {
         return array_filter(
             $this->findAll(),
@@ -73,6 +73,16 @@ class UserRepository extends CustomRepository
             }
         );
 
+    }
+
+    public function getActiveManagers(): array
+    {
+        return array_filter(
+            $this->findActiveUsers(),
+            function (User $u) {
+                return $u->hasRole(User::ROLE_SCHOOL_MANAGER);
+            }
+        );
     }
 
 }

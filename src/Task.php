@@ -251,7 +251,7 @@ class Task
         return new Update;
     }
 
-    private function logMessageArray(array $msg_array, bool $flush = true)
+    public function logMessageArray(array $msg_array, bool $flush = true)
     {
         array_walk(
             $msg_array,

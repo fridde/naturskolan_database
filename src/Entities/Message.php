@@ -51,6 +51,7 @@ class Message
     public const SUBJECT_PASSWORD_RECOVERY = 4;
     public const SUBJECT_ADMIN_SUMMARY = 5;
     public const SUBJECT_UPDATE_RECEIVED_SMS = 6;
+    public const SUBJECT_MANAGER_MOBILIZATION = 7;
 
     public function getId()
     {

@@ -28,6 +28,8 @@ class Mail extends AbstractMessageController
             [self::SEND | self::PREPARE, 'ChangedGroupsForUser', null],
         Message::SUBJECT_WELCOME_NEW_USER =>
             [self::SEND | self::PREPARE, 'WelcomeNewUser', 'Välkommen i Naturskolans databas'],
+        Message::SUBJECT_MANAGER_MOBILIZATION =>
+            [self::SEND | self::PREPARE, 'ManagerMobilization', 'Dags att kontrollera personaluppgifter'],
     ];
 
 
@@ -156,6 +158,8 @@ class Mail extends AbstractMessageController
      */
     protected function prepareWelcomeNewUser()
     {
+        $subject_int = $this->getParameter('subject_int');
+
         $DATA = $this->getParameter('data');
 
         array_walk(
@@ -170,7 +174,20 @@ class Mail extends AbstractMessageController
         $this->moveFromDataToVar('school_url', 'fname');
         $this->setTemplate('mail/new_user_welcome');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
-        $this->Mailer->setValue('subject', 'Välkommen i Naturskolans databas');
+        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
+    }
+
+    protected function prepareManagerMobilization()
+    {
+        $subject_int = $this->getParameter('subject_int');
+
+        $DATA = $this->getParameter('data');
+
+        $this->addToDATA($DATA);
+        $this->moveFromDataToVar('school_url', 'fname');
+        $this->setTemplate('mail/manager_mobilization');
+        $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
+        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
     }
 
     public function getMethods(): array

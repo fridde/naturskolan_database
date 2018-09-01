@@ -1,0 +1,65 @@
+{% extends "mail/common/base_mail.twig" %}
+
+{%- set groups, group_row_padding = DATA.groups, 80 -%}
+{% if groups|length > 1 %}{% set group_row_padding = 10 %}{% endif %}
+
+
+{% block title %}Välkommen till Naturskolans besöksområde!{% endblock %}
+
+{% block preheader_text %}
+    Du har numera tillgång till Naturskolans besöksområde där du kan se besöksdatum, bestämma ansvariga lärare och ange information om klasserna.
+{% endblock %}
+
+{% block image_text_box %}
+    <div>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+                <td valign="middle"
+                    style="text-align: center; padding: {{ group_row_padding }}px; font-size: 20px; font-weight: 900; line-height: 140%; color: #000000;">
+                    <p style="margin: 0;">
+                        Välkommen till Naturskolans besöksområde!</p>
+                    {% if groups|length > 1 %}
+                        <p style="margin: 0;">Dina grupper som du ansvarar för:</p>
+                    {%- elseif groups|length == 1 -%}
+                        <p style="margin: 0;">Din grupp som du ansvarar för:</p>
+                    {%- endif %}
+                    {%- for group in groups -%}
+                        <p style="margin: 0;">- {{ group.name }}, {{ group.segment }}</p>
+                    {%- endfor -%}
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <!-- Button : BEGIN -->
+                    <table cellspacing="0" cellpadding="0" border="0" align="center" style="margin: auto;">
+                        <tr>
+                            <td style="border-radius: 10px; background: #222222; text-align: center;"
+                                class="button-td">
+                                <a href="{{ DATA.user_login_url }}"
+                                   style="background: #222222; border: 15px solid #222222; font-size: 13px; line-height: 110%; text-align: center; text-decoration: none; display: block; border-radius: 10px; font-weight: bold;"
+                                   class="button-a" target="_blank">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;<span
+                                        style="color:#ffffff;">Ta mig till besöksområdet!</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                    <!-- Button : END -->
+                </td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}
+
+{% block body_text %}
+    <p style="margin: 0;">Du har numera tillgång till Naturskolans besöksområde.</p>
+    <p style="margin: 0;">Inom området kan du bestämma ansvariga för klasser som hälsar på oss, redigera dina och kollegornas kontaktuppgifter, se besöksdatum och ange uppgifter om de besökande klasserna.</p>
+    <p style="margin: 10px 0px 0px 0px;">Du hittar även länkar till all relevant information om besök och programmet.</p>
+    <p style="margin: 10px 0px 0px 0px;">Följ länken ovan. Om du vill återkomma till besöksområdet <em>utan</em> att behöva öppna detta mejl, notera lösenordet som anges i övre högra hörn på sidan. Passa på att spara sidan som ett bokmärke då!</p>
+{% endblock %}
+
+{% block why_this_mail %}
+    <p style="margin: 0;">Du får detta mejl för att någon från din skola (till exempel en kollega) har lagt till dig bland medlemmarna inom besöksområdet.</p>
+    <p style="margin: 0;">Om detta är ett misstag, hör av dig till oss!</p>
+{% endblock %}

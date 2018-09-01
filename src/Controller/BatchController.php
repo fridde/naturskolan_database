@@ -6,6 +6,7 @@ use Fridde\Entities\Group;
 use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Location;
 use Fridde\Entities\LocationRepository;
+use Fridde\Entities\Message;
 use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
 use Fridde\Entities\Topic;
@@ -14,7 +15,9 @@ use Fridde\Entities\User;
 use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
+use Fridde\Messenger\Mail;
 use Fridde\Security\Authorizer;
+use Fridde\Task;
 use Fridde\Utility as U;
 use Fridde\Utility;
 
@@ -294,14 +297,14 @@ class BatchController extends BaseController
         );
 
         $school_data = [];
-        foreach($schools as $school){
+        foreach ($schools as $school) {
             $id = $school->getId();
             $school_data[$id]['id'] = $id;
             $school_data[$id]['label'] = $school->getName();
             $school_data[$id]['bus_needed'] = [];
-            foreach($locations as $location){
-                /* @var Location $location  */
-                if($school->needsBus($location)){
+            foreach ($locations as $location) {
+                /* @var Location $location */
+                if ($school->needsBus($location)) {
                     $school_data[$id]['bus_needed'][] = $location->getId();
                 }
             }
@@ -313,22 +316,62 @@ class BatchController extends BaseController
 
     public function setVisitOrderForTopics()
     {
-        /* @var TopicRepository $topic_repo  */
+        /* @var TopicRepository $topic_repo */
         $topic_repo = $this->N->ORM->getRepository('Topic');
 
         $topics = $topic_repo->findOrderableTopics();
         $topics = $topic_repo->sortByVisitOrder($topics);
         $topics = $topic_repo->sliceBySegment($topics);
-        
-        array_walk_recursive($topics, function(Topic &$topic){
-            $topic = [
-                'id' => $topic->getId(),
-                'label' => $topic->getShortName()
-            ];
-        });
 
-        $this->addToDATA('topics', $topics);
+        $topic_array = array_map(
+            function (Topic $topic) {
+                return [
+                    'id' => $topic->getId(),
+                    'label' => $topic->getShortName(),
+                ];
+            },
+            $topics
+        );
+
+        $this->addToDATA('topics', $topic_array);
         $this->setTemplate('admin/topic_visit_order');
-
     }
+
+    public function sendManagerMobilizationMail()
+    {
+        /* @var User $manager  */
+        /* @var UserRepository $user_repo */
+        $user_repo = $this->N->ORM->getRepository(User::class);
+
+        $subject_int = Message::SUBJECT_MANAGER_MOBILIZATION;
+
+        $managers = $user_repo->getActiveManagers();
+        $messages = [];
+        foreach($managers as $manager){
+            if($manager->Pacified){
+                continue;
+            }
+            if(!$manager->hasMail()){
+                $msg = 'Manager '.$manager->getFullName().' has no mailadress. Check this!';
+                $this->N->log($msg, __METHOD__);
+                continue;
+            }
+            $params = ['subject_int' => $subject_int];
+            $params['receiver'] = $manager->getMail();
+            $params['data']['fname'] = $manager->getFirstName();
+
+            $data['school_url'] = $this->N->generateUrl('school', ['school' => $manager->getSchoolId()], true);
+            $data['user_login_url'] = $this->N->createLoginUrl($manager);
+
+            $params['data'] = $data;
+
+            $mail = new Mail($params);
+            $response = $mail->buildAndSend();
+
+            $messages[] = [$response, Message::CARRIER_MAIL, $manager, $subject_int];
+        }
+
+        (new Task())->logMessageArray($messages);
+    }
+
 }
