@@ -1,0 +1,23 @@
+{% extends 'user_area.twig' %}
+
+{%- block school_area -%}
+    <div class="row">
+        <div class="col-md-3"></div>
+        {# middle part -#}
+        <div class="col-md-6">
+            <div>
+                {% block staff_list %}
+                    {% include('staff_list.twig') %}
+                {% endblock %}
+            </div>
+            <div>
+                {% block group_settings %}
+                    {% include('group_settings.twig') %}
+                {% endblock %}
+            </div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+
+
+{% endblock %}

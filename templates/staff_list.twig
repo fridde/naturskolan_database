@@ -1,43 +1,46 @@
-{%- extends "user_area.twig" -%}
 {% set headers, users, entity_class = DATA.headers, DATA.users, DATA.entity_class %}
 
-{%- block school_area -%}
-    <div class="row">
-        <div class="col-md-3"></div>
-        {# middle part -#}
-        <div class="col-md-6">
-            <table class="table table-responsive table-striped editable" data-entity="{{ entity_class }}">
-                <thead>
-                <tr>
-                    {% for header in headers %}
-                        {% if header != "id" and (header != "Acronym" or DATA.school_id == 'natu') %}
-                            <th>
-                                {{- header -}}
-                            </th>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for user in users -%}
-                    <tr data-id="{{ user.id }}"{% if user.id is empty %} hidden {%- endif -%} >
-                        <td><input type="text" name="FirstName" placeholder="Förnamn" value="{{ user.FirstName }}"></td>
-                        <td><input type="text" name="LastName" placeholder="Efternamn" value="{{ user.LastName }}"></td>
-                        <td><input class="has-tooltip" type="text" name="Mobil" placeholder="Mobilnummer"
-                                   value="{{ user.Mobil }}"
-                                   size="15"></td>
-                        <td><input type="text" name="Mail" placeholder="Mejladress" value="{{ user.Mail }}"></td>
-                        {% if DATA.school_id == 'natu' %}
-                            <td><input type="text" name="Acronym" placeholder="Acronym" value="{{ user.Acronym }}"
-                                       size="4"></td>
-                        {% endif %}
-                    </tr>
-                {%- endfor %}
-                <button type="button" id="add-row-btn" class="btn btn-primary">Lägg till person</button>
-                </tbody>
-            </table>
-        </div>
+<h1>Personal på din skola</h1>
 
-        <div class="col-md-3"></div>
-    </div>
-{%- endblock -%}
+<table class="table table-responsive table-striped editable" data-entity="{{ entity_class }}">
+    <thead>
+    <tr>
+        {% for header in headers %}
+            {% if header != "id" and (header != "Acronym" or DATA.school_id == 'natu') %}
+                <th>
+                    {{- header -}}
+                </th>
+            {% endif %}
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users -%}
+        <tr data-id="{{ user.id }}"{% if user.id is empty %} hidden {%- endif -%} >
+            <td>
+                <input type="text" name="FirstName" placeholder="Förnamn" value="{{ user.FirstName }}">
+            </td>
+            <td>
+                <input type="text" name="LastName" placeholder="Efternamn" value="{{ user.LastName }}">
+            </td>
+            <td>
+                <input class="has-tooltip" type="text" name="Mobil" placeholder="Mobilnummer"
+                       value="{{ user.Mobil }}"
+                       size="15">
+            </td>
+            <td>
+                <input type="text" name="Mail" placeholder="Mejladress" value="{{ user.Mail }}">
+            </td>
+            {% if DATA.school_id == 'natu' %}
+                <td>
+                    <input type="text" name="Acronym" placeholder="Acronym" value="{{ user.Acronym }}"
+                           size="4">
+                </td>
+            {% endif %}
+        </tr>
+    {%- endfor %}
+    </tbody>
+</table>
+<button type="button" id="add-row-btn" class="btn btn-primary">Lägg till person</button>
+
+

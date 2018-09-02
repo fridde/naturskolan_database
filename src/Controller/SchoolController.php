@@ -33,14 +33,11 @@ class SchoolController extends BaseController
     {
         $page = $this->getParameter('page') ?? self::GROUPS_PAGE;
 
-        $methods = [
-            self::GROUPS_PAGE => 'createGroupPage',
-            self::STAFF_PAGE => 'createStaffPage'
-        ];
+        $method = 'createSchoolPage';
 
-        $method = $methods[$page];
+
         if($this->Authorizer->getVisitor()->isFromSchool($this->request_school)){
-            $this->Authorizer->changeSecurityLevel(get_class($this), $method,  Authorizer::ACCESS_ALL_EXCEPT_GUEST);
+            $this->Authorizer->changeSecurityLevel(self::class, $method,  Authorizer::ACCESS_ALL_EXCEPT_GUEST);
         }
 
         $this->addAction($method);
@@ -52,24 +49,16 @@ class SchoolController extends BaseController
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function createStaffPage()
+    public function createSchoolPage()
     {
         $this->addToDATA($this->getAllUsers($this->request_school));
-        $this->setTemplate('staff_list');
-    }
-
-    /**
-     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
-     */
-    public function createGroupPage()
-    {
         $this->addToDATA($this->getAllGroups($this->request_school));
-        $this->setTemplate('group_settings');
+        $this->setTemplate('school_page');
     }
 
 
 
-    public function getAllUsers(School $school)
+    private function getAllUsers(School $school): array
     {
         $DATA = ['entity_class' => 'User'];
         $users = $school->getUsers();
@@ -96,7 +85,7 @@ class SchoolController extends BaseController
      * @param  \Fridde\Entities\School $school The School object.
      * @return array An array containing structured data. See example.
      */
-    public function getAllGroups($school)
+    private function getAllGroups($school)
     {
         $DATA = [];
         $DATA['teachers'] = array_map(

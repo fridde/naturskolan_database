@@ -1,95 +1,90 @@
-{%- extends "user_area.twig" -%}
-{%  set tabs, student_limits, teachers = DATA.tabs, DATA.student_limits, DATA.teachers %}
+{% set tabs, student_limits, teachers = DATA.tabs, DATA.student_limits, DATA.teachers %}
 
-{%- block school_area -%}
+<h1>Grupper som besöker Naturskolan</h1>
 
-    <div class="row">
-        <div class="col-md-3"></div>
-        {# middle part -#}
-        <div class="col-md-6">
-            <ul class="nav nav-tabs">
-                {% for tab in tabs -%}
-                    <li class="nav-item {%- if loop.first %} active{% endif %}">
-                        <a href="#tab_{{ tab.id }}" data-toggle="tab" class="nav-link">{{ tab.segment_label }}</a>
-                    </li>
-                {% endfor -%}
-            </ul>
-            <div class="tab-content">
+<ul class="nav nav-tabs">
+    {% for tab in tabs -%}
+        <li class="nav-item {%- if loop.first %} active{% endif %}">
+            <a href="#tab_{{ tab.id }}" data-toggle="tab" class="nav-link">{{ tab.segment_label }}</a>
+        </li>
+    {% endfor -%}
+</ul>
+<div class="tab-content">
 
-                {% for tab in tabs -%}
-                    <div id="tab_{{ tab.id }}" class="tab-pane fade{%- if loop.first %} in active show{% endif %}">
-                        <div class="row">
-                            {% for column in [tab.col_left, tab.col_right] -%}
-                                <div class="col-md-6">
-                                    {# left column of the groups -#}
-                                    {% for group in column -%}
-                                        <div class="group-container" data-entity-id="{{ group.id }}"
-                                             data-entity="Group">
-                                            <h1><span id="group_name_{{ group.id }}">{{ group.name -}}</span>
-                                                <i class="fas fa-edit fa-xs" title="Ändra gruppnamn" data-fa-transform="shrink-8"></i>
-                                                <input class="group-name-input"/>
-                                            </h1>
-                                            <label for="select_user_{{ group.id }}">Ansvarig lärare</label>
-                                            <select name="User" id="select_user_{{ group.id }}" class="editable">
-                                                {% for teacher in teachers -%}
-                                                    <option
-                                                        value="{{ teacher.id }}"{% if teacher.id == group.teacher_id %} selected{% endif %}>
-                                                        {{- teacher.full_name -}}
-                                                    </option>
-                                                {%- endfor %}
-                                            </select>
-                                            <i name="user-question" class="fas fa-question-circle fa-xs has-tooltip" data-toggle="tooltip"></i>
-                                            <label for="slider_{{ group.id }}">Antal elever</label>
-                                            <div class="input-slider" id="slider_{{ group.id }}"
-                                                 data-min={{ student_limits.min }} data-max={{ student_limits.max }}
-                                                 name="NumberStudents"
-                                                 value={{ group.nr_students }} data-slider-label-id="slider_label_{{ group.id }}"></div>
-                                            <div id="slider_label_{{ group.id }}"
-                                                 class="slider-value">{{ group.nr_students }}</div>
-                                            <label for="food_{{ group.id }}">Specialkost</label>
-                                            <textarea name="Food" id="food_{{ group.id }}" class="editable form-control has-tooltip"
-                                                      rows="4" cols="50"
-                                                      placeholder="Ange specialkost här">
+    {% for tab in tabs -%}
+        <div id="tab_{{ tab.id }}" class="tab-pane fade{%- if loop.first %} in active show{% endif %}">
+            <div class="row">
+                {% for column in [tab.col_left, tab.col_right] -%}
+                    <div class="col-md-6">
+                        {# left column of the groups -#}
+                        {% for group in column -%}
+                            <div class="group-container" data-entity-id="{{ group.id }}"
+                                 data-entity="Group">
+                                <h1><span id="group_name_{{ group.id }}">{{ group.name -}}</span>
+                                    <i class="fas fa-edit fa-xs" title="Ändra gruppnamn"
+                                       data-fa-transform="shrink-8"></i>
+                                    <input class="group-name-input"/>
+                                </h1>
+                                <label for="select_user_{{ group.id }}">Ansvarig lärare</label>
+                                <select name="User" id="select_user_{{ group.id }}" class="editable">
+                                    {% for teacher in teachers -%}
+                                        <option
+                                            value="{{ teacher.id }}"{% if teacher.id == group.teacher_id %} selected{% endif %}>
+                                            {{- teacher.full_name -}}
+                                        </option>
+                                    {%- endfor %}
+                                </select>
+                                <i name="user-question" class="fas fa-question-circle fa-xs has-tooltip"
+                                   data-toggle="tooltip"></i>
+                                <label for="slider_{{ group.id }}">Antal elever</label>
+                                <div class="input-slider" id="slider_{{ group.id }}"
+                                     data-min={{ student_limits.min }} data-max={{ student_limits.max }}
+                                     name="NumberStudents"
+                                     value={{ group.nr_students }} data-slider-label-id="slider_label_{{ group.id }}"></div>
+                                <div id="slider_label_{{ group.id }}"
+                                     class="slider-value">{{ group.nr_students }}</div>
+                                <label for="food_{{ group.id }}">Specialkost</label>
+                                <textarea name="Food" id="food_{{ group.id }}" class="editable form-control has-tooltip"
+                                          rows="4" cols="50"
+                                          placeholder="Ange specialkost här">
                                                 {{- group.food -}}
                                             </textarea>
-                                            <label for="info_{{ group.id }}">Information om gruppen</label>
-                                            <textarea name="Info" id="info_{{ group.id }}" cols="50" rows="4"
-                                                      class="editable form-control"
-                                                      placeholder="Saker som är bra att veta">
+                                <label for="info_{{ group.id }}">Information om gruppen</label>
+                                <textarea name="Info" id="info_{{ group.id }}" cols="50" rows="4"
+                                          class="editable form-control"
+                                          placeholder="Saker som är bra att veta">
                                                 {{- group.info -}}
                                             </textarea>
-                                            {% if group.visits -%}
-                                                <ul class="group-visit-list">
-                                                    {% for visit in group.visits -%}
-                                                        <li>{{ visit.date }}:&nbsp;
-                                                            {%- if visit.topic_url -%}
-                                                                <a target="_blank" href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
-                                                            {%- else -%}
-                                                                {{ visit.topic_short_name }}
-                                                            {%- endif %}
-                                                            <span class="confirmation-status">
+                                {% if group.visits -%}
+                                    <ul class="group-visit-list">
+                                        {% for visit in group.visits -%}
+                                            <li>{{ visit.date }}:&nbsp;
+                                                {%- if visit.topic_url -%}
+                                                    <a target="_blank"
+                                                       href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
+                                                {%- else -%}
+                                                    {{ visit.topic_short_name }}
+                                                {%- endif %}
+                                                <span class="confirmation-status">
                                                             {% if not visit.confirmed and visit.confirmation_url -%}
-                                                                <a class="alert-warning" href="{{ visit.confirmation_url }}"><i class="fas fa-angle-double-right"></i>Bekräfta!</a>
+                                                                <a class="alert-warning"
+                                                                   href="{{ visit.confirmation_url }}"><i
+                                                                        class="fas fa-angle-double-right"></i>Bekräfta!</a>
                                                             {%- elseif visit.confirmed and visit.confirmation_url -%}
                                                                 Bekräftad! <i class="fas fa-calendar-check"></i>
                                                             {%- endif -%}
                                                             </span>
-                                                        </li>
-                                                    {%- endfor %}
-                                                </ul>
-                                            {% else %}
-                                                <p>För närvarande är inga besök inplanerade för denna grupp.</p>
-                                            {%- endif %}
-                                        </div>
-                                    {%- endfor %}
-                                </div>
-                            {%- endfor %}
-                        </div>
+                                            </li>
+                                        {%- endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p>För närvarande är inga besök inplanerade för denna grupp.</p>
+                                {%- endif %}
+                            </div>
+                        {%- endfor %}
                     </div>
                 {%- endfor %}
             </div>
         </div>
-
-        <div class="col-md-3"></div>
-    </div>
-{%- endblock -%}
+    {%- endfor %}
+</div>

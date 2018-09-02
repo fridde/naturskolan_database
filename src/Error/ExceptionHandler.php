@@ -65,7 +65,7 @@ class ExceptionHandler
         if($this->Exception instanceof NException){
             $code = $this->Exception->getCode();
             $template = Error::getTemplate($code);
-            $args = $this->Exception->getInfo();
+            $args = array_values($this->Exception->getInfo());
             $msg .= sprintf($template, ...$args);
         }
         $msg .= ' The error occurred at ';

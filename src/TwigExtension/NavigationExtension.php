@@ -103,7 +103,7 @@ class NavigationExtension extends TwigBaseExtension
         return call_user_func([$this, $method_name]);
     }
 
-    public function getUrlUsingMethod(array $item, $data_array = null)
+    public function getUrlUsingMethod(array $item, array $data_array = null)
     {
         $data_array = $data_array ?? [];
         $method_and_args = explode(self::METHOD_DELIMITER, $item['url'])[1];
@@ -149,28 +149,29 @@ class NavigationExtension extends TwigBaseExtension
     }
 
 
-    public function getGroupsPageUrl(string $school_id = null)
+    public function getGroupsPageUrl(string $school_id = null): ?string
     {
         return $this->getSchoolPageUrl($school_id, 'groups');
     }
 
-    public function getStaffPageUrl(string $school_id = null)
+    public function getStaffPageUrl(string $school_id = null): ?string
     {
         return $this->getSchoolPageUrl($school_id, 'staff');
     }
 
-    public function getSchoolPageUrl(string $school_id = null, string $page = 'groups')
+    public function getSchoolPageUrl(string $school_id = null, string $page = 'groups'): ?string
     {
-        if (empty($school_id)) {
+        if(empty($school_id)){
             return null;
         }
+
         $params['school'] = $school_id;
         $params['page'] = $page;
 
         return $this->Router->generate('school', $params);
     }
 
-    public function getAllSchoolUrls(array $ignored_schools = [])
+    public function getAllSchoolUrls(array $ignored_schools = []): array
     {
         /* @var SchoolRepository $school_repo */
         $school_repo = $this->ORM->getRepository('School');

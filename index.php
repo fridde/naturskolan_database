@@ -13,8 +13,7 @@ $controller_namespace = '\\Fridde\\Controller\\';
 try {
     require 'bootstrap.php';
 
-    $request_url = rawurldecode($_SERVER['REQUEST_URI']);
-    $request_url = rtrim($request_url, '/\\');
+    $request_url = rtrim(rawurldecode($_SERVER['REQUEST_URI']), '/\\');
 
     $match = $container->get('Router')->match($request_url);
     if ($match) {
