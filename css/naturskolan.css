@@ -246,6 +246,9 @@ h5,
 h6 {
     text-transform: uppercase;
     font-weight: 700;
+}
+
+h1 {
     margin: 30px 20px 15px 20px;
 }
 
