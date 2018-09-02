@@ -4,6 +4,7 @@ namespace Fridde\Entities;
 
 use Fridde\CustomRepository;
 use Carbon\Carbon;
+use Fridde\Timing;
 
 class VisitRepository extends CustomRepository
 {
@@ -29,7 +30,7 @@ class VisitRepository extends CustomRepository
      * @return \Fridde\Entities\Visit[]  An array consisting of all visits from today until
      *                                  the specified date.
      */
-    public function findFutureVisitsUntil(Carbon $until = null)
+    public function findFutureVisitsUntil(Carbon $until = null): array
     {
         $methods[] = ['isAfter', true, [Carbon::today()]];
         if (!empty($until)) {
@@ -41,7 +42,12 @@ class VisitRepository extends CustomRepository
         return $this->sortVisits($filtered_visits);
     }
 
-    public function findLastVisit()
+    public function findFutureVisitsWithin(array $time)
+    {
+        return $this->findFutureVisitsUntil(Timing::addDurationToNow($time));
+    }
+
+    public function findLastVisit(): ?Visit
     {
         $sorted_visits = $this->findSortedVisitsForTopic();
 

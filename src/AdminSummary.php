@@ -44,6 +44,7 @@ class AdminSummary
         'duplicate_mail_adresses' => 'getDuplicateMailAdresses',
         'files_left_in_temp' => 'getFilesLeftInTemp',
         'food_changed' => 'getChangedFood',
+        'missing_orders' => 'getMissingOrders',
         'inactive_group_visit' => 'getInactiveGroupVisits',
         'info_changed' => 'getChangedInfo',
         'nr_students_changed' => 'getChangedStudentNrs',
@@ -96,7 +97,6 @@ class AdminSummary
         $summary = [];
         foreach (self::$method_translator as $error_type => $method_name) {
             $summary[$error_type] = call_user_func([$this, $method_name]);
-            $this->N->ORM->EM->flush();
         }
 
         $this->summary = array_filter($summary);
@@ -187,6 +187,34 @@ class AdminSummary
             },
             $this->getRecentGroupChangesFor('NumberStudents')
         );
+    }
+
+    private function getMissingOrders()
+    {
+        /* @var VisitRepository $visit_repo  */
+        $visit_repo = $this->N->getRepo('Visit');
+        $summary_settings = Naturskolan::getSetting('admin', 'summary');
+
+        $visits = [
+            'bus' => 'missing_bus_warning',
+            'food' => 'missing_bus_warning'
+        ];
+
+        $rows = [];
+        foreach($visits as $index => $setting_key){
+            $future_visits = $visit_repo->findFutureVisitsWithin($summary_settings[$setting_key]);
+            foreach ($future_visits as $v){
+                if($index === 'bus' && $v->needsBus() && empty($v->getBusIsBooked())){
+                    $rows[] = 'Bussen för ' . $v->getDate() . ' är inte bokad eller bekräftad.';
+                }
+                if($index === 'food' && $v->needsFoodOrder() && empty($v->getFoodIsBooked())){
+                    $rows[] = 'Maten för ' . $v->getDate() . ' är inte bokad eller bekräftad.';
+                }
+            }
+        }
+
+
+
     }
 
     private function getLoomingLastVisit()
