@@ -1,10 +1,10 @@
 {%- extends "visitor_area.twig" -%}
 
 {%- block main_content -%}
-    {% set questions = [] %}
+    {% set questions = ['target_group'] %}
     <div id="accordion">
         {% for question in questions %}
-            {% include('questions/'~ question ~ '.twig') %}
+            {% include('help/questions/'~ question ~ '.twig') %}
         {% endfor %}
     </div>
 {%- endblock -%}
