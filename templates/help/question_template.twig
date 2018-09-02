@@ -1,0 +1,17 @@
+{% set q_id = 'card-body-' ~ random('abcdefghijklmnopqrstuvwxyz') ~ random(9999) %}
+
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#{{ q_id }}">
+                {% block q-title -%}{%- endblock %}
+            </button>
+        </h5>
+    </div>
+    <div id="{{q_id }}" class="collapse show" data-parent="#accordion">
+        <div class="card-body">
+            {% block q-answer -%}{%- endblock %}
+        </div>
+    </div>
+</div>

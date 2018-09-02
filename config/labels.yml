@@ -1,19 +1,20 @@
 admin_summary:
-  food_changed : "Nyligen ändrad specialkost"
+  food_changed : 'Nyligen ändrad specialkost'
+  missing_orders: 'Besök saknar buss eller mat'
   files_left_in_temp : 'Känsliga filer på servern'
-  nr_students_changed : "Nyligen ändrad elevantal"
-  visit_not_confirmed : "Obekräftade besök"
-  too_many_students : "För många elever"
-  inactive_group_visit : "Gruppen inte längre aktiv"
-  wrong_group_leader : "Fel gruppledare"
-  wrong_group_count : "Fel antal grupper på skolan"
-  soon_last_visit : "Deadlines"
-  user_profile_incomplete : "Ofullständiga kontaktuppgifter"
-  bad_mobil : "Felaktiga mobilnummer"
-  nonexistent : "Har ingen gruppledare."
-  inactive : "Ledaren är inaktiv."
-  not_teacher : "Ledaren är inte lärare."
-  wrong_school : "Ledaren går på en annan skola."
+  nr_students_changed : 'Nyligen ändrad elevantal'
+  visit_not_confirmed : 'Obekräftade besök'
+  too_many_students : 'För många elever'
+  inactive_group_visit : 'Gruppen inte längre aktiv'
+  wrong_group_leader : 'Fel gruppledare'
+  wrong_group_count : 'Fel antal grupper på skolan'
+  soon_last_visit : 'Deadlines'
+  user_profile_incomplete : 'Ofullständiga kontaktuppgifter'
+  bad_mobil : 'Felaktiga mobilnummer'
+  nonexistent : 'Har ingen gruppledare.'
+  inactive : 'Ledaren är inaktiv.'
+  not_teacher : 'Ledaren är inte lärare.'
+  wrong_school : 'Ledaren går på en annan skola.'
   bus_or_food_order_outdated : 'Inaktuella buss- eller matbeställningar'
   duplicate_mail_adresses: 'Dessa mejladresser finns mer än en gång'
   wrong_visit_order: 'Besök i fel ordning'

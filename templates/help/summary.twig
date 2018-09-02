@@ -1,16 +1,14 @@
 {%- extends "visitor_area.twig" -%}
 
-
 {%- block main_content -%}
-    <h1>Vem riktar sig denna sida till?</h1>
-    <p>Denna sida är till dig som
-    <ul>
-        <li>är lärare för en klass som ska besöka Naturskolan</li>
-        <li>är administratör på en skola som har kontakt med Naturskolan</li>
-        <li>vill hjälpa till med det logistiska kring ett besök på Naturskolan</li>
-        <li>har på något sätt behov av att veta besöksdatum, specialkost eller annan nyttig information kring besöken</li>
-    </ul>
-    </p>
+    {% set questions = [] %}
+    <div id="accordion">
+        {% for question in questions %}
+            {% include('questions/'~ question ~ '.twig') %}
+        {% endfor %}
+    </div>
+{%- endblock -%}
+{#
     <h1>Hur kommer jag in?</h1>
     <h2>Alternativ 1</h2>
     <p>Fråga någon av dina kollegor eller din skolas administratör som redan har tillgång till skolans besöksområde efter lösenordet till just din skola. Hen kommer åt det genom att klicka på "Visa lösenord". Det brukar vara några svenska ord med punkter emellan.</p>
@@ -26,7 +24,7 @@
     <h1>Jag har en fråga som inte är med här!</h1>
     <p>Gå till <a href="contact">kontaktsidan</a> och ställ din fråga, så bör vi svara inom kort.</p>
 
-{%- endblock -%}
+#}
 
 
 

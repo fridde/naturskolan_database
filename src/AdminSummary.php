@@ -54,7 +54,7 @@ class AdminSummary
         'visit_not_confirmed' => 'getUnconfirmedVisits',
         'wrong_group_count' => 'getWrongGroupCounts',
         'wrong_group_leader' => 'getWrongGroupLeaders',
-        'wrong_visit_order' => 'getWrongVisitOrder'
+        'wrong_visit_order' => 'getWrongVisitOrder',
     ];
 
     /**
@@ -191,30 +191,29 @@ class AdminSummary
 
     private function getMissingOrders()
     {
-        /* @var VisitRepository $visit_repo  */
+        /* @var VisitRepository $visit_repo */
         $visit_repo = $this->N->getRepo('Visit');
         $summary_settings = Naturskolan::getSetting('admin', 'summary');
 
         $visits = [
             'bus' => 'missing_bus_warning',
-            'food' => 'missing_bus_warning'
+            'food' => 'missing_bus_warning',
         ];
 
         $rows = [];
-        foreach($visits as $index => $setting_key){
+        foreach ($visits as $index => $setting_key) {
             $future_visits = $visit_repo->findFutureVisitsWithin($summary_settings[$setting_key]);
-            foreach ($future_visits as $v){
-                if($index === 'bus' && $v->needsBus() && empty($v->getBusIsBooked())){
-                    $rows[] = 'Bussen för ' . $v->getDate() . ' är inte bokad eller bekräftad.';
+            foreach ($future_visits as $v) {
+                if ($index === 'bus' && $v->needsBus() && empty($v->getBusIsBooked())) {
+                    $rows[] = 'Bussen för '.$v->getDate().' är inte bokad eller bekräftad.';
                 }
-                if($index === 'food' && $v->needsFoodOrder() && empty($v->getFoodIsBooked())){
-                    $rows[] = 'Maten för ' . $v->getDate() . ' är inte bokad eller bekräftad.';
+                if ($index === 'food' && $v->needsFoodOrder() && empty($v->getFoodIsBooked())) {
+                    $rows[] = 'Maten för '.$v->getDate().' är inte bokad eller bekräftad.';
                 }
             }
         }
 
-
-
+        return $rows;
     }
 
     private function getLoomingLastVisit()
@@ -262,7 +261,7 @@ class AdminSummary
 
     private function getDuplicateMailAdresses()
     {
-        /* @var UserRepository $user_repo  */
+        /* @var UserRepository $user_repo */
         $user_repo = $this->N->ORM->getRepository('User');
 
         $all_mail_adresses = array_map(
@@ -343,12 +342,12 @@ class AdminSummary
         /* @var School $school */
         foreach ($schools as $school) {
             foreach (Group::getSegmentLabels() as $segment_id => $label) {
-                foreach($years_to_check as $start_year){
+                foreach ($years_to_check as $start_year) {
                     $active = $school->getNrActiveGroupsBySegmentAndYear($segment_id, $start_year);
                     $expected = $school->getGroupCountNumber($segment_id, $start_year);
                     if ($expected !== $active) {
                         $row = $school->getName().' har fel antal grupper i segment ';
-                        $row .= $label.' och år '. $start_year.'. Det finns ';
+                        $row .= $label.' och år '.$start_year.'. Det finns ';
                         $row .= $active.' grupper, men det borde vara '.$expected.'. ';
                         $rows[] = $row;
                     }
@@ -469,34 +468,38 @@ class AdminSummary
     private function getWrongVisitOrder()
     {
         $rows = [];
-        /* @var GroupRepository $group_repo  */
+        /* @var GroupRepository $group_repo */
         $group_repo = $this->N->ORM->getRepository('Group');
 
         $groups = $group_repo->findActiveGroups();
-        /* @var Group $group  */
-        foreach($groups as $group){
+        /* @var Group $group */
+        foreach ($groups as $group) {
             $visits = array_values($group->getFutureVisits());
-            $visits = array_filter($visits, function(Visit $v){
-                $topic = $v->getTopic();
-                return (empty($topic) ? false : $topic->getOrderIsRelevant());
-            });
+            $visits = array_filter(
+                $visits,
+                function (Visit $v) {
+                    $topic = $v->getTopic();
+
+                    return (empty($topic) ? false : $topic->getOrderIsRelevant());
+                }
+            );
 
             $nr_visits = count($visits);
-            if($nr_visits < 2){
+            if ($nr_visits < 2) {
                 continue;
             }
-            /* @var Visit $visit  */
-            foreach($visits as $key => $visit){
+            /* @var Visit $visit */
+            foreach ($visits as $key => $visit) {
                 /* @var Visit $first_visit */
                 $first_visit = $visits[$key];
                 /* @var Visit $second_visit */
-                $second_visit = $visits[$key+1] ?? null;
-                if(empty($second_visit)){
+                $second_visit = $visits[$key + 1] ?? null;
+                if (empty($second_visit)) {
                     continue;
                 }
-                if($first_visit->getTopic()->getVisitOrder() >= $second_visit->getTopic()->getVisitOrder()){
-                    $row = 'För ' . $group->getName() . ' från ' .$group->getSchool()->getName() .': ';
-                    $row .= $first_visit->getLabel('DT') . ' är före '. $second_visit->getLabel('DT');
+                if ($first_visit->getTopic()->getVisitOrder() >= $second_visit->getTopic()->getVisitOrder()) {
+                    $row = 'För '.$group->getName().' från '.$group->getSchool()->getName().': ';
+                    $row .= $first_visit->getLabel('DT').' är före '.$second_visit->getLabel('DT');
                     $rows[] = $row;
                 }
             }
@@ -507,13 +510,16 @@ class AdminSummary
 
     private function getFilesLeftInTemp()
     {
-        $files = scandir(BASE_DIR . '/temp', SCANDIR_SORT_ASCENDING);
+        $files = scandir(BASE_DIR.'/temp', SCANDIR_SORT_ASCENDING);
 
         $files = array_diff($files, ['.', '..', '.gitignore']);
 
-        array_walk($files, function(&$v){
-            $v = 'Filen ' . $v . ' finns fortfarande i /temp. Ta bort den snarast!';
-        });
+        array_walk(
+            $files,
+            function (&$v) {
+                $v = 'Filen '.$v.' finns fortfarande i /temp. Ta bort den snarast!';
+            }
+        );
 
         return $files;
     }
