@@ -1,10 +1,7 @@
-# getStaffPageUrl
-#
-#
 NAV_SETTINGS:
   base:
     - &home
-      label: 'Hem'
+      label: 'Start'
       url: '#'
     - &support
       label: 'Hjälp'
@@ -68,18 +65,10 @@ NAV_SETTINGS:
       label: 'Tabeller'
       children: '->getAllTableUrls'
     -
-      <<: *groups
-    -
-      <<: *staff
-    -
       <<: *logout
   user:
     -
       <<: *home
-    -
-      <<: *groups
-    -
-      <<: *staff
     -
       <<: *support
     -
