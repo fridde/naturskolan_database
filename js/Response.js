@@ -3,6 +3,7 @@ let Response = {
     callbackTranslator: {
         wrongPassword: Update.wrongPassword,
         lastChange: Update.lastChange,
+        groupUserOptions: Update.groupUserOptions,
         removeRow: Update.removeRow,
         reloadPage: Update.reloadPage,
         sliderChanged: Update.setSliderLabel,

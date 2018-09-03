@@ -1,13 +1,9 @@
 let Edit = {
 
     change: function (event) {
-        //let $this = $(event.target);
-        let $this;
-        if(event.this){
-            $this = $(event.this);
-        } else {
-            $this = $(this);
-        }
+
+        let $this = event.this ? $(event.this) : $(this);
+
         let data = {};
         let option, specialInfo, $tr, $td, $icon, list;
         if (recentChange !== false) {
@@ -149,6 +145,10 @@ let Edit = {
 
         if (["Food", "Mobil"].includes(data.property)) {
             Tooltip.check($this.get(0), data);
+        }
+
+        if(data.entity_class === 'User' && option === 'tableInput'){
+            data.onReturn = 'groupUserOptions';
         }
 
         data.onReturn = data.onReturn || 'lastChange';

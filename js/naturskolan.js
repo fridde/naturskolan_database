@@ -45,7 +45,6 @@ $(document).ready(function () {
      * Configuration of callbacks for several elements
      */
     $('.group-container .editable').change('group', Edit.change);
-    //$('table.editable :input').not(".datepicker").change("tableInput", Edit.change);
     $('table.editable :input').not('.datepicker').change("tableInput", Edit.change);
 
 

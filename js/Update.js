@@ -43,6 +43,16 @@ let Update = {
         }
     },
 
+    groupUserOptions: function(data){
+        if(data.success && data.new_id){
+            let tr = $('tr[data-id="#' + data.old_id + '"]');
+            let name = tr.find('input[name="FirstName"]').val();
+            name += ' ' + tr.find('input[name="LastName"]').val();
+            $('select[name="User"]').append(new Option(name, data.new_id));
+        }
+        Update.lastChange(data);
+    },
+
     reloadPage: function () {
        location.reload(true);
     },

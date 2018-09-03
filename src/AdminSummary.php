@@ -205,10 +205,10 @@ class AdminSummary
             $future_visits = $visit_repo->findFutureVisitsWithin($summary_settings[$setting_key]);
             foreach ($future_visits as $v) {
                 if ($index === 'bus' && $v->needsBus() && empty($v->getBusIsBooked())) {
-                    $rows[] = 'Bussen för '.$v->getDate().' är inte bokad eller bekräftad.';
+                    $rows[] = 'Bussen för '.$v->getDateString().' är inte bokad eller bekräftad.';
                 }
                 if ($index === 'food' && $v->needsFoodOrder() && empty($v->getFoodIsBooked())) {
-                    $rows[] = 'Maten för '.$v->getDate().' är inte bokad eller bekräftad.';
+                    $rows[] = 'Maten för '.$v->getDateString().' är inte bokad eller bekräftad.';
                 }
             }
         }
