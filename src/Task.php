@@ -242,7 +242,7 @@ class Task
 
             return (new Update)->createNewEntity('Message', $msg_props);
         }
-        //TODO: log this failed trial to error table or equivalent
+
         $msg = 'The message of type '.$msg_carrier.' to receiver ';
         $msg .= $user->getFullName().' with the subject ';
         $msg .= $subject.' could not be sent';
@@ -441,8 +441,9 @@ class Task
 
                 $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject_int];
             } else {
-                echo '';
-                // TODO: log this somewhere and inform admin
+                $msg = 'Tried to send new User ' . $user->getId() . ' a welcome mail, but no mail adress available.';
+                $this->N->log($msg, __METHOD__);
+
             }
         }
         $this->logMessageArray($messages);

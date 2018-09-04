@@ -4,8 +4,6 @@ namespace Fridde\Entities;
 
 use Carbon\Carbon;
 
-//use Doctrine\ORM\Mapping as ORM;
-
 /**
  * @Entity(repositoryClass="Fridde\Entities\HashRepository")
  * @Table(name="hashes")

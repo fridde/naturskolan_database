@@ -385,8 +385,10 @@ class Naturskolan
         if (is_array($source)) {
             $source = $source[0].'->'.$source[1].'()';
         }
+        $extra['source'] = $source;
+        $extra['datetime'] = Carbon::now()->toIso8601String();
 
-        $GLOBALS['CONTAINER']->get('Logger')->addInfo($msg, ['source' => $source]);
+        $GLOBALS['CONTAINER']->get('Logger')->addInfo($msg, $extra);
     }
 
 
