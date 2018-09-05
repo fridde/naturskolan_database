@@ -1,13 +1,9 @@
 {% extends "mail/common/base_mail.twig" %}
 
-{%- set groups, group_row_padding = DATA.groups, 80 -%}
-{% if groups|length > 1 %}{% set group_row_padding = 10 %}{% endif %}
-
-
-{% block title %}Välkommen till Naturskolans besöksområde!{% endblock %}
+{% block title %}Hjälp Naturskolan att hålla reda på era pedagoger och era klasser!{% endblock %}
 
 {% block preheader_text %}
-    Du har numera tillgång till Naturskolans besöksområde där du kan se besöksdatum, bestämma ansvariga lärare och ange information om klasserna.
+    Vi på Naturskolan hoppas på ditt samarbete för att vi ska kunna hålla reda på era pedagoger och era klasser.
 {% endblock %}
 
 {% block image_text_box %}
@@ -15,17 +11,9 @@
         <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
             <tr>
                 <td valign="middle"
-                    style="text-align: center; padding: {{ group_row_padding }}px; font-size: 20px; font-weight: 900; line-height: 140%; color: #000000;">
+                    style="text-align: center; padding: 40px; font-size: 20px; font-weight: 900; line-height: 140%; color: #000000;">
                     <p style="margin: 0;">
-                        Välkommen till Naturskolans besöksområde!</p>
-                    {% if groups|length > 1 %}
-                        <p style="margin: 0;">Dina grupper som du ansvarar för:</p>
-                    {%- elseif groups|length == 1 -%}
-                        <p style="margin: 0;">Din grupp som du ansvarar för:</p>
-                    {%- endif %}
-                    {%- for group in groups -%}
-                        <p style="margin: 0;">- {{ group.name }}, {{ group.segment }}</p>
-                    {%- endfor -%}
+                        Vi behöver din hjälp för att kunna koordinera {{ DATA.school_name }}s besök till Naturskolan!</p>
                     </p>
                 </td>
             </tr>
@@ -40,7 +28,7 @@
                                    style="background: #222222; border: 15px solid #222222; font-size: 13px; line-height: 110%; text-align: center; text-decoration: none; display: block; border-radius: 10px; font-weight: bold;"
                                    class="button-a" target="_blank">
                                     &nbsp;&nbsp;&nbsp;&nbsp;<span
-                                        style="color:#ffffff;">Ta mig till besöksområdet!</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                                        style="color:#ffffff;">Ta mig till besöksportalen!</span>&nbsp;&nbsp;&nbsp;&nbsp;
                                 </a>
                             </td>
                         </tr>
@@ -53,13 +41,24 @@
 {% endblock %}
 
 {% block body_text %}
-    <p style="margin: 0;">Du har numera tillgång till Naturskolans besöksområde.</p>
-    <p style="margin: 0;">Inom området kan du bestämma ansvariga för klasser som hälsar på oss, redigera dina och kollegornas kontaktuppgifter, se besöksdatum och ange uppgifter om de besökande klasserna.</p>
-    <p style="margin: 10px 0px 0px 0px;">Du hittar även länkar till all relevant information om besök och programmet.</p>
-    <p style="margin: 10px 0px 0px 0px;">Följ länken ovan. Om du vill återkomma till besöksområdet <em>utan</em> att behöva öppna detta mejl, notera lösenordet som anges i övre högra hörn på sidan. Passa på att spara sidan som ett bokmärke då!</p>
+    <p style="margin: 0;">Att hålla reda på alla klasser och pedagoger som besöker och upplever temadagar med oss är en logistisk utmaning.</p>
+    <p style="margin: 0;">Det är ofta klurigt att få in lärarnas kontaktuppgifter, hålla reda på personalförändringar och samla in kunskap om elevantal, specialkost och eventuella speciella behov.</p>
+    <p style="margin: 10px 0px 0px 0px;">Vi hoppas därför att du kan ta en kort titt på din skolas besöksportal och kontrollera att...</p>
+    <ul style="Margin:0 0 0 10px; padding:0;">
+        <li style="Margin:0; list-style:disc inside; mso-special-format:bullet;">rätt person står som kontaktperson för respektive klass/grupp</li>
+        <li style="margin:0; list-style:disc inside; mso-special-format:bullet;">mejladresserna stämmer</li>
+        <li style="margin:0; list-style:disc inside; mso-special-format:bullet;">specialkost har fyllts i av någon</li>
+    </ul>
+    <p style="margin: 10px 0px 0px 0px;">Då vi även skickar ut påminnelse-sms till pedagogerna och då vi ibland behöver ringa i sista minuten pga sjukdom eller problem med bussen, vore vi därför tacksamma för mobilnummer, även om vi vet att det kan vara en känslig uppgift att ge ut.</p>
+    <p style="margin: 10px 0px 0px 0px;">När du lägger till personal får denna person ett välkomstmejl med inloggningsuppgifter inom några timmar. Du kan även muntligen eller skriftligen lämna vidare lösenordet du hittar via portalen.</p>
+    <p style="margin: 10px 0px 0px 0px;">Hör av dig om du har frågor eller hittar buggar i systemet. Du kan svara på detta mejl eller nå oss via <a target="_blank" href="http://www.sigtunanaturskola.se/kontakta-oss/">vår kontaktsida.</a></p>
+    <p style="margin: 10px 0px 0px 0px;">Ett stort tack på förhand!</p>
 {% endblock %}
 
+{% block three_columns %}{% endblock %}
+
+
 {% block why_this_mail %}
-    <p style="margin: 0;">Du får detta mejl för att någon från din skola (till exempel en kollega) har lagt till dig bland medlemmarna inom besöksområdet.</p>
-    <p style="margin: 0;">Om detta är ett misstag, hör av dig till oss!</p>
+    <p style="margin: 0;">Du får detta mejl för att du är administratör på {{ DATA.school_name }}. Vi skickar ut detta mejl med regelbundna avstånd, oftast i samband med en ny terminsplanering.</p>
+    <p style="margin: 0;">Om du inte längre är administratör på denna skola, hör av dig till oss!</p>
 {% endblock %}

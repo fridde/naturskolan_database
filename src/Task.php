@@ -101,7 +101,7 @@ class Task
     /**
      * @param string $type
      */
-    public function setType(string $type): void
+    public function setType(string $type = null): void
     {
         $this->type = $type;
     }

@@ -152,9 +152,21 @@ $(document).ready(function () {
         let data = {
             updateMethod: "createMissingGroups",
             segment: $('#missingGroups select[name="Segment"]').val(),
-            onReturn: 'showStatus'
+            onReturn: 'showAddedGroups'
         };
         Update.send(data);
+    });
+
+    $('#manager-mobilization button').click(function () {
+        let options = {
+            'url': 'admin/batch/send_manager_mobilization_mail',
+            'method': 'POST',
+            'complete': function (jqXHR, status) {
+                Response.handler(jqXHR, 'showSentManagerMails', status);
+            },
+            'error': Response.logErrorsToConsole
+        };
+        $.ajax(options);
     });
 
     /* REMOVED, maybe later

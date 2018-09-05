@@ -358,8 +358,8 @@ class BatchController extends BaseController
             }
             $params = ['subject_int' => $subject_int];
             $params['receiver'] = $manager->getMail();
-            $params['data']['fname'] = $manager->getFirstName();
-
+            $data['fname'] = $manager->getFirstName();
+            $data['school_name'] = $manager->getSchool()->getName();
             $data['school_url'] = $this->N->generateUrl('school', ['school' => $manager->getSchoolId()], true);
             $data['user_login_url'] = $this->N->createLoginUrl($manager);
 
@@ -372,6 +372,26 @@ class BatchController extends BaseController
         }
 
         (new Task())->logMessageArray($messages);
+
+        $sent_mails = array_map(function($m){
+            /* @var Mail $response  */
+            /* @var User $user  */
+            $response = $m[0];
+            $user = $m[2];
+            $text = 'Mejlet till ';
+            $text .= $user->getMail() . ' ';
+            if($response->getStatus() === 'success'){
+                $text .= 'skickades framgångsrikt.';
+            } else {
+                $text .= 'kunde ej skickas. Kolla felloggen';
+            }
+            return $text;
+        }, $messages);
+
+        $this->setReturnType(self::RETURN_JSON);
+        $this->addToDATA('onReturn', $this->getFromRequest('onReturn'));
+        $this->addToDATA('sent_mails', $sent_mails);
+        $this->addToDATA('errors', []);
     }
 
 }

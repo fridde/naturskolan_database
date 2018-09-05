@@ -29,7 +29,7 @@ class Mail extends AbstractMessageController
         Message::SUBJECT_WELCOME_NEW_USER =>
             [self::SEND | self::PREPARE, 'WelcomeNewUser', 'Välkommen i Naturskolans databas'],
         Message::SUBJECT_MANAGER_MOBILIZATION =>
-            [self::SEND | self::PREPARE, 'ManagerMobilization', 'Dags att kontrollera personaluppgifter'],
+            [self::SEND | self::PREPARE, 'ManagerMobilization', 'Hjälp oss att planera klassernas besök'],
     ];
 
 

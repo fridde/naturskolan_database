@@ -372,7 +372,6 @@ class Update extends DefaultUpdate
         $this->ORM->EM->flush();
 
         $this->setReturn('added_groups', $added_groups);
-        $this->setReturn('method', 'addMissingGroups');
     }
 
     /**

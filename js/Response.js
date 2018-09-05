@@ -9,7 +9,8 @@ let Response = {
         sliderChanged: Update.setSliderLabel,
         datesAdded: Update.reloadPage, // TODO: Maybe exchange this for a better feedback
         groupNameChanged: Update.groupName,
-        showStatus: Update.showChange,
+        showAddedGroups: Update.showAddedGroups,
+        showSentManagerMails: Update.showSentManagerMails,
         checkPasswordResponse: Update.checkPasswordResponse
     },
 
