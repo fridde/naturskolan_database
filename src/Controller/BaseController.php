@@ -9,6 +9,7 @@ use Fridde\HTML;
 use Fridde\Security\Authorizer;
 use Fridde\TwigExtension\NavigationExtension;
 use Fridde\Utility;
+use nochso\HtmlCompressTwig\Extension as HtmlCompressTwigExtension;
 
 class BaseController
 {
@@ -50,8 +51,9 @@ class BaseController
         $args = [$this->Authorizer];
         $args[] = $GLOBALS['CONTAINER']->get('Router');
         $args[] = $this->N->ORM;
-        $extension = new NavigationExtension(...$args);
-        $this->H = new HTML(null, [$extension]);
+        $extensions[] = new NavigationExtension(...$args);
+        $extensions[] = new HtmlCompressTwigExtension();
+        $this->H = new HTML(null, $extensions);
         $this->setTitle(SETTINGS['defaults']['title'] ?? null);
     }
 

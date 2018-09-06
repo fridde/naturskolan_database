@@ -24,7 +24,8 @@
         "dotzero/googl": "0.2.0",
         "symfony/yaml": "^4.0",
         "dg/ftp-deployment": "^2.7",
-        "defuse/php-encryption": "^2.1"
+        "defuse/php-encryption": "^2.1",
+        "nochso/html-compress-twig": "^2.0"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.6",
