@@ -10,7 +10,7 @@
             {% for row in DATA.rows %}
                 <tr>
                     <td style="min-width:180px">{{ row.time }}</td>
-                    <td>{{ row.source }}</td>
+                    <td style="word-break:break-all">{{ row.source }}</td>
                     <td>{{ row.level }}</td>
                     <td>{{ row.message }}</td>
                 </tr>
