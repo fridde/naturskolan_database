@@ -1,0 +1,20 @@
+{%- extends "admin/admin_area.twig" -%}
+
+{% block content %}
+    <div class="error-log">
+        <h5>Fel-logg</h5>
+        <table>
+            <tr>
+                <th>Time</th><th>Source</th><th>Level</th><th>Message</th>
+            </tr>
+            {% for row in DATA.rows %}
+                <tr>
+                    <td style="min-width:180px">{{ row.time }}</td>
+                    <td>{{ row.source }}</td>
+                    <td>{{ row.level }}</td>
+                    <td>{{ row.message }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

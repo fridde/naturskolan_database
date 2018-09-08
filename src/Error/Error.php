@@ -60,6 +60,7 @@ class Error
             ],
             self::SEVERITY_USER_INTERACTION => [
                 self::EXPIRED_CODE => 'The code "%s" you used to login has expired.',
+                self::PAGE_NOT_FOUND => 'The url "%s" could not be resolved.'
             ],
 
         ];

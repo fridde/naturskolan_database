@@ -399,10 +399,10 @@ class BaseController
         $this->actions = $actions;
     }
 
-    public function addAction(string $action = null, bool $to_front = false)
+    public function addAction(string $action = null, bool $to_front = false): void
     {
         if (empty($action)) {
-            return null;
+            return;
         }
         $actions = $this->getActions();
         if ($to_front) {
@@ -418,8 +418,12 @@ class BaseController
         $this->addAction($action, true);
     }
 
-    public function hasAction(string $action)
+    public function hasAction(string $action = null): bool
     {
+        if(empty($action)){
+            return ! empty($this->getActions());
+        }
+
         return in_array($action, $this->getActions(), true);
     }
 

@@ -74,6 +74,14 @@ ul.list-group {
     width: 15%;
 }
 
+div.error-log table{
+    font-size: 0.8em
+}
+
+div.error-log td, div.error-log th {
+    border: solid 1px black;
+}
+
 table.editable.table-responsive {
     overflow-x: visible;
 }
