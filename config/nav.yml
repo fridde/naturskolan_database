@@ -61,6 +61,9 @@ NAV_SETTINGS:
          -
            label: 'Beställ mat'
            url: 'view/food_order'
+         -
+           label: 'Visa logg'
+           url: 'admin/show_log'
     -
       label: 'Tabeller'
       children: '->getAllTableUrls'
