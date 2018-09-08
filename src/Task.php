@@ -40,6 +40,8 @@ class Task
 
     private $exempted_tasks = ['createNewAuthKey'];
 
+    private static $unlogged_tasks = ['rebuild_calendar']; // will not be logged
+
     /**
      * The constructor.
      *
@@ -84,10 +86,12 @@ class Task
 
             return false;
         }
-        $this->N->log('Executed task: '.$this->type, __METHOD__);
+
+        if(! in_array($this->type, self::$unlogged_tasks, true)){
+            $this->N->log('Executed task: '.$this->type, __METHOD__);
+        }
 
         return true;
-
     }
 
     /**
@@ -132,7 +136,7 @@ class Task
         if ($is_dirty || $too_old) {
             $cal = new Calendar();
             $cal->save();
-            $this->N->log('Actually recalculated calendar', __METHOD__);
+            $this->N->log('Had to recalculate calendar', __METHOD__);
         }
     }
 
@@ -246,7 +250,7 @@ class Task
         $msg = 'The message of type '.$msg_carrier.' to receiver ';
         $msg .= $user->getFullName().' with the subject ';
         $msg .= $subject.' could not be sent';
-        $this->N->log($msg);
+        $this->N->log($msg, __METHOD__);
 
         return new Update;
     }

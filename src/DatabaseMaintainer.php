@@ -9,17 +9,14 @@ use Fridde\{
 
 class DatabaseMaintainer
 {
-    /** @var Naturskolan $N */
-    private $N;
     /* @var ORM $ORM */
     private $ORM;
 
-    private const ARBITRARY_DATE = '2018-01-01';
+    private const ARBITRARY_DATE = '2018-01-01'; //please, never change!
 
     public function __construct()
     {
-        $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
-        $this->ORM = $this->N->ORM;
+        $this->ORM = $GLOBALS['CONTAINER']->get('Naturskolan')->ORM;
     }
 
     public function backup()
@@ -32,17 +29,15 @@ class DatabaseMaintainer
     {
         $files = glob(BASE_DIR.'/backup/*');
         foreach ($files as $file) {
-            try {
-                $file_piece = pathinfo($file, PATHINFO_FILENAME);
-                $date_string = explode('_', $file_piece)[0];
-                $date = Carbon::parse($date_string);
 
-                if (!$this->isWorthSaving($date)) {
-                    unlink($file);
-                }
-            } catch (\Exception $e) {
-                $this->N->log($e->getMessage(), __METHOD__);
+            $file_piece = pathinfo($file, PATHINFO_FILENAME);
+            $date_string = explode('_', $file_piece)[0];
+            $date = Carbon::parse($date_string);
+
+            if (!$this->isWorthSaving($date)) {
+                unlink($file);
             }
+
         }
     }
 
@@ -86,11 +81,11 @@ class DatabaseMaintainer
 
     public function standardizeMobileNumbers()
     {
-        /* @var UserRepository $user_repo  */
+        /* @var UserRepository $user_repo */
         $user_repo = $this->ORM->getRepository(User::class);
 
-        foreach($user_repo->findActiveUsers() as $user){
-            /* @var User $user  */
+        foreach ($user_repo->findActiveUsers() as $user) {
+            /* @var User $user */
             $nr = $user->standardizeMobNr();
             $user->setMobil($nr);
         }
@@ -99,11 +94,11 @@ class DatabaseMaintainer
 
     public function prettifyMailAdresses()
     {
-        /* @var UserRepository $user_repo  */
+        /* @var UserRepository $user_repo */
         $user_repo = $this->ORM->getRepository(User::class);
 
-        foreach($user_repo->findActiveUsers() as $user){
-            /* @var User $user  */
+        foreach ($user_repo->findActiveUsers() as $user) {
+            /* @var User $user */
             $mail = strtolower(trim($user->getMail()));
             $user->setMail($mail);
         }
@@ -150,7 +145,7 @@ class DatabaseMaintainer
         array_walk(
             $nameless,
             function (Group $g) {
-                $g->setName('Grupp ' .  Naturskolan::getRandomAnimalName());
+                $g->setName('Grupp '.Naturskolan::getRandomAnimalName());
             }
         );
 
