@@ -34,8 +34,6 @@ class Naturskolan
     private $Client;
     /** @var \dotzero\Googl An instance of Googl to create short-links */
     private $Googl;
-    /** @var \Fridde\Security\PasswordHandler Instance of PasswordHandler */
-    private $PWH;
     /* @var \Fridde\Security\Authenticator $Auth */
     public $Auth;
     /** @var array A text array containing labels and other text bits */
@@ -53,8 +51,7 @@ class Naturskolan
     public function __construct()
     {
         $this->ORM = new ORM();
-        $this->PWH = new PWH();
-        $this->Auth = new Authenticator($this->ORM, $this->PWH);
+        $this->Auth = new Authenticator($this->ORM, new PWH());
         $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber($this->ORM));
     }
 

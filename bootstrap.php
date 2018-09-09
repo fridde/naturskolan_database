@@ -2,6 +2,7 @@
 
 require __DIR__.'/vendor/autoload.php';
 
+use Doctrine\Common\Cache\FilesystemCache;
 use Fridde\Essentials;
 use Fridde\Naturskolan;
 use Fridde\Settings;
@@ -23,6 +24,7 @@ $services[] = ['Naturskolan', Naturskolan::class];
 $base_url = rtrim(parse_url(APP_URL, PHP_URL_PATH), '/');
 $services[] = ['Router', 'AltoRouter', Essentials::getRoutes(), $base_url];
 $services[] = ['Logger', Essentials::getLogger()];
+$services[] = ['Cache', new FilesystemCache(__DIR__ . '/temp/cache')];
 $container = Essentials::registerSharedServices($services);
 
 $em = $container->get('Naturskolan')->ORM->EM;

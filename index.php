@@ -5,8 +5,6 @@ use Fridde\Error\ExceptionHandler;
 use Fridde\Error\NException;
 use Fridde\Error\Error;
 use Fridde\Essentials;
-use Fridde\Naturskolan;
-use Tracy\BlueScreen;
 
 $controller_namespace = '\\Fridde\\Controller\\';
 
