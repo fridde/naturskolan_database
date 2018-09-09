@@ -14,10 +14,15 @@ class HashRepository extends CustomRepository
         int $cat,
         bool $accept_expired = false
     ): ?Hash {
-        $this->selectAllHashes()->havingCategory($cat)->matchingPassword($password);
+        $this->selectAllHashes()->havingCategory($cat);
         if (!$accept_expired) {
             $this->expiredAfterToday();
         }
+        $dot_pos = strpos($password, '.');
+        if($dot_pos !== false){
+            $this->havingOwnerId(substr($password,0, $dot_pos));
+        }
+        $this->matchingPassword($password);
 
         $valid_hashes = $this->getSelection();
         if (count($valid_hashes) > 1) {
@@ -72,7 +77,7 @@ class HashRepository extends CustomRepository
         $this->selection = array_filter(
             $this->selection,
             function (Hash $h) use ($owner_id) {
-                return $h->getCategory() === $owner_id;
+                return $h->getOwnerId() === $owner_id;
             }
         );
 

@@ -29,11 +29,9 @@ class PasswordHandler
     public static function createRandomKey(int $length = 32)
     {
         $key = '';
-        $current_string = random_int(0, 999).microtime();
 
         while(strlen($key) < $length){
-            $current_string = md5($current_string);
-            $key .= $current_string;
+            $key .= md5(random_int(0, 999).microtime());
         }
 
         return substr($key, 0, $length);
@@ -57,7 +55,7 @@ class PasswordHandler
 
     private function getConfigDirectory()
     {
-        return realpath($this->getWordDirectory().'/../').'/';
+        return dirname($this->getWordDirectory()).'/';
     }
 
     private function setWordArrayFromFile(string $version = null)

@@ -160,7 +160,8 @@ class Authenticator
 
     public function createAndSaveCode($owner_id, int $category): string
     {
-        $code = call_user_func([$this, $this->getFunctionForCategory($category)]);
+        $code = $owner_id . '.';
+        $code .= call_user_func([$this, $this->getFunctionForCategory($category)]);
         $hash = new Hash();
         $hash->setCategory($category);
         $hash->setValue(password_hash($code, PASSWORD_DEFAULT));
