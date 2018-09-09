@@ -512,7 +512,7 @@ class AdminSummary
     {
         $files = scandir(BASE_DIR.'/temp', SCANDIR_SORT_ASCENDING);
 
-        $files = array_diff($files, ['.', '..', '.gitignore']);
+        $files = array_diff($files, ['cache', '.', '..', '.gitignore']);
 
         array_walk(
             $files,
