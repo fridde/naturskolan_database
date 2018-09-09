@@ -323,17 +323,18 @@ class BatchController extends BaseController
         $topics = $topic_repo->sortByVisitOrder($topics);
         $topics = $topic_repo->sliceBySegment($topics);
 
-        $topic_array = array_map(
-            function (Topic $topic) {
-                return [
+
+
+        array_walk_recursive($topics,
+            function (Topic &$topic) {
+                $topic = [
                     'id' => $topic->getId(),
                     'label' => $topic->getShortName(),
                 ];
-            },
-            $topics
+            }
         );
 
-        $this->addToDATA('topics', $topic_array);
+        $this->addToDATA('topics', $topics);
         $this->setTemplate('admin/topic_visit_order');
     }
 
