@@ -6,6 +6,15 @@ use Fridde\Error\NException;
 use Fridde\Error\Error;
 use Fridde\Essentials;
 
+define('BEFORE', microtime(true));
+function showDebugTime(){
+    $txt = '<script>console.log(';
+    $txt .= round(microtime(true) - BEFORE, 2);
+    $txt .= ')</script>';
+    echo $txt;
+}
+
+
 $controller_namespace = '\\Fridde\\Controller\\';
 
 try {
