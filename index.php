@@ -7,11 +7,12 @@ use Fridde\Error\Error;
 use Fridde\Essentials;
 
 define('BEFORE', microtime(true));
+function toConsole($txt){
+    echo '<script>console.log("' . $txt .'")</script>';
+}
 function showDebugTime(){
-    $txt = '<script>console.log(';
-    $txt .= round(microtime(true) - BEFORE, 2);
-    $txt .= ')</script>';
-    echo $txt;
+    $txt = round(microtime(true) - BEFORE, 2) . ' seconds';
+    toConsole($txt);
 }
 
 
