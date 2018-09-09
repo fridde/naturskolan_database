@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Fridde\CustomRepository;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
+use Fridde\Security\Authenticator;
 
 class HashRepository extends CustomRepository
 {
@@ -18,7 +19,7 @@ class HashRepository extends CustomRepository
         if (!$accept_expired) {
             $this->expiredAfterToday();
         }
-        $dot_pos = strpos($password, '.');
+        $dot_pos = strpos($password, Authenticator::OWNER_SEPARATOR);
         if($dot_pos !== false){
             $this->havingOwnerId(substr($password,0, $dot_pos));
         }

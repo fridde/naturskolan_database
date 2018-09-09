@@ -15,6 +15,7 @@ use Fridde\Naturskolan;
 use Fridde\ORM;
 use Fridde\Timing;
 use Fridde\Utility;
+use MongoDB\BSON\Timestamp;
 
 class Authenticator
 {
@@ -32,6 +33,8 @@ class Authenticator
     public const ROLE_GUEST = 0;
     public const ROLE_USER = 1;
     public const ROLE_ADMIN = 2;
+
+    public const OWNER_SEPARATOR = '_';
 
 
     /**
@@ -148,6 +151,11 @@ class Authenticator
         $path = ['values', 'validity', $cat_settings[$category][1]];
         $expiration = Utility::resolve(SETTINGS, $path);
 
+        if(defined('DEBUG') && !empty(DEBUG)){
+            $now = Carbon::createFromTimestampUTC(time());
+            return Timing::addDuration($expiration, $now);
+        }
+
         return Timing::addDurationToNow($expiration);
     }
 
@@ -160,7 +168,7 @@ class Authenticator
 
     public function createAndSaveCode($owner_id, int $category): string
     {
-        $code = $owner_id . '.';
+        $code = $owner_id . self::OWNER_SEPARATOR;
         $code .= call_user_func([$this, $this->getFunctionForCategory($category)]);
         $hash = new Hash();
         $hash->setCategory($category);
