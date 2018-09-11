@@ -77,13 +77,13 @@ class Authenticator
         return $this->PWH::createRandomKey(self::VISIT_CONFIRMATION_CODE_LENGTH);
     }
 
-    public function getObjectFromCode(string $code = null, int $category, string $object_class)
+    public function getObjectFromCode(string $code = null, array $criteria = [], string $object_class)
     {
         if (empty($code)) {
             return null;
         }
-
-        $hash = $this->getHashRepo()->findByPassword($code, $category, true);
+        $criteria['accept_expired'] = $criteria['accept_expired'] ?? true;
+        $hash = $this->getHashRepo()->findByPassword($code, $criteria);
 
         if (empty($hash)) {
             return null;
@@ -98,16 +98,22 @@ class Authenticator
 
     public function getVisitFromCode(string $code)
     {
-        return $this->getObjectFromCode($code, Hash::CATEGORY_VISIT_CONFIRMATION_CODE, Visit::class);
+        $criteria['category'] = Hash::CATEGORY_VISIT_CONFIRMATION_CODE;
+
+        return $this->getObjectFromCode($code, $criteria, Visit::class);
     }
 
     public function getUserFromUrlCode(string $code)
     {
-        return $this->getObjectFromCode($code, Hash::CATEGORY_USER_URL_CODE, User::class);
+        $criteria['category'] = Hash::CATEGORY_VISIT_CONFIRMATION_CODE;
+
+        return $this->getObjectFromCode($code, $criteria, User::class);
     }
 
     public function getSchoolFromPassword($password): ?School
     {
+
+
         /* @var Hash $hash */
         $hash = $this->getHashRepo()->findByPassword($password, Hash::CATEGORY_SCHOOL_PW);
         if (empty($hash)) {
@@ -118,6 +124,14 @@ class Authenticator
         $school = $this->ORM->find('School', $school_id);
 
         return $school ?? null;
+    }
+
+    public function schoolHasPassword(string $school_id, string $password): bool
+    {
+        $criteria['category'] = Hash::CATEGORY_SCHOOL_PW;
+        $criteria['owner_id'] = $school_id;
+
+        return !empty($this->getHashRepo()->findByPassword($password, $criteria));
     }
 
 

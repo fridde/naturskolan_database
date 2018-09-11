@@ -13,6 +13,7 @@ use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
+use Fridde\Security\Authenticator;
 
 
 /**
@@ -93,8 +94,7 @@ class Update extends DefaultUpdate
      */
     public function checkPassword(string $password, $school_id = null): void
     {
-        $school = $this->N->Auth->getSchoolFromPassword($password);
-        if (empty($school) || $school->getId() !== $school_id) {
+        if (empty($school_id) || ! $this->N->Auth->schoolHasPassword($school_id, $password)) {
             $this->addError('Wrong password!');
             usleep(1000 * 2000); // to avoid brute force methods
 

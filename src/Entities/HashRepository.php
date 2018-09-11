@@ -10,24 +10,27 @@ use Fridde\Security\Authenticator;
 
 class HashRepository extends CustomRepository
 {
-    public function findByPassword(
-        string $password,
-        int $cat,
-        bool $accept_expired = false
-    ): ?Hash {
-        $this->selectAllHashes()->havingCategory($cat);
-        if (!$accept_expired) {
+    public function findByPassword(string $password, array $criteria = []): ?Hash
+    {
+        $this->selectAllHashes();
+        if(isset($criteria['category'])){
+            $this->havingCategory($criteria['category']);
+        }
+        if(empty($criteria['accept_expired'])){
             $this->expiredAfterToday();
         }
+
         $dot_pos = strpos($password, Authenticator::OWNER_SEPARATOR);
-        if($dot_pos !== false){
+        if(isset($criteria['owner_id'])){
+            $this->havingOwnerId($criteria['owner_id']);
+        } elseif($dot_pos !== false){
             $this->havingOwnerId(substr($password,0, $dot_pos));
         }
         $this->matchingPassword($password);
 
         $valid_hashes = $this->getSelection();
         if (count($valid_hashes) > 1) {
-            throw new NException(Error::DATABASE_INCONSISTENT, ['Hashes', $cat.': '.$password]);
+            throw new NException(Error::DATABASE_INCONSISTENT, ['Hashes', $password]);
         }
         if (count($valid_hashes) === 0) {
             return null;

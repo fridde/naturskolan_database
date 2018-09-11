@@ -66,13 +66,15 @@ class Visitor
     {
         $key = $this->getSessionKey() ?? $this->getCookieKey();
         $this->setUserFromKey($key);
-        $this->setSchoolFromKey($key);
+        $this->setSchoolFromKey($key); // order is important!
     }
 
     public function setUserFromKey(string $key = null)
     {
+        $criteria['category'] = Hash::CATEGORY_USER_COOKIE_KEY;
+
         /* @var User $user */
-        $user = $this->Auth->getObjectFromCode($key, Hash::CATEGORY_USER_COOKIE_KEY, User::class);
+        $user = $this->Auth->getObjectFromCode($key, $criteria, User::class);
         $this->setUser($user ?? null);
     }
 
@@ -83,8 +85,9 @@ class Visitor
 
             return;
         }
+        $criteria['category'] = Hash::CATEGORY_SCHOOL_COOKIE_KEY;
         /* @var School $school */
-        $school = $this->Auth->getObjectFromCode($key, Hash::CATEGORY_SCHOOL_COOKIE_KEY, School::class) ?? null;
+        $school = $this->Auth->getObjectFromCode($key, $criteria, School::class) ?? null;
         $this->setSchool($school);
 
     }
@@ -136,7 +139,7 @@ class Visitor
         $this->User = $User;
     }
 
-    public function isUser()
+    public function isUser(): bool
     {
         return ($this->getUser() instanceof User);
     }
