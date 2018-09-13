@@ -112,11 +112,8 @@ class Visit
         return !empty($this->getGroup());
     }
 
-    public function getDate(): ?Carbon
+    public function getDate(): Carbon
     {
-        if(empty($this->Date)){
-            return null;
-        }
         return Carbon::parse($this->Date);
     }
 
