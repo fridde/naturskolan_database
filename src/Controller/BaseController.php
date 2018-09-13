@@ -53,7 +53,7 @@ class BaseController
         $args[] = $this->N->ORM;
         $extensions[] = new NavigationExtension(...$args);
         $extensions[] = new HtmlCompressTwigExtension();
-        $this->H = new HTML(null, $extensions);
+        $this->H = new HTML(null, $extensions, BASE_DIR . '/temp/cache');
         $this->setTitle(SETTINGS['defaults']['title'] ?? null);
     }
 
