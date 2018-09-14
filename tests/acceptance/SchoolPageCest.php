@@ -25,9 +25,6 @@ class SchoolPageCest
     // codecept run acceptance SchoolPageCest:canChangeFields --steps -f
     public function canChangeFields(A $I)
     {
-        $staff_link = Locator::find('a', ['href' => $I->get('BASE').'/skola/pers/staff']);
-        $I->seeElement($staff_link);
-        $I->click($staff_link);
         $I->waitForText('Lägg till person');
 
         $heinz_field = Locator::find('input', ['name' => 'FirstName', 'value' => 'Heinz']);
@@ -47,29 +44,24 @@ class SchoolPageCest
     // codecept run acceptance SchoolPageCest:passwordIsRevealed --steps -f
     public function passwordIsRevealed(A $I)
     {
-        $places = [null, '/skola/pers/staff', '/skola/pers/groups'];  // the first one is to test the default 'skola/pers'
-        foreach ($places as $place) {
-            if (!empty($place)) {
-                $I->amOnPage($place);
-            }
-            $pw_reveal_btn = Locator::find('button', ['data-school' => 'pers']);
-            $I->seeElement($pw_reveal_btn);
-            $I->click($pw_reveal_btn);
-            $I->waitForText($I->get('st_per','pw'), 10);
-            $I->see($I->get('st_per','pw'));
-        }
+        $pw_reveal_btn = Locator::find('button', ['data-school' => 'pers']);
+        $I->seeElement($pw_reveal_btn);
+        $I->click($pw_reveal_btn);
+        $I->waitForText($I->get('st_per', 'pw'), 10);
+        $I->see($I->get('st_per', 'pw'));
+
     }
+
     // codecept run acceptance SchoolPageCest:rowIsAdded --steps -f
     public function rowIsAdded(A $I)
     {
-        $I->amOnPage('/skola/pers/staff');
-        //$row_btn = Locator::find('button', ['id' => 'add-row-btn']);
         $row_btn = $I->getAddRowButton();
         $I->canSeeElement($row_btn);
+        $I->scrollTo($row_btn);
         $I->click($row_btn);
         $I->pause();
         $rows = $I->getTableRows('User');
-        $I->assertCount(9, $rows);
+        $I->assertCount(10, $rows);
         $num_users_before = $I->grabNumRecords('users');
         $I->fillField($I->getFieldFromLastRow('User', 'FirstName'), 'Ronald');
         $I->clickAway();
@@ -82,13 +74,10 @@ class SchoolPageCest
     // codecept run acceptance SchoolPageCest:groupPageWorks --steps -f
     public function groupPageWorks(A $I)
     {
-        $I->amOnPage('/skola/pers/groups');
-
-
         $I->checkMultiple('see', $I->get('st_per', 'items_visible_on_group_page'));
 
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 53]);
-        $teacher_for_2a_field_path = $I->get('paths','teacher_for_2a');
+        $teacher_for_2a_field_path = $I->get('paths', 'teacher_for_2a');
         $I->seeElement($teacher_for_2a_field_path);
         $I->seeOptionIsSelected($teacher_for_2a_field_path, 'Björn Rosenström'); // teacher with id 53
         $I->checkMultiple('seeInSource', $I->get('st_per', 'teachers'));
@@ -97,19 +86,22 @@ class SchoolPageCest
         $I->clickAway();
         $I->pause(0.7);
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 24]);
-        $I->seeInDatabase('changes', [
-            'EntityClass' => 'Group',
-            'EntityId' => 44,
-            'Property' => 'User',
-            'OldValue' => 53,
-            'Processed' => null
-            ]);
+        $I->seeInDatabase(
+            'changes',
+            [
+                'EntityClass' => 'Group',
+                'EntityId' => 44,
+                'Property' => 'User',
+                'OldValue' => 53,
+                'Processed' => null,
+            ]
+        );
 
         $visits_for_2a = ['2018-06-04', 'Universum', '2018-11-13', 'Vårvandring', '2019-02-07', 'Forntidsdag'];
         //
         $visit_locator_for_2a = $I->get('paths', 'visits_for_2a');
         $I->checkMultiple('see', $visits_for_2a, $visit_locator_for_2a);
-        
+
         $I->cantSee('5A');
         $I->click('//a[@href="#tab_5"]');
         $I->pause(0.7);
