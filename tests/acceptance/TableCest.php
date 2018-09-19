@@ -232,16 +232,16 @@ class TableCest
 
         $first_name_field = $I->getFieldFromLastRow('User', 'FirstName');
 
-        $I->fillField($first_name_field, 'Barbro');
+        $I->fillField($first_name_field, 'Horst-Kevin');
         $I->clickAway();
         $I->pause();
-        $I->seeInDatabase('users', ['id' => 104, 'FirstName' => 'Barbro']);
+        $I->seeInDatabase('users', ['id' => 215, 'FirstName' => 'Horst-Kevin']);
 
-        $barbro_row = '//tr[@data-id="104"]';
+        $horst_row = '//tr[@data-id="215"]';
 
         $I->reloadPage();
         $I->pause();
-        $I->checkMultiple('see', ['stakeholder', 'Ingen'], $barbro_row);
+        $I->checkMultiple('see', ['stakeholder', 'Ingen'], $horst_row);
     }
 
     // codecept run acceptance TableCest:editVisitTable --steps -f
