@@ -33,6 +33,9 @@
                                             {{- teacher.full_name -}}
                                         </option>
                                     {%- endfor %}
+                                    {% if group.teacher_id is null %}
+                                        <option value="" selected>--- Ingen ---</option>
+                                    {% endif %}
                                 </select>
                                 <i name="user-question" class="fas fa-question-circle fa-xs has-tooltip"
                                    data-toggle="tooltip"></i>

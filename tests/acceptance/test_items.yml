@@ -41,8 +41,8 @@ paths:
 
 nav_items:
     admin: ['skolor', 'verktyg', 'tabeller']
-    user: ['grupper','personal','hjälp','kontakt','logga ut']
-    visitor: ['hjälp','kontakt']
+    user: ['start','hjälp','kontakt','logga ut']
+    visitor: ['start', 'hjälp','kontakt']
 
 cron_items:
     rebuild_calendar: 'Rebuild Calendar'
