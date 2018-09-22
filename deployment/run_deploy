@@ -1,12 +1,10 @@
 #!/bin/bash
 
 SKIP=0
-NO_TEST=0
 
 while getopts "s:n" opts; do
    case ${opts} in
-      s) SKIP=${OPTARG} ;;
-	  n) NO_TEST=1 ;;
+      s) SKIP=${OPTARG} ;;	  
    esac
 done 
 
@@ -97,14 +95,23 @@ if [ $SKIP -lt 5 ]; then
 	cp $PROJECT_PATH/config/.key ./config/    
 fi
 
-if [ $SKIP -lt 6 ] && [ $NO_TEST -eq 0 ]; then
-    read -p "[6] Setting up local testing environment..."    
-    cd ~/bin_win
-    cmd /C start java -jar selenium-server.jar &
-    cmd /C start MailHog.exe &
-	read -p "Running the complete test suite..." 
-    cd $TESTING_PATH/$PROJECT_NAME    
-    ./vendor/bin/codecept run -f --steps
+if [ $SKIP -lt 6 ]; then
+	read -p "[6] Setting up local testing environment..."
+    echo "Do you want to start Selenium server and Mailhog? [y/n]"
+		read -e REPLY
+		if [[ $REPLY == y ]]; then
+			cd ~/bin_win
+			cmd /C start java -jar selenium-server.jar &
+			cmd /C start MailHog.exe &
+		fi
+	fi
+	echo "Do you want to run the test suite? [y/n]"
+		read -e REPLY
+		if [[ $REPLY == y ]]; then
+			cd $TESTING_PATH/$PROJECT_NAME    
+			./vendor/bin/codecept run -f --steps
+		fi
+	fi  
 fi
 
 if [ $SKIP -lt 7 ]; then
