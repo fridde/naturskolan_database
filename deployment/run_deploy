@@ -98,20 +98,19 @@ fi
 if [ $SKIP -lt 6 ]; then
 	read -p "[6] Setting up local testing environment..."
     echo "Do you want to start Selenium server and Mailhog? [y/n]"
-		read -e REPLY
-		if [[ $REPLY == y ]]; then
-			cd ~/bin_win
-			cmd /C start java -jar selenium-server.jar &
-			cmd /C start MailHog.exe &
-		fi
+	read -e REPLY
+	if [[ $REPLY == y ]]; then
+		cd ~/bin_win
+		cmd /C start java -jar selenium-server.jar &
+		cmd /C start MailHog.exe &
 	fi
+	
 	echo "Do you want to run the test suite? [y/n]"
-		read -e REPLY
-		if [[ $REPLY == y ]]; then
-			cd $TESTING_PATH/$PROJECT_NAME    
-			./vendor/bin/codecept run -f --steps
-		fi
-	fi  
+	read -e REPLY
+	if [[ $REPLY == y ]]; then
+		cd $TESTING_PATH/$PROJECT_NAME    
+		./vendor/bin/codecept run -f --steps
+	fi	 
 fi
 
 if [ $SKIP -lt 7 ]; then
