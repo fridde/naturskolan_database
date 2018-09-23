@@ -17,7 +17,8 @@ Essentials::setBaseDir(__DIR__);
 Essentials::setAppUrl(__DIR__);
 Essentials::setEnvironment();
 Essentials::activateDebugIfNecessary(['tracy']);
-Settings::setSettings();
+$cache = new FilesystemCache(__DIR__ . '/temp/cache');
+Settings::setSettings(['cache' => $cache]);
 
 $services[] = ['Naturskolan', Naturskolan::class];
 
