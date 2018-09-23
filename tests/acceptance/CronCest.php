@@ -198,6 +198,7 @@ class CronCest
         $I->runCronTask('send_new_user_mail');
         $I->seeInDatabase('messages', $heinz_welcome_mail);
         $I->fetchEmails();
+        $I->pauseExecution();
         $I->haveNumberOfUnreadEmails($expected_mail_nr);
         $mail = [
             'sub' => 'Välkommen i Naturskolans databas',
