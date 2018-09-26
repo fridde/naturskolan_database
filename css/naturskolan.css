@@ -14,6 +14,10 @@ FFEC97
     --header-color: #60A65F;
 }
 
+* {
+    -webkit-appearance: none;
+}
+
 html,
 body {
     width: 100vw;
