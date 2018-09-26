@@ -29,6 +29,10 @@ body {
     -webkit-appearance: none;
 }
 
+button {
+    -webkit-appearance: none;
+}
+
 
 div.top-row {
     background-color: var(--header-color);
