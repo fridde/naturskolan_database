@@ -39,10 +39,8 @@ class NavigationExtension extends TwigBaseExtension
     {
         $fnc_names = [
             'getNavItems',
-            'getStaffPageUrl',
             'getAllSchoolUrls',
             'getAllTableUrls',
-            'getGroupsPageUrl',
             'getChildrenUsingMethod',
             'getRole',
             'getUrlUsingMethod',
@@ -53,7 +51,7 @@ class NavigationExtension extends TwigBaseExtension
 
     public function defineFilters()
     {
-        return [];
+       return [];
     }
 
     public function defineTests()
@@ -82,7 +80,6 @@ class NavigationExtension extends TwigBaseExtension
 
     public function getNavItems()
     {
-
         $min_security_level = $this->Auth->getVisitorSecurityLevel();
 
         $menu_items = self::getNavSettings($min_security_level);
@@ -149,26 +146,13 @@ class NavigationExtension extends TwigBaseExtension
     }
 
 
-    public function getGroupsPageUrl(string $school_id = null): ?string
-    {
-        return $this->getSchoolPageUrl($school_id, 'groups');
-    }
-
-    public function getStaffPageUrl(string $school_id = null): ?string
-    {
-        return $this->getSchoolPageUrl($school_id, 'staff');
-    }
-
-    public function getSchoolPageUrl(string $school_id = null, string $page = 'groups'): ?string
+    public function getSchoolPageUrl(string $school_id = null): string
     {
         if(empty($school_id)){
-            return null;
+            return '';
         }
 
-        $params['school'] = $school_id;
-        $params['page'] = $page;
-
-        return $this->Router->generate('school', $params);
+        return $this->Router->generate('school', ['school' => $school_id]);
     }
 
     public function getAllSchoolUrls(array $ignored_schools = []): array

@@ -1,10 +1,8 @@
-{# expects nav_items to exist #}
 <div class="navbar-wrapper">
     <nav class="navbar navbar-toggleable-md">
         <ul class="nav">
             {% for item in getNavItems() %}
                 {# logic part starts here #}
-
                 {% set item_class, link_class, has_children = 'nav-item', 'nav-link', false %}
                 {% if item.children is method %}
                     {% set children = getChildrenUsingMethod(item) %}

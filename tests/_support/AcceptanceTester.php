@@ -136,9 +136,10 @@ class AcceptanceTester extends \Codeception\Actor
         $this->setTestDate($modified->toIso8601String());
     }
 
-    public function emptyFolder(string $folder, array $exceptions = ['.gitignore'])
+    public function emptyFilesInFolder(string $folder, array $exceptions = ['.gitignore'])
     {
-        foreach ($this->getFileNamesFromFolder($folder) as $file) {
+        $files = $this->getFileNamesFromFolder($folder);
+        foreach ($files as $file) {
             if (!in_array($file, $exceptions, true)) {
                 $this->deleteFile($file);
             }
@@ -149,7 +150,7 @@ class AcceptanceTester extends \Codeception\Actor
     {
         $dir_path = codecept_root_dir().'/'.$folder;
 
-        return glob($dir_path.'/*');
+        return array_filter(glob($dir_path.'/*'), 'is_file');
     }
 
     public function getAddRowButton()

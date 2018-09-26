@@ -26,6 +26,11 @@ class PageController extends BaseController
     {
         $section = $this->getParameter('section') ?? 'summary';
 
+        $visitor = $this->Authorizer->getVisitor();
+        if($visitor->hasSchool()){
+            $this->addToDATA('school_id', $visitor->getSchool()->getId());
+        }
+
         $this->setTemplate('help/'.$section);
     }
 
@@ -34,12 +39,14 @@ class PageController extends BaseController
      */
     public function showContact()
     {
+        $visitor = $this->Authorizer->getVisitor();
+        if($visitor->hasSchool()){
+            $this->addToDATA('school_id', $visitor->getSchool()->getId());
+        }
+
         $this->addJs('captcha');
         $this->setTemplate('contact');
     }
-
-//showContact
-
 
     public function showError()
     {

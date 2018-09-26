@@ -6,22 +6,14 @@ NAV_SETTINGS:
     - &support
       label: 'Hjälp'
       url: 'support'
-    - &logout
-      label: 'Logga ut'
-      url: 'logout'
-    - &groups
-      label: 'Grupper'
-      url: '->getGroupsPageUrl(school_id)'
-    - &staff
-      label: 'Personal'
-      url: '->getStaffPageUrl(school_id)'
+    - &school
+      label: 'Hem'
+      url: '->getSchoolPageUrl(school_id)'
     - &contact
       label: 'Kontakt'
       url: 'contact'
 
   admin:
-    -
-      <<: *home
     -
       label: 'Skolor'
       children: '->getAllSchoolUrls'
@@ -67,18 +59,13 @@ NAV_SETTINGS:
     -
       label: 'Tabeller'
       children: '->getAllTableUrls'
-    -
-      <<: *logout
   user:
     -
-      <<: *home
+      <<: *school
     -
       <<: *support
     -
       <<: *contact
-    -
-      <<: *logout
-
 
   guest:
     -

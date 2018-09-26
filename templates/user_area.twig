@@ -6,3 +6,7 @@
     {%- block modals -%}{%- endblock -%}
 {%- endblock -%}
 
+{%- block footer -%}
+{{ parent() }}
+<span class="float-right"><a href="logout">Logga ut</a></span>
+{%- endblock -%}

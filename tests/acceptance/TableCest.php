@@ -75,9 +75,10 @@ class TableCest
     // codecept run acceptance TableCest:editGroupTable --steps -f
     public function editGroupTable(A $I)
     {
-        $initial_group_count = 9;
+        $initial_group_count = 10;
 
         $I->amOnPage('/table/Group');
+
         $I->assertCount($initial_group_count, $I->getTableRows('Group'));
         $I->assertEquals($initial_group_count, $I->grabNumRecords('groups'));
 

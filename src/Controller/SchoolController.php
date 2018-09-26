@@ -16,11 +16,6 @@ class SchoolController extends BaseController
 {
     /** @var School $request_school */
     public $request_school;
-    
-    public const PAGE = ['staff' => 'staff', 'groups' => 'groups'];
-
-    public const STAFF_PAGE = 'staff';
-    public const GROUPS_PAGE = 'groups';
 
     public function __construct($params = [])
     {
@@ -31,10 +26,7 @@ class SchoolController extends BaseController
 
     public function handleRequest()
     {
-        $page = $this->getParameter('page') ?? self::GROUPS_PAGE;
-
         $method = 'createSchoolPage';
-
 
         if($this->Authorizer->getVisitor()->isFromSchool($this->request_school)){
             $this->Authorizer->changeSecurityLevel(self::class, $method,  Authorizer::ACCESS_ALL_EXCEPT_GUEST);
@@ -51,6 +43,7 @@ class SchoolController extends BaseController
      */
     public function createSchoolPage()
     {
+        $this->addToDATA('school_name', $this->request_school->getName());
         $this->addToDATA($this->getAllUsers($this->request_school));
         $this->addToDATA($this->getAllGroups($this->request_school));
         $this->setTemplate('school_page');

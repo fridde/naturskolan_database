@@ -22,11 +22,14 @@ body {
     overflow-y: visible;
     font-family: 'Muli', "Helvetica", Arial, sans-serif;
     padding-bottom: var(--footer-size);
+    -webkit-appearance: none;
 }
 
 
 div.top-row {
     background-color: var(--header-color);
+    width:100vw;
+    margin: 0px;
 }
 
 

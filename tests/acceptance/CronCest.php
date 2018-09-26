@@ -198,7 +198,7 @@ class CronCest
         $I->runCronTask('send_new_user_mail');
         $I->seeInDatabase('messages', $heinz_welcome_mail);
         $I->fetchEmails();
-        $I->pauseExecution();
+        //$I->pauseExecution();
         $I->haveNumberOfUnreadEmails($expected_mail_nr);
         $mail = [
             'sub' => 'Välkommen i Naturskolans databas',
@@ -271,7 +271,7 @@ class CronCest
     // codecept run acceptance CronCest:createNewPasswords --steps -f
     public function createNewPasswords(A $I)
     {
-        $I->emptyFolder('temp');
+        $I->emptyFilesInFolder('temp');
 
         $initial_pw_count = 23;
         $I->seeNumRecords($initial_pw_count, 'hashes', ['Category' => 3]);
@@ -301,7 +301,7 @@ class CronCest
     // codecept run acceptance CronCest:backupDatabase --steps -f
     public function backupDatabase(A $I)
     {
-        $I->emptyFolder('backup');
+        $I->emptyFilesInFolder('backup');
         $I->assertEmpty($I->getFileNamesFromFolder('backup'));
 
         $test_fixture = [
@@ -333,7 +333,7 @@ class CronCest
      */
     public function backupDatabaseChecker(A $I)
     {
-        $I->emptyFolder('backup');
+        $I->emptyFilesInFolder('backup');
         $I->runCronTask('backup_database');
 
         foreach(range(1,500) as $days_to_add){
