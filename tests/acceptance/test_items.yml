@@ -41,7 +41,7 @@ paths:
 
 nav_items:
     admin: ['skolor', 'verktyg', 'tabeller']
-    user: ['start','hjälp','kontakt','logga ut']
+    user: ['hem','hjälp','kontakt']
     visitor: ['start', 'hjälp','kontakt']
 
 cron_items:
@@ -74,7 +74,7 @@ schools:
         satu: 'Sätunaskolan'
         shoj: 'Steningehöjdens skola'
         skep: 'Skepptuna skola'
-        sshl: 'Sigtunaskolan Humanistiska Läroverket'
+        sshl: 'SSHL'
         ting: 'Tingvallaskolan'
         vals: 'Valstaskolan'
         vari: 'Väringaskolan'

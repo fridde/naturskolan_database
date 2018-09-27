@@ -55,6 +55,9 @@ class SchoolController extends BaseController
     {
         $DATA = ['entity_class' => 'User'];
         $users = $school->getUsers();
+        usort($users, function(User $u1, User $u2){
+            return strcasecmp($u1->getFullName(), $u2->getFullName());
+        });
         if (empty($users)) {
             $users[] = new User(); // dummy user
         }

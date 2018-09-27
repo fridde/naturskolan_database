@@ -31,9 +31,14 @@ class SchoolRepository extends CustomRepository
      */
     public function findAllSchoolLabels()
     {
+        $schools = $this->findAll();
+        usort($schools, function(School $s1, School $s2){
+           return strcasecmp($s1->getName(), $s2->getName());
+        });
         $schools_id_name = array_map(function(School $s){
             return [$s->getId(), $s->getName()];
-        }, $this->findAll());
+        }, $schools);
+
         return array_column($schools_id_name, 1, 0);
     }
 

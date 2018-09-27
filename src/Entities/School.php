@@ -227,6 +227,16 @@ class School
         return $this->Groups->toArray();
     }
 
+    public function getGroupsByName(): array
+    {
+        $groups = $this->getGroups();
+        usort($groups, function(Group $g1, Group $g2){
+            return strcasecmp($g1->getName(), $g2->getName());
+        });
+
+        return $groups;
+    }
+
 
     public function getUsers(): array
     {
@@ -248,7 +258,7 @@ class School
         $start_year = $start_year ?? Carbon::today()->year;
 
         return array_filter(
-            $this->getGroups(),
+            $this->getGroupsByName(),
             function (Group $g) use ($segment_id, $start_year) {
                 $cond1 = $start_year !== false ? $g->getStartYear() === $start_year : true;
                 $cond2 = $g->getSegment() === (string)$segment_id;
@@ -266,8 +276,6 @@ class School
 
     public function getSegmentsAvailable($withLabels = false)
     {
-
-
         $available_segments = array_filter(
             Group::getSegmentLabels(),
             function ($k) {
