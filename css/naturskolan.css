@@ -15,10 +15,6 @@ FFEC97
     --header-color: #60A65F;
 }
 
-* {
-    -webkit-appearance: none;
-}
-
 html,
 body {
     width: 100vw;
@@ -27,13 +23,9 @@ body {
     overflow-y: visible;
     font-family: 'Muli', "Helvetica", Arial, sans-serif;
     padding-bottom: var(--footer-size);
-    -webkit-appearance: none;
 }
 
-button {
-    -webkit-appearance: none;
-    background-color: var(--grey);
-}
+
 
 
 div.top-row {
@@ -172,6 +164,7 @@ div.toolbar {
 
 button.school-choice {
     margin: 5px 5px 5px 5px;
+    background-color: var(--grey);
 }
 
 .save-time {
