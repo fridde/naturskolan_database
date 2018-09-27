@@ -10,6 +10,7 @@ FFEC97
 :root {
     --egg-yellow: #FFEC97;
     --dark-blue: #2B3D54;
+    --grey: #DDDDDD;
     --footer-size: 60px;
     --header-color: #60A65F;
 }
@@ -31,6 +32,7 @@ body {
 
 button {
     -webkit-appearance: none;
+    background-color: var(--grey);
 }
 
 
