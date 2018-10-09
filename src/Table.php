@@ -4,6 +4,8 @@
 namespace Fridde;
 
 
+use Fridde\Entities\Event;
+use Fridde\Entities\Visit;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
 use Symfony\Component\Yaml\Yaml;
@@ -95,6 +97,7 @@ class Table
     private function buildTableValues(): array
     {
         $entities = $this->ORM->getRepository($this->entity_class)->findAll();
+        $entities = $this->sortEntities($entities);
         $entities = $this->ensureAtLeastOne($entities);
 
         $rows = array_map(
@@ -107,22 +110,25 @@ class Table
         return array_column($rows, 1, 0);
     }
 
-    public function getFullyQualifiedClassName()
+    public function getFullyQualifiedClassName(): string
     {
         return $this->ORM->qualifyEntityClassname($this->getEntityClass());
     }
 
     public function getColumnHeaders()
     {
-        $columns = array_filter($this->getColumnSettings(), function($column){
-            return $column['type'] !== 'ignored';
-        });
+        $columns = array_filter(
+            $this->getColumnSettings(),
+            function ($column) {
+                return $column['type'] !== 'ignored';
+            }
+        );
 
 
         return array_keys($columns);
     }
 
-    private function ensureAtLeastOne(array $entities)
+    private function ensureAtLeastOne(array $entities): array
     {
         if (empty($entities)) {
             $class_name = $this->getFullyQualifiedClassName();
@@ -132,7 +138,7 @@ class Table
         return $entities;
     }
 
-    private function getSettings(...$path_args)
+    private function getSettings(...$path_args): ?array
     {
         if (empty($this->settings)) {
             $this->settings = $this->getSettingsFromFile();
@@ -146,7 +152,7 @@ class Table
 
     }
 
-    private function setColumnsFromSettings()
+    private function setColumnsFromSettings(): void
     {
         $this->column_settings = array_reduce(
             $this->getSettings($this->entity_class),
@@ -169,7 +175,7 @@ class Table
         );
     }
 
-    private function getColumnSettings()
+    private function getColumnSettings(): array
     {
         if (empty($this->column_settings)) {
             $this->setColumnsFromSettings();
@@ -182,6 +188,48 @@ class Table
     public function getEntityClass()
     {
         return $this->entity_class;
+    }
+
+    private function sortEntities(array $entities): array
+    {
+        $sorting_function = function ($e1, $e2) {
+            try {
+                switch ($this->getFullyQualifiedClassName()) {
+                    case Visit::class:
+                        $school_diff = strcasecmp(
+                            $e1->getGroup()->getSchool()->getId(),
+                            $e2->getGroup()->getSchool()->getId()
+                        );
+                        if ($school_diff !== 0) {
+                            return $school_diff;
+                        }
+                        $seg_diff = strcasecmp($e1->getGroup()->getSegment(), $e2->getGroup()->getSegment());
+                        if ($seg_diff !== 0) {
+                            return $seg_diff;
+                        }
+                        $name_diff = strcasecmp($e1->getGroup()->getName(), $e2->getGroup()->getName());
+                        if ($name_diff !== 0) {
+                            return $name_diff;
+                        }
+
+                        return $e1->getTopic()->getVisitOrder() - $e2->getTopic()->getVisitOrder();
+                        break;
+                    case Event::class:
+                        return strcasecmp($e1->getStartDate(), $e2->getStartDate());
+                        break;
+                    default:
+                        return 0;
+                }
+            } catch (\Exception $e) {
+            }
+
+            return 0;
+        };
+
+        usort($entities, $sorting_function);
+
+        return $entities;
+
     }
 
 
