@@ -8,6 +8,7 @@ use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
+use Fridde\HTML;
 use Fridde\Mailer;
 use Fridde\Messenger\Mail;
 use Fridde\Update;
@@ -80,6 +81,7 @@ class APIController extends BaseController
 
     protected function updateVisitStatus(Visit $visit, string $school_id)
     {
+        $this->setReturnType(self::RETURN_JSON);
         $update = new Update();
         $return = $update->confirmVisit($visit->getId())->flush()->getReturn();
         if (empty($return['success'])) {
@@ -87,10 +89,10 @@ class APIController extends BaseController
             return;
         }
 
-        $this->addToDATA('school_id', $school_id);
-        $this->setTemplate('visit_confirmation_modal');
-        $this->addToDATA('visit_label', $visit->getLabel());
-
+        $page_controller = new PageController();
+        $page_controller->showConfirmedVisit($visit, $school_id);
+        $page_controller->handleRequest();
+        exit();
     }
 
     /**

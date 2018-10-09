@@ -5,8 +5,6 @@ use Fridde\CustomRepository;
 
 class SchoolRepository extends CustomRepository
 {
-
-
     public function getNaturskolansStaff()
     {
         return $this->getSchoolStaff('natu');

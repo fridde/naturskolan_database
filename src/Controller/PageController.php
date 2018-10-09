@@ -2,8 +2,7 @@
 
 namespace Fridde\Controller;
 
-use Fridde\Error\Error;
-use Fridde\Error\NException;
+use Fridde\Entities\Visit;
 
 class PageController extends BaseController
 {
@@ -53,5 +52,12 @@ class PageController extends BaseController
         http_response_code(404);
         echo 'The url '.implode('/', $this->getParameter()).' could not be resolved';
         die();
+    }
+
+    public function showConfirmedVisit(Visit $visit, string $school_id)
+    {
+        $this->addToDATA('school_id', $school_id);
+        $this->setTemplate('visit_confirmation');
+        $this->addToDATA('visit_label', $visit->getLabel());
     }
 }

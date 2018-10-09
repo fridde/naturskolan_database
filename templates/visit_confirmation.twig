@@ -1,0 +1,10 @@
+{%- extends "user_area.twig" -%}
+
+{%- set visit_label = DATA.visit_label -%}
+{%- block toolbar -%}{%- endblock -%}
+{% block school_area %}
+    <h1>Besök bekräftad!</h1>
+    <p>
+    Ditt besök på {{ DATA.visit_label }} är bekräftad. Tack!
+    </p>
+{%- endblock -%}
