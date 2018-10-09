@@ -143,7 +143,7 @@ $(document).ready(function () {
         newRow.show(1000);
     };
 
-    $("#add-row-btn").click(addRow);
+    $(".add-row-btn").click(addRow);
     $(".group-container h1").on('dblclick click', toggleGroupNameField);
     $(".group-container h1 i").click(toggleGroupNameField);
     $(".group-container input.group-name-input").focusout(toggleGroupNameField);
