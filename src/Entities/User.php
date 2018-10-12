@@ -60,6 +60,11 @@ class User
     /** @OneToMany(targetEntity="Group", mappedBy="User") */
     protected $Groups;
 
+    /** @OneToMany(targetEntity="Note", mappedBy="User") */
+    protected $Notes;
+
+
+
     public const ROLE_STAKEHOLDER = 2;
     public const ROLE_TEACHER = 4;
     public const ROLE_SCHOOL_MANAGER = 8;
@@ -75,6 +80,7 @@ class User
         $this->Visits = new ArrayCollection();
         $this->Messages = new ArrayCollection();
         $this->Groups = new ArrayCollection();
+        $this->Notes = new ArrayCollection();
     }
 
     public function getId()
@@ -194,7 +200,7 @@ class User
 
     public function getRoleLabel()
     {
-        $labels = $this->getRoleLabels();
+        $labels = self::getRoleLabels();
 
         return $labels[$this->getRole()] ?? null;
     }
@@ -222,22 +228,22 @@ class User
     }
 
 
-    public function getAcronym()
+    public function getAcronym(): ?string
     {
         return $this->Acronym;
     }
 
-    public function setAcronym($Acronym)
+    public function setAcronym(string $Acronym)
     {
         $this->Acronym = $Acronym;
     }
 
-    public function getStatus()
+    public function getStatus(): int
     {
         return $this->Status ?? self::ACTIVE;
     }
 
-    public function getStatusString()
+    public function getStatusString(): string
     {
         return self::getStatusOptions()[$this->getStatus()];
     }
@@ -247,12 +253,12 @@ class User
         return Group::getStatusOptions();
     }
 
-    public function setStatus($Status)
+    public function setStatus(int $Status)
     {
         $this->Status = $Status;
     }
 
-    public function isActive()
+    public function isActive(): bool
     {
         return $this->getStatusString() === 'active';
     }
@@ -371,6 +377,22 @@ class User
     public function removeGroup($Group)
     {
         $this->Groups->removeElement($Group);
+    }
+
+    /**
+     * @return array
+     */
+    public function getNotes(): array
+    {
+        return $this->Notes->toArray();
+    }
+
+    /**
+     * @param mixed $Notes
+     */
+    public function setNotes($Notes): void
+    {
+        $this->Notes = $Notes;
     }
 
     public function wasCreatedAfter($date)
