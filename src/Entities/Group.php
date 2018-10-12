@@ -48,9 +48,6 @@ class Group
      */
     protected $Info;
 
-    /** @Column(type="text", nullable=true) */
-    protected $Notes;
-
     /** @Column(type="smallint") */
     protected $Status = self::ACTIVE;
 
@@ -88,7 +85,7 @@ class Group
 
     public function hasName()
     {
-        return $this->has('Name');
+        return !empty($this->Name);
     }
 
     /**
@@ -207,23 +204,9 @@ class Group
 
     public function hasInfo()
     {
-        return $this->has('Info');
+        return !empty($this->Info);
     }
 
-    public function getNotes()
-    {
-        return $this->Notes;
-    }
-
-    public function setNotes()
-    {
-        $this->Notes = func_get_arg(0);
-    }
-
-    public function hasNotes()
-    {
-        return $this->has('Notes');
-    }
 
     public function getStatus(): int
     {
@@ -333,11 +316,6 @@ class Group
         }
 
         return $this->getId() - $other_group->getId();
-    }
-
-    private function has($attribute)
-    {
-        return !empty(trim($this->$attribute));
     }
 
     /** @PrePersist */

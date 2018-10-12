@@ -47,8 +47,6 @@ Group:
       type: textarea
   - Info:
       type: textarea
-  - Notes:
-      type: textarea
   - Status: *status
   - LastChange: *last_change
   - CreatedAt: *created_at

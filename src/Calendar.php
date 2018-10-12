@@ -106,9 +106,7 @@ class Calendar
             if ($group->hasInfo()) {
                 $desc[] = 'Annat: '.$group->getInfo();
             }
-            if ($group->hasNotes()) {
-                $desc[] = 'Interna anteckningar: '.$group->getNotes();
-            }
+            // TODO: Insert notes from visits here! Also, link to notes!
             $event->setDescription(implode("\r\n", $desc));
 
             $ics_events[] = $event;
