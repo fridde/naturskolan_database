@@ -1287,12 +1287,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/html.git",
-                "reference": "c70b512d58b4a71aad712776b03e01ea531fc3d6"
+                "reference": "7c2d48d8b01abe543cc33812e6cd131287515bb5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/html/zipball/c70b512d58b4a71aad712776b03e01ea531fc3d6",
-                "reference": "c70b512d58b4a71aad712776b03e01ea531fc3d6",
+                "url": "https://api.github.com/repos/fridde/html/zipball/7c2d48d8b01abe543cc33812e6cd131287515bb5",
+                "reference": "7c2d48d8b01abe543cc33812e6cd131287515bb5",
                 "shasum": ""
             },
             "require": {
@@ -1316,7 +1316,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-10-12T21:45:57+00:00"
+            "time": "2018-10-12T22:06:26+00:00"
         },
         {
             "name": "fridde/mailer",
