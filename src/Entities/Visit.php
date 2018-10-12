@@ -318,6 +318,11 @@ class Visit
         return $this->Status ?? self::STATUS_ACTIVE;
     }
 
+    public function isActive()
+    {
+        return $this->getStatus() === self::STATUS_ACTIVE;
+    }
+
     /**
      * @param mixed $Status
      */

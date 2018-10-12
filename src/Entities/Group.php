@@ -265,23 +265,29 @@ class Group
     {
         $visits = $this->getSortedVisits();
 
-        return array_filter($visits, function(Visit $v){
-            $v->getDate()->gte(Carbon::today());
-        });
+        return array_filter(
+            $visits,
+            function (Visit $v) {
+                return $v->isActive() && $v->getDate()->gte(Carbon::today());
+            }
+        );
     }
 
     public function getSortedVisits(): array
     {
         $visits = $this->getVisits();
-        if (empty($visits)){
+        if (empty($visits)) {
             return [];
         }
 
-        uasort($visits, function(Visit $v1, Visit $v2){
-            return $v1->getDate()->lt($v2->getDate()) ? -1 : 1;
-        });
-        return $visits;
+        uasort(
+            $visits,
+            function (Visit $v1, Visit $v2) {
+                return $v1->getDate()->lt($v2->getDate()) ? -1 : 1;
+            }
+        );
 
+        return $visits;
     }
 
     public function sortVisits(): void
