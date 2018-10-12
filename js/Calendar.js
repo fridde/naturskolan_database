@@ -11,4 +11,4 @@ let Calendar = {
         );
 
     }
-}
+};

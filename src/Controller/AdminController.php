@@ -74,6 +74,8 @@ class AdminController extends BaseController
         $this->addJs('fullcal.sv');
         $this->addCss('fullcal');
 
+        $this->setTemplate('admin/notes_calendar');
+
         /* @var VisitRepository $visit_repo */
         $visit_repo = $this->N->ORM->getRepository('Visit');
         $events = array_map(
@@ -89,8 +91,7 @@ class AdminController extends BaseController
         );
 
 
-        $this->addToDATA('events', $events);
-
+        $this->addToDATA('events', json_encode($events));
     }
 
 

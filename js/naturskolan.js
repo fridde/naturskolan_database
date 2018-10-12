@@ -103,5 +103,7 @@ $(document).ready(function () {
         $table.DataTable(DataTableConfigurator.options($table));
     }
 
+    Calendar.initialize();
+
 
 });

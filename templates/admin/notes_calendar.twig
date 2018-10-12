@@ -1,0 +1,9 @@
+{%- extends "admin/admin_area.twig" -%}
+
+{%- set events = DATA.events -%}
+
+{% block content %}
+    <div id="calendar-events" data-events="{{ DATA.events }}" hidden></div>
+    <div id="fullpage-calendar"></div>
+{% endblock %}
+
