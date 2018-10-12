@@ -4,10 +4,11 @@
 namespace Fridde\Controller;
 
 use Carbon\Carbon;
+
 use Fridde\Entities\Group;
+use Fridde\Entities\Visit;
+use Fridde\Entities\VisitRepository;
 use Fridde\Naturskolan;
-use Fridde\Security\Authorizer;
-use Fridde\Task;
 
 class AdminController extends BaseController
 {
@@ -63,5 +64,34 @@ class AdminController extends BaseController
         $this->addToDATA('rows', $rows);
         $this->setTemplate('admin/show_log');
     }
+
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
+    public function showNoteCalendar()
+    {
+        $this->addJs('fullcal');
+        $this->addJs('fullcal.sv');
+        $this->addCss('fullcal');
+
+        /* @var VisitRepository $visit_repo */
+        $visit_repo = $this->N->ORM->getRepository('Visit');
+        $events = array_map(
+            function (Visit $v) {
+                $r = ['allDay' => true];
+                $r['start'] = $v->getDateString();
+                $r['title'] = $v->getLabel('TGSU');
+                $r['url'] = $this->N->generateUrl('note', ['visit_id' => $v->getId()]);
+
+                return $r;
+            },
+            $visit_repo->findAllActiveVisits()
+        );
+
+
+        $this->addToDATA('events', $events);
+
+    }
+
 
 }

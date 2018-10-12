@@ -8,6 +8,16 @@ use Fridde\Timing;
 
 class VisitRepository extends CustomRepository
 {
+    public function findAllActiveVisits()
+    {
+        return array_filter(
+            $this->findAll(),
+            function (Visit $v) {
+                return $v->isActive();
+            }
+        );
+    }
+
     public function findFutureVisits()
     {
         return $this->findFutureVisitsUntil(null);

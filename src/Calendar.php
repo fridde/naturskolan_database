@@ -7,6 +7,7 @@ use Eluceo\iCal\Component\Event as IcalEvent;
 use Carbon\Carbon;
 use Fridde\Entities\EventRepository;
 use Fridde\Entities\Visit;
+use Fridde\Entities\VisitRepository;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
 
@@ -36,7 +37,9 @@ class Calendar
     private function getEventsFromVisitsTable()
     {
         $cal_settings = $this->settings['calendar'];
-        $visits = $this->ORM->getRepository('Visit')->findAll();
+        /* @var VisitRepository $visit_repo  */
+        $visit_repo = $this->ORM->getRepository('Visit');
+        $visits = $visit_repo->findAllActiveVisits();
 
         $ics_events = [];
 
