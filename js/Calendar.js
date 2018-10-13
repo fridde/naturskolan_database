@@ -6,7 +6,8 @@ let Calendar = {
             weekends: false,
             weekNumbers: true,
             locale: 'sv',
-            editable: false
+            editable: false,
+            // height: 'parent'
             }
         );
 

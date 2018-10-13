@@ -229,6 +229,11 @@ div.group-container {
 	color: yellow;
 }
 
+div#fullpage-calendar {
+    background-color: white;
+    opacity: 1 !important;
+}
+
 .nav-tabs .nav-link {
     background-color: #eddab6;
     border-radius: 10px;
