@@ -11,7 +11,7 @@ routes:
    file : ['GET','/file/[:file1]/[:file2]?/[:file3]?','File#include']
    login : ['GET', '/login/[:code]/[**:destination]?', 'Login#login_with_code']
    logout: ['GET', '/logout', 'Login#logout']
-   note: ['GET|POST', '/notes/[:visit_id]', 'Page#editNote']
+   note: ['GET|POST', '/notes/[:visit_id]', 'Admin#editNote']
    pwrecover : ['GET','/passwordrecover/[:code]?','API#passwordRecover']
    sandbox: ['GET|POST','/sandbox/[:action]?/[**:parameters]?', 'Sandbox']
    school : ['GET','/skola/[a:school]','School']

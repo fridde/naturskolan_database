@@ -273,6 +273,10 @@ class Group
         );
     }
 
+
+    /**
+     * @return array Visit[]
+     */
     public function getSortedVisits(): array
     {
         $visits = $this->getVisits();

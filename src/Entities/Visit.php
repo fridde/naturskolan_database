@@ -77,6 +77,7 @@ class Visit
     public function __construct()
     {
         $this->Colleagues = new ArrayCollection();
+        $this->Notes = new ArrayCollection();
     }
 
     public function getId()
@@ -237,6 +238,22 @@ class Visit
                 $this->getColleagues()
             )
         );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNotes(): array
+    {
+        return $this->Notes->toArray();
+    }
+
+    /**
+     * @param mixed $Notes
+     */
+    public function setNotes($Notes): void
+    {
+        $this->Notes = $Notes;
     }
 
     public function isConfirmed()
@@ -483,5 +500,7 @@ class Visit
     public function preRemove()
     {
     }
+
+
 
 }

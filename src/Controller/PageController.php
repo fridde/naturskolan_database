@@ -60,4 +60,6 @@ class PageController extends BaseController
         $this->setTemplate('visit_confirmation');
         $this->addToDATA('visit_label', $visit->getLabel());
     }
+
+
 }

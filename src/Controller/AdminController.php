@@ -6,6 +6,7 @@ namespace Fridde\Controller;
 use Carbon\Carbon;
 
 use Fridde\Entities\Group;
+use Fridde\Entities\Note;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Fridde\Naturskolan;
@@ -92,6 +93,58 @@ class AdminController extends BaseController
 
 
         $this->addToDATA('events', json_encode($events));
+    }
+
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
+    public function editNote()
+    {
+        $this->setTemplate('admin/edit_note');
+
+        /* @var VisitRepository $visit_repo */
+        $visit_repo = $this->N->ORM->getRepository('Visit');
+
+        /* @var Visit $this_visit  */
+        $this_visit = $visit_repo->find($this->getParameter('visit_id'));
+        $group = $this_visit->getGroup();
+        // if(empty($group)) // TODO: throw error
+
+        $group_details = ['name' => $group->getName()];
+        $group_details['school'] = $group->getSchool()->getName();
+        $group_details['teacher'] = $group->getUser()->getFullName();
+        $this->addToDATA('group_details', $group_details);
+
+        $visits = $group->getSortedVisits();
+
+        $notes = [];
+        $visit_details = [];
+
+        foreach($visits as $visit){
+            /* @var Visit $visit  */
+            $notes_for_visit = $visit->getNotes();
+            $visit_id = $visit->getId();
+            $visit_details[$visit_id] = $visit->getLabel('DT');
+            foreach($notes_for_visit as $note){
+                /* @var Note $note  */
+                $n = [];
+                $n['timestamp'] = $note->getTimestamp()->toIso8601String();
+                $n['author'] = $note->getUser()->getAcronym();
+                $n['text'] = $note->getText();
+                $notes[$visit_id][] = $n;
+            }
+        }
+
+        $this->addToDATA('notes', $notes);
+        $this->addToDATA('visit_details', $visit_details);
+        $this->addToDATA('this_visit_id', $this_visit->getId());
+
+        $user = $this->Authorizer->getVisitor()->getUser();
+        if(!empty($user)){
+            $u = ['id' => $user->getId()];
+            $u['name'] = $user->getFullName();
+            $this->addToDATA('user', $u);
+        }
     }
 
 

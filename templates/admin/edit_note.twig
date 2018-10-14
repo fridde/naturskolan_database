@@ -1,0 +1,22 @@
+{%- extends "admin/admin_area.twig" -%}
+
+
+{%- set group = DATA.group_details -%}
+
+{% block content %}
+    <h1>Anteckningar för {{ group.name }} från {{ group.school }}</h1>
+    <h6>Lärare: {{ group.teacher }}</h6>
+
+
+    {% for visit_id, notes in DATA.notes %}
+        {% for note in notes %}
+
+        {% endfor %}
+    {% endfor %}
+    <pre>
+{{ dump(DATA) }}
+</pre>
+{% endblock %}
+
+
+
