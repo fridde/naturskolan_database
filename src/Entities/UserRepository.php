@@ -13,7 +13,6 @@ class UserRepository extends CustomRepository
 
     public function findAllUsersWithSchools()
     {
-        /* @var $u \Fridde\Entities\User */
         $users_id_name_school = array_map(
             function (User $u) {
                 return [$u->getId(), $u->getFullName().', '.mb_strtoupper($u->getSchoolId())];

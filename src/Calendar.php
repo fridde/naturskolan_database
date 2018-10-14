@@ -6,6 +6,7 @@ use Eluceo\iCal\Component\Calendar as Cal;
 use Eluceo\iCal\Component\Event as IcalEvent;
 use Carbon\Carbon;
 use Fridde\Entities\EventRepository;
+use Fridde\Entities\Note;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Fridde\Error\Error;
@@ -14,7 +15,8 @@ use Fridde\Error\NException;
 class Calendar
 {
     public $settings;
-    private $ORM;
+    /* @var Naturskolan $N  */
+    private $N;
 
     public $file_name = 'kalender.ics';
 
@@ -22,7 +24,7 @@ class Calendar
     {
         date_default_timezone_set('Europe/Stockholm');
         $this->setConfiguration();
-        $this->ORM = new ORM();
+        $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
     }
 
 
@@ -37,8 +39,8 @@ class Calendar
     private function getEventsFromVisitsTable()
     {
         $cal_settings = $this->settings['calendar'];
-        /* @var VisitRepository $visit_repo  */
-        $visit_repo = $this->ORM->getRepository('Visit');
+        /* @var VisitRepository $visit_repo */
+        $visit_repo = $this->N->ORM->getRepository('Visit');
         $visits = $visit_repo->findAllActiveVisits();
 
         $ics_events = [];
@@ -109,7 +111,29 @@ class Calendar
             if ($group->hasInfo()) {
                 $desc[] = 'Annat: '.$group->getInfo();
             }
-            // TODO: Insert notes from visits here! Also, link to notes!
+            $desc[] = '';
+
+            $notes = array_map(
+                function (Visit $v) {
+                    return $v->getNotes();
+                },
+                array_reverse($group->getSortedVisits())
+            );
+            $notes = array_merge(...$notes);
+
+            if(!empty($notes)){
+
+                $desc[] = 'Egna anteckningar:';
+                foreach ($notes as $note) {
+                    /* @var Note $note */
+                    $desc[] = '('.$note->getUser()->getAcronym().') '.$note->getText();
+                }
+            }
+
+            $link = '<a href="';
+            $link .= $this->N->generateUrl('note', ['visit_id' => $visit->getId()], true);
+            $link .= '">Lägg till anteckning</a>';
+            $desc[] = $link;
             $event->setDescription(implode("\r\n", $desc));
 
             $ics_events[] = $event;
@@ -121,7 +145,7 @@ class Calendar
     public function getEventsFromEventsTable(): array
     {
         /* @var EventRepository $event_repo */
-        $event_repo = $this->ORM->getRepository('Event');
+        $event_repo = $this->N->ORM->getRepository('Event');
 
         return $event_repo->getEvents();
     }

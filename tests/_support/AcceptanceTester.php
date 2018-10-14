@@ -155,7 +155,7 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function getAddRowButton()
     {
-        return Locator::find('button', ['class' => 'add-row-btn']);
+        return '//button[contains(@class, \'add-row-btn\')]';
     }
 
     public function getTableRows(string $entity)

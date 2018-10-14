@@ -165,6 +165,7 @@ class AdminCest
         $I->assertEquals(2, $I->grabNumRecords('colleagues_visits'));
 
         $I->runCronTask('rebuild_calendar');
+        $I->pauseExecution();
         $I->seeFileFound('kalender.ics', codecept_root_dir());
 
         $strings = [

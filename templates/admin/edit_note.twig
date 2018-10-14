@@ -7,6 +7,13 @@
     <h1>Anteckningar för {{ group.name }} från {{ group.school }}</h1>
     <h6>Lärare: {{ group.teacher }}</h6>
     <h2>Lägg till anteckning till {{ visit_details[DATA.this_visit_id] }}</h2>
+    <div class="input-group">
+        {% for colleague in DATA.colleagues %}
+            <button data-user-id="{{ colleague.id }}" class="btn btn-outline-secondary {% if user is defined and user.id ==  colleague.id %}active{% endif %}" type="button">
+                {{ colleague.acronym }}
+            </button>
+        {% endfor %}
+    </div>
     <textarea cols="50" rows="5"></textarea>
     <h2>Tidigare anteckningar för gruppen</h2>
     <table class="table">

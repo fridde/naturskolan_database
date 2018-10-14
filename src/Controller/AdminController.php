@@ -7,6 +7,8 @@ use Carbon\Carbon;
 
 use Fridde\Entities\Group;
 use Fridde\Entities\Note;
+use Fridde\Entities\User;
+use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Fridde\Naturskolan;
@@ -100,12 +102,13 @@ class AdminController extends BaseController
      */
     public function editNote()
     {
-        $this->setTemplate('admin/edit_note');
-
         /* @var VisitRepository $visit_repo */
+        /* @var UserRepository $user_repo */
         $visit_repo = $this->N->ORM->getRepository('Visit');
-        $this_visit_id = (int) $this->getParameter('visit_id');
-        /* @var Visit $this_visit  */
+        $user_repo = $this->N->ORM->getRepository('User');
+
+        $this_visit_id = (int)$this->getParameter('visit_id');
+        /* @var Visit $this_visit */
         $this_visit = $visit_repo->find($this_visit_id);
         $group = $this_visit->getGroup();
         // if(empty($group)) // TODO: throw error
@@ -120,13 +123,13 @@ class AdminController extends BaseController
         $notes = [];
         $visit_details = [];
 
-        foreach($visits as $visit){
-            /* @var Visit $visit  */
+        foreach ($visits as $visit) {
+            /* @var Visit $visit */
             $notes_for_visit = $visit->getNotes();
             $visit_id = $visit->getId();
             $visit_details[$visit_id] = $visit->getLabel('DT');
-            foreach($notes_for_visit as $note){
-                /* @var Note $note  */
+            foreach ($notes_for_visit as $note) {
+                /* @var Note $note */
                 $n = [];
                 $n['timestamp'] = $note->getTimestamp()->format('Y-m-d H:i');
                 $n['author'] = $note->getUser()->getAcronym();
@@ -139,12 +142,22 @@ class AdminController extends BaseController
         $this->addToDATA('visit_details', $visit_details);
         $this->addToDATA('this_visit_id', $this_visit->getId());
 
+        $colleagues = $user_repo->getActiveColleagues();
+        $colleagues = array_map(
+            function (User $u) {
+                return ['id' => $u->getId(), 'acronym' => $u->getAcronym()];
+            },
+            $colleagues
+        );
+
+        $this->addToDATA('colleagues', $colleagues);
+
         $user = $this->Authorizer->getVisitor()->getUser();
-        if(!empty($user)){
-            $u = ['id' => $user->getId()];
-            $u['name'] = $user->getFullName();
-            $this->addToDATA('user', $u);
+        if (!empty($user)) {
+            $this->addToDATA('user_id', $user->getId());
         }
+
+        $this->setTemplate('admin/edit_note');
     }
 
 
