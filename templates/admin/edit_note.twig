@@ -1,21 +1,28 @@
 {%- extends "admin/admin_area.twig" -%}
 
 
-{%- set group = DATA.group_details -%}
+{%- set group, visit_details = DATA.group_details, DATA.visit_details -%}
 
 {% block content %}
     <h1>Anteckningar för {{ group.name }} från {{ group.school }}</h1>
     <h6>Lärare: {{ group.teacher }}</h6>
-
-
-    {% for visit_id, notes in DATA.notes %}
-        {% for note in notes %}
-
+    <h2>Lägg till anteckning till {{ visit_details[DATA.this_visit_id] }}</h2>
+    <textarea cols="50" rows="5"></textarea>
+    <h2>Tidigare anteckningar för gruppen</h2>
+    <table class="table">
+        {% for visit_id, notes in DATA.notes %}
+            <tr class="table-info text-center font-weight-bold">
+                <td colspan="3">{{ visit_details[visit_id] }}</td>
+            </tr>
+            {% for note in notes %}
+                <tr>
+                    <td>{{ note.timestamp }}</td>
+                    <td>{{ note.author }}</td>
+                    <td>{{ note.text }}</td>
+                </tr>
+            {% endfor %}
         {% endfor %}
-    {% endfor %}
-    <pre>
-{{ dump(DATA) }}
-</pre>
+    </table>
 {% endblock %}
 
 

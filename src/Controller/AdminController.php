@@ -104,9 +104,9 @@ class AdminController extends BaseController
 
         /* @var VisitRepository $visit_repo */
         $visit_repo = $this->N->ORM->getRepository('Visit');
-
+        $this_visit_id = (int) $this->getParameter('visit_id');
         /* @var Visit $this_visit  */
-        $this_visit = $visit_repo->find($this->getParameter('visit_id'));
+        $this_visit = $visit_repo->find($this_visit_id);
         $group = $this_visit->getGroup();
         // if(empty($group)) // TODO: throw error
 
@@ -115,7 +115,7 @@ class AdminController extends BaseController
         $group_details['teacher'] = $group->getUser()->getFullName();
         $this->addToDATA('group_details', $group_details);
 
-        $visits = $group->getSortedVisits();
+        $visits = array_reverse($group->getSortedVisits());
 
         $notes = [];
         $visit_details = [];
@@ -128,7 +128,7 @@ class AdminController extends BaseController
             foreach($notes_for_visit as $note){
                 /* @var Note $note  */
                 $n = [];
-                $n['timestamp'] = $note->getTimestamp()->toIso8601String();
+                $n['timestamp'] = $note->getTimestamp()->format('Y-m-d H:i');
                 $n['author'] = $note->getUser()->getAcronym();
                 $n['text'] = $note->getText();
                 $notes[$visit_id][] = $n;
