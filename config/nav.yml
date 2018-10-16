@@ -54,6 +54,9 @@ NAV_SETTINGS:
            label: 'Beställ mat'
            url: 'view/food_order'
          -
+           label: 'Anteckningar översikt'
+           url: 'admin/show_note_calendar'
+         -
            label: 'Visa logg'
            url: 'admin/show_log'
     -
