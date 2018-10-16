@@ -130,9 +130,9 @@ class Calendar
                 }
             }
 
-            $link = '<a href="';
+            $link = 'Lägg till anteckning: ';
             $link .= $this->N->generateUrl('note', ['visit_id' => $visit->getId()], true);
-            $link .= '">Lägg till anteckning</a>';
+            $desc[] = '';
             $desc[] = $link;
             $event->setDescription(implode("\r\n", $desc));
 
