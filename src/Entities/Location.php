@@ -18,7 +18,7 @@ class Location
     /** @Column(type="string") */
     protected $Name;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $Coordinates;
 
     /** @Column(type="string", nullable=true) */
