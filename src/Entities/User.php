@@ -474,7 +474,7 @@ class User
         foreach ($trim_characters as $char) {
             $nr = ltrim($nr, $char);
         }
-        if (in_array(substr($nr, 0, 2), ['70', '72', '73', '76'], true)) {
+        if (in_array(substr($nr, 0, 2), ['70', '72', '73', '76', '79'], true)) {
             $nr = '+46'.$nr;
             $standardized = true;
         } else {
