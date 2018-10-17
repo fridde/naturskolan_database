@@ -5,7 +5,7 @@ let Edit = {
         let $this = event.this ? $(event.this) : $(this);
 
         let data = {};
-        let option, specialInfo, $tr, $td, $icon, list;
+        let option, specialInfo, $tr, $td, $tarea, $icon, list;
         if (recentChange !== false) {
             clearTimeout(recentChange);
         }
@@ -88,7 +88,6 @@ let Edit = {
                 data.property = "Confirmed";
                 data.value = true;
                 data.onReturn = "changeConfirmedLink";
-                // TODO: Implement this in html/js
                 break;
 
             case "work_schedule":
@@ -127,6 +126,17 @@ let Edit = {
                 data.location_id = $icon.closest('table')
                     .find('th').eq($td.index()).data('location-id');
                 data.needs_bus = $td.hasClass('active') ? 1 : 0;
+                break;
+
+            case 'addNoteToVisit':
+                $tarea = $this;
+
+                data.updateMethod = 'updateNoteToVisit';
+                data.author_id = $tarea.closest('.add-note-to-visit').find(':button.active').data('user-id');
+                data.visit_id = $tarea.closest('.add-note-to-visit').data('visit-id');
+                data.text = $tarea.val();
+
+                $('.add-note-to-visit .prewritten-notes').data('notes')[data.author_id] = data.text;
                 break;
         }
 

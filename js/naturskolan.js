@@ -46,6 +46,7 @@ $(document).ready(function () {
      */
     $('.group-container .editable').change('group', Edit.change);
     $('table.editable :input').not('.datepicker').change("tableInput", Edit.change);
+    $('.add-note-to-visit .editable').change('addNoteToVisit', Edit.change);
 
 
     $('.visits.set-colleagues td.toggle-label').click('work_schedule', Edit.change);

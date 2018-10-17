@@ -9,6 +9,7 @@ use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Hash;
 use Fridde\Entities\Location;
 use Fridde\Entities\LocationRepository;
+use Fridde\Entities\NoteRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
 use Fridde\Error\Error;
@@ -435,6 +436,20 @@ class Update extends DefaultUpdate
     {
         $status = (int)in_array($status, [1, '1', 'true', true], true);
         $this->N->setCronTask($task_name, $status);
+    }
+
+    /**
+     *
+     * @PostArgs("visit_id, author_id, text")
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
+    public function updateNoteToVisit(int $visit_id, int $author_id, string $text)
+    {
+        /* @var NoteRepository $note_repo  */
+        $note_repo = $this->N->ORM->getRepository('Note');
+        $note = $note_repo->findByVisitAndAuthor($visit_id, $author_id);
+
+        return $this->updateProperty('Note', $note->getId(), 'Text', $text);
     }
 
 

@@ -122,6 +122,7 @@ class AdminController extends BaseController
 
         $notes = [];
         $visit_details = [];
+        $this_visit_notes = [];
 
         foreach ($visits as $visit) {
             /* @var Visit $visit */
@@ -135,12 +136,18 @@ class AdminController extends BaseController
                 $n['author'] = $note->getUser()->getAcronym();
                 $n['text'] = $note->getText();
                 $notes[$visit_id][] = $n;
+
+                if($visit_id === $this_visit_id){
+                    $this_visit_notes[$note->getUser()->getId()] = $note->getText();
+                }
             }
         }
 
         $this->addToDATA('notes', $notes);
         $this->addToDATA('visit_details', $visit_details);
         $this->addToDATA('this_visit_id', $this_visit->getId());
+        $this->addToDATA('this_visit_notes', json_encode($this_visit_notes));
+
 
         $colleagues = $user_repo->getActiveColleagues();
         $colleagues = array_map(

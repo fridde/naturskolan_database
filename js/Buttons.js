@@ -299,6 +299,14 @@ $(document).ready(function () {
         });
     });
 
-    //action="api/send_mail"
+    $('.add-note-to-visit button').click(function () {
+       $('.add-note-to-visit :button').removeClass('active');
+       $(this).addClass('active');
+
+       let prewritten = $('.add-note-to-visit .prewritten-notes').data('notes');
+       $('.add-note-to-visit .editable').val(prewritten[$(this).data('user-id')]);
+    });
+
+
 
 });
