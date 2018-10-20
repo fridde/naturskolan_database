@@ -93,7 +93,7 @@ class AdminController extends BaseController
         );
 
 
-        $this->addToDATA('events', json_encode($events));
+        $this->addToDATA('events', json_encode(array_values($events)));
     }
 
     /**
