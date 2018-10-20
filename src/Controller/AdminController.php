@@ -84,7 +84,7 @@ class AdminController extends BaseController
             function (Visit $v) {
                 $r = ['allDay' => true];
                 $r['start'] = $v->getDateString();
-                $r['title'] = $v->getLabel('TGSU');
+                $r['title'] = mb_convert_encoding($v->getLabel('TGSU'), 'UTF-8', 'auto');
                 $r['url'] = $this->N->generateUrl('note', ['visit_id' => $v->getId()]);
 
                 return $r;
