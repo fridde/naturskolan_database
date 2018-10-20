@@ -74,7 +74,6 @@ class AdminController extends BaseController
     public function showNoteCalendar()
     {
         $this->addJs('fullcal');
-        $this->addJs('fullcal.sv');
         $this->addCss('fullcal');
 
         $this->setTemplate('admin/notes_calendar');
