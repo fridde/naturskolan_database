@@ -7,7 +7,8 @@ let Calendar = {
             weekNumbers: true,
             locale: 'sv',
             editable: false,
-            themeSystem: 'bootstrap4'
+            themeSystem: 'bootstrap4',
+            defaultView: 'basicWeek'
             }
         );
 
