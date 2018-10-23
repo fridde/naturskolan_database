@@ -82,11 +82,15 @@ class Calendar
                     $end_DT->hour($time['end']['hh'])->minute($time['end']['mm']);
                 }
             } else {
-                $start_DT->hour($cal_settings['default_start_time'][0]);
-                $start_DT->minute($cal_settings['default_start_time'][1]);
-                $end_DT->hour($cal_settings['default_end_time'][0]);
-                $end_DT->minute($cal_settings['default_end_time'][1]);
+                $def_times = $cal_settings['default_times'];
+                $times = $def_times[$group->getSegment()] ?? $def_times['standard'];
+
+                $start_DT->hour($times[0][0]);
+                $start_DT->minute($times[0][1]);
+                $end_DT->hour($times[1][0]);
+                $end_DT->minute($times[0][1]);
             }
+
             $event->setDtStart($start_DT);
             $event->setDtEnd($end_DT);
             $event->setNoTime(false);

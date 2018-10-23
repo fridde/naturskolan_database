@@ -8,7 +8,8 @@ let Calendar = {
             locale: 'sv',
             editable: false,
             themeSystem: 'bootstrap4',
-            defaultView: 'basicWeek'
+            defaultView: 'basicWeek',
+            columnHeaderFormat: 'ddd D MMM'
             }
         );
 
