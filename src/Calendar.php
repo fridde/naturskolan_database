@@ -158,7 +158,7 @@ class Calendar
     public function convertEventArrayToIcs(array $array): string
     {
         $cal = new Cal('SigtunaNaturskola');
-        $cal->setName('SigtunaNaturskola Schema');
+        $cal->setName('SigtunaNaturskola Schema nya versionen');
 
         foreach ($array as $event) {
             $event->setUseTimezone(true);
