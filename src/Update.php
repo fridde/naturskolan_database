@@ -9,6 +9,7 @@ use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Hash;
 use Fridde\Entities\Location;
 use Fridde\Entities\LocationRepository;
+use Fridde\Entities\Note;
 use Fridde\Entities\NoteRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
@@ -448,6 +449,12 @@ class Update extends DefaultUpdate
         /* @var NoteRepository $note_repo  */
         $note_repo = $this->N->ORM->getRepository('Note');
         $note = $note_repo->findByVisitAndAuthor($visit_id, $author_id);
+
+        if(empty($note)){
+            $props = ['Visit' => $visit_id, 'User' => $author_id, 'Text' => $text];
+
+            return $this->createNewEntity(Note::class, $props);
+        }
 
         return $this->updateProperty('Note', $note->getId(), 'Text', $text);
     }

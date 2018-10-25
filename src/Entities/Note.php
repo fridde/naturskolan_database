@@ -23,7 +23,7 @@ class Note
     /** @Column(type="string") */
     protected $Text;
 
-    /** @Column(type="string") */
+    /** @Column(type="string", nullable=true) */
     protected $Timestamp;
 
     public function getTimestamp(): Carbon
@@ -60,9 +60,9 @@ class Note
     }
 
     /**
-     * @param mixed $Visit
+     * @param Visit $Visit
      */
-    public function setVisit($Visit): void
+    public function setVisit(Visit $Visit): void
     {
         $this->Visit = $Visit;
     }
