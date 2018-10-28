@@ -41,7 +41,7 @@
                                    data-toggle="tooltip"></i>
                                 <label for="slider_{{ group.id }}">Antal elever</label>
                                 <div class="input-slider" id="slider_{{ group.id }}"
-                                     data-min={{ student_limits.min }} data-max={{ student_limits.max }}
+                                     data-min={{ student_limits[0] }} data-max={{ student_limits[1] }}
                                      name="NumberStudents"
                                      value={{ group.nr_students }} data-slider-label-id="slider_label_{{ group.id }}"></div>
                                 <div id="slider_label_{{ group.id }}"

@@ -90,7 +90,7 @@ class SchoolController extends BaseController
             },
             $school->getUsers()
         );
-        $DATA['student_limits'] = SETTINGS['values']['min_max_students'];
+        $DATA['student_limits'] = SETTINGS['admin']['summary']['allowed_group_size'];
         $DATA['school_name'] = $school->getName();
 
         $segments_at_this_school = $school->getSegmentsAvailable(true);
