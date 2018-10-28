@@ -242,6 +242,23 @@ div#fullpage-calendar {
     margin: 3px;
 }
 
+.card {
+    background-color: var(--egg-yellow);
+}
+
+.card-title {
+    font-size: 1.0em;
+}
+
+[data-toggle="collapse"]:not(.collapsed) .fa-angle-double-right {
+    display: none;
+}
+
+[data-toggle="collapse"].collapsed .fa-angle-double-left {
+    display: none;
+}
+
+
 p {
     font-size: 20px;
 }
