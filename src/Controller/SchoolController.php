@@ -97,7 +97,7 @@ class SchoolController extends BaseController
 
         foreach ($segments_at_this_school as $segment_val => $segment_label) {
             $groups_current_segment = $school->getActiveGroupsBySegmentAndYear($segment_val, false);
-            $tab = ['id' => $segment_val, 'segment_label' => $segment_label];
+            $seg = ['id' => $segment_val, 'label' => $segment_label];
             $groups_current_segment_formatted = array_map(
                 function (Group $g) {
                     $r['id'] = $g->getId();
@@ -132,10 +132,10 @@ class SchoolController extends BaseController
             $group_columns = $this->H::partition(
                 $groups_current_segment_formatted
             ); // puts items in two equally large columns
-            $tab['col_left'] = $group_columns[0] ?? [];
-            $tab['col_right'] = $group_columns[1] ?? [];
+            $seg['col_left'] = $group_columns[0] ?? [];
+            $seg['col_right'] = $group_columns[1] ?? [];
 
-            $DATA['tabs'][] = $tab;
+            $DATA['segments'][] = $seg;
         }
 
         return $DATA;

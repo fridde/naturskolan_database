@@ -1,46 +1,61 @@
 {% set headers, users, entity_class = DATA.headers, DATA.users, DATA.entity_class %}
 
-<h1>Personal på {{ DATA.school_name }}</h1>
+<div class="card">
+    <div class="card-header">
+        <h1>
+            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#staff-card">
+                Personal på {{ DATA.school_name }}
+            </button>
+        </h1>
+    </div>
+    <div id="staff-card" class="collapse show" data-parent="#school-accordion">
+        <div class="card-body">
 
-<table class="table table-responsive table-striped editable" data-entity="{{ entity_class }}">
-    <thead>
-    <tr>
-        {% for header in headers %}
-            {% if header != "id" and (header != "Acronym" or DATA.school_id == 'natu') %}
-                <th>
-                    {{- header -}}
-                </th>
-            {% endif %}
-        {% endfor %}
-    </tr>
-    </thead>
-    <tbody>
-    {% for user in users -%}
-        <tr data-id="{{ user.id }}"{% if user.id is empty %} hidden {%- endif -%} >
-            <td>
-                <input type="text" name="FirstName" placeholder="Förnamn" value="{{ user.FirstName }}">
-            </td>
-            <td>
-                <input type="text" name="LastName" placeholder="Efternamn" value="{{ user.LastName }}">
-            </td>
-            <td>
-                <input class="has-tooltip" type="text" name="Mobil" placeholder="Mobilnummer"
-                       value="{{ user.Mobil }}"
-                       size="15">
-            </td>
-            <td>
-                <input type="text" name="Mail" placeholder="Mejladress" value="{{ user.Mail }}">
-            </td>
-            {% if DATA.school_id == 'natu' %}
-                <td>
-                    <input type="text" name="Acronym" placeholder="Acronym" value="{{ user.Acronym }}"
-                           size="4">
-                </td>
-            {% endif %}
-        </tr>
-    {%- endfor %}
-    </tbody>
-</table>
-<button type="button" class="add-row-btn btn btn-primary">Lägg till person</button>
+            <table class="table table-responsive table-striped editable" data-entity="{{ entity_class }}">
+                <thead>
+                <tr>
+                    {% for header in headers %}
+                        {% if header != "id" and (header != "Acronym" or DATA.school_id == 'natu') %}
+                            <th>
+                                {{- header -}}
+                            </th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users -%}
+                    <tr data-id="{{ user.id }}"{% if user.id is empty %} hidden {%- endif -%} >
+                        <td>
+                            <input type="text" name="FirstName" placeholder="Förnamn" value="{{ user.FirstName }}">
+                        </td>
+                        <td>
+                            <input type="text" name="LastName" placeholder="Efternamn" value="{{ user.LastName }}">
+                        </td>
+                        <td>
+                            <input class="has-tooltip" type="text" name="Mobil" placeholder="Mobilnummer"
+                                   value="{{ user.Mobil }}"
+                                   size="15">
+                        </td>
+                        <td>
+                            <input type="text" name="Mail" placeholder="Mejladress" value="{{ user.Mail }}">
+                        </td>
+                        {% if DATA.school_id == 'natu' %}
+                            <td>
+                                <input type="text" name="Acronym" placeholder="Acronym" value="{{ user.Acronym }}"
+                                       size="4">
+                            </td>
+                        {% endif %}
+                    </tr>
+                {%- endfor %}
+                </tbody>
+            </table>
+            <button type="button" class="add-row-btn btn btn-primary">Lägg till person</button>
+        </div>
+    </div>
+</div>
+
+
+
 
 
