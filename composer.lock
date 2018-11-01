@@ -214,20 +214,17 @@
         },
         {
             "name": "dg/mysql-dump",
-            "version": "v1.5.0",
+            "version": "v1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dg/MySQL-dump.git",
-                "reference": "6c9cf07092bcc4a140bef01c64d883ebfccfccfa"
+                "reference": "8970328c9a8665e65f3855c849f5d4de94075f13"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dg/MySQL-dump/zipball/6c9cf07092bcc4a140bef01c64d883ebfccfccfa",
-                "reference": "6c9cf07092bcc4a140bef01c64d883ebfccfccfa",
+                "url": "https://api.github.com/repos/dg/MySQL-dump/zipball/8970328c9a8665e65f3855c849f5d4de94075f13",
+                "reference": "8970328c9a8665e65f3855c849f5d4de94075f13",
                 "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6"
             },
             "type": "library",
             "autoload": {
@@ -250,7 +247,7 @@
             "keywords": [
                 "mysql"
             ],
-            "time": "2018-10-31T00:31:09+00:00"
+            "time": "2017-05-24T12:44:51+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -1211,16 +1208,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/dumper.git",
-                "reference": "0521146dde34f8478e56f5d8e1d90b586054fd5c"
+                "reference": "bf35b2862e22078d74ba37b0a230f54b1934c813"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/dumper/zipball/0521146dde34f8478e56f5d8e1d90b586054fd5c",
-                "reference": "0521146dde34f8478e56f5d8e1d90b586054fd5c",
+                "url": "https://api.github.com/repos/fridde/dumper/zipball/bf35b2862e22078d74ba37b0a230f54b1934c813",
+                "reference": "bf35b2862e22078d74ba37b0a230f54b1934c813",
                 "shasum": ""
             },
             "require": {
-                "dg/mysql-dump": "^1.3",
+                "dg/mysql-dump": "1.4.0",
                 "nesbot/carbon": "~2.5",
                 "php": ">=7.0.0"
             },
@@ -1240,7 +1237,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-11-01T16:24:16+00:00"
+            "time": "2018-11-01T17:55:52+00:00"
         },
         {
             "name": "fridde/essentials",
