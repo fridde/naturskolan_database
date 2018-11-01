@@ -3,8 +3,10 @@
 {%- set visit_label = DATA.visit_label -%}
 {%- block toolbar -%}{%- endblock -%}
 {% block school_area %}
-    <h1>Besök bekräftad!</h1>
-    <p>
-    Ditt besök på {{ DATA.visit_label }} är bekräftad. Tack!
-    </p>
+    <div class="card text-center">
+        <div class="card-body">
+            <h5 class="card-title">Besök bekräftad!</h5>
+            <p class="card-text">Ditt besök på {{ DATA.visit_date }}, {{ DATA.visit_label }} är bekräftad. Tack!</p>
+        </div>
+    </div>
 {%- endblock -%}

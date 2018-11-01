@@ -47,6 +47,9 @@ class PageController extends BaseController
         $this->setTemplate('contact');
     }
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
     public function showError()
     {
         http_response_code(404);
@@ -54,11 +57,15 @@ class PageController extends BaseController
         die();
     }
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
+     */
     public function showConfirmedVisit(Visit $visit, string $school_id)
     {
         $this->addToDATA('school_id', $school_id);
         $this->setTemplate('visit_confirmation');
-        $this->addToDATA('visit_label', $visit->getLabel());
+        $this->addToDATA('visit_date', $visit->getDateString());
+        $this->addToDATA('visit_label', $visit->getLabel('TGSU'));
     }
 
 
