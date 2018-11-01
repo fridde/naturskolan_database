@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "nesbot/carbon": "2.5.*",
+        "nesbot/carbon": "~2.5",
         "fridde/html": "dev-master",
         "fridde/mailer": "dev-master",
         "fridde/utility": "dev-master",
