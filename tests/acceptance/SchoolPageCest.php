@@ -110,7 +110,10 @@ class SchoolPageCest
         $I->checkMultiple('see', $visits_for_2a, $visit_locator_for_2a);
 
         $I->cantSee('5A');
-        $I->click('//a[@href="#tab_5"]');
+        //$I->pauseExecution();
+        $segment5_btn = '//button[@data-target="#segment_5"]';
+        $I->scrollTo($segment5_btn);
+        $I->click($segment5_btn);
         $I->pause(0.7);
         $I->canSee('5A');
 
