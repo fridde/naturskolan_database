@@ -88,7 +88,7 @@ class Calendar
                 $start_DT->hour($times[0][0]);
                 $start_DT->minute($times[0][1]);
                 $end_DT->hour($times[1][0]);
-                $end_DT->minute($times[0][1]);
+                $end_DT->minute($times[1][1]);
             }
 
             $event->setDtStart($start_DT);
