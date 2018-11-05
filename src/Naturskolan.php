@@ -194,10 +194,9 @@ class Naturskolan
      * @return string       The url a user can click to reach the school page
      *                      without writing any password.
      */
-    public function createLoginUrl(User $user, string $destination = 'staff', bool $absolute = true)
+    public function createLoginUrl(User $user, bool $absolute = true)
     {
         $params['code'] = $this->Auth->createAndSaveCode($user->getId(), Hash::CATEGORY_USER_URL_CODE);
-        $params['destination'] = $destination;
 
         return $this->generateUrl('login', $params, $absolute);
     }

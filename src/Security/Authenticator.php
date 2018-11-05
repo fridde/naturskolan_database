@@ -105,7 +105,7 @@ class Authenticator
 
     public function getUserFromUrlCode(string $code)
     {
-        $criteria['category'] = Hash::CATEGORY_VISIT_CONFIRMATION_CODE;
+        $criteria['category'] = Hash::CATEGORY_USER_URL_CODE;
 
         return $this->getObjectFromCode($code, $criteria, User::class);
     }

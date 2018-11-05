@@ -40,7 +40,6 @@ class LoginController extends BaseController
         $this->N->Auth->setCookieKeyInBrowser($auth_key, $exp_date);
 
         $params['school'] = $user->getSchoolId();
-        $params['page'] = $this->getParameter('destination') ?? 'staff';
         $url = $this->N->generateUrl('school', $params);
 
         Utility::redirect($url);
