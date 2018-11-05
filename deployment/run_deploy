@@ -1,5 +1,6 @@
 #!/bin/bash
 
+shopt -s dotglob
 SKIP=0
 
 while getopts "s:n" opts; do
@@ -12,7 +13,7 @@ SKIP=$((SKIP -1))
 
 #Variable names
 PROJECT_NAME=naturskolan_database
-PROJECT_PATH=~/$PROJECT_NAME
+DEV_PROJECT_PATH=~/$PROJECT_NAME
 TESTING_PATH=~/testing
 TESTDB_PATH=$TESTING_PATH/$PROJECT_NAME/tests/_data/test_db.sql
 STAGING_PATH=/cygdrive/d/staging
@@ -21,13 +22,13 @@ GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
 
 if [ $SKIP -lt 1 ]; then
     read -p "[1] Backup DB and export to test-DB..."
-    cd $PROJECT_PATH/misc/scripts
+    cd $DEV_PROJECT_PATH/misc/scripts
 	set -x
     php -e export_database.php default > $TESTDB_PATH
 	php -e export_database.php test_db > $TESTDB_PATH
     php -e export_database.php just_data > /dev/null
     php -e export_database.php structure > /dev/null
-    php -e "$PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
+    php -e "$DEV_PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
 	set +x
     read -p "Delete old files..."
     cd ../SQL_data
@@ -47,8 +48,11 @@ if [ $SKIP -lt 2 ]; then
    git status
    
    read -p 'Pulling repo changes into dev area...'
-   cd $PROJECT_PATH
+   cd $DEV_PROJECT_PATH
    git pull
+
+   read -p 'Clearing dev cache...'
+   rm -rfd ./temp/cache/*
 
 fi
 
@@ -67,7 +71,7 @@ fi
 
 if [ $SKIP -lt 4 ]; then    
 	read -p "[4] Updating composer packages in dev directory..."
-    cd $PROJECT_PATH
+    cd $DEV_PROJECT_PATH
     composer update fridde/*
     composer install
 	read -p 'Checking git status of dev repo...'	
@@ -91,8 +95,10 @@ if [ $SKIP -lt 5 ]; then
     git pull
     composer install --no-suggest
 	read -p "Copying over settings from dev area..."
-    cp $PROJECT_PATH/config/settings_{default,test}.yml ./config/
-	cp $PROJECT_PATH/config/.key ./config/    
+    cp $DEV_PROJECT_PATH/config/settings_{default,test}.yml ./config/
+	cp $DEV_PROJECT_PATH/config/.key ./config/
+	read -p "Clearing test cache..."
+	rm -rfd ./temp/cache/*
 fi
 
 if [ $SKIP -lt 6 ]; then
@@ -134,14 +140,14 @@ if [ $SKIP -lt 8 ]; then
 	read -p '[8] Copying deployment settings from dev to deploy...'
 	cd $STAGING_PROJECT_PATH
     touch .env_prod
-    cp {$PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment.ini
-    cp $PROJECT_PATH/config/settings_{default,prod}.yml $STAGING_PROJECT_PATH/config/
-	cp $PROJECT_PATH/config/.key $STAGING_PROJECT_PATH/config/
+    cp {$DEV_PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment.ini
+    cp $DEV_PROJECT_PATH/config/settings_{default,prod}.yml $STAGING_PROJECT_PATH/config/
+	cp $DEV_PROJECT_PATH/config/.key $STAGING_PROJECT_PATH/config/
 	
 	read -p 'Uploading the changed files to the remote server...'
     ./vendor/bin/deployment deployment/deployment.ini
 	
 	# read -p 'Uploading the changed files to the remote testing directory...'
-	# cp {$PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment_for_testing.ini
+	# cp {$DEV_PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment_for_testing.ini
 	# ./vendor/bin/deployment deployment/deployment_for_testing.ini
 fi
