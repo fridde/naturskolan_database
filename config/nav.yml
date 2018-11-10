@@ -63,7 +63,7 @@ NAV_SETTINGS:
          -
            label: 'Beställ mat'
            url: 'view/food_order'
-           icon: 'utensilsv'
+           icon: 'utensils'
          -
            label: 'Anteckningar översikt'
            url: 'admin/show_note_calendar'
