@@ -67,7 +67,7 @@ NAV_SETTINGS:
          -
            label: 'Anteckningar översikt'
            url: 'admin/show_note_calendar'
-           icon: ''
+           icon: 'comments'
          -
            label: 'Visa logg'
            url: 'admin/show_log'
