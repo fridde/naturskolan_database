@@ -120,7 +120,7 @@ class User
 
     public function getShortName()
     {
-        return $this->FirstName.' '.substr($this->LastName, 0, 1);
+        return $this->FirstName.' '.mb_substr($this->LastName, 0, 1);
     }
 
 

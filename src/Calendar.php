@@ -184,7 +184,7 @@ class Calendar
     public function save(string $file_name = null)
     {
         $dir = defined('BASE_DIR') ? BASE_DIR : '';
-        $file_name = $file_name ?? ($this->file_name ?? false);
+        $file_name = $file_name ?? ($this->file_name ?? null);
         if (!$file_name) {
             throw new NException(Error::INVALID_ARGUMENT, ['file_name']);
         }

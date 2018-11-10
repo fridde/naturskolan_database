@@ -169,18 +169,6 @@ $(document).ready(function () {
         $.ajax(options);
     });
 
-    /* REMOVED, maybe later
-
-    $('#fill-empty-group-names button').click(function () {
-        let data = {
-            updateMethod: "fillEmptyGroupNames",
-            segment: $('#fill-empty-group-names select[name="segment"]').val(),
-            onReturn: 'showStatus'
-        };
-        Update.send(data);
-    });
-    */
-
     $('#cron-task-activation :checkbox').click(function () {
         let data = {
             updateMethod: "changeTaskActivation",
@@ -307,6 +295,10 @@ $(document).ready(function () {
        $('.add-note-to-visit .editable').val(prewritten[$(this).data('user-id')]);
     });
 
+    $('button.copy-to-clipboard').click(function(){
+        $('textarea.area-to-copy').select();
+        document.execCommand('copy');
+    });
 
 
 });

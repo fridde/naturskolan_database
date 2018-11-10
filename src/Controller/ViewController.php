@@ -41,6 +41,8 @@ class ViewController extends BaseController {
             $visit = $v;
         });
 
+        $collection['food_order_mail'] = SETTINGS['admin']['bus_adress'];
+
         $this->addToDATA($collection);
         $this->setTemplate('admin/food_order');
     }

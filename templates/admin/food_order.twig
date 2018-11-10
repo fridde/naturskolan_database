@@ -2,7 +2,14 @@
 
 {%- set calendar, date_strings = DATA.calendar, DATA.date_strings -%}
 {% block content %}
-<pre>
+    <div>
+        <button class="copy-to-clipboard">Kopiera text</button>
+        <button id="order-food-mail">
+            <a href="mailto:{{ DATA.food_order_mail }}  peter.linden@sigtuna.se?subject=Matbeställning%20för%20Naturskolan&body=Hej!">Skicka matbeställningsmejl</a>
+        </button>
+    </div>
+    <div>
+<textarea class="area-to-copy" cols="100" rows="50">
 {% for week_nr, days in calendar %}
 
 #########
@@ -18,7 +25,8 @@ Vecka {{ week_nr }}
 {% endfor -%}
 {%- endfor -%}
 {%- endfor -%}
-</pre>
+</textarea>
+</div>
 {% endblock %}
 
 
