@@ -23,42 +23,55 @@ NAV_SETTINGS:
          -
            label: 'Översikt'
            url: 'admin'
+           icon: 'grip-horizontal'
          -
            label: 'Redigera arbetsfördelningen'
            url: 'admin/batch/set_colleagues'
+           icon: 'user-clock'
          -
            label: 'Kontrollera bus & mat'
            url: 'admin/batch/set_bookings'
+           icon: 'tasks'
          -
            label: 'Lägg till besöksdatum till tema'
            url: 'admin/batch/add_dates'
+           icon: 'plus'
          -
            label: 'Fördela besök på grupper'
            url: 'admin/batch/distribute_visits'
+           icon: 'network-wired'
          -
            label: 'Uppdatera önskat antal grupper per skola'
            url: 'admin/batch/set_group_count'
+           icon: 'sync'
          -
            label: 'Ordna om besöksordningen för teman'
            url: 'admin/batch/set_visit_order_for_topics'
+           icon: 'sort-numeric-down'
          -
            label: 'Redigera bussinställningar'
            url: 'admin/batch/set_bus_settings'
+           icon: 'bus-alt'
          -
            label: 'Redigera kalendern'
            url: 'table/Event'
+           icon: 'calendar-alt'
          -
            label: 'Boka buss'
            url: 'view/bus_order'
+           icon: 'bus'
          -
            label: 'Beställ mat'
            url: 'view/food_order'
+           icon: 'utensilsv'
          -
            label: 'Anteckningar översikt'
            url: 'admin/show_note_calendar'
+           icon: ''
          -
            label: 'Visa logg'
            url: 'admin/show_log'
+           icon: 'th-list'
     -
       label: 'Tabeller'
       children: '->getAllTableUrls'

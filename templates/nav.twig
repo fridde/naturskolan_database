@@ -41,7 +41,11 @@
                                     {% set subitem_url = subitem.url %}
                                 {% endif %}
                                 {% if subitem_url %}
-                                    <a class="dropdown-item" href="{{ subitem_url }}">{{ subitem.label }}</a>
+                                    <a class="dropdown-item" href="{{ subitem_url }}">
+                                        {%- if subitem.icon -%}
+                                            <i class="fas fa-{{ subitem.icon }}"></i>
+                                        {%- endif -%}
+                                        {{- subitem.label -}}</a>
                                 {% endif %}
                             {% endfor %}
                         </div>
