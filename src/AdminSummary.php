@@ -268,16 +268,19 @@ class AdminSummary
             function (User $u) {
                 return trim($u->getMail());
             },
-            $user_repo->select(['Status', User::ACTIVE])
+            $user_repo->findActiveUsers()
         );
         $counter = array_count_values($all_mail_addresses);
+
+        $ignored_addresses = SETTINGS['admin']['summary']['ignore_duplicates'];
 
         return array_keys(
             array_filter(
                 $counter,
-                function ($count) {
-                    return $count > 1;
-                }
+                function ($count, $address) use ($ignored_addresses) {
+                    $ignored = in_array($address, $ignored_addresses, true);
+                    return !$ignored && $count > 1;
+                }, ARRAY_FILTER_USE_BOTH
             )
         );
     }
