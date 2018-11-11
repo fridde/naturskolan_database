@@ -116,19 +116,19 @@ class APIController extends BaseController
     }
 
     /**
-     * @param string $mail_adress
+     * @param string $mail_address
      *
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function sendPasswordRecoverMail(string $mail_adress): void
+    public function sendPasswordRecoverMail(string $mail_address): void
     {
         $this->setReturnType(self::RETURN_JSON);
-        $mail_adress = strtolower(trim($mail_adress));
+        $mail_address = strtolower(trim($mail_address));
         /* @var User $user */
-        $user = $this->N->ORM->getRepository('User')->findOneBy(['Mail' => $mail_adress]);
+        $user = $this->N->ORM->getRepository('User')->findOneBy(['Mail' => $mail_address]);
 
         if (empty($user) || !$user->isActive()) {
-            $this->addToDATA('errors', ['No active user with this adress could be found']);
+            $this->addToDATA('errors', ['No active user with this address could be found']);
 
             // TODO: Log this and return
             return;
@@ -139,7 +139,7 @@ class APIController extends BaseController
         $data['school_url'] = $this->N->generateUrl('school', ['school' => $user->getSchoolId()], true);
         $params = ['purpose' => 'password_recover'];
         $params['data'] = $data;
-        $params['receiver'] = $mail_adress;
+        $params['receiver'] = $mail_address;
 
         $mail = new Mail($params);
         $response = $mail->buildAndSend();
@@ -180,8 +180,8 @@ class APIController extends BaseController
         $resp_array = json_decode($response->getBody(), true);
         $captcha_success = $resp_array['success'] ?? false;
 
-        $mail_adress = $this->getFromRequest('input_email');
-        $address_success = !empty(trim($mail_adress));
+        $mail_address = $this->getFromRequest('input_email');
+        $address_success = !empty(trim($mail_address));
 
         $mail_status = false;
         if ($captcha_success && $address_success) {
@@ -190,7 +190,7 @@ class APIController extends BaseController
 
             $body = '<p>Ett nytt meddelande har skickats från webbformuläret på ';
             $body .= 'sigtunanaturskola.se/ndb/contact <br>'.PHP_EOL;
-            $body .= 'Avsändaradress: '.$mail_adress;
+            $body .= 'Avsändaradress: '.$mail_address;
             $body .= '</p>'.PHP_EOL.PHP_EOL.'<p><pr>';
             $body .= $this->getFromRequest('input_message').'</pr></p>';
 

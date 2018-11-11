@@ -353,7 +353,7 @@ class BatchController extends BaseController
                 continue;
             }
             if(!$manager->hasMail()){
-                $msg = 'Manager '.$manager->getFullName().' has no mailadress. Check this!';
+                $msg = 'Manager '.$manager->getFullName().' has no mailaddress. Check this!';
                 $this->N->log($msg, __METHOD__);
                 continue;
             }

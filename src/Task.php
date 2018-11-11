@@ -392,7 +392,7 @@ class Task
 
                 $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject_int];
             } else {
-                $msg = 'User '.$user->getFullName().' has no mailadress. Check this!';
+                $msg = 'User '.$user->getFullName().' has no mailaddress. Check this!';
                 $this->N->log($msg, __METHOD__);
             }
         }
@@ -445,7 +445,7 @@ class Task
 
                 $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject_int];
             } else {
-                $msg = 'Tried to send new User ' . $user->getId() . ' a welcome mail, but no mail adress available.';
+                $msg = 'Tried to send new User ' . $user->getId() . ' a welcome mail, but no mail address available.';
                 $this->N->log($msg, __METHOD__);
 
             }
@@ -538,7 +538,7 @@ class Task
         $DBM->cleanOldGroupCounts();
         $DBM->removeOldRows();
         $DBM->standardizeMobileNumbers();
-        $DBM->prettifyMailAdresses();
+        $DBM->prettifyMailAddresses();
 
         // TODO: add more functionality to this function
     }

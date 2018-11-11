@@ -210,7 +210,7 @@ $(document).ready(function () {
 
     $('#forgotten_password_submit').click(function () {
         let modal_id = '#password-modal';
-        let mail = $(modal_id + ' input[name="mailadress"]').val();
+        let mail = $(modal_id + ' input[name="mailaddress"]').val();
         $.ajax({
             url: 'api/sendPasswordRecoverMail/' + mail,
             method: 'POST',

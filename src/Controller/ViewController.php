@@ -41,7 +41,7 @@ class ViewController extends BaseController {
             $visit = $v;
         });
 
-        $collection['food_order_mail'] = SETTINGS['admin']['food_adress'];
+        $collection['food_order_mail'] = SETTINGS['admin']['food_address'];
 
         $this->addToDATA($collection);
         $this->setTemplate('admin/food_order');
@@ -73,7 +73,7 @@ class ViewController extends BaseController {
             $visit = $v;
         });
 
-        $collection['bus_order_mail'] = SETTINGS['admin']['bus_adress'];
+        $collection['bus_order_mail'] = SETTINGS['admin']['bus_address'];
 
         $this->addToDATA($collection);
         $this->addToDATA('locations', $locations);

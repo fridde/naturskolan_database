@@ -74,7 +74,7 @@ class Mail extends AbstractMessageController
         $subject_int = $this->getParameter('subject_int');
 
         $this->setTemplate('mail/admin_summary');
-        $receiver = SETTINGS['admin']['summary']['admin_adress'];
+        $receiver = SETTINGS['admin']['summary']['admin_address'];
         $this->Mailer->setValue('receiver', $receiver);
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
 

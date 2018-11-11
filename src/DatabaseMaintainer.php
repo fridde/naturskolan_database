@@ -92,7 +92,7 @@ class DatabaseMaintainer
         $this->ORM->EM->flush();
     }
 
-    public function prettifyMailAdresses()
+    public function prettifyMailAddresses()
     {
         /* @var UserRepository $user_repo */
         $user_repo = $this->ORM->getRepository(User::class);
