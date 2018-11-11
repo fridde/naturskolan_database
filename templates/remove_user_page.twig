@@ -1,0 +1,39 @@
+{% extends 'user_area.twig' %}
+
+{%- block school_area -%}
+    <div class="row">
+        <div class="col-md-3"></div>
+        {# middle part -#}
+        <div class="col-md-6">
+            <h1>Ta bort användare</h1>
+            <p>Här kan du begära att vi ska ta bort användare ur databasen. De kan fortfarande nå portalen med hjälp av lösenordet, men får inga mejl eller påminnelser. Då det inte ska tas bort användare av misstag kommer begäran granskas så att vi i eventuella fall kan undanröja missförstånd.</p>
+            <div id="remove-user-form">
+                <table class="table table-responsive table-striped">
+                    {% for user in DATA.users %}
+                        <tr data-id="{{ user.id }}">
+                            <td><input type="checkbox"></td>
+                            <td>{{ user.FirstName }} {{ user.LastName }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <div>
+                    <label for="reason-selector">Anledning för borttagning</label>
+                    <select id="reason-selector">
+                        <option selected>Jobbar inte längre på skolan</option>
+                        <option>Är obehörig</option>
+                        <option>Har inga skäl att vara med här</option>
+                        <option>Annan anledning</option>
+                    </select>
+                </div>
+                <div>
+                    <textarea placeholder="Andra skäl eller ytterligare upplysningar..." cols="60" rows="10"></textarea>
+                </div>
+                <div>
+                    <button id="send-user-removal-mail">Begär borttagning</button>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+{% endblock %}

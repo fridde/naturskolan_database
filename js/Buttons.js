@@ -1,3 +1,5 @@
+
+
 $(document).ready(function () {
 
 
@@ -298,6 +300,18 @@ $(document).ready(function () {
     $('button.copy-to-clipboard').click(function(){
         $('textarea.area-to-copy').select();
         document.execCommand('copy');
+    });
+
+    $('button#send-user-removal-mail').click(() => {
+        let $form = $('div#remove-user-form');
+        let data = [];
+        data.users = $('input:checkbox:checked', $form).map((i, el) => {
+            return $(el).closest('tr').data('id');
+        }).get();
+        data.reason = $('select#reason-selector option:selected').text();
+        data.reason_text = $('textarea', $form).val();
+
+        console.log(data);
     });
 
 

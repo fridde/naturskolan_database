@@ -369,6 +369,10 @@ hr.star-primary:after {
     border: 0;
 }
 
+.navbar i {
+    margin-right: 5px;
+}
+
 section {
     padding: 100px 0;
 }

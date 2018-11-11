@@ -17,6 +17,8 @@ class SchoolController extends BaseController
     /** @var School $request_school */
     public $request_school;
 
+    public $methods = ['createSchoolPage', 'createRemoveUserPage'];
+
     public function __construct($params = [])
     {
         parent::__construct($params);
@@ -26,38 +28,46 @@ class SchoolController extends BaseController
 
     public function handleRequest()
     {
-        $method = 'createSchoolPage';
+        $this->decreaseSecurityLevelIfFromRightSchool();
 
-        if($this->Authorizer->getVisitor()->isFromSchool($this->request_school)){
-            $this->Authorizer->changeSecurityLevel(self::class, $method,  Authorizer::ACCESS_ALL_EXCEPT_GUEST);
-        }
-
-        $this->addAction($method);
         $this->addToDATA('school_id', $this->request_school->getId());
+        $this->addToDATA('school_name', $this->request_school->getName());
+        $this->addToDATA($this->getAllUsers($this->request_school));
 
         parent::handleRequest();
     }
+
+
 
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
     public function createSchoolPage()
     {
-        $this->addToDATA('school_name', $this->request_school->getName());
-        $this->addToDATA($this->getAllUsers($this->request_school));
         $this->addToDATA($this->getAllGroups($this->request_school));
         $this->setTemplate('school_page');
     }
+    //
 
+    /**
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
+    public function createRemoveUserPage()
+    {
+        $this->setTemplate('remove_user_page');
+    }
 
 
     private function getAllUsers(School $school): array
     {
         $DATA = ['entity_class' => 'User'];
         $users = $school->getUsers();
-        usort($users, function(User $u1, User $u2){
-            return strcasecmp($u1->getFullName(), $u2->getFullName());
-        });
+        usort(
+            $users,
+            function (User $u1, User $u2) {
+                return strcasecmp($u1->getFullName(), $u2->getFullName());
+            }
+        );
         if (empty($users)) {
             $users[] = new User(); // dummy user
         }
@@ -139,6 +149,16 @@ class SchoolController extends BaseController
         }
 
         return $DATA;
+    }
+
+    private function decreaseSecurityLevelIfFromRightSchool(): void
+    {
+        if (! $this->Authorizer->getVisitor()->isFromSchool($this->request_school)) {
+            return;
+        }
+        foreach ($this->methods as $method) {
+            $this->Authorizer->changeSecurityLevel(self::class, $method, Authorizer::ACCESS_ALL_EXCEPT_GUEST);
+        }
     }
 
 
