@@ -339,24 +339,31 @@ class User
      * @param int $min
      * @return bool
      */
-    public function hasGroups(int $min = 1)
+    public function hasGroups(int $min = 1, bool $active = true, bool $visiting = false)
     {
-        return count($this->getGroups()) >= $min;
+        $groups = $this->getGroups();
+
+        if($active || $visiting){
+            $groups = array_filter(
+                $groups,
+                function (Group $g) use ($active, $visiting){
+                    if($active && ! $g->isActive()){
+                        return false;
+                    }
+                    if($visiting && ! $g->hasVisits()){
+                        return false;
+                    }
+                    return true;
+                }
+            );
+        }
+
+        return count($groups) >= $min;
     }
 
     public function hasActiveGroups()
     {
-        $groups = $this->getGroups();
-
-        return 1 <= count(
-                array_filter(
-                    $groups,
-                    function (Group $g) {
-                        return $g->isActive();
-                    }
-                )
-            );
-
+        return $this->hasGroups();
     }
 
     public function getGroupIdArray()

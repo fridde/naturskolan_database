@@ -287,9 +287,12 @@ class AdminSummary
 
     private function getIncompleteUserProfiles()
     {
+        /* @var UserRepository $u_repo  */
+        $u_repo = $this->N->getRepo('User');
+
         $rows = [];
         $imm_date = Task::getStartDate('immunity');
-        $incomplete_users = $this->N->getRepo('User')->findIncompleteUsers($imm_date);
+        $incomplete_users = $u_repo->findIncompleteUsers($imm_date);
         /* @var User $u */
         foreach ($incomplete_users as $u) {
             $row = $u->getFullName().', ';

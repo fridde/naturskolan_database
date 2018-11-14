@@ -36,6 +36,13 @@ class UserRepository extends CustomRepository
         return $users;
     }
 
+    public function findIncompleteUsersWithVisitingGroups($created_before = null)
+    {
+        $users = $this->findIncompleteUsers($created_before);
+
+
+    }
+
     public function findUsersWithBadMobil($created_before = null)
     {
         $users = array_filter(
