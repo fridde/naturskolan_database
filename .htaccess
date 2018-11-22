@@ -1,6 +1,9 @@
 AddType 'text/calendar; charset=UTF-8' .ics
 
 RewriteEngine on
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule . index.php [L]
 #RewriteRule . maintenance.html [L]
