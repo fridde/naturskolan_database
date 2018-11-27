@@ -27,14 +27,16 @@ class CronController extends BaseController
         }
 
         $this->addAction('run');
+        /*
         if ($this->isAuthorizedViaAuthkey()) {
             $this->Authorizer->changeSecurityLevel(get_class($this), 'run', Authorizer::ACCESS_ALL);
         }
+        */
         parent::handleRequest();
     }
 
     /**
-     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
     public function run(): void
     {
@@ -54,7 +56,7 @@ class CronController extends BaseController
     public function executeTaskNow(): void
     {
         $task = new Task($this->getParameter('type'));
-        if(!($task->isExempted() || $this->isAuthorizedViaAuthkey())){
+        if(! $task->isExempted()){
             throw new NException(Error::UNAUTHORIZED_ACTION, [$task]);
         }
 
@@ -75,13 +77,16 @@ class CronController extends BaseController
         return T::longerThanSince($this->intervals[$task_type], $last_completion);
     }
 
+    /*
     private function isAuthorizedViaAuthkey(string $key = null): bool
     {
+
         $key = $key ?? (string) $this->getParameter('AuthKey');
         $hash = $this->N->getStatus('cron.auth_key_hash');
 
         return password_verify($key, $hash);
     }
+    */
 
 
 }
