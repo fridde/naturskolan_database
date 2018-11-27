@@ -40,11 +40,14 @@ class VisitRepository extends CustomRepository
      * @return \Fridde\Entities\Visit[]  An array consisting of all visits from today until
      *                                  the specified date.
      */
-    public function findFutureVisitsUntil(Carbon $until = null): array
+    public function findFutureVisitsUntil(Carbon $until = null, bool $active = true): array
     {
         $methods[] = ['isAfter', true, [Carbon::today()]];
         if (!empty($until)) {
             $methods[] = ['isBefore', true, [$until]];
+        }
+        if($active){
+            $methods[] = ['isActive', true];
         }
 
         $filtered_visits = $this->findViaMultipleMethods($methods);
