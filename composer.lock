@@ -1208,12 +1208,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/dumper.git",
-                "reference": "bf35b2862e22078d74ba37b0a230f54b1934c813"
+                "reference": "d0e858a69fb5cbd6a07bbf956060cdb5ccbe2259"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/dumper/zipball/bf35b2862e22078d74ba37b0a230f54b1934c813",
-                "reference": "bf35b2862e22078d74ba37b0a230f54b1934c813",
+                "url": "https://api.github.com/repos/fridde/dumper/zipball/d0e858a69fb5cbd6a07bbf956060cdb5ccbe2259",
+                "reference": "d0e858a69fb5cbd6a07bbf956060cdb5ccbe2259",
                 "shasum": ""
             },
             "require": {
@@ -1237,7 +1237,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-11-01T17:55:52+00:00"
+            "time": "2018-11-27T16:36:29+00:00"
         },
         {
             "name": "fridde/essentials",
