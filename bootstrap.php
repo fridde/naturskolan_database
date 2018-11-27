@@ -14,11 +14,13 @@ if(empty($_SERVER['argv'][0])){
 
 /** START OF BOOTSTRAP  */
 Essentials::setBaseDir(__DIR__);
-Essentials::setAppUrl(__DIR__);
+//Essentials::setAppUrl(__DIR__);
 Essentials::setEnvironment();
 Essentials::activateDebugIfNecessary(['tracy']);
 $cache = new FilesystemCache(__DIR__ . '/temp/cache');
 Settings::setSettings(['cache' => $cache]);
+
+define('APP_URL', '//' . SETTINGS['app_root']);
 
 $services[] = ['Naturskolan', Naturskolan::class];
 
