@@ -21,7 +21,10 @@ class DatabaseMaintainer
 
     public function backup()
     {
-        $dumper = new Dumper();
+        $settings['Connection_Details'] = SETTINGS['Connection_Details'];
+        $settings['backup_dir'] = BASE_DIR . '/backup';
+
+        $dumper = new Dumper($settings);
         $dumper->export();
     }
 
