@@ -11,7 +11,7 @@ modules:
         #    url: http://localhost/naturskolan_database
         - Asserts
         - Filesystem
-        - Cli
+        # - Cli
         - \Helper\Acceptance
         - WebDriver:
             url: 'http://localhost/testing/naturskolan_database'

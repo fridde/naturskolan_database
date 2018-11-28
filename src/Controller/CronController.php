@@ -4,6 +4,7 @@ namespace Fridde\Controller;
 
 use Fridde\Error\Error;
 use Fridde\Error\NException;
+use Fridde\Essentials;
 use Fridde\Security\Authorizer;
 use Fridde\Timing as T;
 use Fridde\Task;
@@ -21,6 +22,10 @@ class CronController extends BaseController
 
     public function handleRequest()
     {
+        if(! (defined('ENVIRONMENT') && in_array(ENVIRONMENT, [Essentials::ENV_TEST, Essentials::ENV_DEV], true))){
+            throw new \Exception('cron shouldn\'t be run via url in production');
+        }
+
         if($this->hasAction('executeTaskNow')){
             $this->executeTaskNow();
             return ;

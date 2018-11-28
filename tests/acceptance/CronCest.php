@@ -316,10 +316,8 @@ class CronCest
         foreach($test_fixture as $days_to_add => $files_to_expect){
             $I->changeTestDate('+' . $days_to_add . ' days');
             if($days_to_add === 0){
-                $I->pauseExecution();
                 $I->runCronTask('backup_database');
             } else {
-                $I->pauseExecution();
                 $I->runActivatedCronTasks();
             }
             $I->assertCount($files_to_expect, $I->getFileNamesFromFolder('backup'));
