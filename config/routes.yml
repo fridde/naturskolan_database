@@ -3,7 +3,7 @@
 routes:
    index: ['GET','','Page','viewIndex']
    admin : ['GET','/admin/{action}','Admin', ~, 'action']
-   api : ['GET|POST','/api/{action}/{parameters}', 'API', ~, 'parameters']
+   api : ['GET|POST','/api/{action}/{parameters}', 'API', ~, 'action', 'parameters']
    batch : ['GET|POST','/admin/batch/{action}/{parameters}','Batch', ~, 'parameters']
    calendar: ['GET','/calendar','File','getCalendar']
    contact: ['GET', '/contact', 'Page','showContact']
