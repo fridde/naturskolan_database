@@ -10,26 +10,23 @@ if(file_exists('debug_functions.php')){
     require 'debug_functions.php';
 }
 
-$controller_namespace = '\\Fridde\\Controller\\';
+
 
 try {
     require 'bootstrap.php';
 
-    $request_url = rtrim(rawurldecode($_SERVER['REQUEST_URI']), '/\\');
+    //$request_url = rtrim(rawurldecode($_SERVER['REQUEST_URI']), '/\\');
 
-    $match = $container->get('Router')->match($request_url);
-    if ($match) {
-        $class_and_method = explode('#', $match['target']);
-        $controller_class = $controller_namespace.$class_and_method[0].'Controller';
-        $controller = new $controller_class($match['params']);
-        if ($controller instanceof BaseController) {
-            $controller->addAction($class_and_method[1] ?? null);
-            $controller->handleRequest();
-        }
-        exit();
+    $match = $container->get('Router')->match();
+
+    $controller_class = $match[0];
+    $controller = new $controller_class($match[2]);
+
+    if ($controller instanceof BaseController) {
+       $controller->addAction($match[1]);
+       $controller->handleRequest();
     }
-    $args = ['url' => $request_url];
-    throw new NException(Error::PAGE_NOT_FOUND, $args);
+    exit();
 
 } catch (\Exception $e) {
 

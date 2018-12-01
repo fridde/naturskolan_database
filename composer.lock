@@ -1245,12 +1245,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/essentials.git",
-                "reference": "13fa934455befe2ceb7ca237e128bd3e864c234f"
+                "reference": "8bf2392b827c5fec204b1a37ab1eaa18c7583410"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/essentials/zipball/13fa934455befe2ceb7ca237e128bd3e864c234f",
-                "reference": "13fa934455befe2ceb7ca237e128bd3e864c234f",
+                "url": "https://api.github.com/repos/fridde/essentials/zipball/8bf2392b827c5fec204b1a37ab1eaa18c7583410",
+                "reference": "8bf2392b827c5fec204b1a37ab1eaa18c7583410",
                 "shasum": ""
             },
             "require": {
@@ -1280,7 +1280,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-09-23T10:14:18+00:00"
+            "time": "2018-12-01T01:19:12+00:00"
         },
         {
             "name": "fridde/html",
@@ -1398,12 +1398,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/router.git",
-                "reference": "5dde6188d3028ae7704e491f02d2bd79f04f7145"
+                "reference": "d94c9bafaac04d8a9d232c527f21ec5417a613ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/router/zipball/5dde6188d3028ae7704e491f02d2bd79f04f7145",
-                "reference": "5dde6188d3028ae7704e491f02d2bd79f04f7145",
+                "url": "https://api.github.com/repos/fridde/router/zipball/d94c9bafaac04d8a9d232c527f21ec5417a613ad",
+                "reference": "d94c9bafaac04d8a9d232c527f21ec5417a613ad",
                 "shasum": ""
             },
             "require": {
@@ -1422,7 +1422,7 @@
                 }
             ],
             "description": "A wrapper for symfony/routing",
-            "time": "2018-11-30T19:33:46+00:00"
+            "time": "2018-12-01T01:18:39+00:00"
         },
         {
             "name": "fridde/slacker",

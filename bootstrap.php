@@ -24,8 +24,10 @@ define('APP_URL', '//' . SETTINGS['app_root']);
 
 $services[] = ['Naturskolan', Naturskolan::class];
 
+$controller_namespace = '\\Fridde\\Controller\\';
+
 $base_url = rtrim(parse_url(APP_URL, PHP_URL_PATH), '/');
-$services[] = ['Router', 'AltoRouter', Essentials::getRoutes(), $base_url];
+$services[] = ['Router', \Fridde\Router::class, $base_url, Essentials::getRoutes(), $controller_namespace];
 $services[] = ['Logger', Essentials::getLogger()];
 $services[] = ['Cache', new FilesystemCache(__DIR__ . '/temp/cache')];
 $container = Essentials::registerSharedServices($services);
