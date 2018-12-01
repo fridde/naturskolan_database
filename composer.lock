@@ -1398,12 +1398,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/router.git",
-                "reference": "d94c9bafaac04d8a9d232c527f21ec5417a613ad"
+                "reference": "847e649427dc753058bef87c3133fc947fea5a36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/router/zipball/d94c9bafaac04d8a9d232c527f21ec5417a613ad",
-                "reference": "d94c9bafaac04d8a9d232c527f21ec5417a613ad",
+                "url": "https://api.github.com/repos/fridde/router/zipball/847e649427dc753058bef87c3133fc947fea5a36",
+                "reference": "847e649427dc753058bef87c3133fc947fea5a36",
                 "shasum": ""
             },
             "require": {
@@ -1411,6 +1411,11 @@
                 "symfony/routing": "^4.2"
             },
             "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Fridde\\": "src/"
+                }
+            },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
@@ -1422,7 +1427,7 @@
                 }
             ],
             "description": "A wrapper for symfony/routing",
-            "time": "2018-12-01T01:18:39+00:00"
+            "time": "2018-12-01T13:08:10+00:00"
         },
         {
             "name": "fridde/slacker",
