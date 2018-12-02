@@ -116,6 +116,7 @@ class SchoolController extends BaseController
                     $r['teacher_id'] = empty($user) ? null : $user->getId();
                     $r['nr_students'] = $g->getNumberStudents() ?? 0;
                     $r['food'] = $g->getFood();
+                    $r['needs_food'] = !in_array($g->getSegment(), ['fri', '9'], false);
                     $r['info'] = $g->getInfo();
                     $r['visits'] = array_map(
                         function (Visit $v) {

@@ -46,12 +46,12 @@
                                          value={{ group.nr_students }} data-slider-label-id="slider_label_{{ group.id }}"></div>
                                     <div id="slider_label_{{ group.id }}"
                                          class="slider-value">{{ group.nr_students }}</div>
-                                    <label for="food_{{ group.id }}">Specialkost</label>
-                                    <textarea name="Food" id="food_{{ group.id }}" class="editable form-control has-tooltip"
-                                              rows="4" cols="50"
-                                              placeholder="Ange specialkost här">
-                                                {{- group.food -}}
-                                            </textarea>
+                                    {% if group.needs_food %}
+                                        <label for="food_{{ group.id }}">Specialkost</label>
+                                        <textarea name="Food" id="food_{{ group.id }}" class="editable form-control has-tooltip" rows="4" cols="50" placeholder="Ange specialkost här">
+                                            {{- group.food -}}
+                                        </textarea>
+                                    {% endif %}
                                     <label for="info_{{ group.id }}">Information om gruppen</label>
                                     <textarea name="Info" id="info_{{ group.id }}" cols="50" rows="4"
                                               class="editable form-control"

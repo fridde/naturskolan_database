@@ -67,6 +67,12 @@ class Visit
     /** @Column(type="smallint", nullable=true) */
     protected $FoodIsBooked;
 
+    /** @Column(type="string", nullable=true)
+     */
+    protected $TimeProposal;
+
+
+
     public const STATUS_ARCHIVED = 0;
     public const STATUS_ACTIVE = 1;
 
@@ -435,6 +441,23 @@ class Visit
     {
         $this->FoodIsBooked = (int)$FoodIsBooked;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getTimeProposal(): ?string
+    {
+        return $this->TimeProposal;
+    }
+
+    /**
+     * @param string $TimeProposal
+     */
+    public function setTimeProposal(string $TimeProposal): void
+    {
+        $this->TimeProposal = $TimeProposal;
+    }
+
 
     public function getLabel(string $pattern = 'DTGSU')
     {
