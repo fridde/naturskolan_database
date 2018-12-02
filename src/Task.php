@@ -193,7 +193,7 @@ class Task
         foreach ($unconfirmed_visits as $v) {
             if ($v->hasGroup()) {
                 $user = $v->getGroup()->getUser();
-                if(empty($user) || $user->Pacified){
+                if(empty($user) || $user->Pacification){
                     continue;
                 }
                 $last_msg = $user->getLastMessage($search_props);
@@ -371,7 +371,7 @@ class Task
             if (empty($user)) {
                 throw new NException(Error::LOGIC, ['User couldn\'t be found anymore']);
             }
-            if ($user->Pacified) {
+            if ($user->Pacification) {
                 continue;
             }
             $params = ['subject_int' => $subject_int];
@@ -427,7 +427,7 @@ class Task
         foreach ($users_without_welcome as $user) {
             /* @var User $user */
             $params = ['subject_int' => $subject_int];
-            if($user->Pacified){
+            if($user->Pacification){
                 continue;
             }
             if ($user->hasMail()) {
@@ -484,7 +484,7 @@ class Task
             function ($u) use ($annoyance_start, $msg_props) {
                 /* @var User $u */
                 // We don't need to remind users without groups or users that have recently gotten a message.
-                return empty($u->Pacified)
+                return empty($u->Pacification)
                     && $u->hasActiveGroups()
                     && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
             }

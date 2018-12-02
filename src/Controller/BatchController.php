@@ -349,7 +349,7 @@ class BatchController extends BaseController
         $managers = $user_repo->getActiveManagers();
         $messages = [];
         foreach($managers as $manager){
-            if($manager->Pacified){
+            if($manager->Pacification){
                 continue;
             }
             if(!$manager->hasMail()){
