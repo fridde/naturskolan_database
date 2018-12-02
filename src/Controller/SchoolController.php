@@ -121,6 +121,7 @@ class SchoolController extends BaseController
                         function (Visit $v) {
                             $r['id'] = $v->getId();
                             $r['date'] = $v->getDate()->toDateString();
+                            $r['time'] = $v->hasTime() ? $v->getTime() : false;
                             $r['topic_short_name'] = $v->getTopic()->getShortName();
                             $r['topic_url'] = $v->getTopic()->getUrl();
                             $r['confirmed'] = $v->isConfirmed();

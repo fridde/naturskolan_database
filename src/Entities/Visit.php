@@ -275,7 +275,7 @@ class Visit
         return [1 => '']; // This is necessary to create the yes or no checkbox
     }
 
-    public function getTime()
+    public function getTime(): ?string
     {
         return $this->Time;
     }

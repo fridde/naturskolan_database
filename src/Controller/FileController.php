@@ -13,6 +13,10 @@ class FileController extends BaseController
     {
         $file = BASE_DIR . '/' . self::CALENDAR_FILE;
 
+        header('Expires: Sun, 01 Jan 2014 00:00:00 GMT');
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Cache-Control: post-check=0, pre-check=0', FALSE);
+        header('Pragma: no-cache');
         header('Content-type: text/calendar; charset=utf-8');
         header('Content-Disposition: attachment; filename=' . self::CALENDAR_FILE);
 

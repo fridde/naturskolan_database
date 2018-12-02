@@ -61,7 +61,10 @@
                                     {% if group.visits -%}
                                         <ul class="group-visit-list">
                                             {% for visit in group.visits -%}
-                                                <li>{{ visit.date }}:&nbsp;
+                                                <li>{{ visit.date }}
+                                                    {%- if visit.time %} kl {{ visit.time }}
+                                                    {%- endif -%}
+                                                    :&nbsp;
                                                     {%- if visit.topic_url -%}
                                                         <a target="_blank"
                                                            href="{{ visit.topic_url }}">{{ visit.topic_short_name }}</a>
