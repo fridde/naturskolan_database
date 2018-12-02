@@ -6,4 +6,4 @@ require 'bootstrap.php';
 
 $cron_controller = new CronController([]);
 
-$cron_controller->handleRequest();
+$cron_controller->run();
