@@ -136,7 +136,7 @@ $(document).ready(function () {
         newRow.attr("data-id", tempId).data("id", tempId);
         newRow.find(":input").val('').removeAttr('value').removeAttr('id');
         newRow.data('properties', undefined).removeProp('data-properties');
-        newRow.find(':input.datepicker').BSdatepicker("destroy").BSdatepicker(Settings.datepickerOptions);
+        newRow.find(':input.datepicker').BSdatepicker("destroy");
         oldRow.after(newRow);
         if (!oldRow.is(':visible')) { // was only dummy row
             oldRow.remove();
