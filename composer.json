@@ -19,7 +19,6 @@
         "fridde/essentials": "dev-master",
         "fridde/slacker": "dev-master",
         "fridde/orm": "dev-master",
-        "altorouter/altorouter": "1.2",
         "guzzlehttp/guzzle": "6.3",
         "dotzero/googl": "0.2.0",
         "symfony/yaml": "^4.0",
