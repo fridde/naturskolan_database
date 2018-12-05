@@ -103,6 +103,8 @@ class BaseController
     public function returnAsJson()
     {
         header('Content-Type: application/json');
+        // TODO: Horrible hack, remove as soon as problem solved. Security risk!
+        header('Access-Control-Allow-Origin: *');
         echo json_encode($this->DATA);
 
         return null;
