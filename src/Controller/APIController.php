@@ -3,6 +3,7 @@
 namespace Fridde\Controller;
 
 use Carbon\Carbon;
+use Fridde\Entities\Message;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
@@ -137,7 +138,7 @@ class APIController extends BaseController
         $data = ['fname' => $user->getFirstName()];
         $data['password_link'] = $this->N->createLoginUrl($user, 'groups');
         $data['school_url'] = $this->N->generateUrl('school', ['school' => $user->getSchoolId()], true);
-        $params = ['purpose' => 'password_recover'];
+        $params = ['subject_int' => Message::SUBJECT_PASSWORD_RECOVERY];
         $params['data'] = $data;
         $params['receiver'] = $mail_address;
 
