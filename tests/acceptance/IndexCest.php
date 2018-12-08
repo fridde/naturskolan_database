@@ -29,6 +29,7 @@ class IndexCest
         $I->pause(0.7);
         $I->makeScreenshot('frontpage_visitor');
         $schools_on_fp = $I->get('schools','frontpage') ?? [];
+        $I->pauseExecution();
         foreach ($schools_on_fp as $index => $school_name) {
             $I->see($school_name, '.flexbox');
             $I->canSeeInSource($index, '.flexbox');
