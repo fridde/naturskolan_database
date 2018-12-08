@@ -2,9 +2,13 @@ AddType 'text/calendar; charset=UTF-8' .ics
 
 RewriteEngine on
 
-RewriteCond %{HTTPS} off [OR]
-RewriteCond %{HTTP_HOST} ^www\.
-RewriteRule ^(.*)$ https://sigtunanaturskola.se/ndb/$1 [L]
+#RewriteCond %{HTTPS} off
+#RewriteRule ^(.*)$ https://%1/ndb/$1 [L]
+
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^(.*) [OR]
+RewriteCond %{HTTP_HOST} ^www\.(.*)
+RewriteRule ^(.*)$ https://%1/ndb/$1 [L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule . index.php [L]
