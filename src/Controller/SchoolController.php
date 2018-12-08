@@ -120,15 +120,25 @@ class SchoolController extends BaseController
                     $r['info'] = $g->getInfo();
                     $r['visits'] = array_map(
                         function (Visit $v) {
+                            $topic = $v->getTopic();
                             $r['id'] = $v->getId();
                             $r['date'] = $v->getDate()->toDateString();
                             $r['time'] = $v->hasTime() ? $v->getTime() : false;
-                            $r['topic_short_name'] = $v->getTopic()->getShortName();
-                            $r['topic_url'] = $v->getTopic()->getUrl();
+                            $r['topic_short_name'] = $topic->getShortName();
+                            $r['topic_url'] = $topic->getUrl();
+
+
+
+
                             $r['confirmed'] = $v->isConfirmed();
-                            $dur = T::addDurationToNow(SETTINGS['values']['show_confirm_link']);
-                            if ($v->isInFuture() && $v->isBefore($dur)) {
+                            $dur1 = T::addDurationToNow(SETTINGS['values']['show_confirm_link']);
+                            $in_future = $v->isInFuture();
+                            if ($in_future && $v->isBefore($dur1)) {
                                 $r['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), 'simple');
+                            }
+                            $dur2 = T::addDurationToNow(SETTINGS['values']['show_time_proposal']);
+                            if($in_future && $topic->isLektion() && $v->isBefore($dur2)){
+                                $r['time_proposal'] = $v->getTimeProposal();
                             }
 
                             return $r;

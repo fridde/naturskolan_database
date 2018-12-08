@@ -54,7 +54,7 @@ class AdminController extends BaseController
         $conn = $this->N->ORM->EM->getConnection();
 
         $sql = 'SELECT `level`, `message`, `time`, `source` ';
-        $sql .= 'FROM `log` ORDER BY `time` DESC LIMIT 0 , 500';
+        $sql .= 'FROM `log` ORDER BY `time` DESC LIMIT 300';
 
         $stmt = $conn->query($sql);
 

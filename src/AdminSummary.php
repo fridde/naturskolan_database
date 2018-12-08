@@ -279,20 +279,29 @@ class AdminSummary
                 $counter,
                 function ($count, $address) use ($ignored_addresses) {
                     $ignored = in_array($address, $ignored_addresses, true);
+
                     return !$ignored && $count > 1;
-                }, ARRAY_FILTER_USE_BOTH
+                },
+                ARRAY_FILTER_USE_BOTH
             )
         );
     }
 
     private function getIncompleteUserProfiles()
     {
-        /* @var UserRepository $u_repo  */
+        /* @var UserRepository $u_repo */
         $u_repo = $this->N->getRepo('User');
 
         $rows = [];
         $imm_date = Task::getStartDate('immunity');
         $incomplete_users = $u_repo->findIncompleteUsers($imm_date);
+        $incomplete_users = array_filter(
+            $incomplete_users,
+            function (User $u) {
+                return $u->hasGroups(1, true, true);
+            }
+        );
+
         /* @var User $u */
         foreach ($incomplete_users as $u) {
             $row = $u->getFullName().', ';

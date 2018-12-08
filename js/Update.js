@@ -1,4 +1,8 @@
-let Update = {
+const Update = {
+
+        stack: [],
+
+        add: function(data){},
 
         send: function (data) {
             console.group("Request");
@@ -113,9 +117,9 @@ let Update = {
 
         showSentManagerMails: function (data) {
             let text = '<h5>Skickade mejl:</h5>';
-                text += '<ul><li>';
-                text += data.sent_mails.join('</li><li>');
-                text += '</li></ul>';
+            text += '<ul><li>';
+            text += data.sent_mails.join('</li><li>');
+            text += '</li></ul>';
 
             $('#manager-mobilization div.result-box').html(text);
         },
