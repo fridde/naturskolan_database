@@ -61,7 +61,7 @@
                                     {% if group.visits -%}
                                         <ul class="group-visit-list">
                                             {% for visit in group.visits -%}
-                                                <li>{{ visit.date }}
+                                                <li data-id="{{ visit.id }}">{{ visit.date }}
                                                     {%- if visit.time %} kl {{ visit.time }}
                                                     {%- endif -%}
                                                     :&nbsp;
@@ -80,12 +80,21 @@
                                                                 Bekräftad! <i class="fas fa-calendar-check"></i>
                                                             {%- endif -%}
                                                             </span>
+                                                    {% if visit.time_proposal is not null %}
+                                                        <br><input type="text" class="editable form-control" name="TimeProposal" placeholder="Ange önskad tid för detta besök och eventuellt en alternativ-tid.">
+                                                    {% endif %}
                                                 </li>
                                             {%- endfor %}
                                         </ul>
                                     {% else %}
                                         <p>För närvarande är inga besök inplanerade för denna grupp.</p>
                                     {%- endif %}
+                                    <label for="time_proposal_{{ group.id }}">Information om gruppen</label>
+                                    <textarea name="Info" id="info_{{ group.id }}" cols="50" rows="4"
+                                              class="editable form-control"
+                                              placeholder="Saker som är bra att veta">
+                                                {{- group.info -}}
+                                    </textarea>
                                 </div>
                             {%- endfor %}
                         </div>

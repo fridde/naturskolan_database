@@ -126,10 +126,6 @@ class SchoolController extends BaseController
                             $r['time'] = $v->hasTime() ? $v->getTime() : false;
                             $r['topic_short_name'] = $topic->getShortName();
                             $r['topic_url'] = $topic->getUrl();
-
-
-
-
                             $r['confirmed'] = $v->isConfirmed();
                             $dur1 = T::addDurationToNow(SETTINGS['values']['show_confirm_link']);
                             $in_future = $v->isInFuture();
