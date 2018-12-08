@@ -52,6 +52,7 @@ class IndexCest
 
         $I->setCookie('AuthKey', $I->get('natu','AuthKey'));
         $I->reloadPage();
+        $I->pauseExecution();
         foreach ($admin_nav_items as $item) {
             $I->see($item, '.nav');
         }
