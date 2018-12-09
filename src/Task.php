@@ -193,7 +193,7 @@ class Task
         foreach ($unconfirmed_visits as $v) {
             if ($v->hasGroup()) {
                 $user = $v->getGroup()->getUser();
-                if(empty($user) || $user->Pacification){
+                if(empty($user) || $user->MessageSettings){
                     continue;
                 }
                 $last_msg = $user->getLastMessage($search_props);
@@ -278,10 +278,18 @@ class Task
     private function sendVisitConfirmationMail(Visit $visit)
     {
         $v = $visit;
-        $params = ['subject_int' => Message::SUBJECT_VISIT_CONFIRMATION];
-        $params['receiver'] = $v->getGroup()->getUser()->getMail();
+        $user = $v->getGroup()->getUser();
+        $subject_int = Message::SUBJECT_VISIT_CONFIRMATION;
 
-        $data['fname'] = $v->getGroup()->getUser()->getFirstName();
+        if($user->hasMessageSetting($subject_int)){
+            exit();
+        }
+
+        $params = ['subject_int' => $subject_int];
+        $params['receiver'] = $user->getMail();
+        $params['html'] = $user->hasMessageSetting(Message::MAIL_HTML);
+
+        $data['fname'] = $user->getFirstName();
         $school_id = $v->getGroup()->getSchoolId();
         $data['school_url'] = $this->N->generateUrl('school', ['school' => $school_id], true);
         $visit_info['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), 'check_hash', true);
@@ -371,7 +379,7 @@ class Task
             if (empty($user)) {
                 throw new NException(Error::LOGIC, ['User couldn\'t be found anymore']);
             }
-            if ($user->Pacification) {
+            if ($user->MessageSettings) {
                 continue;
             }
             $params = ['subject_int' => $subject_int];
@@ -427,7 +435,7 @@ class Task
         foreach ($users_without_welcome as $user) {
             /* @var User $user */
             $params = ['subject_int' => $subject_int];
-            if($user->Pacification){
+            if($user->MessageSettings){
                 continue;
             }
             if ($user->hasMail()) {
@@ -484,7 +492,7 @@ class Task
             function ($u) use ($annoyance_start, $msg_props) {
                 /* @var User $u */
                 // We don't need to remind users without groups or users that have recently gotten a message.
-                return empty($u->Pacification)
+                return empty($u->MessageSettings)
                     && $u->hasActiveGroups()
                     && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
             }

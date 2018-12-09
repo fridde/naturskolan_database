@@ -44,14 +44,18 @@ class Message
     public const CARRIER_MAIL = 0;
     public const CARRIER_SMS = 1;
 
-    public const SUBJECT_VISIT_CONFIRMATION = 0;
-    public const SUBJECT_WELCOME_NEW_USER = 1;
-    public const SUBJECT_PROFILE_UPDATE = 2;
-    public const SUBJECT_CHANGED_GROUPS = 3;
-    public const SUBJECT_PASSWORD_RECOVERY = 4;
-    public const SUBJECT_ADMIN_SUMMARY = 5;
-    public const SUBJECT_UPDATE_RECEIVED_SMS = 6;
-    public const SUBJECT_MANAGER_MOBILIZATION = 7;
+    public const MAIL_HTML = 1;
+
+    public const SUBJECT_VISIT_CONFIRMATION = 2 ;
+    public const SUBJECT_WELCOME_NEW_USER = 4;
+    public const SUBJECT_PROFILE_UPDATE = 8;
+    public const SUBJECT_CHANGED_GROUPS = 16;
+    public const SUBJECT_PASSWORD_RECOVERY = 32;
+    public const SUBJECT_ADMIN_SUMMARY = 64;
+    public const SUBJECT_UPDATE_RECEIVED_SMS = 128;
+    public const SUBJECT_MANAGER_MOBILIZATION = 256;
+
+
 
     public function getId()
     {

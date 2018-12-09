@@ -47,7 +47,9 @@ class User
     protected $CreatedAt;
 
     /** @Column(type="smallint", nullable=true) */
-    public $Pacification;
+    public $MessageSettings;
+
+
 
     /** @ManyToMany(targetEntity="Visit", mappedBy="Colleagues")
      * @JoinTable(name="Colleagues_Visits")
@@ -291,6 +293,22 @@ class User
             $CreatedAt = $CreatedAt->toIso8601String();
         }
         $this->CreatedAt = $CreatedAt;
+    }
+
+
+    public function getMessageSettings(): int
+    {
+        return $this->MessageSettings;
+    }
+
+    public function setMessageSettings(int $MessageSettings): void
+    {
+        $this->MessageSettings = $MessageSettings;
+    }
+
+    public function hasMessageSetting(int $MessageSetting): bool
+    {
+        return $this->getMessageSettings() & $MessageSetting;
     }
 
     public function getVisits()
