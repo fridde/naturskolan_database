@@ -88,7 +88,7 @@ class Mail extends AbstractMessageController
         $this->addToDATA($this->getParameter('data'));
         $this->moveFromDataToVar('school_url', 'fname');
 
-        $this->setTemplate('mail/password_recover');
+        $this->setTemplate('mail/password_recover_raw');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
         $this->Mailer->setValue('SMTPDebug', 0);
@@ -98,7 +98,7 @@ class Mail extends AbstractMessageController
     {
         $subject_int = $this->getParameter('subject_int');
 
-        $this->setTemplate('mail/incomplete_profile');
+        $this->setTemplate('mail/incomplete_profile_raw');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
         $this->addToDATA($this->getParameter('data'));
@@ -109,7 +109,7 @@ class Mail extends AbstractMessageController
     {
         $subject_int = $this->getParameter('subject_int');
 
-        $this->setTemplate('mail/confirm_visit');
+        $this->setTemplate('mail/confirm_visit_raw');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
         $this->addAsVar($this->getParameter('data'));
@@ -133,7 +133,7 @@ class Mail extends AbstractMessageController
         $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
 
-        $this->setTemplate('mail/changed_groups');
+        $this->setTemplate('mail/changed_groups_raw');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
 
         $has_removed = !empty($groups['removed']);
@@ -172,7 +172,7 @@ class Mail extends AbstractMessageController
         );
         $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
-        $this->setTemplate('mail/new_user_welcome');
+        $this->setTemplate('mail/new_user_welcome_raw');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
     }
@@ -185,7 +185,7 @@ class Mail extends AbstractMessageController
 
         $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
-        $this->setTemplate('mail/manager_mobilization');
+        $this->setTemplate('mail/manager_mobilization_raw');
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
     }

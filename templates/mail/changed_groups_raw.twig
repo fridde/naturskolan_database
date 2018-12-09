@@ -1,0 +1,41 @@
+{% extends "mail/common/base_mail_raw.twig" %}
+
+{%- set groups, group_rows, group_row_padding = DATA.groups, 0, 80 -%}
+{% if groups.new|length > 0 %}{%- set group_rows = group_rows + 1 + groups.new|length -%}{% endif %}
+{% if groups.removed|length > 0 %}{%- set group_rows = group_rows + 1 + groups.removed|length -%}{% endif %}
+{% if groups.rest|length > 0 %}{%- set group_rows = group_rows + 1 + groups.rest|length -%}{% endif -%}
+{% if group_rows > 3 %}
+    {%- set group_row_padding = 10 -%}
+{% endif %}
+
+
+{% block title %}Ditt ansvar har ändrats!{% endblock %}
+
+{% block body_text %}
+Det har skett förändringar angående vilka grupper du ansvarar för inom Naturskolans databas.
+
+{% if groups.new %}
+{%- if groups.new|length == 1 %}Ny grupp{%- else -%}Nya grupper{%- endif %} som du ansvarar för:
+{% for group in groups.new %}
+  - {{ group.name }}, {{ group.segment }}
+{%- endfor -%}
+{% endif %}
+{%- if groups.removed -%}
+{% if groups.removed|length == 1 %}Borttagen grupp{%- else -%}Borttagna grupper{%- endif %} som du ej längre ansvarar för:
+{% for group in groups.removed %}
+   - {{ group.name }}, {{ group.segment }}
+{% endfor %}
+{% endif %}
+{% if groups.rest %}
+{% if groups.rest|length == 1 %}Gruppen{%- else -%}Grupper{%- endif %} som du fortsätter att ansvara för:
+{% for group in groups.rest %}
+  - {{ group.name }}, {{ group.segment }}
+{% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block after_body_text %}
+Det har skett ändringar angående vilka grupper du ansvarar för. Att "vara ansvarig" för en grupp betyder att man är kontaktperson, kontrollerar specialkost och kan kontaktas om något oväntad händer med kort varsel.
+Ändringarna har genomförts av dig, en kollega med tillgång till lösenordet eller någon på Naturskolan.
+Om du tycker att denna ändring är felaktig, gå in på sidan för din skola i vår databas och ändra tillbaka eller hör av dig till oss på Naturskolan.
+{% endblock %}

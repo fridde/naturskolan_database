@@ -199,10 +199,7 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function runActivatedCronTasks()
     {
-        //$this->runShellCommand('C:\wamp\bin\php\php7.2.4\php.exe run_cron.php');
-        //$this->runShellCommand('cd');
         $this->amOnPage('/cron');
-        //$this->pauseExecution();
         $this->pause(0.7);
     }
 
