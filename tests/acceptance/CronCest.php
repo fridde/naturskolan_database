@@ -149,13 +149,13 @@ class CronCest
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
         //checking that no new mails are sent
-        $I->amOnPage('/cron/');
+        $I->runActivatedCronTasks();
         $I->pause(0.7);
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
         // checking that this is due to the mails already being sent and not just because of the systemstatus
         $I->changeTestDate('+3 days');
-        $I->amOnPage('/cron/');
+        $I->runActivatedCronTasks();
         $I->pause(0.7);
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
