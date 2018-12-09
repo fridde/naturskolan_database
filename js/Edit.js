@@ -138,6 +138,14 @@ let Edit = {
 
                 $('.add-note-to-visit .prewritten-notes').data('notes')[data.author_id] = data.text;
                 break;
+
+            case 'timeproposal':
+                data.updateMethod = 'updateProperty';
+                data.entity_class = 'Visit';
+                data.entity_id = $this.closest('li').data('visit-id');
+                data.property = 'TimeProposal';
+                data.value = $this.val();
+                break;
         }
 
         if ($this.prop("type") === "checkbox") {

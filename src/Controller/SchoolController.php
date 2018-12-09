@@ -134,7 +134,7 @@ class SchoolController extends BaseController
                             }
                             $dur2 = T::addDurationToNow(SETTINGS['values']['show_time_proposal']);
                             if($in_future && $topic->isLektion() && $v->isBefore($dur2)){
-                                $r['time_proposal'] = $v->getTimeProposal();
+                                $r['time_proposal'] = $v->getTimeProposal() ?? '';
                             }
 
                             return $r;

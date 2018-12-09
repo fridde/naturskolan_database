@@ -61,7 +61,7 @@
                                     {% if group.visits -%}
                                         <ul class="group-visit-list">
                                             {% for visit in group.visits -%}
-                                                <li data-id="{{ visit.id }}">{{ visit.date }}
+                                                <li data-visit-id="{{ visit.id }}">{{ visit.date }}
                                                     {%- if visit.time %} kl {{ visit.time }}
                                                     {%- endif -%}
                                                     :&nbsp;
@@ -81,7 +81,7 @@
                                                             {%- endif -%}
                                                             </span>
                                                     {% if visit.time_proposal is not null %}
-                                                        <br><input type="text" class="editable form-control" name="TimeProposal" placeholder="Ange önskad tid för detta besök och eventuellt en alternativ-tid.">
+                                                        <br><input type="text" class="editable form-control" name="TimeProposal" placeholder="Ange önskad tid & evt alternativ" value="{{ visit.time_proposal }}">
                                                     {% endif %}
                                                 </li>
                                             {%- endfor %}

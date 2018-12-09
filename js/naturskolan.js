@@ -44,7 +44,8 @@ $(document).ready(function () {
     /**
      * Configuration of callbacks for several elements
      */
-    $('.group-container .editable').change('group', Edit.change);
+    $('.group-container .editable').not('[name="TimeProposal"]').change('group', Edit.change);
+    $('.group-container .editable[name="TimeProposal"]').change('timeproposal', Edit.change);
     $('table.editable :input').not('.datepicker').change("tableInput", Edit.change);
     $('.add-note-to-visit .editable').change('addNoteToVisit', Edit.change);
 
