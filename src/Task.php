@@ -379,13 +379,14 @@ class Task
             if (empty($user)) {
                 throw new NException(Error::LOGIC, ['User couldn\'t be found anymore']);
             }
-            if ($user->MessageSettings) {
+            if (!$user->hasMessageSetting($subject_int)) {
                 continue;
             }
             $params = ['subject_int' => $subject_int];
             if ($user->hasMail()) {
                 $params['receiver'] = $user->getMail();
-
+                $params['html'] = $user->hasMessageSetting(Message::MAIL_HTML);
+                
                 $all = $user->getGroupIdArray();
                 $g_changes['rest'] = array_diff($all, $g_changes['new'], $g_changes['removed']);
 
