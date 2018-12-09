@@ -49,8 +49,6 @@ class User
     /** @Column(type="smallint", nullable=true) */
     public $MessageSettings;
 
-
-
     /** @ManyToMany(targetEntity="Visit", mappedBy="Colleagues")
      * @JoinTable(name="Colleagues_Visits")
      */
