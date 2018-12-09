@@ -193,7 +193,7 @@ class Task
         foreach ($unconfirmed_visits as $v) {
             if ($v->hasGroup()) {
                 $user = $v->getGroup()->getUser();
-                if(empty($user) || $user->MessageSettings){
+                if(empty($user)){
                     continue;
                 }
                 $last_msg = $user->getLastMessage($search_props);
@@ -281,7 +281,7 @@ class Task
         $user = $v->getGroup()->getUser();
         $subject_int = Message::SUBJECT_VISIT_CONFIRMATION;
 
-        if($user->hasMessageSetting($subject_int)){
+        if(!$user->hasMessageSetting($subject_int)){
             exit();
         }
 

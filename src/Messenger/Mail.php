@@ -85,11 +85,12 @@ class Mail extends AbstractMessageController
     protected function preparePasswordRecovery()
     {
         $subject_int = $this->getParameter('subject_int');
+        $template = 'mail/password_recover' . ($this->isHtml() ? '' : '_raw');
 
         $this->addToDATA($this->getParameter('data'));
         $this->moveFromDataToVar('school_url', 'fname');
 
-        $this->setTemplate('mail/password_recover_raw');
+        $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
         $this->Mailer->setValue('SMTPDebug', 0);
@@ -99,7 +100,9 @@ class Mail extends AbstractMessageController
     {
         $subject_int = $this->getParameter('subject_int');
 
-        $this->setTemplate('mail/incomplete_profile_raw');
+        $template = 'mail/incomplete_profile' . ($this->isHtml() ? '' : '_raw');
+
+        $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
         $this->addToDATA($this->getParameter('data'));
@@ -109,8 +112,9 @@ class Mail extends AbstractMessageController
     protected function prepareVisitConfirmation()
     {
         $subject_int = $this->getParameter('subject_int');
+        $template = 'mail/confirm_visit' . ($this->isHtml() ? '' : '_raw');
 
-        $this->setTemplate('mail/confirm_visit_raw');
+        $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
         $this->addAsVar($this->getParameter('data'));
@@ -134,7 +138,8 @@ class Mail extends AbstractMessageController
         $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
 
-        $this->setTemplate('mail/changed_groups_raw');
+        $template = 'mail/changed_groups' . ($this->isHtml() ? '' : '_raw');
+        $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
 
         $has_removed = !empty($groups['removed']);
@@ -173,7 +178,9 @@ class Mail extends AbstractMessageController
         );
         $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
-        $this->setTemplate('mail/new_user_welcome_raw');
+
+        $template = 'mail/new_user_welcome' . ($this->isHtml() ? '' : '_raw');
+        $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
     }
@@ -186,7 +193,8 @@ class Mail extends AbstractMessageController
 
         $this->addToDATA($DATA);
         $this->moveFromDataToVar('school_url', 'fname');
-        $this->setTemplate('mail/manager_mobilization_raw');
+        $template = 'mail/manager_mobilization' . ($this->isHtml() ? '' : '_raw');
+        $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
     }
@@ -199,5 +207,10 @@ class Mail extends AbstractMessageController
     protected function getSubjectString(int $subject): string
     {
         return $this->getMethods()[$subject][2] ?? '';
+    }
+
+    protected function isHtml()
+    {
+        return $this->getParameter('html') === true;
     }
 }
