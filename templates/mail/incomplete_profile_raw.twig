@@ -1,49 +1,8 @@
 {% extends "mail/common/base_mail_raw.twig" %}
 
-{% block title %}Vi behöver mer information från dig!{% endblock %}
-
-{% block preheader_text %}
-    Vi har märkt att det saknas information om dig. Hjälp oss genom att redigera din användarprofil!
-{% endblock %}
-
-{% block image_text_box %}
-    <div>
-        <table role="presentation" align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
-            <tr>
-                <td valign="middle"
-                    style="text-align: center; padding: 40px; font-size: 20px; font-weight: 900; line-height: 140%; color: #000000;">
-                    <p style="margin: 0;">Vi behöver ditt mobilnummer!</p>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <!-- Button : BEGIN -->
-                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: auto;">
-                        <tr>
-                            <td style="border-radius: 10px; background: #222222; text-align: center;"
-                                class="button-td">
-                                <a href="{{ DATA.school_staff_url}}"
-                                   style="background: #222222; border: 15px solid #222222; font-size: 13px; line-height: 110%; text-align: center; text-decoration: none; display: block; border-radius: 10px; font-weight: bold;"
-                                   class="button-a" target="_blank">
-                                    &nbsp;&nbsp;&nbsp;&nbsp;<span
-                                        style="color:#ffffff;">Uppdatera ditt profil!</span>&nbsp;&nbsp;&nbsp;&nbsp;
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
-                    <!-- Button : END -->
-                </td>
-            </tr>
-        </table>
-    </div>
-{% endblock %}
-
 {% block body_text %}
-    <p style="margin: 0;"> För att kunna nå dig i sista minuten (buss försenad, sjukdomsfall, etc) behöver vi ett mobilnummer till dig.</p>
-    <p style="margin: 0;"> Vi kommer endast kontakta dig med ärenden angående besöken hos oss och kommer inte att ge ditt nummer vidare. Vänligen använd knappen ovan och uppdatera ditt profil. Tack!</p>
-{% endblock %}
+För att kunna nå dig i sista minuten (buss försenad, sjukdomsfall, etc) behöver vi ett mobilnummer till dig.
+Vi kommer endast kontakta dig med ärenden angående besöken hos oss och kommer inte att ge ditt nummer vidare. Vänligen använd knappen ovan och uppdatera ditt profil. Tack!
 
-{% block why_this_mail %}
-    <p style="margin: 0;">Du får detta mejl för att du ansvarar för minst en grupp eller klass inom Naturskolans databas som snart ska besöka oss.</p>
-    <p style="margin: 0;">Vi har märkt att det ibland uppstår situationer där vi snabbt behöver kontakta dig för att berätta om ändrade planer, sjukdomsfall eller andra ärenden som är opraktiska att lösa via mejl. Vi hoppas på din förståelse!</p>
+Följ denna länk för att ge oss ditt mobilnummer: {{ DATA.school_staff_url}}
 {% endblock %}

@@ -193,7 +193,7 @@ class Task
         foreach ($unconfirmed_visits as $v) {
             if ($v->hasGroup()) {
                 $user = $v->getGroup()->getUser();
-                if(empty($user)){
+                if(empty($user) || ! $user->hasMessageSetting($subject_int)){
                     continue;
                 }
                 $last_msg = $user->getLastMessage($search_props);
@@ -281,10 +281,6 @@ class Task
         $user = $v->getGroup()->getUser();
         $subject_int = Message::SUBJECT_VISIT_CONFIRMATION;
 
-        if(!$user->hasMessageSetting($subject_int)){
-            exit();
-        }
-
         $params = ['subject_int' => $subject_int];
         $params['receiver'] = $user->getMail();
         $params['html'] = $user->hasMessageSetting(Message::MAIL_HTML);
@@ -316,6 +312,7 @@ class Task
     private function sendVisitConfirmationSMS(Visit $visit)
     {
         $params = ['subject_int' => Message::SUBJECT_VISIT_CONFIRMATION];
+
         $params['receiver'] = $visit->getGroup()->getUser()->getStandardizedMobil();
         $rep['date_string'] = $visit->getDate()->formatLocalized('%e %B');
         $rep['fname'] = $visit->getGroup()->getUser()->getFirstName();
@@ -386,7 +383,7 @@ class Task
             if ($user->hasMail()) {
                 $params['receiver'] = $user->getMail();
                 $params['html'] = $user->hasMessageSetting(Message::MAIL_HTML);
-                
+
                 $all = $user->getGroupIdArray();
                 $g_changes['rest'] = array_diff($all, $g_changes['new'], $g_changes['removed']);
 
@@ -436,7 +433,7 @@ class Task
         foreach ($users_without_welcome as $user) {
             /* @var User $user */
             $params = ['subject_int' => $subject_int];
-            if($user->MessageSettings){
+            if(!$user->hasMessageSetting($subject_int)){
                 continue;
             }
             if ($user->hasMail()) {
@@ -490,10 +487,10 @@ class Task
         $msg_props['Subject'] = $subject_int;
         $incomplete_users = array_filter(
             $incomplete_users,
-            function ($u) use ($annoyance_start, $msg_props) {
+            function ($u) use ($annoyance_start, $msg_props, $subject_int) {
                 /* @var User $u */
                 // We don't need to remind users without groups or users that have recently gotten a message.
-                return empty($u->MessageSettings)
+                return $u->hasMessageSetting($subject_int)
                     && $u->hasActiveGroups()
                     && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
             }
@@ -501,6 +498,10 @@ class Task
         $messages = [];
         /* @var User $user */
         foreach ($incomplete_users as $user) {
+            if(!$user->hasMessageSetting($subject_int)){
+                continue;
+            }
+
             $params = ['subject_int' => $subject_int];
             $data = ['fname' => $user->getFirstName()];
             $data['school_staff_url'] = $this->N->createLoginUrl($user, 'staff');
