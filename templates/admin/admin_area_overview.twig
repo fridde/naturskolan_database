@@ -1,6 +1,8 @@
 {%- extends "admin/admin_area.twig" -%}
 
 {%- block content -%}
+
+
     <div class="admin-panel" id="missingGroups">
         <button class=".btn-primary">Lägg till resterande grupper</button>
         <select name="Segment">
@@ -23,5 +25,27 @@
     <div class="admin-panel" id="manager-mobilization">
         <button class=".btn-primary">Skicka upprops-mejl till administratörerna</button>
         <div class="result-box"></div>
+    </div>
+    <div class="admin-panel">
+        <ul class="nav nav-tabs">
+            {% for key, mail_list in DATA.mail_lists %}
+                <li class="nav-item">
+                    <a class="nav-link{%- if mail_list == DATA.mail_lists|first %} active{% endif -%}" href="#tab_ml_{{ key }}" data-toggle="tab">{{ mail_list.label }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="tab-content">
+            {% for key, mail_list in DATA.mail_lists %}
+            <div class="tab-pane fade
+                {%- if mail_list == DATA.mail_lists|first %} show active{% endif -%}" id="tab_ml_{{ key }}">
+                <p>{{ mail_list.description }}</p>
+                <textarea cols="50" rows="10">
+                {%- for address in mail_list.addresses -%}
+                    {{ address }};
+                {%- endfor -%}
+                </textarea>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {%- endblock -%}

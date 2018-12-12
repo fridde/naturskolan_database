@@ -15,6 +15,30 @@ use Fridde\Naturskolan;
 
 class AdminController extends BaseController
 {
+    //label, description, address-function
+    private const MAIL_LISTS = [
+        [
+            'Administratörer',
+            'Samtliga administratörer på alla grundskolor med besökande klasser',
+            'getAllManagers',
+        ],
+        [
+            'Åk 2/3',
+            'Lärare som är ansvariga för minst en klass i årskurs 2/3',
+            'getAllTeachers#2',
+        ],
+        [
+            'Åk 5',
+            'Lärare som är ansvariga för minst en klass i årskurs 5',
+            'getAllTeachers#5',
+        ],
+        [
+            'Fritids',
+            'Lärare som är ansvariga för minst en fritidsgrupp',
+            'getAllTeachers#fri',
+        ],
+    ];
+
 
     public function handleRequest()
     {
@@ -41,6 +65,7 @@ class AdminController extends BaseController
             $tasks[] = $task;
         }
         $this->addToDATA('tasks', $tasks);
+        $this->addToDATA('mail_lists', $this->getMaillists());
         $this->addToDATA('segments', Group::getSegmentLabels());
         $this->addToDATA('school_id', $this->getParameter('school'));
         $this->setTemplate('admin/admin_area_overview');
@@ -136,7 +161,7 @@ class AdminController extends BaseController
                 $n['text'] = $note->getText();
                 $notes[$visit_id][] = $n;
 
-                if($visit_id === $this_visit_id){
+                if ($visit_id === $this_visit_id) {
                     $this_visit_notes[$note->getUser()->getId()] = $note->getText();
                 }
             }
@@ -164,6 +189,52 @@ class AdminController extends BaseController
         }
 
         $this->setTemplate('admin/edit_note');
+    }
+
+    private function getMaillists(): array
+    {
+        return array_map(
+            function ($ml) {
+                $r = ['label' => $ml[0]];
+                $r['description'] = $ml[1];
+                $fn_plus_args = explode('#', $ml[2]);
+                $fn = $fn_plus_args[0];
+                $args = array_slice($fn_plus_args, 1);
+                $r['addresses'] = call_user_func([$this, $fn], ...$args);
+
+                return $r;
+            },
+            self::MAIL_LISTS
+        );
+
+    }
+
+    private function getAllManagers(): array
+    {
+        /* @var UserRepository $u_repo */
+        $u_repo = $this->N->getRepo('User');
+
+        return array_map(
+            function (User $u) {
+                return $u->getMail();
+            },
+            $u_repo->getActiveManagers()
+        );
+
+    }
+
+    private function getAllTeachers(string $segment = null): array
+    {
+        /* @var UserRepository $u_repo */
+        $u_repo = $this->N->getRepo('User');
+
+        return array_map(
+            function (User $u) {
+                return $u->getMail();
+            },
+            $u_repo->findActiveUsersHavingGroupInSegment($segment)
+        );
+
     }
 
 

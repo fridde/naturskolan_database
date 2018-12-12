@@ -91,4 +91,25 @@ class UserRepository extends CustomRepository
         );
     }
 
+    public function findActiveUsersHavingGroupInSegment(string $segment = null)
+    {
+        return array_filter(
+            $this->findActiveUsers(),
+            function (User $u) use ($segment) {
+                if($segment === null){
+                    return true;
+                }
+                $groups = $u->getGroups();
+                foreach ($groups as $group) {
+                    /* @var Group $group */
+                    if ($group->getSegment() === $segment) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        );
+    }
+
 }
