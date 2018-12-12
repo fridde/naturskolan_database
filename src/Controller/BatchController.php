@@ -349,7 +349,7 @@ class BatchController extends BaseController
         $managers = $user_repo->getActiveManagers();
         $messages = [];
         foreach($managers as $manager){
-            if($manager->MessageSettings){
+            if(!$manager->hasMessageSetting(Message::SUBJECT_MANAGER_MOBILIZATION)){
                 continue;
             }
             if(!$manager->hasMail()){

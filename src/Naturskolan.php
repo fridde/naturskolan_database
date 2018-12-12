@@ -253,7 +253,7 @@ class Naturskolan
 
     public function generateUrl(string $route_name, array $params = [], bool $absolute = false)
     {
-        /* @var \AltoRouter $router */
+        /* @var Router $router */
         $router = $GLOBALS['CONTAINER']->get('Router');
         $url = $router->generate($route_name, $params);
         /*

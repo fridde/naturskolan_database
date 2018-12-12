@@ -8,41 +8,33 @@
     {%- set group_row_padding = 10 -%}
 {% endif %}
 
+{% set text_snippets = {
+    new: {one: 'Ny grupp', many: 'Nya grupper', end: 'ansvarar för'},
+    removed: {one: 'Borttagen grupp', many: 'Borttagna grupper', end: 'ej längre ansvarar för'},
+    rest: {one: 'Gruppen', many: 'Grupperna', end: 'fortsätter att ansvara för'}}
+%}
+
 
 {% block body_text %}
 <p>Det har skett förändringar angående vilka grupper du ansvarar för inom Naturskolans databas.</p>
 
-{% if groups.new %}
-<h6>
-{%- if groups.new|length == 1 %}Ny grupp{%- else -%}Nya grupper{%- endif %} som du ansvarar för:</h6>
-<ul>
-{% for group in groups.new %}
-  <li>{{ group.name }}, {{ group.segment }}</li>
-{%- endfor -%}
-</ul>
-{% endif %}
-{%- if groups.removed -%}
-    <h6>
-{%- if groups.removed|length == 1 %}Borttagen grupp{%- else -%}Borttagna grupper{%- endif %} som du ej längre ansvarar för:</h6>
-    <ul>
-{% for group in groups.removed %}
-   <li>{{ group.name }}, {{ group.segment }}</li>
-{% endfor %}
-    </ul>
-{% endif %}
-{% if groups.rest %}
-    <h6>
-{%- if groups.rest|length == 1 %}Gruppen{%- else -%}Grupper{%- endif %} som du fortsätter att ansvara för:</h6>
-    <ul>
-{% for group in groups.rest %}
-  <li>{{ group.name }}, {{ group.segment }}</li>
-{% endfor %}
-    </ul>
-{% endif %}
+    {% for key, values in text_snippets  %}
+        {% if groups[key] %}
+            {% if groups[key]|length == 1 %} {% set count = 'one' %}
+            {%- else -%} {% set count = 'many' %}
+            {% endif %}
+            <h3>{{ text_snippets[key][count] }} som du {{ text_snippets[key]['end'] }}:</h3>
+            <ul>
+                {% for group in groups[key] %}
+                    <li>{{ group.name }}, {{ group.segment }}</li>
+                {%- endfor -%}
+            </ul>
+        {% endif %}
+    {% endfor %}
 {% endblock %}
 
 {% block after_body_text %}
-    <p>Det har skett ändringar angående vilka grupper du ansvarar för. Att "vara ansvarig" för en grupp betyder att man är kontaktperson, kontrollerar specialkost och kan kontaktas om något oväntad händer med kort varsel.</p>
+    <p>Att "vara ansvarig" för en grupp betyder att man är kontaktperson, kontrollerar specialkost och kan kontaktas om något oväntad händer med kort varsel.</p>
     <p>Ändringarna har genomförts av dig, en kollega med tillgång till lösenordet eller någon på Naturskolan.</p>
     <p>Om du tycker att denna ändring är felaktig, gå in på sidan för din skola i vår databas och ändra tillbaka eller hör av dig till oss på Naturskolan.</p>
 {% endblock %}

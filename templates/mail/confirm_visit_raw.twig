@@ -3,8 +3,7 @@
 {% block body_text %}
 <p>Snart är det dags för att du, {{ visit.group_name }} och vi från Naturskolan ska ses. Vi vill gärna veta att du vet om det. Klicka på länken längre ner så vet vi!</p>
 
-<p>{{ visit.topic_label }} är planerad för <b>{{ visit.date_string }}</b>.
-    All information om dagen hittar du på {{ visit.topic_url }}</p>
-
-    <p>Bekräfta besöket genom att följa denna länk: {{ visit.confirmation_url }}</p>
+<p>{{ visit.topic_label }} är planerad för <b>{{ visit.date_string }}</b>.<br>
+    All information om dagen hittar du i <a href="{{ visit.topic_url }}" target="_blank">pedagogiska planeringen</a>.</p>
+    <p>Bekräfta besöket genom att <a href="{{ visit.confirmation_url }}">klicka här!</a></p>
 {% endblock %}
