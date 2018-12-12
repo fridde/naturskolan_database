@@ -256,10 +256,12 @@ class Naturskolan
         /* @var \AltoRouter $router */
         $router = $GLOBALS['CONTAINER']->get('Router');
         $url = $router->generate($route_name, $params);
+        /*
         if ($absolute) {
             $base = rtrim(parse_url(APP_URL, PHP_URL_HOST), '/');
             $url = '//' . $base . $url;
         }
+        */
 
         return $url;
     }

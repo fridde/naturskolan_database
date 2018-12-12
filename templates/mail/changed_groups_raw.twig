@@ -10,30 +10,39 @@
 
 
 {% block body_text %}
-Det har skett förändringar angående vilka grupper du ansvarar för inom Naturskolans databas.
+<p>Det har skett förändringar angående vilka grupper du ansvarar för inom Naturskolans databas.</p>
 
 {% if groups.new %}
-{%- if groups.new|length == 1 %}Ny grupp{%- else -%}Nya grupper{%- endif %} som du ansvarar för:
+<h6>
+{%- if groups.new|length == 1 %}Ny grupp{%- else -%}Nya grupper{%- endif %} som du ansvarar för:</h6>
+<ul>
 {% for group in groups.new %}
-  - {{ group.name }}, {{ group.segment }}
+  <li>{{ group.name }}, {{ group.segment }}</li>
 {%- endfor -%}
+</ul>
 {% endif %}
 {%- if groups.removed -%}
-{% if groups.removed|length == 1 %}Borttagen grupp{%- else -%}Borttagna grupper{%- endif %} som du ej längre ansvarar för:
+    <h6>
+{%- if groups.removed|length == 1 %}Borttagen grupp{%- else -%}Borttagna grupper{%- endif %} som du ej längre ansvarar för:</h6>
+    <ul>
 {% for group in groups.removed %}
-   - {{ group.name }}, {{ group.segment }}
+   <li>{{ group.name }}, {{ group.segment }}</li>
 {% endfor %}
+    </ul>
 {% endif %}
 {% if groups.rest %}
-{% if groups.rest|length == 1 %}Gruppen{%- else -%}Grupper{%- endif %} som du fortsätter att ansvara för:
+    <h6>
+{%- if groups.rest|length == 1 %}Gruppen{%- else -%}Grupper{%- endif %} som du fortsätter att ansvara för:</h6>
+    <ul>
 {% for group in groups.rest %}
-  - {{ group.name }}, {{ group.segment }}
+  <li>{{ group.name }}, {{ group.segment }}</li>
 {% endfor %}
+    </ul>
 {% endif %}
 {% endblock %}
 
 {% block after_body_text %}
-Det har skett ändringar angående vilka grupper du ansvarar för. Att "vara ansvarig" för en grupp betyder att man är kontaktperson, kontrollerar specialkost och kan kontaktas om något oväntad händer med kort varsel.
-Ändringarna har genomförts av dig, en kollega med tillgång till lösenordet eller någon på Naturskolan.
-Om du tycker att denna ändring är felaktig, gå in på sidan för din skola i vår databas och ändra tillbaka eller hör av dig till oss på Naturskolan.
+    <p>Det har skett ändringar angående vilka grupper du ansvarar för. Att "vara ansvarig" för en grupp betyder att man är kontaktperson, kontrollerar specialkost och kan kontaktas om något oväntad händer med kort varsel.</p>
+    <p>Ändringarna har genomförts av dig, en kollega med tillgång till lösenordet eller någon på Naturskolan.</p>
+    <p>Om du tycker att denna ändring är felaktig, gå in på sidan för din skola i vår databas och ändra tillbaka eller hör av dig till oss på Naturskolan.</p>
 {% endblock %}

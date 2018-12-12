@@ -504,7 +504,7 @@ class Task
 
             $params = ['subject_int' => $subject_int];
             $data = ['fname' => $user->getFirstName()];
-            $data['school_staff_url'] = $this->N->createLoginUrl($user, 'staff');
+            $data['school_url'] = $this->N->createLoginUrl($user);
             $carrier = $user->hasMobil() ? Message::CARRIER_SMS : null;
             $carrier = $user->hasMail() ? Message::CARRIER_MAIL : $carrier;
 
