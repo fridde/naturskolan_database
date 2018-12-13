@@ -13,7 +13,6 @@ routes:
    note: ['GET|POST', '/notes/{visit_id}', 'Admin','editNote']
    pwrecover : ['GET','/passwordrecover/{code}','API','passwordRecover']
    remove: ['GET','/remove/{school}','School','createRemoveUserPage']
-   sandbox: ['GET|POST','/sandbox/{action}/{parameters}', 'Sandbox', {0: 'action', parameters: '.+'}]
    school : ['GET','/skola/{school}','School','createSchoolPage']
    sms : ['GET|POST','/sms/{action}','API', ~, 'action']
    support: ['GET', '/support/{section}', 'Page','showSupport', 'section']
