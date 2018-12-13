@@ -251,19 +251,11 @@ class Naturskolan
         return $school->getId() === $school_id;
     }
 
-    public function generateUrl(string $route_name, array $params = [], bool $absolute = false)
+    public function generateUrl(string $route_name, array $params = [], bool $absolute = true)
     {
         /* @var Router $router */
         $router = $GLOBALS['CONTAINER']->get('Router');
-        $url = $router->generate($route_name, $params);
-        /*
-        if ($absolute) {
-            $base = rtrim(parse_url(APP_URL, PHP_URL_HOST), '/');
-            $url = '//' . $base . $url;
-        }
-        */
-
-        return $url;
+        return $router->generate($route_name, $params, $absolute);
     }
 
     public function getClient($new_client = false)
