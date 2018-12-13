@@ -8,3 +8,8 @@ function showDebugTime(){
     $txt = round(microtime(true) - BEFORE, 2) . ' seconds';
     toConsole($txt);
 }
+
+function logToDebug($variable)
+{
+    $GLOBALS['CONTAINER']->getLogger()->addInfo(var_export($variable, true));
+}
