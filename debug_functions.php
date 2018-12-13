@@ -11,5 +11,5 @@ function showDebugTime(){
 
 function logToDebug($variable)
 {
-    $GLOBALS['CONTAINER']->getLogger()->addInfo(var_export($variable, true));
+    $GLOBALS['CONTAINER']->get('Logger')->addInfo(var_export($variable, true));
 }
