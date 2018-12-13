@@ -9,6 +9,10 @@ use Fridde\Router;
 use Fridde\Settings;
 use Carbon\Carbon;
 
+if(file_exists('debug_functions.php')){
+    require 'debug_functions.php';
+}
+
 if(empty($_SERVER['argv'][0])){
     session_start();
 }

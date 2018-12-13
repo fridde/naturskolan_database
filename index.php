@@ -6,12 +6,6 @@ use Fridde\Error\NException;
 use Fridde\Error\Error;
 use Fridde\Essentials;
 
-if(file_exists('debug_functions.php')){
-    require 'debug_functions.php';
-}
-
-
-
 try {
     require 'bootstrap.php';
 
