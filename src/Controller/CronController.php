@@ -13,7 +13,7 @@ class CronController extends BaseController
 {
     private $intervals;
 
-    public function __construct(array $params)
+    public function __construct(array $params = [])
     {
         parent::__construct($params, true);
         $this->setReturnType(self::RETURN_JSON);
