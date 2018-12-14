@@ -22,10 +22,6 @@ class CronController extends BaseController
 
     public function handleRequest()
     {
-        if(! (defined('ENVIRONMENT') && in_array(ENVIRONMENT, [Essentials::ENV_TEST, Essentials::ENV_DEV], true))){
-            throw new \Exception('cron shouldn\'t be run via url in production');
-        }
-
         if($this->hasAction('executeTaskNow')){
             $this->executeTaskNow();
             return ;
@@ -40,6 +36,8 @@ class CronController extends BaseController
      */
     public function run(): void
     {
+        $this->checkIfAuthorized();
+
         $active_tasks = array_filter($this->N->getCronTaskActivationStatus());
         foreach (array_keys($active_tasks) as $task_type) {
             if ($this->checkIfRightTime($task_type)) {
@@ -75,6 +73,26 @@ class CronController extends BaseController
         }
 
         return T::longerThanSince($this->intervals[$task_type], $last_completion);
+    }
+
+    private function checkIfAuthorized(): bool
+    {
+        $env = defined('ENVIRONMENT') ? ENVIRONMENT : null;
+
+        if(in_array($env, [Essentials::ENV_TEST, Essentials::ENV_DEV], true)){
+            return true;
+        }
+        $code = $this->getParameter('code');
+        if(empty($code)){
+            return false;
+        }
+        $hash = $this->N->getStatus('cron.auth_key_hash');
+        if(password_verify($code, $hash)){
+            return true;
+        }
+
+        throw new \Exception('A client tried to run cron on production without giving a valid code');
+
     }
 
 }

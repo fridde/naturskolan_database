@@ -1,5 +1,17 @@
 # keys will be parsed as the name of the route
 # the default action is handleRequest()
+
+# every row is one route following the following structure
+# name: [schemes, url, controller, method, ...defaults]
+
+# schemes should be seperated by "|"
+# controller is always assumed to end in "Controller"
+# method is "handleRequest" by default, if null or not defined
+# defaults is either a purely associative array or purely indexed array, but not mixed
+#### if associative, the keys are used as parameter names and values are used as requirements
+#### all given parameters are assumed to be null if omitted from the url
+#### if defaults is a simple string, it is cast to an array with one element
+
 routes:
    index: ['GET','','Page','viewIndex']
    admin : ['GET','/admin/{action}','Admin', ~, 'action']
@@ -7,7 +19,7 @@ routes:
    batch : ['GET|POST','/admin/batch/{action}/{parameters}','Batch', ~, 'parameters']
    calendar: ['GET','/calendar','File','getCalendar']
    contact: ['GET', '/contact', 'Page','showContact']
-   cron : ['GET','/cron','Cron']
+   cron : ['GET','/cron/{code}','Cron', ~, 'code']
    login : ['GET', '/login/{code}/{destination}', 'Login','login_with_code', 'destination']
    logout: ['GET', '/logout', 'Login','logout']
    note: ['GET|POST', '/notes/{visit_id}', 'Admin','editNote']
@@ -20,9 +32,3 @@ routes:
    task : ['GET','/task/{type}/{AuthKey}','Cron','executeTaskNow', 'AuthKey']
    update : ['POST','/update','Update']
    view : ['GET','/view/{page}','View']
-
-
-
-#200 = ['GET', '[**:url]', 'Error#notFound']
-
-# ['','','']
