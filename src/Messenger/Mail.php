@@ -54,7 +54,7 @@ class Mail extends AbstractMessageController
     {
         $body = $this->createMailBody();
         $this->Mailer->setValue('body', $body);
-        $this->Mailer->isHTML($this->getParameter('html') ?? false);
+        $this->Mailer->isHTML(true);
 
         $debug_mail = SETTINGS['debug']['mail'] ?? null;
         $result = $this->Mailer->sendAway($debug_mail);

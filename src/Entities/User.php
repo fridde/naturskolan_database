@@ -306,7 +306,26 @@ class User
 
     public function hasMessageSetting(int $MessageSetting): bool
     {
-        return $this->getMessageSettings() & $MessageSetting;
+        $power = 1 << $MessageSetting;
+
+        return $this->getMessageSettings() & $power;
+    }
+
+    public function changeMessageSetting(int $MessageSetting, bool $new_status)
+    {
+        $old_settings = $this->getMessageSettings();
+        $added_setting = 1 << $MessageSetting;
+
+        if((bool)($this->getMessageSettings() & $added_setting) === $new_status){
+            return;
+        }
+        if($new_status){
+            $new_settings = $old_settings | $added_setting;
+        } else {
+            $new_settings = $old_settings ^ $added_setting;
+        }
+
+        $this->setMessageSettings($new_settings);
     }
 
     public function getVisits()
@@ -511,11 +530,27 @@ class User
         return $nr;
     }
 
+    private function setCurrentStandardMailSettings()
+    {
+        $settings = [
+            Message::SUBJECT_PASSWORD_RECOVERY,
+            Message::SUBJECT_WELCOME_NEW_USER,
+            Message::SUBJECT_VISIT_CONFIRMATION,
+            Message::SUBJECT_PROFILE_UPDATE,
+            Message::SUBJECT_CHANGED_GROUPS,
+        ];
+
+        foreach($settings as $setting){
+            $this->changeMessageSetting($setting, true);
+        }
+    }
+
     /** @PrePersist */
     public function prePersist()
     {
         $this->setCreatedAt(Carbon::now());
         $this->setLastChange(Carbon::now()->toIso8601String());
+        $this->setCurrentStandardMailSettings();
     }
 
     /** @PreUpdate */
