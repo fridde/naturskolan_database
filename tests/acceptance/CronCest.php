@@ -193,7 +193,7 @@ class CronCest
     {
         $expected_mail_nr = 1;
 
-        $heinz_welcome_mail = ['User_id' => 102, 'Subject' => 4, 'Carrier' => 0, 'Status' => 1];
+        $heinz_welcome_mail = ['User_id' => 102, 'Subject' => 2, 'Carrier' => 0, 'Status' => 1];
         $I->dontSeeInDatabase('messages', $heinz_welcome_mail);
         $I->runCronTask('send_new_user_mail');
         //$I->pauseExecution();

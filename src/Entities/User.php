@@ -296,7 +296,7 @@ class User
 
     public function getMessageSettings(): int
     {
-        return $this->MessageSettings;
+        return (int) $this->MessageSettings;
     }
 
     public function setMessageSettings(int $MessageSettings): void
@@ -308,10 +308,10 @@ class User
     {
         $power = 1 << $MessageSetting;
 
-        return $this->getMessageSettings() & $power;
+        return (bool) ($this->getMessageSettings() & $power);
     }
 
-    public function changeMessageSetting(int $MessageSetting, bool $new_status)
+    public function changeMessageSetting(int $MessageSetting, bool $new_status): void
     {
         $old_settings = $this->getMessageSettings();
         $added_setting = 1 << $MessageSetting;
