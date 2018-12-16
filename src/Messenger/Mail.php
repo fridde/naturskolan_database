@@ -27,7 +27,7 @@ class Mail extends AbstractMessageController
         Message::SUBJECT_CHANGED_GROUPS =>
             [self::SEND | self::PREPARE, 'ChangedGroupsForUser', null],
         Message::SUBJECT_WELCOME_NEW_USER =>
-            [self::SEND | self::PREPARE, 'WelcomeNewUser', 'Välkommen i Naturskolans databas'],
+            [self::SEND | self::PREPARE, 'WelcomeNewUser', 'Välkommen i Naturskolans besöksportal'],
         Message::SUBJECT_MANAGER_MOBILIZATION =>
             [self::SEND | self::PREPARE, 'ManagerMobilization', 'Hjälp oss att planera klassernas besök'],
     ];
