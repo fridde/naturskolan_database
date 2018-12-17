@@ -38,7 +38,6 @@ class SchoolController extends BaseController
     }
 
 
-
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
@@ -61,7 +60,14 @@ class SchoolController extends BaseController
     private function getAllUsers(School $school): array
     {
         $DATA = ['entity_class' => 'User'];
-        $users = $school->getUsers();
+
+        $users = array_filter(
+            $school->getUsers(),
+            function (User $u) {
+                return $u->isActive();
+            }
+        );
+
         usort(
             $users,
             function (User $u1, User $u2) {
@@ -133,7 +139,7 @@ class SchoolController extends BaseController
                                 $r['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), 'simple');
                             }
                             $dur2 = T::addDurationToNow(SETTINGS['values']['show_time_proposal']);
-                            if($in_future && $topic->isLektion() && $v->isBefore($dur2)){
+                            if ($in_future && $topic->isLektion() && $v->isBefore($dur2)) {
                                 $r['time_proposal'] = $v->getTimeProposal() ?? '';
                             }
 
@@ -161,7 +167,7 @@ class SchoolController extends BaseController
 
     private function decreaseSecurityLevelIfFromRightSchool(): void
     {
-        if (! $this->Authorizer->getVisitor()->isFromSchool($this->request_school)) {
+        if (!$this->Authorizer->getVisitor()->isFromSchool($this->request_school)) {
             return;
         }
         foreach ($this->methods as $method) {
