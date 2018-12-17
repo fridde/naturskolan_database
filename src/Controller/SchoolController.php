@@ -77,12 +77,17 @@ class SchoolController extends BaseController
         if (empty($users)) {
             $users[] = new User(); // dummy user
         }
-        $keys = ['id', 'FirstName', 'LastName', 'Mobil', 'Mail', 'Acronym'];
+        $keys = ['id', 'FirstName', 'LastName', 'Mobil', 'Mail', 'Acronym', 'FullName'];
+        $invisible_keys = ['id', 'FullName'];
+        if(!$school->isNaturskolan()){
+            $invisible_keys[] = 'Acronym';
+        }
+        $DATA['headers'] = $keys;
+        $DATA['invisible_headers'] = $invisible_keys;
         foreach ($keys as $key) {
-            $DATA['headers'][] = $key;
             foreach ($users as $i => $user) {
                 $method_name = 'get'.ucfirst($key);
-                $DATA['users'][$i][$key] = $user->$method_name();
+                $DATA['staff'][$i][$key] = $user->$method_name();
             }
         }
 
@@ -100,12 +105,14 @@ class SchoolController extends BaseController
     private function getAllGroups($school)
     {
         $DATA = [];
+        /*
         $DATA['teachers'] = array_map(
             function (User $u) {
                 return ['id' => $u->getId(), 'full_name' => $u->getFullName()];
             },
             $school->getUsers()
         );
+        */
         $DATA['student_limits'] = SETTINGS['admin']['summary']['allowed_group_size'];
         $DATA['school_name'] = $school->getName();
 

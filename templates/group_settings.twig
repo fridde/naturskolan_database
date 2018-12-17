@@ -1,4 +1,4 @@
-{% set segments, student_limits, teachers = DATA.segments, DATA.student_limits, DATA.teachers %}
+{% set segments, student_limits = DATA.segments, DATA.student_limits %}
 
 {% for segment in segments -%}
     <div class="card">
@@ -27,10 +27,10 @@
                                     </h1>
                                     <label for="select_user_{{ group.id }}">Ansvarig lärare</label>
                                     <select name="User" id="select_user_{{ group.id }}" class="editable">
-                                        {% for teacher in teachers -%}
+                                        {% for teacher in staff -%}
                                             <option
                                                 value="{{ teacher.id }}"{% if teacher.id == group.teacher_id %} selected{% endif %}>
-                                                {{- teacher.full_name -}}
+                                                {{- teacher.FullName -}}
                                             </option>
                                         {%- endfor %}
                                         {% if group.teacher_id is null %}
