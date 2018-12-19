@@ -8,6 +8,7 @@ namespace Fridde;
 use Fridde\Entities\Group;
 use Fridde\Entities\Hash;
 use Fridde\Entities\Location;
+use Fridde\Entities\Note;
 use Fridde\Entities\School;
 use Fridde\Entities\SystemStatus;
 use Fridde\Entities\Topic;
@@ -139,12 +140,10 @@ class Naturskolan
 
     /**
      * Check to see if calendar should be updated.
-     *
-     * @return boolean Returns true if the value for calendar.status in SystemStatus is 'dirty'
      */
-    public function calendarIsDirty()
+    public function calendarIsDirty(): bool
     {
-        $trackables = [Group::class, Location::class, Topic::class, User::class, Visit::class];
+        $trackables = [Group::class, Location::class, Topic::class, User::class, Visit::class, Note::class];
         $last_rebuild = $this->getStatus('last_run.rebuild_calendar');
         if (empty($last_rebuild)) {
             return true;
