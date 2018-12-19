@@ -324,14 +324,14 @@ class BatchController extends BaseController
         $topics = $topic_repo->sliceBySegment($topics);
 
 
-
-        array_walk_recursive($topics,
-            function (Topic &$topic) {
-                $topic = [
-                    'id' => $topic->getId(),
-                    'label' => $topic->getShortName(),
+        $topics = array_map(
+            function (Topic $t) {
+                return [
+                    'id' => $t->getId(),
+                    'label' => $t->getShortName(),
                 ];
-            }
+            },
+            $topics
         );
 
         $this->addToDATA('topics', $topics);
@@ -340,7 +340,7 @@ class BatchController extends BaseController
 
     public function sendManagerMobilizationMail()
     {
-        /* @var User $manager  */
+        /* @var User $manager */
         /* @var UserRepository $user_repo */
         $user_repo = $this->N->ORM->getRepository(User::class);
 
@@ -348,11 +348,11 @@ class BatchController extends BaseController
 
         $managers = $user_repo->getActiveManagers();
         $messages = [];
-        foreach($managers as $manager){
-            if(!$manager->hasMessageSetting(Message::SUBJECT_MANAGER_MOBILIZATION)){
+        foreach ($managers as $manager) {
+            if (!$manager->hasMessageSetting(Message::SUBJECT_MANAGER_MOBILIZATION)) {
                 continue;
             }
-            if(!$manager->hasMail()){
+            if (!$manager->hasMail()) {
                 $msg = 'Manager '.$manager->getFullName().' has no mailaddress. Check this!';
                 $this->N->log($msg, __METHOD__);
                 continue;
@@ -374,20 +374,24 @@ class BatchController extends BaseController
 
         (new Task())->logMessageArray($messages);
 
-        $sent_mails = array_map(function($m){
-            /* @var Mail $response  */
-            /* @var User $user  */
-            $response = $m[0];
-            $user = $m[2];
-            $text = 'Mejlet till ';
-            $text .= $user->getMail() . ' ';
-            if($response->getStatus() === 'success'){
-                $text .= 'skickades framgångsrikt.';
-            } else {
-                $text .= 'kunde ej skickas. Kolla felloggen';
-            }
-            return $text;
-        }, $messages);
+        $sent_mails = array_map(
+            function ($m) {
+                /* @var Mail $response */
+                /* @var User $user */
+                $response = $m[0];
+                $user = $m[2];
+                $text = 'Mejlet till ';
+                $text .= $user->getMail().' ';
+                if ($response->getStatus() === 'success') {
+                    $text .= 'skickades framgångsrikt.';
+                } else {
+                    $text .= 'kunde ej skickas. Kolla felloggen';
+                }
+
+                return $text;
+            },
+            $messages
+        );
 
         $this->setReturnType(self::RETURN_JSON);
         $this->addToDATA('onReturn', $this->getFromRequest('onReturn'));

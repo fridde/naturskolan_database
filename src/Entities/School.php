@@ -253,7 +253,7 @@ class School
      * @param mixed $start_year If null, the current year is assumed. If false, all years are included
      * @return array
      */
-    public function getActiveGroupsBySegmentAndYear($segment_id, $start_year = null)
+    public function getActiveGroupsBySegmentAndYear(string $segment_id, $start_year = null)
     {
         $start_year = $start_year ?? Carbon::today()->year;
 
@@ -261,7 +261,7 @@ class School
             $this->getGroupsByName(),
             function (Group $g) use ($segment_id, $start_year) {
                 $cond1 = $start_year !== false ? $g->getStartYear() === $start_year : true;
-                $cond2 = $g->getSegment() === (string)$segment_id;
+                $cond2 = $g->getSegment() === $segment_id;
                 $cond3 = $g->isActive();
 
                 return $cond1 && $cond2 && $cond3;

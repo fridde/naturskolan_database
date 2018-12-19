@@ -350,6 +350,7 @@ class AdminSummary
     {
         $years_to_check = [Carbon::today()->year];
         $years_to_check[] = Carbon::today()->copy()->subMonths(6)->year;
+        $years_to_check[] = Carbon::today()->copy()->addMonths(6)->year;
         $years_to_check = array_unique($years_to_check);
 
         $rows = [];

@@ -16,7 +16,7 @@ routes:
    index: ['GET','','Page','viewIndex']
    admin : ['GET','/admin/{action}','Admin', ~, 'action']
    api : ['GET|POST','/api/{action}/{parameters}', 'API', ~, {parameters: '.+'}]
-   batch : ['GET|POST','/admin/batch/{action}/{parameters}','Batch', ~, 'parameters']
+   batch : ['GET|POST','/admin/batch/{action}/{parameters}','Batch', ~, {parameters: '.+'}]
    calendar: ['GET','/calendar','File','getCalendar']
    contact: ['GET', '/contact', 'Page','showContact']
    cron : ['GET','/cron/{code}','Cron', ~, 'code']

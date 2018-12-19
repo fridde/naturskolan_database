@@ -41,7 +41,7 @@
                 <p>{{ mail_list.description }}</p>
                 <textarea cols="50" rows="10">
                 {%- for address in mail_list.addresses -%}
-                    {{ address }};
+                    {{ address ~ ' ; '}}
                 {%- endfor -%}
                 </textarea>
                 </div>

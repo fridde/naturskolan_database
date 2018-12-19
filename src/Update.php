@@ -338,15 +338,13 @@ class Update extends DefaultUpdate
      * @PostArgs("segment")
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function createMissingGroups(string $segment_id, int $start_year = null): void
+    public function createMissingGroups(string $segment_id): void
     {
         $all_schools = $this->N->getRepo('School')->findAll();
-        $start_years = (array)$start_year;
-        if (empty($start_years)) {
-            $this_year = Carbon::today()->year;
-            $start_years = [$this_year, $this_year + 1];
-        }
 
+        $this_year = Carbon::today()->year;
+        $start_years = [$this_year, $this_year + 1];
+        
         $added_groups = [];
         foreach ($start_years as $year) {
             /* @var \Fridde\Entities\School $school */

@@ -105,14 +105,6 @@ class SchoolController extends BaseController
     private function getAllGroups($school)
     {
         $DATA = [];
-        /*
-        $DATA['teachers'] = array_map(
-            function (User $u) {
-                return ['id' => $u->getId(), 'full_name' => $u->getFullName()];
-            },
-            $school->getUsers()
-        );
-        */
         $DATA['student_limits'] = SETTINGS['admin']['summary']['allowed_group_size'];
         $DATA['school_name'] = $school->getName();
 
@@ -120,6 +112,11 @@ class SchoolController extends BaseController
 
         foreach ($segments_at_this_school as $segment_val => $segment_label) {
             $groups_current_segment = $school->getActiveGroupsBySegmentAndYear($segment_val, false);
+            usort($groups_current_segment, function(Group $g1, Group $g2){
+                // newer groups should appear first!
+                return $g2->getStartYear() - $g1->getStartYear();
+            });
+
             $seg = ['id' => $segment_val, 'label' => $segment_label];
             $groups_current_segment_formatted = array_map(
                 function (Group $g) {
