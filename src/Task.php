@@ -9,6 +9,7 @@ use Fridde\Entities\Group;
 use Fridde\Entities\Hash;
 use Fridde\Entities\HashRepository;
 use Fridde\Entities\Message;
+use Fridde\Entities\MessageRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
 use Fridde\Entities\User;
@@ -414,9 +415,14 @@ class Task
 
     private function sendNewUserMail()
     {
+        /* @var UserRepository $user_repo  */
+        $user_repo = $this->N->getRepo('User');
+        /* @var MessageRepository $message_repo  */
+        $message_repo = $this->N->getRepo('Message');
+
         $subject_int = Message::SUBJECT_WELCOME_NEW_USER;
 
-        $sent_welcome_messages = $this->N->getRepo('Message')->getSentWelcomeMessages();
+        $sent_welcome_messages = $message_repo->getSentWelcomeMessages();
         $welcomed_user_ids = array_map(
             function (Message $m) {
                 return $m->getUser()->getId();
@@ -424,7 +430,7 @@ class Task
             $sent_welcome_messages
         );
         $users_without_welcome = array_filter(
-            $this->N->getRepo('User')->findActiveUsers(),
+            $user_repo->findActiveUsers(),
             function (User $u) use ($welcomed_user_ids) {
                 return !in_array($u->getId(), $welcomed_user_ids, false);
             }
