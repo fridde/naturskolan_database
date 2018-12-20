@@ -59,10 +59,10 @@ class BatchController extends BaseController
      * @example distributeVisitsExample.php
      * @return void
      */
-    public function distributeVisits($segment_id = null, $start_year = null)
+    public function distributeVisits(string $segment_id = null, int $start_year = null): void
     {
         $segment_labels = Group::getSegmentLabels();
-        $segment_id = $segment_id ?? array_keys($segment_labels)[0];
+        $segment_id = $segment_id ?? (string) array_keys($segment_labels)[0];
         $start_year = $start_year ?? Carbon::today()->year;
         $criteria = [['Segment', $segment_id], ['StartYear', $start_year]];
 
@@ -131,7 +131,8 @@ class BatchController extends BaseController
         foreach($future_visits as $visit){
             $topic = $visit->getTopic();
             $topic_id = $topic->getId();
-            if(empty($relevant_topics[$topic_id])){
+            $topic_segment = $topic->getSegment();
+            if($topic_segment === $segment_id && empty($relevant_topics[$topic_id])){
                 $relevant_topics[$topic_id] = $topic;
             }
         }
