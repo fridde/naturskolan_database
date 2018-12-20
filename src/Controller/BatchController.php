@@ -61,11 +61,6 @@ class BatchController extends BaseController
      */
     public function distributeVisits(string $segment_id = null, int $start_year = null): void
     {
-        $segment_labels = Group::getSegmentLabels();
-        $segment_id = $segment_id ?? (string) array_keys($segment_labels)[0];
-        $start_year = $start_year ?? Carbon::today()->year;
-        $criteria = [['Segment', $segment_id], ['StartYear', $start_year]];
-
         /* @var GroupRepository $group_repo */
         $group_repo = $this->N->ORM->getRepository('Group');
         /* @var TopicRepository $topic_repo */
@@ -73,6 +68,10 @@ class BatchController extends BaseController
         /* @var VisitRepository $visit_repo */
         $visit_repo = $this->N->ORM->getRepository('Visit');
 
+        $segment_labels = Group::getSegmentLabels();
+        $segment_id = $segment_id ?? (string) array_keys($segment_labels)[0];
+        $start_year = $start_year ?? Carbon::today()->year;
+        $criteria = [['Segment', $segment_id], ['StartYear', $start_year]];
 
         $groups = $group_repo->selectAnd($criteria);
         $groups = array_values($group_repo->sortByVisitOrder($groups));
