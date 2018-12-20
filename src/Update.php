@@ -344,7 +344,7 @@ class Update extends DefaultUpdate
 
         $this_year = Carbon::today()->year;
         $start_years = [$this_year, $this_year + 1];
-        
+
         $added_groups = [];
         foreach ($start_years as $year) {
             /* @var \Fridde\Entities\School $school */

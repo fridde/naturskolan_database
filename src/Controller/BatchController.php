@@ -2,6 +2,7 @@
 
 namespace Fridde\Controller;
 
+use Carbon\Carbon;
 use Fridde\Entities\Group;
 use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Location;
@@ -62,10 +63,9 @@ class BatchController extends BaseController
     {
         $segment_labels = Group::getSegmentLabels();
         $segment_id = $segment_id ?? array_keys($segment_labels)[0];
-        $criteria = [['Segment', $segment_id]];
-        if (!empty($start_year)) {
-            $criteria[] = ['StartYear', $start_year];
-        }
+        $start_year = $start_year ?? Carbon::today()->year;
+        $criteria = [['Segment', $segment_id], ['StartYear', $start_year]];
+
         /* @var GroupRepository $group_repo */
         $group_repo = $this->N->ORM->getRepository('Group');
         /* @var TopicRepository $topic_repo */
@@ -108,7 +108,6 @@ class BatchController extends BaseController
 
         // rows: groups, columns: topics
         $group_visits = [];
-        $relevant_topics = [];
         $topic_visit_count = [];
         $row_to_group_translator = [];
         /* @var Group $group */
@@ -120,21 +119,31 @@ class BatchController extends BaseController
             foreach ($visits as $visit) {
                 $topic_id = $visit->getTopic()->getId();
                 $group_visits[$group_id][$topic_id] = $visit;
-                $relevant_topics[$topic_id] = $visit->getTopic();
                 $topic_visit_count[$topic_id] = 1 + ($topic_visit_count[$topic_id] ?? 0);
             }
         }
 
-        $relevant_topics = $topic_repo->sortByVisitOrder($relevant_topics);
+
 
         $future_visits = $visit_repo->findFutureVisits();
+
+        $relevant_topics = [];
+        foreach($future_visits as $visit){
+            $topic = $visit->getTopic();
+            $topic_id = $topic->getId();
+            if(empty($relevant_topics[$topic_id])){
+                $relevant_topics[$topic_id] = $topic;
+            }
+        }
+        $relevant_topics = $topic_repo->sortByVisitOrder($relevant_topics);
+
         // will contain all visits without a group in the form
         // [[topic_id] => [visit_id => visit_object, ...], ...]
         $topic_orphaned_visits = [];
         foreach ($future_visits as $v) {
             /* @var Visit $v */
             $topic_id = $v->getTopic()->getId();
-            if (!$v->hasGroup() && !empty($relevant_topics[$topic_id])) {
+            if (!$v->hasGroup()) {
                 $topic_orphaned_visits[$topic_id][$v->getId()] = $v;
                 $topic_visit_count[$topic_id] = 1 + ($topic_visit_count[$topic_id] ?? 0);
             }
