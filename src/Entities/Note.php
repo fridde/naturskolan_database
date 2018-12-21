@@ -26,6 +26,9 @@ class Note
     /** @Column(type="string", nullable=true) */
     protected $Timestamp;
 
+    /** @Column(type="string", nullable=true) */
+    protected $LastChange;
+
     public function getTimestamp(): Carbon
     {
         if (is_string($this->Timestamp)) {
@@ -109,6 +112,25 @@ class Note
         $this->Timestamp = $Timestamp;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getLastChange()
+    {
+        return $this->LastChange;
+    }
+
+    /**
+     * @param mixed $LastChange
+     */
+    public function setLastChange($LastChange): void
+    {
+        if ($LastChange instanceof Carbon) {
+            $LastChange = $LastChange->toIso8601String();
+        }
+        $this->LastChange = $LastChange;
+    }
+
     /** @PrePersist */
     public function prePersist()
     {
@@ -118,11 +140,14 @@ class Note
     /** @PreUpdate */
     public function preUpdate()
     {
+        $this->setLastChange(Carbon::now());
     }
 
     /** @PreRemove */
     public function preRemove()
     {
     }
+
+
 
 }
