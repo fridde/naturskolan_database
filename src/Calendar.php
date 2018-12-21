@@ -6,7 +6,9 @@ use Eluceo\iCal\Component\Calendar as Cal;
 use Eluceo\iCal\Component\Event as IcalEvent;
 use Carbon\Carbon;
 use Fridde\Entities\EventRepository;
+use Fridde\Entities\Group;
 use Fridde\Entities\Note;
+use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Fridde\Error\Error;
@@ -15,7 +17,7 @@ use Fridde\Error\NException;
 class Calendar
 {
     public $settings;
-    /* @var Naturskolan $N  */
+    /* @var Naturskolan $N */
     private $N;
 
     public $file_name = 'kalender.ics';
@@ -106,31 +108,35 @@ class Calendar
 
             $desc = [];
             $desc[] = 'Tid: '.$start_DT->format('H:i').'-'.$end_DT->format('H:i');
-            $desc[] = 'Lärare: '.$teacher->getFullName();
-            $desc[] = 'Årskurs: '.$group->getSegmentLabel();
-            $desc[] = 'Mobil: '.$teacher->getMobil();
-            $desc[] = 'Mejl: '.$teacher->getMail();
-            $desc[] = 'Klass '.$group->getName().' med '.$group->getNumberStudents().' elever';
-            $desc[] = 'Matpreferenser: '.$group->getFood();
-            if ($group->hasInfo()) {
-                $desc[] = 'Annat: '.$group->getInfo();
-            }
-            $desc[] = '';
+            if ($teacher instanceof User && $group instanceof Group) {
+                $desc[] = 'Lärare: '.$teacher->getFullName();
+                $desc[] = 'Årskurs: '.$group->getSegmentLabel();
+                $desc[] = 'Mobil: '.$teacher->getMobil();
+                $desc[] = 'Mejl: '.$teacher->getMail();
+                $desc[] = 'Klass '.$group->getName().' med '.$group->getNumberStudents().' elever';
+                $desc[] = 'Matpreferenser: '.$group->getFood();
 
-            $notes = array_map(
-                function (Visit $v) {
-                    return $v->getNotes();
-                },
-                array_reverse($group->getSortedVisits())
-            );
-            $notes = array_merge(...$notes);
+                if ($group->hasInfo()) {
+                    $desc[] = 'Annat: '.$group->getInfo();
+                }
 
-            if(!empty($notes)){
+                $desc[] = '';
 
-                $desc[] = 'Egna anteckningar:';
-                foreach ($notes as $note) {
-                    /* @var Note $note */
-                    $desc[] = '('.$note->getUser()->getAcronym().') '.$note->getText();
+                $notes = array_map(
+                    function (Visit $v) {
+                        return $v->getNotes();
+                    },
+                    array_reverse($group->getSortedVisits())
+                );
+                $notes = array_merge(...$notes);
+
+                if (!empty($notes)) {
+
+                    $desc[] = 'Egna anteckningar:';
+                    foreach ($notes as $note) {
+                        /* @var Note $note */
+                        $desc[] = '('.$note->getUser()->getAcronym().') '.$note->getText();
+                    }
                 }
             }
 
