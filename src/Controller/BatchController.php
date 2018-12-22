@@ -2,7 +2,6 @@
 
 namespace Fridde\Controller;
 
-use Carbon\Carbon;
 use Fridde\Entities\Group;
 use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Location;
@@ -17,9 +16,7 @@ use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Fridde\Messenger\Mail;
-use Fridde\Security\Authorizer;
 use Fridde\Task;
-use Fridde\Utility as U;
 use Fridde\Utility;
 
 

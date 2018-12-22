@@ -341,6 +341,7 @@ class Update extends DefaultUpdate
     public function createMissingGroups(string $segment_id): void
     {
         $all_schools = $this->N->getRepo('School')->findAll();
+        $letters = range('a', 'z');
 
         $this_year = Carbon::today()->year;
         $start_years = [$this_year, $this_year + 1];
@@ -355,10 +356,16 @@ class Update extends DefaultUpdate
 
                 for ($i = 0; $i < $diff; $i++) {
                     $group = new Group();
-                    $group->setName('Grupp ' .  Naturskolan::getRandomAnimalName());
                     $group->setSchool($school);
                     $group->setSegment($segment_id);
                     $group->setStartYear($year);
+
+                    $name = $group->getSegmentLabel();
+                    if($expected_count > 1) {
+                        $name .= $letters[$actual_count + $i];
+                    }
+                    $group->setName('Grupp ' .  $name);
+
                     $group->setStatus(Group::ACTIVE);
                     $this->ORM->EM->persist($group);
 
