@@ -120,8 +120,6 @@ class BatchController extends BaseController
             }
         }
 
-
-
         $future_visits = $visit_repo->findFutureVisits();
 
         $relevant_topics = [];

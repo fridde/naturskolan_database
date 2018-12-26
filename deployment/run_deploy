@@ -70,10 +70,15 @@ if [ $SKIP -lt 3 ]; then
 fi
 
 if [ $SKIP -lt 4 ]; then    
-	read -p "[4] Updating composer packages in dev directory..."
+	read -p "[4] Getting dev repository ready for push..."
     cd $DEV_PROJECT_PATH
-    composer update fridde/*
-    composer install
+    echo "Do you need to update composer packages? [y/n]"
+	read -e REPLY
+	if [[ $REPLY == y ]]; then
+		composer update fridde/*
+        composer install
+	fi
+
 	read -p 'Checking git status of dev repo...'	
     if [ -n "$(git status -s)" ]; then
 		git status
