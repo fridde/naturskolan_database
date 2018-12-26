@@ -52,10 +52,11 @@ class Visitor
         }
     }
 
-    public function isAdminUser()
+    public function isAdminUser(): bool
     {
-        if ($this->isUser()) {
-            return (bool)($this->getUser()->getRole() & (User::ROLE_ADMIN | User::ROLE_SUPERUSER));
+        $user = $this->getUser();
+        if (!empty($user)) {
+            return (bool)($user->getRole() & (User::ROLE_ADMIN | User::ROLE_SUPERUSER));
         }
 
         return false;

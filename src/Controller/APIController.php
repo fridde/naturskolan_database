@@ -3,6 +3,8 @@
 namespace Fridde\Controller;
 
 use Carbon\Carbon;
+use Fridde\Entities\Group;
+use Fridde\Entities\Hash;
 use Fridde\Entities\Message;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
@@ -109,7 +111,7 @@ class APIController extends BaseController
         /* @var School $request_school */
         $request_school = $this->N->ORM->find('School', $school_id);
         if (!($request_school instanceof School)) {
-            throw new NException(Error::LOGIC, [$school_id . ' not a valid school id']);
+            throw new NException(Error::LOGIC, [$school_id.' not a valid school id']);
         }
         if ($visitor->isFromSchool($request_school) || $visitor->isFromAdminSchool()) {
             $this->addToDATA('password', $this->N->Auth->calculatePasswordForSchool($request_school));
@@ -208,6 +210,53 @@ class APIController extends BaseController
     public function updateReceivedSMS()
     {
         // TODO: Implement this function using SMS::updateReceivedSms
+    }
+
+
+    /**
+     * @param string $school_id
+     * @throws \Exception
+     *
+     * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
+     */
+    public function sendRemoveUserMail()
+    {
+        $school_name = null;
+        // user[], reason, text
+        foreach ($this->getParameter('user') as $user_id) {
+            /* @var User $user */
+            $user = $this->N->getRepo(User::class)->find($user_id);
+            $u = [];
+            $u['id'] = $user_id;
+            $u['name'] = $user->getFullName();
+            $school_name = $school_name ?? $user->getSchool()->getName();
+
+            $params = ['action' => 'remove_user'];
+            $params['parameters'] = $this->N->Auth->createAndSaveCode($user_id, Hash::CATEGORY_USER_REMOVAL_CODE);
+            $u['removal_link'] = $this->N->generateUrl('api', $params);
+
+            $u['groups'] = array_map(
+                function (Group $g) {
+                    $r = ['id' => $g->getId()];
+                    $r['name'] = $g->getName();
+                    $r['active'] = $g->isActive();
+                    return $r;
+                },
+                $user->getGroups()
+            );
+
+            $mail_params['data']['users'][] = $u;
+        }
+        $mail_params['data']['reason'] = $this->getParameter('reason');
+        $mail_params['data']['text'] = $this->getParameter('text');
+        $mail_params['data']['school_name'] = $school_name;
+        $mail_params['subject_int'] = Message::SUBJECT_USER_REMOVAL_REQUEST;
+
+        $mail = new Mail($mail_params);
+        $response = $mail->buildAndSend();
+
+        $this->addToDATA('status', $response->getStatus());
+        $this->addToDATA('errors', $response->getErrors() ?? []);
     }
 
 }

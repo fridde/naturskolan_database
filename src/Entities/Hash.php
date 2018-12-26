@@ -37,6 +37,7 @@ class Hash
     public const CATEGORY_SCHOOL_COOKIE_KEY = 2;
     public const CATEGORY_SCHOOL_PW = 3;
     public const CATEGORY_VISIT_CONFIRMATION_CODE = 4;
+    public const CATEGORY_USER_REMOVAL_CODE = 5;
 
     public const RIGHTS_NO_SCHOOLS = 0;
     public const RIGHTS_SCHOOL_ONLY = 1;

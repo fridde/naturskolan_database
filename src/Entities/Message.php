@@ -54,6 +54,7 @@ class Message
     public const SUBJECT_MANAGER_MOBILIZATION = 6;
     public const SUBJECT_ADMIN_SUMMARY = 7;
     public const SUBJECT_UPDATE_RECEIVED_SMS = 8;
+    public const SUBJECT_USER_REMOVAL_REQUEST = 9;
 
     public function getId()
     {

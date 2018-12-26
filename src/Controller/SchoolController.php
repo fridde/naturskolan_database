@@ -22,8 +22,7 @@ class SchoolController extends BaseController
     public function __construct($params = [])
     {
         parent::__construct($params);
-        $school_id = $this->getParameter('school');
-        $this->request_school = $this->N->ORM->find('School', $school_id);
+        $this->setRequestSchool();
     }
 
     public function handleRequest()
@@ -41,7 +40,7 @@ class SchoolController extends BaseController
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function createSchoolPage()
+    public function createSchoolPage(): void
     {
         $this->addToDATA($this->getAllGroups($this->request_school));
         $this->setTemplate('school_page');
@@ -51,12 +50,16 @@ class SchoolController extends BaseController
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function createRemoveUserPage()
+    public function createRemoveUserPage(): void
     {
         $this->setTemplate('remove_user_page');
     }
 
 
+    /**
+     * @param School $school
+     * @return array An array filled with 'entity_class', 'headers', 'invisible_headers' and 'staff'
+     */
     private function getAllUsers(School $school): array
     {
         $DATA = ['entity_class' => 'User'];
@@ -99,10 +102,10 @@ class SchoolController extends BaseController
      * and orders them into a structured array to be viewed on the school page later.
      *
      * @example getAllGroupsExample.php
-     * @param  \Fridde\Entities\School $school The School object.
+     * @param  School $school The School object.
      * @return array An array containing structured data. See example.
      */
-    private function getAllGroups($school)
+    private function getAllGroups(School $school)
     {
         $DATA = [];
         $DATA['student_limits'] = SETTINGS['admin']['summary']['allowed_group_size'];
@@ -171,12 +174,26 @@ class SchoolController extends BaseController
 
     private function decreaseSecurityLevelIfFromRightSchool(): void
     {
-        if (!$this->Authorizer->getVisitor()->isFromSchool($this->request_school)) {
+        $visitor = $this->Authorizer->getVisitor();
+
+        if (!empty($visitor) && $visitor->isFromSchool($this->request_school)) {
             return;
         }
         foreach ($this->methods as $method) {
             $this->Authorizer->changeSecurityLevel(self::class, $method, Authorizer::ACCESS_ALL_EXCEPT_GUEST);
         }
+    }
+
+    private function setRequestSchool(): void
+    {
+        $school_id = $this->getParameter('school');
+        $school = $this->N->ORM->find('School', $school_id);
+
+        if($school instanceof School){
+            $this->request_school = $school;
+            return;
+        }
+        throw new \Exception('No valid school could be found for the school parameter "' . $school_id . '"');
     }
 
 

@@ -30,12 +30,17 @@ class Mail extends AbstractMessageController
             [self::SEND | self::PREPARE, 'WelcomeNewUser', 'Välkommen i Naturskolans besöksportal'],
         Message::SUBJECT_MANAGER_MOBILIZATION =>
             [self::SEND | self::PREPARE, 'ManagerMobilization', 'Hjälp oss att planera klassernas besök'],
+        Message::SUBJECT_USER_REMOVAL_REQUEST =>
+            [self::SEND | self::PREPARE, 'UserRemovalRequest', 'Borttagning av användare har begärts']
     ];
+
+    protected $subject_int;
 
 
     public function __construct(array $params = [])
     {
         parent::__construct($params);
+        $this->setSubjectInt();
         $this->setCarrierType(Message::CARRIER_MAIL);
         $this->Mailer = new Mailer();
     }
@@ -72,19 +77,15 @@ class Mail extends AbstractMessageController
 
     protected function prepareAdminSummary()
     {
-        $subject_int = $this->getParameter('subject_int');
-
         $this->setTemplate('mail/admin_summary');
-        $receiver = SETTINGS['admin']['summary']['admin_address'];
-        $this->Mailer->setValue('receiver', $receiver);
-        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
+        $this->Mailer->setValue('receiver', $this->getAdminAddress());
+        $this->Mailer->setValue('subject', $this->getSubjectString());
 
         $this->addToDATA($this->getParameter('data'));
     }
 
     protected function preparePasswordRecovery()
     {
-        $subject_int = $this->getParameter('subject_int');
         $template = 'mail/password_recover' . ($this->isHtml() ? '' : '_raw');
 
         $this->addToDATA($this->getParameter('data'));
@@ -92,31 +93,29 @@ class Mail extends AbstractMessageController
 
         $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
-        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
+        $this->Mailer->setValue('subject', $this->getSubjectString());
         $this->Mailer->setValue('SMTPDebug', 0);
     }
 
     protected function prepareUpdateProfileReminder()
     {
-        $subject_int = $this->getParameter('subject_int');
-
         $template = 'mail/incomplete_profile' . ($this->isHtml() ? '' : '_raw');
 
         $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
-        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
+        $this->Mailer->setValue('subject', $this->getSubjectString());
         $this->addToDATA($this->getParameter('data'));
         $this->moveFromDataToVar('school_url', 'fname');
     }
 
     protected function prepareVisitConfirmation()
     {
-        $subject_int = $this->getParameter('subject_int');
+
         $template = 'mail/confirm_visit' . ($this->isHtml() ? '' : '_raw');
 
         $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
-        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
+        $this->Mailer->setValue('subject', $this->getSubjectString());
         $this->addAsVar($this->getParameter('data'));
     }
 
@@ -164,8 +163,6 @@ class Mail extends AbstractMessageController
      */
     protected function prepareWelcomeNewUser()
     {
-        $subject_int = $this->getParameter('subject_int');
-
         $DATA = $this->getParameter('data');
 
         array_walk(
@@ -182,13 +179,11 @@ class Mail extends AbstractMessageController
         $template = 'mail/new_user_welcome' . ($this->isHtml() ? '' : '_raw');
         $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
-        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
+        $this->Mailer->setValue('subject', $this->getSubjectString());
     }
 
     protected function prepareManagerMobilization()
     {
-        $subject_int = $this->getParameter('subject_int');
-
         $DATA = $this->getParameter('data');
 
         $this->addToDATA($DATA);
@@ -196,7 +191,15 @@ class Mail extends AbstractMessageController
         $template = 'mail/manager_mobilization' . ($this->isHtml() ? '' : '_raw');
         $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
-        $this->Mailer->setValue('subject', $this->getSubjectString($subject_int));
+        $this->Mailer->setValue('subject', $this->getSubjectString());
+    }
+
+    protected function prepareUserRemovalRequest()
+    {
+        $this->setTemplate('mail/user_removal_request');
+        $this->addToDATA($this->getParameter('data'));
+        $this->Mailer->setValue('receiver', $this->getAdminAddress());
+        $this->Mailer->setValue('subject', $this->getSubjectString());
     }
 
     public function getMethods(): array
@@ -204,13 +207,28 @@ class Mail extends AbstractMessageController
         return self::$methods;
     }
 
-    protected function getSubjectString(int $subject): string
+    protected function getSubjectString(int $subject_int = null): string
     {
-        return $this->getMethods()[$subject][2] ?? '';
+        $subject_int = $subject_int ?? $this->subject_int;
+        return $this->getMethods()[$subject_int][2] ?? '';
     }
 
-    protected function isHtml()
+    protected function isHtml(): bool
     {
         return $this->getParameter('html') === true;
+    }
+
+    public function setSubjectInt(int $subject_int = null): void
+    {
+        if(null === $subject_int){
+            $this->subject_int = (int) $this->getParameter('subject_int');
+            return;
+        }
+        $this->subject_int = $subject_int;
+    }
+
+    private function getAdminAddress(): string
+    {
+        return SETTINGS['admin']['summary']['admin_address'];
     }
 }

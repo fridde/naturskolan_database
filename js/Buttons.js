@@ -311,8 +311,15 @@ $(document).ready(function () {
         data.reason = $('select#reason-selector option:selected').text();
         data.reason_text = $('textarea', $form).val();
 
-        console.log(data);
-    });
+        //console.log(data);
 
+        $.ajax({
+            url: 'api/send_remove_user_mail',
+            method: 'POST',
+            data,
+            success: function (data) {
+            }
+        });
+    });
 
 });

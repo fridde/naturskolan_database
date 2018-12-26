@@ -9,7 +9,7 @@
             <p>Här kan du begära att vi ska ta bort användare ur databasen. De kan fortfarande nå portalen med hjälp av lösenordet, men får inga mejl eller påminnelser. Då det inte ska tas bort användare av misstag kommer begäran granskas så att vi i eventuella fall kan undanröja missförstånd.</p>
             <div id="remove-user-form">
                 <table class="table table-responsive table-striped">
-                    {% for user in DATA.users %}
+                    {% for user in DATA.staff %}
                         <tr data-id="{{ user.id }}">
                             <td><input type="checkbox"></td>
                             <td>{{ user.FirstName }} {{ user.LastName }}</td>

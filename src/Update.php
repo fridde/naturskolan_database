@@ -360,11 +360,11 @@ class Update extends DefaultUpdate
                     $group->setSegment($segment_id);
                     $group->setStartYear($year);
 
-                    $name = $group->getSegmentLabel();
+                    $name = ucfirst($segment_id);
                     if($expected_count > 1) {
-                        $name .= $letters[$actual_count + $i];
+                        $name .= ' ' . $letters[$actual_count + $i];
                     }
-                    $group->setName('Grupp ' .  $name);
+                    $group->setName($name);
 
                     $group->setStatus(Group::ACTIVE);
                     $this->ORM->EM->persist($group);
