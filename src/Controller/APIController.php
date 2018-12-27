@@ -25,6 +25,7 @@ class APIController extends BaseController
     public function __construct(array $params = [], bool $slim = true)
     {
         parent::__construct($params, $slim);
+        $this->setReturnType(self::RETURN_JSON);
         if (defined('ENVIRONMENT') && in_array(ENVIRONMENT, ['dev', 'test'], true)) {
             $this->Authorizer->changeSecurityLevel(get_class($this), 'updateTestDate', Authorizer::ACCESS_ALL);
         }
@@ -84,7 +85,7 @@ class APIController extends BaseController
 
     protected function updateVisitStatus(Visit $visit, string $school_id)
     {
-        $this->setReturnType(self::RETURN_JSON);
+
         $update = new Update();
         $return = $update->confirmVisit($visit->getId())->flush()->getReturn();
         if (empty($return['success'])) {
@@ -106,7 +107,7 @@ class APIController extends BaseController
      */
     public function getPasswordForSchool(string $school_id): void
     {
-        $this->setReturnType(self::RETURN_JSON);
+
         $visitor = $this->Authorizer->getVisitor();
         /* @var School $request_school */
         $request_school = $this->N->ORM->find('School', $school_id);
@@ -125,7 +126,7 @@ class APIController extends BaseController
      */
     public function sendPasswordRecoverMail(string $mail_address): void
     {
-        $this->setReturnType(self::RETURN_JSON);
+
         $mail_address = strtolower(trim($mail_address));
         /* @var User $user */
         $user = $this->N->ORM->getRepository('User')->findOneBy(['Mail' => $mail_address]);
@@ -161,16 +162,14 @@ class APIController extends BaseController
         $date_time = html_entity_decode($date_time);
         $this->N->setStatus('test.datetime', $date_time);
         Carbon::setTestNow($date_time);
-        $this->setReturnType(self::RETURN_JSON);
+
     }
 
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
     public function sendContactMail()
-    {
-        $this->setReturnType(self::RETURN_JSON);
-
+    {       
         $client = new Client();
 
         $params = ['secret' => SETTINGS['captcha']['secret']];
@@ -214,16 +213,13 @@ class APIController extends BaseController
 
 
     /**
-     * @param string $school_id
-     * @throws \Exception
-     *
      * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
      */
     public function sendRemoveUserMail()
     {
         $school_name = null;
         // user[], reason, text
-        foreach ($this->getParameter('user') as $user_id) {
+        foreach ($this->getFromRequest('users') as $user_id) {
             /* @var User $user */
             $user = $this->N->getRepo(User::class)->find($user_id);
             $u = [];
@@ -247,8 +243,8 @@ class APIController extends BaseController
 
             $mail_params['data']['users'][] = $u;
         }
-        $mail_params['data']['reason'] = $this->getParameter('reason');
-        $mail_params['data']['text'] = $this->getParameter('text');
+        $mail_params['data']['reason'] = $this->getFromRequest('reason');
+        $mail_params['data']['text'] = $this->getFromRequest('reason_text');
         $mail_params['data']['school_name'] = $school_name;
         $mail_params['subject_int'] = Message::SUBJECT_USER_REMOVAL_REQUEST;
 
@@ -257,6 +253,11 @@ class APIController extends BaseController
 
         $this->addToDATA('status', $response->getStatus());
         $this->addToDATA('errors', $response->getErrors() ?? []);
+    }
+
+    public function removeUsers()
+    {
+        
     }
 
 }

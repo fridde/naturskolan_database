@@ -304,19 +304,27 @@ $(document).ready(function () {
 
     $('button#send-user-removal-mail').click(() => {
         let $form = $('div#remove-user-form');
+        let users_ids = $('input:checkbox:checked', $form).map((i, el) => {
+            return $(el).closest('tr').data('id');
+        }).get();
+        /*
         let data = [];
         data.users = $('input:checkbox:checked', $form).map((i, el) => {
             return $(el).closest('tr').data('id');
         }).get();
         data.reason = $('select#reason-selector option:selected').text();
         data.reason_text = $('textarea', $form).val();
-
+        */
         //console.log(data);
 
         $.ajax({
             url: 'api/send_remove_user_mail',
             method: 'POST',
-            data,
+            data: {
+                users: users_ids,
+                reason: $('select#reason-selector option:selected').text(),
+                reason_text: $('textarea', $form).val()
+            },
             success: function (data) {
             }
         });

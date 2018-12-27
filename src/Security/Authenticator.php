@@ -149,6 +149,9 @@ class Authenticator
         return $this->PWH;
     }
 
+    /*
+     * ['function to create the code', 'key in SETTINGS['values']['validity'] ']
+     * */
     private function getCategorySettings()
     {
         return [
@@ -156,6 +159,7 @@ class Authenticator
             Hash::CATEGORY_USER_COOKIE_KEY => ['createCookieKey', 'cookie_key'],
             Hash::CATEGORY_SCHOOL_COOKIE_KEY => ['createCookieKey', 'cookie_key'],
             Hash::CATEGORY_VISIT_CONFIRMATION_CODE => ['createVisitConfirmationCode', 'visit_confirmation_code'],
+            Hash::CATEGORY_USER_REMOVAL_CODE => ['createUrlCode', 'url_key']
         ];
     }
 
