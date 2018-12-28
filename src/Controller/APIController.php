@@ -169,7 +169,7 @@ class APIController extends BaseController
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
     public function sendContactMail()
-    {       
+    {
         $client = new Client();
 
         $params = ['secret' => SETTINGS['captcha']['secret']];
@@ -236,6 +236,7 @@ class APIController extends BaseController
                     $r = ['id' => $g->getId()];
                     $r['name'] = $g->getName();
                     $r['active'] = $g->isActive();
+
                     return $r;
                 },
                 $user->getGroups()
@@ -255,9 +256,27 @@ class APIController extends BaseController
         $this->addToDATA('errors', $response->getErrors() ?? []);
     }
 
-    public function removeUsers()
+    public function removeUser(string $user_code)
     {
-        
+        $status = 'success';
+        try {
+            /* @var User $user */
+            $user = $this->N->Auth->getObjectFromCode($user_code, [], User::class);
+            if (empty($user)) {
+                $status = 'failure';
+            } else {
+                $user->setStatus(User::ARCHIVED);
+                $rm_user = ['id' => $user->getId(), 'name' => $user->getFullName()];
+                $this->addToDATA('removed_user', $rm_user);
+
+                $this->N->ORM->EM->persist($user);
+                $this->N->ORM->EM->flush();
+            }
+        } catch (\Exception $e) {
+            $status = 'failure';
+            $this->addToDATA('errors', $e->getMessage() ?? []);
+        }
+        $this->addToDATA('status', $status);
     }
 
 }

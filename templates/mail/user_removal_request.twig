@@ -1,29 +1,27 @@
 {# data.users --> id, name, removal_link, groups --> id, name, active #}
 
-{% extends "mail/common/base_mail_raw.twig" %}
-
-{% block body_text %}
-    <p>Någon från {{ DATA.school_name }} har begärt att en eller flera användare ska deaktiveras och så småningom rensas från databasen.</p>
-    <p>Som skäl anges "{{ DATA.reason }}".</p>
-    {% if data.text %}
-        <p>Ytterligare upplysningar:</p>
-        <p>{{ DATA.text }}</p>
-    {% endif %}
-    <ul>
+<p>Någon från {{ DATA.school_name }} har begärt att en eller flera användare ska deaktiveras och så småningom rensas
+    från databasen.</p>
+<p>Angivet skäl: "{{ DATA.reason }}".</p>
+{% if DATA.text %}
+    <p>Ytterligare upplysningar:</p>
+    <p>{{ DATA.text }}</p>
+{% endif %}
+<ul>
     {% for user in DATA.users %}
         <li>[{{ user.id }}] {{ user.name }}. <a href="{{ user.removal_link }}">Ta bort</a>
-        {% if user.groups %}
-            <ul>
-                {% for group in user.groups %}
-                    <li>[{{ group.id }}] {{ group.name }}.
-                        {% if group.active %}
-                            <em>OBS: Aktiv grupp!</em>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+            {% if user.groups %}
+                <ul>
+                    {% for group in user.groups %}
+                        <li>[{{ group.id }}] {{ group.name }}.
+                            {% if group.active %}
+                                <em>OBS: Aktiv grupp!</em>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </li>
     {% endfor %}
-    </ul>
-{% endblock %}
+</ul>
+

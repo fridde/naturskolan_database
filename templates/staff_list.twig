@@ -52,7 +52,10 @@
                 {%- endfor %}
                 </tbody>
             </table>
-            <button type="button" class="add-row-btn btn btn-primary">Lägg till person</button>
+            <div class="container">
+            <button type="button" class="add-row-btn btn btn-primary float-left">Lägg till person</button>
+                <span class="float-right"> <a href="remove/{{ DATA.school_id }}">Ta bort en person</a> </span>
+            </div>
         </div>
     </div>
 </div>
