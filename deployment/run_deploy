@@ -108,9 +108,11 @@ fi
 
 if [ $SKIP -lt 6 ]; then
 	read -p "[6] Setting up local testing environment..."
-    echo "Do you want to start Selenium server and Mailhog? [y/n]"
+    echo "Do you want to start Memcached, Selenium server and Mailhog? [y/n]"
 	read -e REPLY
 	if [[ $REPLY == y ]]; then
+	    cd /cygdrive/c/wamp/bin/memcached
+	    cmd /C start memcached.exe start &
 		cd ~/bin_win
 		cmd /C start java -jar selenium-server.jar &
 		cmd /C start MailHog.exe &
