@@ -70,6 +70,7 @@ class ExceptionHandler
         }
         $msg .= ' The error occurred at ';
         $msg .= $this->Exception->getFile().':'.$this->Exception->getLine();
+        $msg .= '; Stacktrace: ' . $this->Exception->getTraceAsString();
 
         return $msg;
     }

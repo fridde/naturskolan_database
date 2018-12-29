@@ -47,7 +47,7 @@ class User
     protected $CreatedAt;
 
     /** @Column(type="smallint", nullable=true) */
-    protected $MessageSettings; 
+    protected $MessageSettings;
 
     /** @ManyToMany(targetEntity="Visit", mappedBy="Colleagues")
      * @JoinTable(name="Colleagues_Visits")
