@@ -38,7 +38,7 @@ class IndexCest
         foreach ($schools_not_on_frontpage as $index => $school_name) {
             $I->cantSee($school_name, '.flexbox');
         }
-        $I->seeInTitle('Sigtuna Naturskolans databas');
+        $I->seeInTitle('Sigtuna Naturskolans besöksportal');
         $I->cantSee('Logga ut', '.nav');
     }
 
@@ -66,6 +66,7 @@ class IndexCest
         $I->amOnPage('/');
         $I->resetCookie('AuthKey');
         $link = Locator::find('a', ['href' => $I->get('BASE') . '/skola/pers']);
+        $I->pauseExecution();
         $I->seeElement($link);
         $I->click($link);
         $I->pause();
@@ -135,9 +136,11 @@ class IndexCest
         $I->wantTo('Logout and not be able to enter');
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('st_per', 'AuthKey'));
+        $I->pauseExecution();
         $I->amOnPage('/skola/pers');
-
-        $I->click('//a[@href="logout"]');
+        $logout_link = '//a[@href="logout"]';
+//        $I->scrollTo($logout_link);
+        $I->click($logout_link);
         $I->pause(0.7);
         $I->dontSeeCookie('AuthKey');
         $I->dontSeeInCurrentUrl('skola/pers');

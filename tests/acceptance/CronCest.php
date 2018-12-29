@@ -202,7 +202,7 @@ class CronCest
         //$I->pauseExecution();
         $I->haveNumberOfUnreadEmails($expected_mail_nr);
         $mail = [
-            'sub' => 'Välkommen i Naturskolans databas',
+            'sub' => 'Välkommen i Naturskolans besöksportal',
             'from' => 'info@sigtunanaturskola.se',
             'to' => 'heinz.krumbichel@edu.sigtuna.se',
             'body' => [

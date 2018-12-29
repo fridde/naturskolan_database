@@ -1,4 +1,4 @@
-BASE: '/testing/naturskolan_database'
+BASE: 'https://localhost/testing/naturskolan_database'
 
 test_date: '2018-06-01'
 

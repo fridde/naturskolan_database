@@ -176,7 +176,7 @@ class SchoolController extends BaseController
     {
         $visitor = $this->Authorizer->getVisitor();
 
-        if (!empty($visitor) && $visitor->isFromSchool($this->request_school)) {
+        if (empty($visitor) || !$visitor->isFromSchool($this->request_school)) {
             return;
         }
         foreach ($this->methods as $method) {
