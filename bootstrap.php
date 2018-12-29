@@ -24,7 +24,7 @@ Essentials::setBaseDir(__DIR__);
 Essentials::setEnvironment();
 Essentials::activateDebugIfNecessary(['tracy']);
 $cache_factory = new CacheFactory(ENVIRONMENT, __DIR__);
-$cache = $cache_factory->getCache();
+$cache = $cache_factory->getCache(); 
 Settings::setSettings(['cache' => $cache]);
 
 define('APP_URL', '//' . SETTINGS['app_root']);
