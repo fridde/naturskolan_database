@@ -4,60 +4,65 @@ namespace Fridde\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Carbon\Carbon;
+use Doctrine\ORM\Mapping AS ORM;
+use Fridde\Annotations\Loggable;
 
 /**
- * @Entity(repositoryClass="Fridde\Entities\GroupRepository")
- * @Table(name="groups")
- * @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Fridde\Entities\GroupRepository")
+ * @ORM\Table(name="groups")
+ * @ORM\HasLifecycleCallbacks
  */
 class Group
 {
-    /** @Id @Column(type="integer") @GeneratedValue */
+    /** @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     protected $id;
 
-    /** @Column(type="string", nullable=true)
+    /** @ORM\Column(type="string", nullable=true)
      */
     protected $Name;
 
-    /** @ManyToOne(targetEntity="User", inversedBy="Groups")
+    /** @ORM\ManyToOne(targetEntity="User", inversedBy="Groups")
      * @Loggable     *
      */
     protected $User;
 
-    /** @ManyToOne(targetEntity="School", inversedBy="Groups")     * */
+    /** @ORM\ManyToOne(targetEntity="School", inversedBy="Groups")     * */
     protected $School;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Segment;
 
-    /** @Column(type="smallint", nullable=true) */
+    /** @ORM\Column(type="smallint", nullable=true) */
     protected $StartYear;
 
-    /** @Column(type="smallint", nullable=true)
+    /** @ORM\Column(type="smallint", nullable=true)
      * @Loggable
      */
     protected $NumberStudents;
 
-    /** @Column(type="text", nullable=true)
+    /** @ORM\Column(type="text", nullable=true)
      * @Loggable
      */
     protected $Food;
 
-    /** @Column(type="text", nullable=true)
+    /** @ORM\Column(type="text", nullable=true)
      * @Loggable
      */
     protected $Info;
 
-    /** @Column(type="smallint") */
+    /** @ORM\Column(type="smallint") */
     protected $Status = self::ACTIVE;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $LastChange;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $CreatedAt;
 
-    /** @OneToMany(targetEntity="Visit", mappedBy="Group")     * */
+    /** @ORM\OneToMany(targetEntity="Visit", mappedBy="Group")     * */
     protected $Visits;
 
     public const ARCHIVED = 0;
@@ -328,7 +333,7 @@ class Group
         return $this->getId() - $other_group->getId();
     }
 
-    /** @PrePersist */
+    /** @ORM\PrePersist */
     public function prePersist($event)
     {
         $now_string = Carbon::now()->toIso8601String();
@@ -336,13 +341,13 @@ class Group
         $this->setLastChange($now_string);
     }
 
-    /** @PreUpdate */
+    /** @ORM\PreUpdate */
     public function preUpdate($event)
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
-    /** @PreRemove */
+    /** @ORM\PreRemove */
     public function preRemove()
     {
     }

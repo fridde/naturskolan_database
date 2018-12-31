@@ -3,38 +3,42 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
+use Doctrine\ORM\Mapping AS ORM;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
 
 /**
- * @Entity(repositoryClass="Fridde\Entities\MessageRepository")
- * @Table(name="messages")
- * @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Fridde\Entities\MessageRepository")
+ * @ORM\Table(name="messages")
+ * @ORM\HasLifecycleCallbacks
  */
 class Message
 {
-    /** @Id @Column(type="integer") @GeneratedValue */
+    /** @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     protected $id;
 
-    /** @ManyToOne(targetEntity="User", inversedBy="Messages")     * */
+    /** @ORM\ManyToOne(targetEntity="User", inversedBy="Messages")     * */
     protected $User;
 
-    /** @Column(type="smallint", nullable=true) */
+    /** @ORM\Column(type="smallint", nullable=true) */
     protected $Subject;
 
-    /** @Column(type="smallint", nullable=true) */
+    /** @ORM\Column(type="smallint", nullable=true) */
     protected $Carrier;
 
-    /** @Column(type="smallint", nullable=true) */
+    /** @ORM\Column(type="smallint", nullable=true) */
     protected $Status;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $ExtId;
 
-    /** @Column(type="text", nullable=true) */
+    /** @ORM\Column(type="text", nullable=true) */
     protected $Content;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Timestamp;
 
     public const STATUS_PENDING = 0;
@@ -214,18 +218,18 @@ class Message
     }
 
 
-    /** @PrePersist */
+    /** @ORM\PrePersist */
     public function prePersist()
     {
         $this->setTimestamp(Carbon::now());
     }
 
-    /** @PreUpdate */
+    /** @ORM\PreUpdate */
     public function preUpdate()
     {
     }
 
-    /** @PreRemove */
+    /** @ORM\PreRemove */
     public function preRemove()
     {
     }

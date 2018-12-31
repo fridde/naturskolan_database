@@ -4,63 +4,68 @@ namespace Fridde\Entities;
 
 use Carbon\Carbon;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping AS ORM;
+
 
 
 /**
- * @Entity(repositoryClass="Fridde\Entities\UserRepository")
- * @Table(name="users")
- * @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Fridde\Entities\UserRepository")
+ * @ORM\Table(name="users")
+ * @ORM\HasLifecycleCallbacks
  */
 class User
 {
-    /** @Id @Column(type="integer") @GeneratedValue */
+    /** @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     protected $id;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $FirstName;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $LastName;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Mobil;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Mail;
 
-    /** @ManyToOne(targetEntity="School", inversedBy="Users")     * */
+    /** @ORM\ManyToOne(targetEntity="School", inversedBy="Users")     * */
     protected $School;
 
-    /** @Column(type="smallint", nullable=true) */
+    /** @ORM\Column(type="smallint", nullable=true) */
     protected $Role = self::ROLE_TEACHER;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Acronym;
 
-    /** @Column(type="smallint", nullable=true) */
+    /** @ORM\Column(type="smallint", nullable=true) */
     protected $Status = 1;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $LastChange;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $CreatedAt;
 
-    /** @Column(type="smallint", nullable=true) */
+    /** @ORM\Column(type="smallint", nullable=true) */
     protected $MessageSettings;
 
-    /** @ManyToMany(targetEntity="Visit", mappedBy="Colleagues")
-     * @JoinTable(name="Colleagues_Visits")
+    /** @ORM\ManyToMany(targetEntity="Visit", mappedBy="Colleagues")
+     * @ORM\JoinTable(name="Colleagues_Visits")
      */
     protected $Visits;
 
-    /** @OneToMany(targetEntity="Message", mappedBy="User") */
+    /** @ORM\OneToMany(targetEntity="Message", mappedBy="User") */
     protected $Messages;
 
-    /** @OneToMany(targetEntity="Group", mappedBy="User") */
+    /** @ORM\OneToMany(targetEntity="Group", mappedBy="User") */
     protected $Groups;
 
-    /** @OneToMany(targetEntity="Note", mappedBy="User") */
+    /** @ORM\OneToMany(targetEntity="Note", mappedBy="User") */
     protected $Notes;
 
 
@@ -545,7 +550,7 @@ class User
         }
     }
 
-    /** @PrePersist */
+    /** @ORM\PrePersist */
     public function prePersist()
     {
         $this->setCreatedAt(Carbon::now());
@@ -553,13 +558,13 @@ class User
         $this->setCurrentStandardMailSettings();
     }
 
-    /** @PreUpdate */
+    /** @ORM\PreUpdate */
     public function preUpdate()
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
-    /** @PreRemove */
+    /** @ORM\PreRemove */
     public function preRemove()
     {
     }

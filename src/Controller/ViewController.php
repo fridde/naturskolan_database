@@ -2,11 +2,11 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
-use Fridde\HTML;
 use Carbon\Carbon;
-use Fridde\Security\Authorizer;
+
 
 /**
  * Class ViewController

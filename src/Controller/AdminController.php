@@ -5,6 +5,7 @@ namespace Fridde\Controller;
 
 use Carbon\Carbon;
 
+use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\Group;
 use Fridde\Entities\Note;
 use Fridde\Entities\User;

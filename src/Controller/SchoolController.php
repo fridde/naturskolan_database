@@ -5,6 +5,7 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\Group;
 use Fridde\Entities\School;
 use Fridde\Entities\User;

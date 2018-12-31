@@ -20,7 +20,6 @@ if(empty($_SERVER['argv'][0])){
 
 /** START OF BOOTSTRAP  */
 Essentials::setBaseDir(__DIR__);
-//Essentials::setAppUrl(__DIR__);
 Essentials::setEnvironment();
 Essentials::activateDebugIfNecessary(['tracy']);
 $cache_factory = new CacheFactory(ENVIRONMENT, __DIR__);

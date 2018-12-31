@@ -3,21 +3,24 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
+use Doctrine\ORM\Mapping AS ORM;
 
 /**
- * @Entity
- * @Table(name="systemstatus")
- * @HasLifecycleCallbacks
+ * @ORM\Entity
+ * @ORM\Table(name="systemstatus")
+ * @ORM\HasLifecycleCallbacks
  */
 class SystemStatus
 {
-    /** @Id @Column(type="string") */
+    /** @ORM\Id
+     * @ORM\Column(type="string")
+     */
     protected $id;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Value;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $LastChange;
 
 
@@ -52,19 +55,19 @@ class SystemStatus
         $this->LastChange = $LastChange;
     }
 
-    /** @PrePersist */
+    /** @ORM\PrePersist */
     public function prePersist()
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
-    /** @PreUpdate */
+    /** @ORM\PreUpdate */
     public function preUpdate()
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
-    /** @PreRemove */
+    /** @ORM\PreRemove */
     public function preRemove()
     {
     }

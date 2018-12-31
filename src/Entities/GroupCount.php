@@ -2,25 +2,30 @@
 
 namespace Fridde\Entities;
 
+use Doctrine\ORM\Mapping AS ORM;
+
 /**
- * @Entity(repositoryClass="Fridde\Entities\GroupCountRepository")
- * @Table(name="group_counts")
+ * @ORM\Entity(repositoryClass="Fridde\Entities\GroupCountRepository")
+ * @ORM\Table(name="group_counts")
  */
 class GroupCount
 {
-    /** @Id @Column(type="integer") @GeneratedValue */
+    /** @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     protected $id;
 
-    /** @ManyToOne(targetEntity="School", inversedBy="GroupCounts")     * */
+    /** @ORM\ManyToOne(targetEntity="School", inversedBy="GroupCounts")     * */
     protected $School;
 
-    /** @Column(type="smallint") */
+    /** @ORM\Column(type="smallint") */
     protected $StartYear;
 
-    /** @Column(type="string") */
+    /** @ORM\Column(type="string") */
     protected $Segment;
 
-    /** @Column(type="smallint") */
+    /** @ORM\Column(type="smallint") */
     protected $Number;
 
     /**

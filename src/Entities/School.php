@@ -3,40 +3,41 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
-use Fridde\Entities\Group;
+use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Fridde\Utility;
-use Monolog\Handler\Curl\Util;
+
 
 /**
- * @Entity(repositoryClass="Fridde\Entities\SchoolRepository")
- * @Table(name="schools")
- * @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Fridde\Entities\SchoolRepository")
+ * @ORM\Table(name="schools")
+ * @ORM\HasLifecycleCallbacks
  */
 class School
 {
-    /** @Id @Column(type="string") */
+    /** @ORM\Id
+     * @ORM\Column(type="string")
+     */
     protected $id;
 
-    /** @Column(type="string") */
+    /** @ORM\Column(type="string") */
     protected $Name;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Coordinates;
 
-    /** @Column(type="smallint", nullable=true) */
+    /** @ORM\Column(type="smallint", nullable=true) */
     protected $VisitOrder;
 
-    /** @Column(type="integer", options={"default" : 0}) */
+    /** @ORM\Column(type="integer", options={"default" : 0}) */
     protected $BusRule = 0;
 
-    /** @OneToMany(targetEntity="Group", mappedBy="School") */
+    /** @ORM\OneToMany(targetEntity="Group", mappedBy="School") */
     protected $Groups;
 
-    /** @OneToMany(targetEntity="User", mappedBy="School") */
+    /** @ORM\OneToMany(targetEntity="User", mappedBy="School") */
     protected $Users;
 
-    /** @OneToMany(targetEntity="GroupCount", mappedBy="School", cascade={"persist"}) */
+    /** @ORM\OneToMany(targetEntity="GroupCount", mappedBy="School", cascade={"persist"}) */
     protected $GroupCounts;
 
     public function __construct()
@@ -297,17 +298,17 @@ class School
         return $this->getId() === 'natu';
     }
 
-    /** @PrePersist */
+    /** @ORM\PrePersist */
     public function prePersist()
     {
     }
 
-    /** @PreUpdate */
+    /** @ORM\PreUpdate */
     public function preUpdate()
     {
     }
 
-    /** @PreRemove */
+    /** @ORM\PreRemove */
     public function preRemove()
     {
     }

@@ -2,6 +2,7 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Annotations\SecurityLevel;
 use Fridde\HTML;
 use Fridde\Security\Authorizer;
 use Fridde\Table;

@@ -3,36 +3,40 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
+use Doctrine\ORM\Mapping AS ORM;
 
 /**
- * @Entity(repositoryClass="Fridde\Entities\ChangeRepository")
- * @Table(name="changes")
- * @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Fridde\Entities\ChangeRepository")
+ * @ORM\Table(name="changes")
+ * @ORM\HasLifecycleCallbacks
  */
 class Change
 {
-    /** @Id @Column(type="integer") @GeneratedValue */
+    /** @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     protected $id;
 
-    /** @Column(type="smallint") */
+    /** @ORM\Column(type="smallint") */
     protected $Type;
 
-    /** @Column(type="string") */
+    /** @ORM\Column(type="string") */
     protected $EntityClass;
 
-    /** @Column(type="string") */
+    /** @ORM\Column(type="string") */
     protected $EntityId;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Property;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $OldValue;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Processed;
 
-    /** @Column(type="string") */
+    /** @ORM\Column(type="string") */
     protected $Timestamp;
 
     public const TYPE_DELETION = -1;
@@ -151,18 +155,18 @@ class Change
         $this->Timestamp = $Timestamp;
     }
 
-    /** @PrePersist */
+    /** @ORM\PrePersist */
     public function prePersist()
     {
         $this->setTimestamp(Carbon::now());
     }
 
-    /** @PreUpdate */
+    /** @ORM\PreUpdate */
     public function preUpdate()
     {
     }
 
-    /** @PreRemove */
+    /** @ORM\PreRemove */
     public function preRemove()
     {
     }

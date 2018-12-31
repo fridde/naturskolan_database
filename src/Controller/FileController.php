@@ -2,6 +2,8 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Annotations\SecurityLevel;
+
 class FileController extends BaseController
 {
     private const CALENDAR_FILE = 'kalender.ics';

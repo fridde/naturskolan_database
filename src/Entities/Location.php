@@ -3,36 +3,40 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
+use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @Entity(repositoryClass="Fridde\Entities\LocationRepository")
- * @Table(name="locations")
- * @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Fridde\Entities\LocationRepository")
+ * @ORM\Table(name="locations")
+ * @ORM\HasLifecycleCallbacks
  */
 class Location
 {
-    /** @Id @Column(type="smallint") @GeneratedValue */
+    /** @ORM\Id
+     * @ORM\Column(type="smallint")
+     * @ORM\GeneratedValue
+     */
     protected $id;
 
-    /** @Column(type="string") */
+    /** @ORM\Column(type="string") */
     protected $Name;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Coordinates;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Description;
 
-    /** @Column(type="smallint", unique=true)
-     * @GeneratedValue
+    /** @ORM\Column(type="smallint", unique=true)
+     * @ORM\GeneratedValue
      */
     protected $BusId;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $LastChange;
 
-    /** @OneToMany(targetEntity="Topic", mappedBy="Location") */
+    /** @ORM\OneToMany(targetEntity="Topic", mappedBy="Location") */
     protected $Topics;
 
     public function __construct()
@@ -106,19 +110,19 @@ class Location
         $this->Topics[] = $topic;
     }
 
-    /** @PrePersist */
+    /** @ORM\PrePersist */
     public function prePersist()
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
-    /** @PreUpdate */
+    /** @ORM\PreUpdate */
     public function preUpdate()
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
-    /** @PreRemove */
+    /** @ORM\PreRemove */
     public function preRemove()
     {
     }

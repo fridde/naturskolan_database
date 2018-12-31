@@ -2,6 +2,7 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\Group;
 use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Location;

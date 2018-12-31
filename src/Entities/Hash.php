@@ -3,33 +3,37 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
+use Doctrine\ORM\Mapping AS ORM;
 
 /**
- * @Entity(repositoryClass="Fridde\Entities\HashRepository")
- * @Table(name="hashes")
- * @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Fridde\Entities\HashRepository")
+ * @ORM\Table(name="hashes")
+ * @ORM\HasLifecycleCallbacks
  */
 class Hash
 {
-    /** @Id @Column(type="integer") @GeneratedValue */
+    /** @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     protected $id;
 
-    /** @Column(type="smallint") */
+    /** @ORM\Column(type="smallint") */
     protected $Category;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Version;
 
-    /** @Column(type="string") */
+    /** @ORM\Column(type="string") */
     protected $Value;
 
-    /** @Column(type="string") */
+    /** @ORM\Column(type="string") */
     protected $Owner_id;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $ExpiresAt;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $CreatedAt;
 
     public const CATEGORY_USER_URL_CODE = 0;
@@ -165,18 +169,18 @@ class Hash
     }
 
 
-    /** @PrePersist */
+    /** @ORM\PrePersist */
     public function prePersist()
     {
         $this->setCreatedAt(Carbon::now());
     }
 
-    /** @PreUpdate */
+    /** @ORM\PreUpdate */
     public function preUpdate()
     {
     }
 
-    /** @PreRemove */
+    /** @ORM\PreRemove */
     public function preRemove()
     {
     }

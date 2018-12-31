@@ -2,6 +2,7 @@
 
 namespace Fridde\Controller;
 
+use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\Hash;
 use Fridde\Error\Error;
 use Fridde\Error\NException;

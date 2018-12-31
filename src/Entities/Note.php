@@ -3,30 +3,34 @@
 namespace Fridde\Entities;
 
 use Carbon\Carbon;
+use Doctrine\ORM\Mapping AS ORM;
 
 /**
- * @Entity(repositoryClass="Fridde\Entities\NoteRepository")
- * @Table(name="notes")
- * @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Fridde\Entities\NoteRepository")
+ * @ORM\Table(name="notes")
+ * @ORM\HasLifecycleCallbacks
  */
 class Note
 {
-    /** @Id @Column(type="integer") @GeneratedValue */
+    /** @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     protected $id;
 
-    /** @ManyToOne(targetEntity="Visit", inversedBy="Notes") */
+    /** @ORM\ManyToOne(targetEntity="Visit", inversedBy="Notes") */
     protected $Visit;
 
-    /** @ManyToOne(targetEntity="User", inversedBy="Notes") */
+    /** @ORM\ManyToOne(targetEntity="User", inversedBy="Notes") */
     protected $User;
 
-    /** @Column(type="string") */
+    /** @ORM\Column(type="string") */
     protected $Text;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Timestamp;
 
-    /** @Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $LastChange;
 
     public function getTimestamp(): Carbon
@@ -131,19 +135,19 @@ class Note
         $this->LastChange = $LastChange;
     }
 
-    /** @PrePersist */
+    /** @ORM\PrePersist */
     public function prePersist()
     {
         $this->setTimestamp(Carbon::now());
     }
 
-    /** @PreUpdate */
+    /** @ORM\PreUpdate */
     public function preUpdate()
     {
         $this->setLastChange(Carbon::now());
     }
 
-    /** @PreRemove */
+    /** @ORM\PreRemove */
     public function preRemove()
     {
     }
