@@ -1153,12 +1153,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/dumper.git",
-                "reference": "d0e858a69fb5cbd6a07bbf956060cdb5ccbe2259"
+                "reference": "6029c2f7ce2d1d9f43edbd6fac74150f3aa9a178"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/dumper/zipball/d0e858a69fb5cbd6a07bbf956060cdb5ccbe2259",
-                "reference": "d0e858a69fb5cbd6a07bbf956060cdb5ccbe2259",
+                "url": "https://api.github.com/repos/fridde/dumper/zipball/6029c2f7ce2d1d9f43edbd6fac74150f3aa9a178",
+                "reference": "6029c2f7ce2d1d9f43edbd6fac74150f3aa9a178",
                 "shasum": ""
             },
             "require": {
@@ -1182,7 +1182,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-11-27T16:36:29+00:00"
+            "time": "2018-12-31T10:51:50+00:00"
         },
         {
             "name": "fridde/essentials",
@@ -1233,12 +1233,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/html.git",
-                "reference": "35944ea99cbf03c10eb562327f12b0b54ee1691b"
+                "reference": "a2e2c441441fce59b57c36ba5d8ece20223dddfb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/html/zipball/35944ea99cbf03c10eb562327f12b0b54ee1691b",
-                "reference": "35944ea99cbf03c10eb562327f12b0b54ee1691b",
+                "url": "https://api.github.com/repos/fridde/html/zipball/a2e2c441441fce59b57c36ba5d8ece20223dddfb",
+                "reference": "a2e2c441441fce59b57c36ba5d8ece20223dddfb",
                 "shasum": ""
             },
             "require": {
@@ -1262,7 +1262,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-11-10T21:43:59+00:00"
+            "time": "2018-12-31T10:52:15+00:00"
         },
         {
             "name": "fridde/mailer",
@@ -1270,12 +1270,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/mailer.git",
-                "reference": "2a64a67c7cdae4b10a441bc9370aae42a4d895ce"
+                "reference": "18d5bccad0b4e1eb8cbc232489a2b61f1c94f472"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/mailer/zipball/2a64a67c7cdae4b10a441bc9370aae42a4d895ce",
-                "reference": "2a64a67c7cdae4b10a441bc9370aae42a4d895ce",
+                "url": "https://api.github.com/repos/fridde/mailer/zipball/18d5bccad0b4e1eb8cbc232489a2b61f1c94f472",
+                "reference": "18d5bccad0b4e1eb8cbc232489a2b61f1c94f472",
                 "shasum": ""
             },
             "require": {
@@ -1298,7 +1298,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-08-20T18:23:02+00:00"
+            "time": "2018-12-31T10:52:37+00:00"
         },
         {
             "name": "fridde/orm",
@@ -1306,17 +1306,20 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/orm.git",
-                "reference": "4a08b0f0e61d7b6dc8dadb2f4faa83edba99cb9a"
+                "reference": "c2781f17dc03b433950737709f12ae3c9561a622"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/orm/zipball/4a08b0f0e61d7b6dc8dadb2f4faa83edba99cb9a",
-                "reference": "4a08b0f0e61d7b6dc8dadb2f4faa83edba99cb9a",
+                "url": "https://api.github.com/repos/fridde/orm/zipball/c2781f17dc03b433950737709f12ae3c9561a622",
+                "reference": "c2781f17dc03b433950737709f12ae3c9561a622",
                 "shasum": ""
             },
             "require": {
                 "doctrine/orm": "2.6.*",
                 "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "symfony/var-dumper": "^4.3@dev"
             },
             "type": "library",
             "autoload": {
@@ -1335,7 +1338,7 @@
                 }
             ],
             "description": "A simple wrapper for Doctrine's data wrapper. A wrapper wrapper!",
-            "time": "2018-10-20T21:48:10+00:00"
+            "time": "2018-12-31T10:53:31+00:00"
         },
         {
             "name": "fridde/router",
@@ -1451,12 +1454,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/utility.git",
-                "reference": "923d1f5357c1d1a93eeb219e04e6216a78e57dbd"
+                "reference": "b0dd29a75ed7d1c0945e93cf01d561d7eae7b304"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/utility/zipball/923d1f5357c1d1a93eeb219e04e6216a78e57dbd",
-                "reference": "923d1f5357c1d1a93eeb219e04e6216a78e57dbd",
+                "url": "https://api.github.com/repos/fridde/utility/zipball/b0dd29a75ed7d1c0945e93cf01d561d7eae7b304",
+                "reference": "b0dd29a75ed7d1c0945e93cf01d561d7eae7b304",
                 "shasum": ""
             },
             "require": {
@@ -1479,7 +1482,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-11-01T16:24:41+00:00"
+            "time": "2018-12-31T10:53:51+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
