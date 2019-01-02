@@ -59,7 +59,7 @@ class CacheFactory
         $args = [];
 
         if ($class === FilesystemCache::class) {
-            $args[] = $args_from_settings[0];
+            $args[] = $this->base_dir . $args_from_settings[0];
         }
         $cache = new $class(...$args);
 
