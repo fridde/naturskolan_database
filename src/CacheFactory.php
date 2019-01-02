@@ -35,8 +35,8 @@ class CacheFactory
         $this->environment = $environment;
 
         $this->settings = $this->readSettings();
-
         $this->cache = $this->createNewInstance();
+        $this->flushIfNeeded();
 
     }
 
