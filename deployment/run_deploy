@@ -52,6 +52,7 @@ if [ $SKIP -lt 2 ]; then
    git pull
 
    read -p 'Clearing dev cache...'
+   touch ./config/.flush_needed
    rm -rfd ./temp/cache/*
 
 fi
@@ -103,6 +104,7 @@ if [ $SKIP -lt 5 ]; then
     cp $DEV_PROJECT_PATH/config/settings_{default,test}.yml ./config/
 	cp $DEV_PROJECT_PATH/config/.key ./config/
 	read -p "Clearing test cache..."
+	touch ./config/.flush_needed
 	rm -rfd ./temp/cache/*
 fi
 
@@ -147,6 +149,7 @@ if [ $SKIP -lt 8 ]; then
 	read -p '[8] Copying deployment settings from dev to deploy...'
 	cd $STAGING_PROJECT_PATH
     touch .env_prod
+    touch ./config/.flush_needed
     cp {$DEV_PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment.ini
     cp $DEV_PROJECT_PATH/config/settings_{default,prod}.yml $STAGING_PROJECT_PATH/config/
 	cp $DEV_PROJECT_PATH/config/.key $STAGING_PROJECT_PATH/config/
