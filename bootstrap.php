@@ -2,13 +2,14 @@
 
 require __DIR__.'/vendor/autoload.php';
 
-use Doctrine\Common\Cache\FilesystemCache;
 use Fridde\CacheFactory;
 use Fridde\Essentials;
 use Fridde\Naturskolan;
 use Fridde\Router;
 use Fridde\Settings;
 use Carbon\Carbon;
+
+new \Fridde\Entities\SystemStatus();
 
 if(file_exists('debug_functions.php')){
     require 'debug_functions.php';
@@ -42,7 +43,7 @@ $em = $container->get('Naturskolan')->ORM->EM;
 Essentials::registerDBLogger($em, Essentials::getLogger());
 
 setlocale(LC_TIME, 'swedish');
-//Carbon::setUtf8(true);
+
 if(defined('ENVIRONMENT') && ENVIRONMENT === 'test'){
     /* @var Naturskolan $N  */
     $N = $container->get('Naturskolan');

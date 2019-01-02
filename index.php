@@ -2,12 +2,10 @@
 
 use Fridde\Controller\BaseController;
 use Fridde\Error\ExceptionHandler;
-use Fridde\Error\NException;
-use Fridde\Error\Error;
 use Fridde\Essentials;
 
 try {
-    require 'bootstrap.php';
+    require __DIR__ .'/bootstrap.php';
 
     //$request_url = rtrim(rawurldecode($_SERVER['REQUEST_URI']), '/\\');
 

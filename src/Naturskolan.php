@@ -93,7 +93,7 @@ class Naturskolan
      */
     public function getStatus($id)
     {
-        $status = $this->ORM->find('SystemStatus', $id);
+        $status = $this->ORM->find(SystemStatus::class, $id);
         if (!empty($status)) {
             return $status->getValue();
         }
