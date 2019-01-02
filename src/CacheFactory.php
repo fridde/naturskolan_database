@@ -4,7 +4,7 @@
 namespace Fridde;
 
 
-use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\Common\Cache\FilesystemCache;
 use Doctrine\Common\Cache\MemcacheCache;
 use Doctrine\Common\Cache\MemcachedCache;
@@ -14,7 +14,7 @@ class CacheFactory
     private $base_dir;
     private $environment;
     private $settings;
-
+    /* @var CacheProvider $cache  */
     private $cache;
 
     // second parameter describes the key in the ini file
@@ -27,6 +27,8 @@ class CacheFactory
 
     public static $options_file = '/config/cache_options.ini';
 
+    public static $flush_needed_filename = '/config/.flush_needed';
+
     public function __construct(string $environment, string $dir = '')
     {
         $this->base_dir = $dir;
@@ -35,9 +37,10 @@ class CacheFactory
         $this->settings = $this->readSettings();
 
         $this->cache = $this->createNewInstance();
+
     }
 
-    public function getCache(): Cache
+    public function getCache(): CacheProvider
     {
         return $this->cache;
     }
@@ -49,7 +52,7 @@ class CacheFactory
         return $settings[self::$cache_classes[$this->environment][1]];
     }
 
-    private function createNewInstance(): Cache
+    private function createNewInstance(): CacheProvider
     {
         $class = self::$cache_classes[$this->environment][0];
         $args_from_settings = $this->settings['args'];
@@ -63,7 +66,10 @@ class CacheFactory
         if ($cache instanceof \Memcache) {
             $cache->connect(...$args_from_settings);
             $mcc = new MemcacheCache();  // is deprecated, but no alternative for WAMP exists
+
+
             $mcc->setMemcache($cache);
+
 
             return $mcc;
         }
@@ -76,6 +82,16 @@ class CacheFactory
         }
         if ($cache instanceof FilesystemCache) {
             return $cache;
+        }
+    }
+
+    public function flushIfNeeded()
+    {
+        $file = $this->base_dir . self::$flush_needed_filename;
+
+        if(file_exists($file)){
+            $this->cache->flushAll();
+            unlink($file);
         }
     }
 

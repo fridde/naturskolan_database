@@ -17,6 +17,7 @@ vendor/
 /templates/sandbox.twig
 /config/settings_*.yml
 /config/.key
+config/.flush_needed
 /.env_*
 
 /tests/_data/*
