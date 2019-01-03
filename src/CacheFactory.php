@@ -21,8 +21,8 @@ class CacheFactory
     public static $cache_classes = [
         Essentials::ENV_DEV => [FilesystemCache::class, 'FilesystemCache'],
         Essentials::ENV_TEST => [\Memcache::class, 'Memcache'],
-        //Essentials::ENV_PROD => [\Memcached::class, 'Memcached'],
-        Essentials::ENV_PROD => [FilesystemCache::class, 'FilesystemCache'] //just for now
+        Essentials::ENV_PROD => [\Memcached::class, 'Memcached'],
+        //Essentials::ENV_PROD => [FilesystemCache::class, 'FilesystemCache'] //just for now
     ];
 
     public static $options_file = '/config/cache_options.ini';

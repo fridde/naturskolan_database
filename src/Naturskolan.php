@@ -51,7 +51,9 @@ class Naturskolan
      */
     public function __construct()
     {
-        $this->ORM = new ORM();
+        $db_settings = self::getSetting('Connection_Details');
+        $cache = $GLOBALS['CONTAINER']->get('Cache');
+        $this->ORM = new ORM($db_settings, $cache, BASE_DIR . '/temp/proxy');
         $this->Auth = new Authenticator($this->ORM, new PWH());
         $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber($this->ORM));
     }
