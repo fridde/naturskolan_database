@@ -1190,12 +1190,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/essentials.git",
-                "reference": "fb9f210b5f0ab16cfe5cb331aad14057a7fb4e91"
+                "reference": "59663c4e92566b16f2f6b0b2cec0f7956ff3c241"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/essentials/zipball/fb9f210b5f0ab16cfe5cb331aad14057a7fb4e91",
-                "reference": "fb9f210b5f0ab16cfe5cb331aad14057a7fb4e91",
+                "url": "https://api.github.com/repos/fridde/essentials/zipball/59663c4e92566b16f2f6b0b2cec0f7956ff3c241",
+                "reference": "59663c4e92566b16f2f6b0b2cec0f7956ff3c241",
                 "shasum": ""
             },
             "require": {
@@ -1225,7 +1225,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2019-01-03T19:51:56+00:00"
+            "time": "2019-01-03T20:21:36+00:00"
         },
         {
             "name": "fridde/html",

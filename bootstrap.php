@@ -25,7 +25,8 @@ Essentials::setEnvironment();
 Essentials::activateDebugIfNecessary(['tracy']);
 $cache_factory = new CacheFactory(ENVIRONMENT, __DIR__);
 $cache = $cache_factory->getCache();
-Settings::setSettings(['cache' => $cache]);
+$args = ['cache' => $cache];
+Settings::setSettings($args);
 
 define('APP_URL', '//' . SETTINGS['app_root']);
 
