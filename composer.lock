@@ -1190,12 +1190,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/essentials.git",
-                "reference": "356f50bf84d530266aadea93b33c3256497936f6"
+                "reference": "5535ea0dc0b9a34bf43073b7d8d6f6036537be62"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/essentials/zipball/356f50bf84d530266aadea93b33c3256497936f6",
-                "reference": "356f50bf84d530266aadea93b33c3256497936f6",
+                "url": "https://api.github.com/repos/fridde/essentials/zipball/5535ea0dc0b9a34bf43073b7d8d6f6036537be62",
+                "reference": "5535ea0dc0b9a34bf43073b7d8d6f6036537be62",
                 "shasum": ""
             },
             "require": {
@@ -1225,7 +1225,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-12-30T12:16:55+00:00"
+            "time": "2019-01-03T18:31:49+00:00"
         },
         {
             "name": "fridde/html",
@@ -1306,12 +1306,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/orm.git",
-                "reference": "18085ce05f233aeb80c977bafdc80d403c976125"
+                "reference": "dabe4d78e8791ea38576593feb96bbcbd652ea37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/orm/zipball/18085ce05f233aeb80c977bafdc80d403c976125",
-                "reference": "18085ce05f233aeb80c977bafdc80d403c976125",
+                "url": "https://api.github.com/repos/fridde/orm/zipball/dabe4d78e8791ea38576593feb96bbcbd652ea37",
+                "reference": "dabe4d78e8791ea38576593feb96bbcbd652ea37",
                 "shasum": ""
             },
             "require": {
@@ -1338,7 +1338,7 @@
                 }
             ],
             "description": "A simple wrapper for Doctrine's data wrapper. A wrapper wrapper!",
-            "time": "2019-01-03T12:34:47+00:00"
+            "time": "2019-01-03T18:31:07+00:00"
         },
         {
             "name": "fridde/router",
