@@ -2,6 +2,7 @@
 
 namespace Fridde;
 
+use Fridde\Annotations\NeedsSameSchool;
 use Fridde\Annotations\PostArgs;
 use Fridde\Annotations\SecurityLevel;
 use Fridde\Controller\LoginController;
@@ -17,7 +18,7 @@ use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
-use Fridde\Security\Authenticator;
+
 
 
 /**
@@ -169,6 +170,10 @@ class Update extends DefaultUpdate
 
     /**
      * @param array $big_array An array of
+     *
+     * @throws NException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      *
      * @PostArgs("value")
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
@@ -334,7 +339,8 @@ class Update extends DefaultUpdate
 
     /**
      * @param string $segment_id
-     * @param int $start_year
+     *
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      *
      * @PostArgs("segment")
@@ -386,6 +392,8 @@ class Update extends DefaultUpdate
     /**
      * @param string $segment_id
      * @param int|null $start_year
+     *
+     * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      *
      * @PostArgs("segment")
@@ -419,6 +427,8 @@ class Update extends DefaultUpdate
      *        comma-separated values: The school_id, the segment and the new number of groups
      * @param int|null $start_year
      *
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
      * @PostArgs("group_numbers, start_year")
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
