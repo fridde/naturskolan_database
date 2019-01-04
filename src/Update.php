@@ -20,12 +20,13 @@ use Fridde\Error\Error;
 use Fridde\Error\NException;
 
 
-
 /**
  * Contains the logic to update records in the database.
  */
 class Update extends DefaultUpdate
 {
+    private const NEW_ENTITY_ID_KEY = 'new_entity_ids';
+
     /** @var Naturskolan $N */
     protected $N;
 
@@ -81,9 +82,44 @@ class Update extends DefaultUpdate
      */
     public function createNewEntity(string $entity_class, array $properties = [], bool $flush = true)
     {
+        $old_id = $this->getReturn('old_id');
+        $new_id = $this->getAlternativeIdFromCache($old_id);
+
+        if (null !== $new_id) {   // i.e. it's not actually new, the DOM just hasn't been updated
+            foreach ($properties as $prop_name => $prop_value) {
+                $this->updateProperty($entity_class, $new_id, $prop_name, $prop_value);
+            }
+
+            return $this;
+        }
         parent::createNewEntity($entity_class, $properties, $flush);
+        $new_id = $this->getReturn('new_id');
+        $this->addAlternativeIdToCache($old_id, $new_id);
 
         return $this;
+    }
+
+
+    private function getAlternativeIdFromCache(string $key = null)
+    {
+        if (!$this->N->cache->contains(self::NEW_ENTITY_ID_KEY)) {
+            return null;
+        }
+        $ids = $this->N->cache->fetch(self::NEW_ENTITY_ID_KEY);
+        if (null === $key) {
+            return $ids;
+        }
+
+        return $ids[$key] ?? null;
+    }
+
+    private function addAlternativeIdToCache(string $key, string $value): void
+    {
+        $ids = $this->getAlternativeIdFromCache() ?? [];
+
+        $ids[$key] = $value;
+
+        $this->N->cache->save(self::NEW_ENTITY_ID_KEY, $ids);
     }
 
 
@@ -99,7 +135,7 @@ class Update extends DefaultUpdate
      */
     public function checkPassword(string $password, $school_id = null): void
     {
-        if (empty($school_id) || ! $this->N->Auth->schoolHasPassword($school_id, $password)) {
+        if (empty($school_id) || !$this->N->Auth->schoolHasPassword($school_id, $password)) {
             $this->addError('Wrong password!');
             usleep(1000 * 2000); // to avoid brute force methods
 
@@ -193,13 +229,13 @@ class Update extends DefaultUpdate
                 }
                 if ($class === 'group') {
                     if (empty($entity_id)) {
-                        throw new NException(Error::LOGIC, ['Empty group at row ' . $row_index]);
+                        throw new NException(Error::LOGIC, ['Empty group at row '.$row_index]);
                     }
                     $row_to_group_translator[$row_index] = $entity_id;
                 } elseif ($class === 'visit') {
                     $group_dates[$row_index][] = $entity_id;
                 } else {
-                    throw new NException(Error::LOGIC, [$class . ' not implemented']);
+                    throw new NException(Error::LOGIC, [$class.' not implemented']);
                 }
             }
         }
@@ -369,16 +405,16 @@ class Update extends DefaultUpdate
                     $group->setStartYear($year);
 
                     $name = ucfirst($segment_id);
-                    if($expected_count > 1) {
-                        $name .= ' ' . $letters[$actual_count + $i];
+                    if ($expected_count > 1) {
+                        $name .= ' '.$letters[$actual_count + $i];
                     }
                     $group->setName($name);
 
                     $group->setStatus(Group::ACTIVE);
                     $this->ORM->EM->persist($group);
 
-                    $label = $group->getName() . ', ';
-                    $label .= $group->getSegmentLabel() . ', ';
+                    $label = $group->getName().', ';
+                    $label .= $group->getSegmentLabel().', ';
                     $label .= $group->getSchool()->getName();
                     $added_groups[] = $label;
                 }
@@ -416,7 +452,7 @@ class Update extends DefaultUpdate
         array_walk(
             $groups_without_name,
             function (Group &$g) {
-                $g->setName('Grupp ' .  Naturskolan::getRandomAnimalName());
+                $g->setName('Grupp '.Naturskolan::getRandomAnimalName());
             }
         );
         $this->N->ORM->EM->flush();
@@ -463,11 +499,11 @@ class Update extends DefaultUpdate
      */
     public function updateNoteToVisit(int $visit_id, int $author_id, string $text)
     {
-        /* @var NoteRepository $note_repo  */
+        /* @var NoteRepository $note_repo */
         $note_repo = $this->N->ORM->getRepository('Note');
         $note = $note_repo->findByVisitAndAuthor($visit_id, $author_id);
 
-        if(empty($note)){
+        if (empty($note)) {
             $props = ['Visit' => $visit_id, 'User' => $author_id, 'Text' => $text];
 
             return $this->createNewEntity(Note::class, $props);

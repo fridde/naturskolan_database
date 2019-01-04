@@ -66,10 +66,7 @@ class CacheFactory
         if ($cache instanceof \Memcache) {
             $cache->connect(...$args_from_settings);
             $mcc = new MemcacheCache();  // is deprecated, but no alternative for WAMP exists
-
-
             $mcc->setMemcache($cache);
-
 
             return $mcc;
         }
