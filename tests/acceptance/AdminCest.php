@@ -9,6 +9,7 @@ class AdminCest
     {
         // if run manually, don't forget to first run
         // codecept run acceptance HelperTestsCest:resetDatabase
+        $I->setTestDate();
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('natu', 'AuthKey'));
         $I->setCookie('XDEBUG_SESSION', 'PHPSTORM');
@@ -165,7 +166,7 @@ class AdminCest
         $I->assertEquals(2, $I->grabNumRecords('colleagues_visits'));
 
         $I->runCronTask('rebuild_calendar');
-        $I->pauseExecution();
+        //$I->pauseExecution();
         $I->seeFileFound('kalender.ics', codecept_root_dir());
 
         $strings = [

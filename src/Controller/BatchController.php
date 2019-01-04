@@ -2,6 +2,7 @@
 
 namespace Fridde\Controller;
 
+use Carbon\Carbon;
 use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\Group;
 use Fridde\Entities\GroupRepository;
@@ -211,15 +212,16 @@ class BatchController extends BaseController
             $colleagues
         );
         $row_colors = array_values(Utility::getGoodBGColors());
+        $count_row_colors = count($row_colors);
         $DATA['visits'] = array_map(
-            function (Visit $visit) use ($row_colors) {
+            function (Visit $visit) use ($row_colors, $count_row_colors) {
                 $r = ['id' => $visit->getId()];
                 $r['colleagues'] = $visit->getColleaguesIdArray();
                 $date = $visit->getDate();
                 $r['date'] = $visit->getDateString();
                 $r['weekday'] = $date->formatLocalized('%a');
                 $r['weeknum'] = $date->weekOfYear;
-                $col_index = (($date->weekOfYear * 5) + ($date->dayOfWeek - 1)) % count($row_colors);
+                $col_index = (($date->weekOfYear * 5) + ($date->dayOfWeek - 1)) % $count_row_colors;
                 $r['row_color'] = $row_colors[$col_index];
                 $r['label'] = $visit->getLabel('TGSU');
 
@@ -234,6 +236,9 @@ class BatchController extends BaseController
 
     public function setGroupCount()
     {
+        $y = (int) Carbon::today()->year;
+        $data = ['years' => [$y -1, $y, $y + 1], 'this_year' => $y];
+        $this->addToDATA($data);
         $this->setTemplate('admin/set_group_count');
     }
 

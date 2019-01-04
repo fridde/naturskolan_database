@@ -19,9 +19,13 @@
     </div>
     <div>
         <select name="start-year" id="start-year-selector">
-            <option>{{ "-1 year"|date("Y") }}</option>
-            <option selected>{{ "now"|date("Y") }}</option>
-            <option>{{ "+1 year"|date("Y") }}</option>
+            {% for year in DATA.years %}
+                <option value="{{ year }}"
+                        {%- if year == DATA.this_year -%} selected {%- endif -%}
+                >
+                    {{- year -}}
+                </option>
+            {% endfor %}
         </select>
     </div>
     <textarea id="group-count-lines" cols="20" rows="50"></textarea>

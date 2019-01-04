@@ -48,8 +48,8 @@ let Edit = {
                     if(typeof $addInfo.data() !== 'undefined'){
                         data.properties = $addInfo.data().defaultProperties;
                     }
-                    if(typeof $this.closest("tr").data('properties') !== 'undefined'){
-                        let props = JSON.parse($this.closest("tr").data('properties'));
+                    let props = JSON.parse($this.closest("tr").data('properties'));
+                    if(typeof props !== 'undefined'){
                         Object.assign(data.properties, props);
                     }
                     data.properties[data.property] = data.value;

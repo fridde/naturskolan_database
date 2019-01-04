@@ -44,6 +44,7 @@ $em = $container->get('Naturskolan')->ORM->EM;
 Essentials::registerDBLogger($em, Essentials::getLogger());
 
 setlocale(LC_TIME, 'swedish');
+Carbon::setUtf8(true);
 
 if(defined('ENVIRONMENT') && ENVIRONMENT === 'test'){
     /* @var Naturskolan $N  */
