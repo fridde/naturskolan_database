@@ -27,9 +27,7 @@
                 </thead>
                 <tbody>
                 {% for user in staff -%}
-                    {%  set user_id = user.id  %} {% if user_id == 217 %}{%  set user_id = "#jwr4"  %} {% endif %}
-                    <tr data-id="{{ user_id }}"{% if user_id is empty %} hidden {%- endif -%} >
-                   {# <tr data-id="{{ user.id }}"{% if user.id is empty %} hidden {%- endif -%} > #}
+                    <tr data-id="{{ user.id }}"{% if user.id is empty %} hidden {%- endif -%} >
                         <td>
                             <input type="text" name="FirstName" placeholder="Förnamn" value="{{ user.FirstName }}">
                         </td>
