@@ -4,7 +4,15 @@ const Update = {
 
         add: function(data){},
 
+        next: function(){
+           $next = this.stack.shift();
+
+        },
+
         send: function (data) {
+
+            this.stack.push(data);
+
             console.group("Request");
             console.table(data);
             console.groupEnd();
