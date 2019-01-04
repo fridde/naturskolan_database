@@ -820,12 +820,12 @@
             "version": "v2.6.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/doctrine/doctrine2.git",
+                "url": "https://github.com/doctrine/orm.git",
                 "reference": "d2b4dd71d2a276edd65d0c170375b445f8a4a4a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/d2b4dd71d2a276edd65d0c170375b445f8a4a4a8",
+                "url": "https://api.github.com/repos/doctrine/orm/zipball/d2b4dd71d2a276edd65d0c170375b445f8a4a4a8",
                 "reference": "d2b4dd71d2a276edd65d0c170375b445f8a4a4a8",
                 "shasum": ""
             },
@@ -1306,12 +1306,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/orm.git",
-                "reference": "dabe4d78e8791ea38576593feb96bbcbd652ea37"
+                "reference": "65df010e44700b360d6656a51d0a15acc56910a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/orm/zipball/dabe4d78e8791ea38576593feb96bbcbd652ea37",
-                "reference": "dabe4d78e8791ea38576593feb96bbcbd652ea37",
+                "url": "https://api.github.com/repos/fridde/orm/zipball/65df010e44700b360d6656a51d0a15acc56910a8",
+                "reference": "65df010e44700b360d6656a51d0a15acc56910a8",
                 "shasum": ""
             },
             "require": {
@@ -1338,7 +1338,7 @@
                 }
             ],
             "description": "A simple wrapper for Doctrine's data wrapper. A wrapper wrapper!",
-            "time": "2019-01-03T18:31:07+00:00"
+            "time": "2019-01-04T14:13:57+00:00"
         },
         {
             "name": "fridde/router",

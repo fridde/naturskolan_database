@@ -31,6 +31,8 @@ class Naturskolan
 {
     /** @var \Fridde\ORM A doctrine ORM wrapped in own class */
     public $ORM;
+    /* @var \Doctrine\Common\Cache\Cache $cache  */
+    public $cache;
     /** @var \GuzzleHttp\Client Contains an instance of GuzzleHttp\Client for HTTP requests */
     private $Client;
     /** @var \dotzero\Googl An instance of Googl to create short-links */
@@ -42,6 +44,7 @@ class Naturskolan
     /** @var string the path for the text pieces */
     private $text_path = 'config/labels.yml';
 
+
     public const ADMIN_SCHOOL = 'natu';
 
     /**
@@ -52,8 +55,8 @@ class Naturskolan
     public function __construct()
     {
         $db_settings = self::getSetting('Connection_Details');
-        $cache = $GLOBALS['CONTAINER']->get('Cache');
-        $this->ORM = new ORM($db_settings, $cache, BASE_DIR . '/temp/proxy');
+        $this->cache = $GLOBALS['CONTAINER']->get('Cache');
+        $this->ORM = new ORM($db_settings, $this->cache, BASE_DIR . '/temp/proxy');
         $this->Auth = new Authenticator($this->ORM, new PWH());
         $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber($this->ORM));
     }
