@@ -1,37 +1,6 @@
 const Update = {
 
-        stack: [],
-
-        timerId: 0,
-
-        next: function(){
-            if(this.stack.length === 0){
-                this.timerId = setInterval(this.setSaveTime);
-            } else {
-                clearInterval(this.timerId);
-                this.doSend(this.stack.shift());
-            }
-
-           let $next = this.stack.shift();
-           if(typeof $next === 'undefined'){
-
-           }
-
-        },
-
-        doSend: function(data){
-
-        },
-
-        wait: function(){
-            let period = (10 * 1000) / this.stack.length;
-            setTimeout(this.next, period);
-        },
-
         send: function (data) {
-
-            //this.stack.push(data);
-            //if(this.stack.length === 1)
 
             console.group("Request");
             console.table(data);

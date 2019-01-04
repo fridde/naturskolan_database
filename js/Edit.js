@@ -43,16 +43,13 @@ let Edit = {
                     data.entity_id = data.entity_id.substring(1);
                     data.return = {'old_id': data.entity_id};
                     data.updateMethod = 'createNewEntity';
-                    data.properties = {};
-                    let $addInfo = $(".additional-information");
-                    if(typeof $addInfo.data() !== 'undefined'){
-                        data.properties = $addInfo.data().defaultProperties;
-                    }
-                    let props = JSON.parse($this.closest("tr").data('properties'));
-                    if(typeof props !== 'undefined'){
-                        Object.assign(data.properties, props);
-                    }
+                    //data.properties = {};
+
+                    data.properties = $(".additional-information").data('default-properties') || {};
+                    let props = JSON.parse($this.closest("tr").data('properties') || "{}");
+                    Object.assign(data.properties, props);
                     data.properties[data.property] = data.value;
+
                 } else {
                     data.updateMethod = "updateProperty";
                 }

@@ -89,7 +89,7 @@ class Update extends DefaultUpdate
             foreach ($properties as $prop_name => $prop_value) {
                 $this->updateProperty($entity_class, $new_id, $prop_name, $prop_value);
             }
-
+            $this->setReturn('new_id', $new_id);
             return $this;
         }
         parent::createNewEntity($entity_class, $properties, $flush);
