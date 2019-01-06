@@ -63,7 +63,7 @@ class Naturskolan
 
     /**
      * Wrapper for Naturskolan->ORM->getRepository()
-     *
+     *+
      * @param  string $repo The (non-qualified-) name of the class of entities
      * @return mixed The repository
      */
