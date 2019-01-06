@@ -120,3 +120,4 @@ Visit:
       type: checkbox
       options: getConfirmedOptions
   - Time
+  - Status: *status

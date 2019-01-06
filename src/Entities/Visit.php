@@ -346,6 +346,16 @@ class Visit
         return $this->Status ?? self::STATUS_ACTIVE;
     }
 
+    public function getStatusString(): string
+    {
+        return self::getStatusOptions()[$this->getStatus()];
+    }
+
+    public static function getStatusOptions()
+    {
+        return Group::getStatusOptions();
+    }
+
     public function isActive()
     {
         return $this->getStatus() === self::STATUS_ACTIVE;

@@ -2,6 +2,7 @@
 
 namespace Fridde\Controller;
 
+use Carbon\Carbon;
 use Fridde\Annotations\SecurityLevel;
 use Fridde\HTML;
 use Fridde\Security\Authorizer;
@@ -26,6 +27,8 @@ class TableController extends BaseController
         $this->addToDATA('entity_class', $this->table->getEntityClass());
         $this->addToDATA('sortable', $this->table->isSortable());
         $this->addToDATA('school_id', $this->Authorizer->getVisitor()->getSchool()->getId());
+        $this->addToDATA('today', Carbon::today()->toDateString());
+
 
         $this->setTemplate('table');
 

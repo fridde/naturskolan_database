@@ -1,3 +1,6 @@
+import DataTableConfigurator from 'DT_config';
+import moment from
+
 let baseUrl;
 let updateUrl = "update";
 let recentChange = false;
