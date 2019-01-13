@@ -56,7 +56,7 @@ class Naturskolan
     {
         $db_settings = self::getSetting('Connection_Details');
         $this->cache = $GLOBALS['CONTAINER']->get('Cache');
-        $this->ORM = new ORM($db_settings, $this->cache, BASE_DIR . '/temp/proxy');
+        $this->ORM = new ORM($db_settings, $this->cache, BASE_DIR . '/temp/cache/proxy');
         $this->Auth = new Authenticator($this->ORM, new PWH());
         $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber($this->ORM));
     }

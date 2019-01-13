@@ -84,7 +84,7 @@ class Message
         $this->User = $User;
     }
 
-    public function getSubject()
+    public function getSubject(): ?int
     {
         return $this->Subject;
     }
@@ -94,7 +94,7 @@ class Message
         $this->Subject = $Subject;
     }
 
-    public function getCarrier()
+    public function getCarrier(): ?int
     {
         return $this->Carrier;
     }
@@ -104,7 +104,7 @@ class Message
         $this->Carrier = $Carrier;
     }
 
-    public function getStatus()
+    public function getStatus(): ?int
     {
         return $this->Status;
     }
@@ -180,7 +180,7 @@ class Message
         return $this->getTimestamp()->gt($date);
     }
 
-    public function checkProperties($properties, $return = 'all_true')
+    public function checkProperties(array $properties = [], string $return = 'all_true')
     {
         if (empty($properties)) {
             return null;

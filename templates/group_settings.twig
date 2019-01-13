@@ -89,12 +89,6 @@
                                     {% else %}
                                         <p>För närvarande är inga besök inplanerade för denna grupp.</p>
                                     {%- endif %}
-                                    <label for="time_proposal_{{ group.id }}">Information om gruppen</label>
-                                    <textarea name="Info" id="info_{{ group.id }}" cols="50" rows="4"
-                                              class="editable form-control"
-                                              placeholder="Saker som är bra att veta">
-                                                {{- group.info -}}
-                                    </textarea>
                                 </div>
                             {%- endfor %}
                         </div>

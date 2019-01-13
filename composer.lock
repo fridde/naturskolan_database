@@ -1233,12 +1233,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/html.git",
-                "reference": "a2e2c441441fce59b57c36ba5d8ece20223dddfb"
+                "reference": "eb63da5136cf4de047db9068db5ff0b101eef338"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/html/zipball/a2e2c441441fce59b57c36ba5d8ece20223dddfb",
-                "reference": "a2e2c441441fce59b57c36ba5d8ece20223dddfb",
+                "url": "https://api.github.com/repos/fridde/html/zipball/eb63da5136cf4de047db9068db5ff0b101eef338",
+                "reference": "eb63da5136cf4de047db9068db5ff0b101eef338",
                 "shasum": ""
             },
             "require": {
@@ -1262,7 +1262,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-12-31T10:52:15+00:00"
+            "time": "2019-01-13T16:58:50+00:00"
         },
         {
             "name": "fridde/mailer",
@@ -1270,17 +1270,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/mailer.git",
-                "reference": "18d5bccad0b4e1eb8cbc232489a2b61f1c94f472"
+                "reference": "3f099dcf60bb3856bf6e7b5ebc7ec6861bdcc05d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/mailer/zipball/18d5bccad0b4e1eb8cbc232489a2b61f1c94f472",
-                "reference": "18d5bccad0b4e1eb8cbc232489a2b61f1c94f472",
+                "url": "https://api.github.com/repos/fridde/mailer/zipball/3f099dcf60bb3856bf6e7b5ebc7ec6861bdcc05d",
+                "reference": "3f099dcf60bb3856bf6e7b5ebc7ec6861bdcc05d",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.0.0",
-                "phpmailer/phpmailer": "5.2.22"
+                "phpmailer/phpmailer": "~6.0"
             },
             "type": "library",
             "autoload": {
@@ -1298,7 +1298,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2018-12-31T10:52:37+00:00"
+            "time": "2019-01-13T17:05:35+00:00"
         },
         {
             "name": "fridde/orm",
@@ -2371,39 +2371,45 @@
         },
         {
             "name": "phpmailer/phpmailer",
-            "version": "v5.2.22",
+            "version": "v6.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
-                "reference": "b18cb98131bd83103ccb26a888fdfe3177b8a663"
+                "reference": "8190d73eb5def11a43cfb020b7f36db65330698c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/b18cb98131bd83103ccb26a888fdfe3177b8a663",
-                "reference": "b18cb98131bd83103ccb26a888fdfe3177b8a663",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/8190d73eb5def11a43cfb020b7f36db65330698c",
+                "reference": "8190d73eb5def11a43cfb020b7f36db65330698c",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.0.0"
+                "ext-ctype": "*",
+                "ext-filter": "*",
+                "php": ">=5.5.0"
             },
             "require-dev": {
-                "phpdocumentor/phpdocumentor": "*",
-                "phpunit/phpunit": "4.7.*"
+                "doctrine/annotations": "1.2.*",
+                "friendsofphp/php-cs-fixer": "^2.2",
+                "phpdocumentor/phpdocumentor": "2.*",
+                "phpunit/phpunit": "^4.8 || ^5.7",
+                "zendframework/zend-eventmanager": "3.0.*",
+                "zendframework/zend-i18n": "2.7.3",
+                "zendframework/zend-serializer": "2.7.*"
             },
             "suggest": {
-                "league/oauth2-google": "Needed for Google XOAUTH2 authentication"
+                "ext-mbstring": "Needed to send email in multibyte encoding charset",
+                "hayageek/oauth2-yahoo": "Needed for Yahoo XOAUTH2 authentication",
+                "league/oauth2-google": "Needed for Google XOAUTH2 authentication",
+                "psr/log": "For optional PSR-3 debug logging",
+                "stevenmaguire/oauth2-microsoft": "Needed for Microsoft XOAUTH2 authentication",
+                "symfony/polyfill-mbstring": "To support UTF-8 if the Mbstring PHP extension is not enabled (^1.2)"
             },
             "type": "library",
             "autoload": {
-                "classmap": [
-                    "class.phpmailer.php",
-                    "class.phpmaileroauth.php",
-                    "class.phpmaileroauthgoogle.php",
-                    "class.smtp.php",
-                    "class.pop3.php",
-                    "extras/EasyPeasyICS.php",
-                    "extras/ntlm_sasl_client.php"
-                ]
+                "psr-4": {
+                    "PHPMailer\\PHPMailer\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -2427,7 +2433,7 @@
                 }
             ],
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
-            "time": "2017-01-09T09:33:47+00:00"
+            "time": "2018-11-16T00:41:32+00:00"
         },
         {
             "name": "psr/container",

@@ -353,7 +353,7 @@ class User
         return $this->Messages->toArray();
     }
 
-    public function getFilteredMessages($properties, array $messages = null)
+    public function getFilteredMessages($properties, array $messages = null): array
     {
         $messages = $messages ?? $this->getMessages();
 
@@ -376,37 +376,78 @@ class User
     }
 
     /**
+     * @param Group[] $Groups
+     */
+    public function setGroups(array $Groups): void
+    {
+        $this->Groups = $Groups;
+    }
+
+    /**
      * @param int $min
      * @return bool
      */
     public function hasGroups(int $min = 1, bool $active = true, bool $visiting = false)
     {
-        $groups = $this->getGroups();
+        $criteria = compact($min, $active, $visiting);
 
-        if($active || $visiting){
-            $groups = array_filter(
-                $groups,
-                function (Group $g) use ($active, $visiting){
-                    if($active && ! $g->isActive()){
-                        return false;
-                    }
-                    if($visiting && ! $g->hasVisits()){
-                        return false;
-                    }
-                    return true;
-                }
-            );
+        return $this->hasGroupsWithCriteria($criteria);
+    }
+
+    public function hasActiveGroups(): bool
+    {
+        $criteria = ['active' => true];
+
+        return $this->hasGroupsWithCriteria($criteria);
+    }
+
+    public function hasGroupsWithCriteria(array $criteria = []): bool
+    {
+        $defaults = [
+            'min' => 1,
+            'active' => true,
+            'visiting' => false,
+            'in_future' => false
+        ];
+
+        $criteria += $defaults;
+
+        $groups = $this->getGroups();
+        if (empty($groups) || count($groups) < $criteria['min']) {
+            return false;
         }
 
-        return count($groups) >= $min;
+        $groups = array_filter(
+            $groups,
+            function (Group $g) use ($criteria) {
+                if ($criteria['active'] && !$g->isActive()) {
+                    return false;
+                }
+                if ($criteria['visiting'] && !$g->hasVisits()) {
+                    return false;
+                }
+                if ($criteria['in_future'] && !$g->hasNextVisit()) {
+                    return false;
+                }
+
+                return true;
+            }
+        );
+
+        return count($groups) >= $criteria['min'];
     }
 
-    public function hasActiveGroups()
+
+
+
+    public function hasActiveGroupsVisitingInTheFuture(): bool
     {
-        return $this->hasGroups();
+        $criteria = ['visiting' => true, 'in_future' => true];
+
+        return $this->hasGroupsWithCriteria($criteria);
     }
 
-    public function getGroupIdArray()
+    public function getGroupIdArray(): array
     {
         return array_map(
             function (Group $g) {
@@ -416,12 +457,12 @@ class User
         );
     }
 
-    public function addGroup($Group)
+    public function addGroup(Group $Group): void
     {
         $this->Groups->add($Group);
     }
 
-    public function removeGroup($Group)
+    public function removeGroup(Group $Group): void
     {
         $this->Groups->removeElement($Group);
     }

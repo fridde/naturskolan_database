@@ -479,7 +479,7 @@ class Task
      *
      * @return array $returns;
      */
-    private function sendUpdateProfileReminder()
+    private function sendUpdateProfileReminder(): array
     {
         $subject_int = Message::SUBJECT_PROFILE_UPDATE;
 
@@ -495,9 +495,9 @@ class Task
             $incomplete_users,
             function ($u) use ($annoyance_start, $msg_props, $subject_int) {
                 /* @var User $u */
-                // We don't need to remind users without groups or users that have recently gotten a message.
+                // We don't need to remind users without relevant groups or users that have recently gotten a message.
                 return $u->hasMessageSetting($subject_int)
-                    && $u->hasActiveGroups()
+                    && $u->hasActiveGroupsVisitingInTheFuture()
                     && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
             }
         );
@@ -512,7 +512,7 @@ class Task
             $data = ['fname' => $user->getFirstName()];
             $data['school_url'] = $this->N->createLoginUrl($user);
             $carrier = $user->hasMobil() ? Message::CARRIER_SMS : null;
-            $carrier = $user->hasMail() ? Message::CARRIER_MAIL : $carrier;
+            $carrier = $user->hasMail() ? Message::CARRIER_MAIL : $carrier; //default way to send
 
             if ($carrier === Message::CARRIER_SMS) {
                 $params['receiver'] = $user->getMobil();

@@ -38,8 +38,12 @@ class UserRepository extends CustomRepository
 
     public function findIncompleteUsersWithVisitingGroups($created_before = null)
     {
-        $users = $this->findIncompleteUsers($created_before);
-
+        return array_filter(
+            $this->findIncompleteUsers($created_before),
+            function (User $u) {
+                return $u->hasActiveGroupsVisitingInTheFuture();
+            }
+        );
 
     }
 
@@ -96,7 +100,7 @@ class UserRepository extends CustomRepository
         return array_filter(
             $this->findActiveUsers(),
             function (User $u) use ($segment) {
-                if($segment === null){
+                if ($segment === null) {
                     return true;
                 }
                 $groups = $u->getGroups();

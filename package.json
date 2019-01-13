@@ -1,0 +1,41 @@
+{
+  "name": "naturskolan_database",
+  "version": "1.0.0",
+  "description": "A database system for Naturskolan",
+  "private": true,
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://fridde@github.com/fridde/naturskolan_database.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fridde/naturskolan_database/issues"
+  },
+  "homepage": "https://github.com/fridde/naturskolan_database#readme",
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.6.3",
+    "@symfony/webpack-encore": "^0.22.4",
+    "bootstrap": "^4.2.1",
+    "datatables.net": "^1.10.19",
+    "jquery": "^3.3.1",
+    "jquery-ui": "^1.12.1",
+    "jquery-ui-bundle": "^1.12.1-migrate",
+    "jquery-ui-dist": "^1.12.1",
+    "moment": "^2.23.0",
+    "popper.js": "^1.14.6",
+    "webpack-notifier": "^1.7.0"
+  },
+  "dependencies": {
+    "grecaptcha": "^1.0.3"
+  }
+}

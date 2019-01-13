@@ -1,15 +1,17 @@
-let Tooltip = {
+class Tooltip {
 
-    check: function(element, data){
+    constructor(){}
+
+    check(element, data){
 
         if(this.tooltipNeeded(data.property, data.value)){
             $(element).tooltip('show');
         } else {
             $(element).tooltip('hide');
         }
-    },
+    }
 
-    getContent: function(name){
+    getContent(name){
         let text = '';
         switch(name){
             case 'Food':
@@ -25,9 +27,9 @@ let Tooltip = {
                 break;
         }
         return text;
-    },
+    }
 
-    tooltipNeeded: function(property, text){
+    tooltipNeeded(property, text){
         let regex;
         switch(property){
             case "Food":
@@ -41,4 +43,6 @@ let Tooltip = {
     }
 
 
-};
+}
+
+module.exports = new Tooltip();

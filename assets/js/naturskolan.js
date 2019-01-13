@@ -1,20 +1,35 @@
+'use strict';
+
+const $ = require('jquery');
+require('jqueryui');
+//require('jquery-ui-dist');
+const moment = require('moment');
+require('bootstrap');
+const Update = require('./Update');
+const Batch = require('./Batch');
+const Edit = require('./Edit');
+const Buttons = require('./Buttons');
+require( 'datatables.net');
+const DataTableConfigurator = require('./DT_config');
+const Slider = require('./Slider');
+const Tooltip = require('./Tooltip');
+
 let baseUrl;
 let updateUrl = "update";
-let recentChange = false;
-let saveDelay = 3000; //milliseconds between ajax savings
+Edit.saveDelay = Slider.saveDelay = 3000; //milliseconds between ajax savings
 moment.locale('sv');
 
-$(document).ready(function () {
 
+$(document).ready(function () {
     baseUrl = $("base").attr("href");
+
     $.ajaxSetup({
         url: baseUrl + updateUrl,
         type: 'POST',
         dataType: 'json'
     });
 
-    //$('[data-toggle="tooltip"]').tooltip();
-
+    Buttons.initialize();
 
     /**
      * Defines the interval between the "Uppdaterades senast..." text
@@ -60,30 +75,27 @@ $(document).ready(function () {
     /**
      * Initializing tooltips, sliders and datepickers
      */
-    $(".group-container .input-slider").each(function (i, element) {
-        Slider.set($(this), "group");
+    $(".group-container .input-slider").each((i, element) => {
+        Slider.set($(element), "group");
     });
-    $("table .input-slider").each(function (i, element) {
-        Slider.set($(this), "table");
+    $("table .input-slider").each((i, element) => {
+        Slider.set($(element), "table");
     });
 
     $("textarea.has-tooltip, input.has-tooltip").tooltip({
-            title : function () {
-                return Tooltip.getContent($(this).attr('name'));
-        },
+        title :  () => Tooltip.getContent($(this).attr('name')),
         html: true,
         trigger: 'manual',
         container: 'body'
     });
 
     $("i.has-tooltip").tooltip({
-        title : function () {
-            return Tooltip.getContent($(this).attr('name'));
-        },
+        title : () => Tooltip.getContent($(this).attr('name')),
         html: true,
         container: 'body'
     });
 
+    /*
     let datepicker = $.fn.datepicker.noConflict();
     $.fn.BSdatepicker = datepicker;
     $('.datepicker').BSdatepicker(Settings.datepickerOptions);
@@ -94,6 +106,7 @@ $(document).ready(function () {
             Edit.change(event);
         }
     });
+    */
 
     $("#group-change-modal").dialog({
         autoOpen: false,
@@ -105,7 +118,6 @@ $(document).ready(function () {
         $table.DataTable(DataTableConfigurator.options($table));
     }
 
-    Calendar.initialize();
-
+    //Calendar.initialize();
 
 });

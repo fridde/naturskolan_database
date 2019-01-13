@@ -1,4 +1,4 @@
-export default {
+let DataTableConfigurator = {
 
     defaultOptions: {
         dom: 'fBt',
@@ -30,8 +30,8 @@ export default {
         Visit: {
             buttons: {buttons: [
                 'colvis',
-                    this.reusableButtons.hideOld,
-                    this.reusableButtons.hideArchived
+                    DataTableConfigurator.reusableButtons.hideOld,
+                    DataTableConfigurator.reusableButtons.hideArchived
                 ]}
         }
 

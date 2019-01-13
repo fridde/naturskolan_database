@@ -27,3 +27,7 @@ config/.flush_needed
 /tests/method_stubs.php
 /tests/table_filler.php
 /tests/sample_data/
+/tests/sandboxer.html
+
+/node_modules/
+/assets/compiled/

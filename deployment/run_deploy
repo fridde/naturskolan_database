@@ -1,163 +1,1 @@
-#!/bin/bash
-
-shopt -s dotglob
-SKIP=0
-
-while getopts "s:n" opts; do
-   case ${opts} in
-      s) SKIP=${OPTARG} ;;	  
-   esac
-done 
-
-SKIP=$((SKIP -1))
-
-#Variable names
-PROJECT_NAME=naturskolan_database
-DEV_PROJECT_PATH=~/$PROJECT_NAME
-TESTING_PATH=~/testing
-TESTDB_PATH=$TESTING_PATH/$PROJECT_NAME/tests/_data/test_db.sql
-STAGING_PATH=/cygdrive/d/staging
-STAGING_PROJECT_PATH=$STAGING_PATH/$PROJECT_NAME
-GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
-
-if [ $SKIP -lt 1 ]; then
-    read -p "[1] Backup DB and export to test-DB..."
-    cd $DEV_PROJECT_PATH/misc/scripts
-	set -x
-    php -e export_database.php default > $TESTDB_PATH
-	php -e export_database.php test_db > $TESTDB_PATH
-    php -e export_database.php just_data > /dev/null
-    php -e export_database.php structure > /dev/null
-    php -e "$DEV_PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
-	set +x
-    read -p "Delete old files..."
-    cd ../SQL_data
-    delete_old_files.py
-fi
-
-if [ $SKIP -lt 2 ]; then
-   read -p "[2] Checking git status of test repo..."
-   cd $TESTING_PATH/$PROJECT_NAME
-   if [ -n "$(git status -s)" ]; then
-       git status
-	   read -p 'Proceed if your .gitignore file is configured correctly!'
-	   git add -A
-       git commit -m 'Continue more testing'
-       git push
-   fi
-   git status
-   
-   read -p 'Pulling repo changes into dev area...'
-   cd $DEV_PROJECT_PATH
-   git pull
-
-   read -p 'Clearing dev cache...'
-   touch ./config/.flush_needed
-   rm -rfd ./temp/cache/*
-
-fi
-
-if [ $SKIP -lt 3 ]; then
-    read -p '[3] Synchronizing the work in vendor with the toolbox...'
-    cd ~    
-	filecomparer
-	
-    cd ~/toolbox
-	read -p "Checking git status of each directory in toolbox..."
-    gitstatus_dir.py -author fridde --save 
-    compare_package_date.py --before
-	read -p 'If some repos have to be pushed, use Ctrl+Shift+E to open a new split window...'
-	compare_package_date.py
-fi
-
-if [ $SKIP -lt 4 ]; then    
-	read -p "[4] Getting dev repository ready for push..."
-    cd $DEV_PROJECT_PATH
-    echo "Do you need to update composer packages? [y/n]"
-	read -e REPLY
-	if [[ $REPLY == y ]]; then
-		composer update fridde/*
-        composer install
-	fi
-
-	read -p 'Checking git status of dev repo...'	
-    if [ -n "$(git status -s)" ]; then
-		git status
-		read -p 'Proceed if your .gitignore file is configured correctly!'		
-		git add -A
-		git commit -m "More work"
-		git push
-	fi
-fi
-
-if [ $SKIP -lt 5 ]; then    
-	read -p "[5] Preparing and backing up the test directory..."
-	cd $TESTING_PATH        	
-	tar --exclude="./$PROJECT_NAME/vendor" -cf backup_test_@$(date '+%Y%m%d_%H%M%S').tar "./$PROJECT_NAME"
-	read -p "Deleting old backups..."
-	delete_old_files.py	-days 8
-	read -p "Bringing the test directory up to current status (git/composer)..."	
-    cd $PROJECT_NAME
-    git pull
-    composer install --no-suggest
-	read -p "Copying over settings from dev area..."
-    cp $DEV_PROJECT_PATH/config/settings_{default,test}.yml ./config/
-	cp $DEV_PROJECT_PATH/config/.key ./config/
-	read -p "Clearing test cache..."
-	touch ./config/.flush_needed
-	rm -rfd ./temp/cache/*
-fi
-
-if [ $SKIP -lt 6 ]; then
-	read -p "[6] Setting up local testing environment..."
-    echo "Do you want to start Memcached, Selenium server and Mailhog? [y/n]"
-	read -e REPLY
-	if [[ $REPLY == y ]]; then
-	    cd /cygdrive/c/wamp/bin/memcached
-	    cmd /C start memcached.exe start &
-		cd ~/bin_win
-		cmd /C start java -jar selenium-server.jar &
-		cmd /C start MailHog.exe &
-	fi
-	
-	echo "Do you want to run the test suite? [y/n]"
-	read -e REPLY
-	if [[ $REPLY == y ]]; then
-		cd $TESTING_PATH/$PROJECT_NAME    
-		./vendor/bin/codecept run -f --steps
-	fi	 
-fi
-
-if [ $SKIP -lt 7 ]; then
-    echo '[7] Creating the local staging copy...'
-    cd $STAGING_PATH
-	read -p "Backing up the staging directory..."    
-	tar --exclude="./$PROJECT_NAME/vendor" -cf backup_staging_@$(date '+%Y%m%d_%H%M%S').tar "./$PROJECT_NAME"
-    read -p "Deleting the old version..."
-	chmod -R 0777 $PROJECT_NAME && mv $PROJECT_NAME "dir_to_delete"
-	rm -rf "dir_to_delete" &
-	read -p "Deleting old backups..."
-	delete_old_files.py
-	read -p "Cloning the github copy into local folder..."
-    git clone --depth 1 $GITHUB_PROJECT
-    cd $PROJECT_NAME
-	read -p "Installing composer packages..."
-    composer install --no-dev --no-suggest --optimize-autoloader --classmap-authoritative 
-fi
-
-if [ $SKIP -lt 8 ]; then
-	read -p '[8] Copying deployment settings from dev to deploy...'
-	cd $STAGING_PROJECT_PATH
-    touch .env_prod
-    touch ./config/.flush_needed
-    cp {$DEV_PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment.ini
-    cp $DEV_PROJECT_PATH/config/settings_{default,prod}.yml $STAGING_PROJECT_PATH/config/
-	cp $DEV_PROJECT_PATH/config/.key $STAGING_PROJECT_PATH/config/
-	
-	read -p 'Uploading the changed files to the remote server...'
-    ./vendor/bin/deployment deployment/deployment.ini
-	
-	# read -p 'Uploading the changed files to the remote testing directory...'
-	# cp {$DEV_PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment_for_testing.ini
-	# ./vendor/bin/deployment deployment/deployment_for_testing.ini
-fi
+#!/bin/bashshopt -s dotglobSKIP=0while getopts "s:n" opts; do   case ${opts} in      s) SKIP=${OPTARG} ;;	     esacdone SKIP=$((SKIP -1))#Variable namesPROJECT_NAME=naturskolan_databaseDEV_PROJECT_PATH=~/$PROJECT_NAMETESTING_PATH=~/testingTESTDB_PATH=$TESTING_PATH/$PROJECT_NAME/tests/_data/test_db.sqlSTAGING_PATH=/cygdrive/c/stagingSTAGING_PROJECT_PATH=$STAGING_PATH/$PROJECT_NAMEGITHUB_PROJECT=https://github.com/fridde/naturskolan_database.gitif [[ $SKIP -lt 1 ]]; then    read -p "[1] Backup DB and export to test-DB..."    cd $DEV_PROJECT_PATH/misc/scripts	set -x    php -e export_database.php default > $TESTDB_PATH	php -e export_database.php test_db > $TESTDB_PATH    php -e export_database.php just_data > /dev/null    php -e export_database.php structure > /dev/null    php -e "$DEV_PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH	set +x    read -p "Delete old files..."    cd ../SQL_data    delete_old_files.pyfiif [[ $SKIP -lt 2 ]]; then   read -p "[2] Checking git status of test repo..."   cd $TESTING_PATH/$PROJECT_NAME   if [[ -n "$(git status -s)" ]]; then       git status	   read -p 'Proceed if your .gitignore file is configured correctly!'	   git add -A       git commit -m 'Continue more testing'       git push   fi   git status      read -p 'Pulling repo changes into dev area...'   cd $DEV_PROJECT_PATH   git pull   read -p 'Clearing dev cache...'   touch ./config/.flush_needed   rm -rfd ./temp/cache/*fiif [[ $SKIP -lt 3 ]]; then    read -p '[3] Synchronizing the work in vendor with the toolbox...'    cd ~    	filecomparer	    cd ~/toolbox	read -p "Checking git status of each directory in toolbox..."    gitstatus_dir.py -author fridde --save     compare_package_date.py --before	read -p 'If some repos have to be pushed, use Ctrl+Shift+E to open a new split window...'	compare_package_date.pyfiif [[ $SKIP -lt 4 ]]; then	read -p "[4] Getting dev repository ready for push..."    cd $DEV_PROJECT_PATH    echo "Do you need to update composer packages? [y/n]"	read -e REPLY	if [[ $REPLY == y ]]; then		composer update fridde/*        composer install	fi	read -p 'Packing js and css files using webpack...'	encore dev	read -p 'Checking git status of dev repo...'	    if [[ -n "$(git status -s)" ]]; then		git status		read -p 'Proceed if your .gitignore file is configured correctly!'				git add -A		git commit -m "More work"		git push	fifiif [[ $SKIP -lt 5 ]]; then	read -p "[5] Preparing and backing up the test directory..."	cd $TESTING_PATH        		tar --exclude="./$PROJECT_NAME/vendor" -cf backup_test_@$(date '+%Y%m%d_%H%M%S').tar "./$PROJECT_NAME"	read -p "Deleting old backups..."	delete_old_files.py	-days 8	read -p "Bringing the test directory up to current status (git/composer)..."	    cd $PROJECT_NAME    git pull    composer install --no-suggest	read -p "Copying over settings from dev area..."    cp $DEV_PROJECT_PATH/config/settings_{default,test}.yml ./config/	cp $DEV_PROJECT_PATH/config/.key ./config/	read -p "Clearing test cache..."	touch ./config/.flush_needed	rm -rfd ./temp/cache/*fiif [[ $SKIP -lt 6 ]]; then	read -p "[6] Setting up local testing environment..."    echo "Do you want to start Memcached, Selenium server and Mailhog? [y/n]"	read -e REPLY	if [[ $REPLY == y ]]; then	    cd /cygdrive/c/wamp/bin/memcached	    cmd /C start memcached.exe start &		cd ~/bin_win		cmd /C start java -jar selenium-server.jar &		cmd /C start MailHog.exe &	fi		echo "Do you want to run the test suite? [y/n]"	read -e REPLY	if [[ $REPLY == y ]]; then		cd $TESTING_PATH/$PROJECT_NAME    		./vendor/bin/codecept run -f --steps	fi	 fiif [[ $SKIP -lt 7 ]]; then    echo '[7] Creating the local staging copy...'    cd $STAGING_PATH	read -p "Backing up the staging directory..."    	tar --exclude="./$PROJECT_NAME/vendor" -cf backup_staging_@$(date '+%Y%m%d_%H%M%S').tar "./$PROJECT_NAME"    read -p "Deleting the old version..."	chmod -R 0777 $PROJECT_NAME && mv $PROJECT_NAME "dir_to_delete"	rm -rf "dir_to_delete" &	read -p "Deleting old backups..."	delete_old_files.py	read -p "Cloning the github copy into local folder..."    git clone --depth 1 $GITHUB_PROJECT    cd $PROJECT_NAME	read -p "Installing composer packages..."    composer install --no-dev --no-suggest --optimize-autoloader --classmap-authoritative fiif [[ $SKIP -lt 8 ]]; then	read -p '[8] Copying deployment settings from dev to deploy...'	cd $STAGING_PROJECT_PATH    touch .env_prod    touch ./config/.flush_needed    cp {$DEV_PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment.ini    cp $DEV_PROJECT_PATH/config/settings_{default,prod}.yml $STAGING_PROJECT_PATH/config/	cp $DEV_PROJECT_PATH/config/.key $STAGING_PROJECT_PATH/config/		read -p 'Uploading the changed files to the remote server...'    ./vendor/bin/deployment deployment/deployment.ini		# read -p 'Uploading the changed files to the remote testing directory...'	# cp {$DEV_PROJECT_PATH,$STAGING_PROJECT_PATH}/deployment/deployment_for_testing.ini	# ./vendor/bin/deployment deployment/deployment_for_testing.inifi
