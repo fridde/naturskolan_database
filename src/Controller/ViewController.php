@@ -32,6 +32,7 @@ class ViewController extends BaseController {
             $topic = $visit->getTopic();
             $group = $visit->getGroup();            
             $v = ['segment_label' => $visit->getGroup()->getSegmentLabel()];
+            $v['school_name'] = $group->getSchool()->getName();
             $v['group_name'] = $group->getName();
             $v['topic_name'] = $topic->getShortName();
             $v['location'] = $topic->getLocation()->getName();
