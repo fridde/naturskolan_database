@@ -1,13 +1,13 @@
 const $ = require('jquery');
 const moment = require('moment');
-const Response = require('./Response');
+//let Response = require('./Response');
 
-class Update {
+module.exports = class Update {
+
     constructor() {
-
     }
 
-    send(data) {
+    static send(data) {
 
         console.group("Request");
         console.table(data);
@@ -17,9 +17,9 @@ class Update {
             'method': 'POST',
             'data': data,
             'complete': function (jqXHR, status) {
-                Response.handler(jqXHR, data.onReturn, status);
+                Update.handler(jqXHR, data.onReturn, status);
             },
-            'error': Response.logErrorsToConsole
+            'error': this.logErrorsToConsole
         };
         $.ajax(options);
     }
@@ -73,7 +73,7 @@ class Update {
         }
     }
 
-    static setSaveTime() {
+   static setSaveTime() {
         let currentTime = moment().format();
         $(".save-time").attr("data-last-change", currentTime).data("last-change", currentTime);
     }
@@ -135,7 +135,86 @@ class Update {
         }
     }
 
+    static getTranslationTable() {
+        return {
+            //wrongPassword: Update.wrongPassword,
+            lastChange: this.lastChange,
+            groupUserOptions: this.groupUserOptions,
+            removeRow: this.removeRow,
+            reloadPage: this.reloadPage,
+            sliderChanged: this.setSliderLabel,
+            datesAdded: this.reloadPage, // TODO: Maybe exchange this for a better feedback
+            groupNameChanged: this.groupName,
+            showAddedGroups: this.showAddedGroups,
+            showSentManagerMails: this.showSentManagerMails,
+            checkPasswordResponse: this.checkPasswordResponse
+        };
+    }
+
+    static handler(jqXHR, onReturn, status) {
+        if (status === 'success') {
+            let data = jqXHR.responseJSON;
+
+            this.logErrors(data);
+            if (!(this.checkData(data))) {
+                return false;
+            }
+            this.logDataToConsole(data);
+
+            let callbackHandler = this.getCallback(onReturn);
+            if (callbackHandler === false) {
+                return false;
+            }
+            return callbackHandler.call(this, data);
+        }
+        console.warn('Ajax request returned with errors: ' + status);
+        return false;
+    }
+
+    static checkData(data) {
+        if (typeof data === 'undefined') {
+            console.log('The response was empty.');
+            return false;
+        }
+        return true;
+    }
+
+    static logErrors(data) {
+        if (data.errors.length > 0) {
+            console.group('ResponseErrors');
+            console.log(data.errors);
+            console.groupEnd();
+            return true;
+        }
+        return false;
+    }
+
+    static logDataToConsole(data) {
+        console.group("Response");
+        console.table(data);
+        console.groupEnd();
+    }
+
+    static getCallback(onReturn) {
+        let callbackTranslator = this.getTranslationTable();
+
+        if (!(onReturn in callbackTranslator)) {
+            console.warn("The return function <" + onReturn + "> was not defined in Response.js");
+            return false;
+        }
+        return callbackTranslator[onReturn];
+
+    }
+
+    static logErrorsToConsole(jqXHR, textStatus, errorThrown) {
+        console.group('Errors');
+        console.log(textStatus);
+        console.log(errorThrown);
+        console.log(jqXHR.responseText);
+        console.groupEnd();
+    }
+
 
 }
 
-module.exports = new Update();
+//module.exports = Update;

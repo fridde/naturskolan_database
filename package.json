@@ -36,6 +36,8 @@
     "webpack-notifier": "^1.7.0"
   },
   "dependencies": {
+    "google-fonts-plugin": "^2.1.0",
+    "google-fonts-webpack-plugin": "^0.4.4",
     "grecaptcha": "^1.0.3"
   }
 }

@@ -1233,12 +1233,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/html.git",
-                "reference": "eb63da5136cf4de047db9068db5ff0b101eef338"
+                "reference": "72d5bfa08ac6d5e26a0c2f9614ea0d9d5988e7d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/html/zipball/eb63da5136cf4de047db9068db5ff0b101eef338",
-                "reference": "eb63da5136cf4de047db9068db5ff0b101eef338",
+                "url": "https://api.github.com/repos/fridde/html/zipball/72d5bfa08ac6d5e26a0c2f9614ea0d9d5988e7d5",
+                "reference": "72d5bfa08ac6d5e26a0c2f9614ea0d9d5988e7d5",
                 "shasum": ""
             },
             "require": {
@@ -1262,7 +1262,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2019-01-13T16:58:50+00:00"
+            "time": "2019-01-15T22:10:57+00:00"
         },
         {
             "name": "fridde/mailer",
@@ -1270,12 +1270,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/mailer.git",
-                "reference": "3f099dcf60bb3856bf6e7b5ebc7ec6861bdcc05d"
+                "reference": "83e01294acb4bc2a87288bd5a6a42f8075630b02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/mailer/zipball/3f099dcf60bb3856bf6e7b5ebc7ec6861bdcc05d",
-                "reference": "3f099dcf60bb3856bf6e7b5ebc7ec6861bdcc05d",
+                "url": "https://api.github.com/repos/fridde/mailer/zipball/83e01294acb4bc2a87288bd5a6a42f8075630b02",
+                "reference": "83e01294acb4bc2a87288bd5a6a42f8075630b02",
                 "shasum": ""
             },
             "require": {
@@ -1298,7 +1298,7 @@
                     "email": "f@hehl.se"
                 }
             ],
-            "time": "2019-01-13T17:05:35+00:00"
+            "time": "2019-01-13T17:37:48+00:00"
         },
         {
             "name": "fridde/orm",

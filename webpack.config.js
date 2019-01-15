@@ -1,4 +1,5 @@
 const Encore = require('@symfony/webpack-encore');
+const GoogleFontsPlugin = require("google-fonts-plugin");
 
 Encore
 // the project directory where all compiled assets will be stored

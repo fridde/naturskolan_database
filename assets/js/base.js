@@ -3,6 +3,7 @@
 const $ = require('jquery');
 require('jqueryui');
 const moment = require('moment');
+require('moment/locale/sv.js');
 require('bootstrap');
 
 const Update = require('./Update');
@@ -10,6 +11,12 @@ const Edit = require('./Edit');
 const Slider = require('./Slider');
 const Tooltip = require('./Tooltip');
 const ButtonsBase = require('./ButtonsBase');
+
+//require('@fortawesome/fontawesome-free/css/all.css');
+require('bootstrap/dist/css/bootstrap.css');
+require('jquery-ui/themes/base/all.css');
+require('../css/base.css');
+
 
 let baseUrl;
 let updateUrl = "update";

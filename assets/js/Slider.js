@@ -1,3 +1,5 @@
+const Update = require('./Update');
+
 class Slider {
 
 	constructor(){

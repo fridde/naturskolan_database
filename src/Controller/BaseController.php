@@ -29,8 +29,6 @@ class BaseController
     protected $DATA = [];
     protected $TWIG_Variables = [];
     protected $title;
-    protected $defaultJs = 'index';
-    protected $defaultCss = 'index';
     protected $js = [];
     protected $css = [];
     protected $template;
@@ -42,12 +40,21 @@ class BaseController
     public const RETURN_JSON = 1;
 
 
-    public function __construct(array $params = [], $slim = false)
+    public function __construct(array $params = [], bool $slim = false)
     {
-        $this->slimConstruct($params);
-        if ($slim) {
-            return;
+        $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
+        $this->Authorizer = new Authorizer($this->N->ORM, $this->N->Auth);
+        $this->REQ = $_REQUEST ?? [];
+        $this->params = $params;
+        $this->addAction($this->getParameter('action'));
+
+        if (!$slim) {
+            $this->constructExpanded();
         }
+    }
+
+    public function constructExpanded(): void
+    {
         $args = [$this->Authorizer];
         $args[] = $GLOBALS['CONTAINER']->get('Router');
         $args[] = $this->N->ORM;
@@ -55,15 +62,6 @@ class BaseController
         $extensions[] = new HtmlCompressTwigExtension();
         $this->H = new HTML(null, $extensions, BASE_DIR . '/temp/cache');
         $this->setTitle(SETTINGS['defaults']['title'] ?? null);
-    }
-
-    public function slimConstruct(array $params = [])
-    {
-        $this->N = $GLOBALS['CONTAINER']->get('Naturskolan');
-        $this->Authorizer = new Authorizer($this->N->ORM, $this->N->Auth);
-        $this->REQ = $_REQUEST ?? [];
-        $this->params = $params;
-        $this->addAction($this->getParameter('action'));
     }
 
 
@@ -100,17 +98,18 @@ class BaseController
         throw new NException(Error::INVALID_OPTION, ['Return type ' . $return_type]);
     }
 
-    public function returnAsJson()
+    public function returnAsJson(): string
     {
         header('Content-Type: application/json');
         // TODO: Horrible hack, remove as soon as problem solved. Security risk!
-        header('Access-Control-Allow-Origin: *');
-        echo json_encode($this->DATA);
+        // header('Access-Control-Allow-Origin: *');
+        $json = json_encode($this->DATA);
+        echo $json;
 
-        return null;
+        return $json;
     }
 
-    public function renderAsHtml()
+    public function renderAsHtml(): string
     {
         if (empty($this->getTemplate())) {
             $this->setTemplate('error');
@@ -119,8 +118,8 @@ class BaseController
         }
 
         $this->H->setTitle($this->getTitle());
-        $this->H->addDefaultJs($this->getDefaultJs())
-            ->addDefaultCss($this->getDefaultCss())
+        $this->H->addDefaultJs()
+            ->addDefaultCss()
             ->addDefaultFonts()
             ->addJS($this->getJs())->addCss($this->getCss())
             ->setTemplate($this->getTemplate())->setBase();
@@ -130,7 +129,7 @@ class BaseController
         return $this->H->render();
     }
 
-    public function addAllVariablesToTemplate()
+    public function addAllVariablesToTemplate(): void
     {
         if (!empty($this->DATA)) {
             $this->addAsVar('DATA', $this->DATA);
@@ -147,7 +146,7 @@ class BaseController
      *              Possible keys are **js, css, template, DATA**
      * @return HTML
      */
-    protected function standardRender(array $options = [])
+    protected function standardRender(array $options = []): HTML
     {
         $js_key = $options['js'] ?? 'index';
         $css_key = $options['css'] ?? 'index';
@@ -165,10 +164,7 @@ class BaseController
     }
 
 
-    /**
-     * @return mixed
-     */
-    public function getDATA($key = null)
+    public function getDATA(string $key = null)
     {
         $DATA = $this->DATA;
         if(!empty($key)){
@@ -180,12 +176,12 @@ class BaseController
     /**
      * @param mixed $DATA
      */
-    public function setDATA($DATA)
+    public function setDATA($DATA): void
     {
         $this->DATA = $DATA;
     }
 
-    public function addToDATA($key_or_array, ...$args)
+    public function addToDATA($key_or_array, ...$args): void
     {
         if (is_string($key_or_array)) {
             $array = [$key_or_array => $args[0]];
@@ -198,13 +194,13 @@ class BaseController
         if ($overwrite) {
             $this->setDATA(array_merge($this->getDATA(), $array));
 
-            return null;
+            return;
         }
 
         $this->setDATA($this->getDATA() + $array);
     }
 
-    public function setReturnType(int $return_type = self::RETURN_HTML)
+    public function setReturnType(int $return_type = self::RETURN_HTML): void
     {
         $this->return_type = $return_type;
     }
@@ -225,12 +221,12 @@ class BaseController
     /**
      * @param array $TWIG_Variables
      */
-    public function setTWIGVariables(array $TWIG_Variables)
+    public function setTWIGVariables(array $TWIG_Variables): void
     {
         $this->TWIG_Variables = $TWIG_Variables;
     }
 
-    public function addAsVar($key_or_array, $value = null)
+    public function addAsVar($key_or_array, $value = null): void
     {
         $variables = $this->getTWIGVariables() ?? [];
         if (is_array($key_or_array)) {
@@ -242,7 +238,7 @@ class BaseController
         $this->setTWIGVariables($variables);
     }
 
-    public function moveFromDataToVar(...$keys)
+    public function moveFromDataToVar(...$keys): void
     {
         $data = $this->getParameter('data');
         $data = $this->DATA ?? $data;
@@ -262,7 +258,7 @@ class BaseController
     /**
      * @return null|string
      */
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
@@ -270,7 +266,7 @@ class BaseController
     /**
      * @param null|string $title
      */
-    public function setTitle($title)
+    public function setTitle(string $title = null): void
     {
         $this->title = $title;
     }
@@ -286,12 +282,12 @@ class BaseController
     /**
      * @param array $js
      */
-    public function setJs($js)
+    public function setJs(array $js): void
     {
         $this->js = $js;
     }
 
-    public function addJs($js, $type = HTML::INC_ABBREVIATION)
+    public function addJs($js, int $type = HTML::INC_ABBREVIATION): void
     {
         $this->js[] = [$js, $type];
     }
@@ -307,12 +303,12 @@ class BaseController
     /**
      * @param array $css
      */
-    public function setCss(array $css)
+    public function setCss(array $css): void
     {
         $this->css = $css;
     }
 
-    public function addCss($css, $type = HTML::INC_ABBREVIATION)
+    public function addCss($css, $type = HTML::INC_ABBREVIATION): void
     {
         $this->css[] = [$css, $type];
     }
@@ -320,7 +316,7 @@ class BaseController
     /**
      * @return string
      */
-    public function getTemplate()
+    public function getTemplate(): ?string
     {
         return $this->template;
     }
@@ -328,23 +324,23 @@ class BaseController
     /**
      * @param string $template
      */
-    public function setTemplate(string $template)
+    public function setTemplate(string $template): void
     {
         $this->template = $template;
     }
 
-    public function getParameter($key = null)
+    public function getParameter(string $key = null)
     {
         return (empty($key) ? $this->params : ($this->params[$key] ?? null));
 
     }
 
-    public function setParameter($key, $value = null)
+    public function setParameter(string $key, $value = null): void
     {
         $this->params[$key] = $value;
     }
 
-    public function hasParameter(string $key = null)
+    public function hasParameter(string $key = null): bool
     {
         if (empty($key)) {
             return !empty($this->params);
@@ -364,7 +360,7 @@ class BaseController
     /**
      * @param string $defaultJs
      */
-    public function setDefaultJs(string $defaultJs)
+    public function setDefaultJs(string $defaultJs): void
     {
         $this->defaultJs = $defaultJs;
     }
@@ -380,7 +376,7 @@ class BaseController
     /**
      * @param string $defaultCss
      */
-    public function setDefaultCss(string $defaultCss)
+    public function setDefaultCss(string $defaultCss): void
     {
         $this->defaultCss = $defaultCss;
     }
@@ -393,10 +389,8 @@ class BaseController
         return $this->actions ?? [];
     }
 
-    /**
-     * @param string $action
-     */
-    public function setActions(array $actions)
+
+    public function setActions(array $actions): void
     {
         $this->actions = $actions;
     }
@@ -415,7 +409,7 @@ class BaseController
         $this->setActions($actions);
     }
 
-    public function prependAction(string $action = null)
+    public function prependAction(string $action = null): void
     {
         $this->addAction($action, true);
     }
@@ -476,7 +470,7 @@ class BaseController
             $string = file_get_contents('php://input');
             json_decode($string, true);
             $is_valid = json_last_error() === JSON_ERROR_NONE;
-            if ($is_valid && strlen($string) > 0) {
+            if ($is_valid && !empty($string)) {
                 return json_decode($string, true);
             }
 
@@ -484,7 +478,7 @@ class BaseController
         }
     }
 
-    public function getFromRequest($key = null)
+    public function getFromRequest(string $key = null)
     {
         if (empty($key)) {
             return $this->REQ;

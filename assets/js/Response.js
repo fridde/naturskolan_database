@@ -1,9 +1,12 @@
-const Update = require('./Update');
+let Update = require('./Update');
 
-class Response {
+module.exports = class Response {
 
-    constructor(){
-        this.callbackTranslator = {
+    constructor() {
+    }
+
+    static getTranslationTable() {
+        return {
             //wrongPassword: Update.wrongPassword,
             lastChange: Update.lastChange,
             groupUserOptions: Update.groupUserOptions,
@@ -18,7 +21,7 @@ class Response {
         };
     }
 
-    handler(jqXHR, onReturn, status) {
+    static handler(jqXHR, onReturn, status) {
         if (status === 'success') {
             let data = jqXHR.responseJSON;
 
@@ -38,7 +41,7 @@ class Response {
         return false;
     }
 
-    checkData(data) {
+    static checkData(data) {
         if (typeof data === 'undefined') {
             console.log('The response was empty.');
             return false;
@@ -46,7 +49,7 @@ class Response {
         return true;
     }
 
-    logErrors(data) {
+    static logErrors(data) {
         if (data.errors.length > 0) {
             console.group('ResponseErrors');
             console.log(data.errors);
@@ -56,22 +59,24 @@ class Response {
         return false;
     }
 
-    logDataToConsole(data) {
+    static logDataToConsole(data) {
         console.group("Response");
         console.table(data);
         console.groupEnd();
     }
 
-    getCallback(onReturn) {
-        if (!(onReturn in this.callbackTranslator)) {
+    static getCallback(onReturn) {
+        let callbackTranslator = this.getTranslationTable();
+
+        if (!(onReturn in callbackTranslator)) {
             console.warn("The return function <" + onReturn + "> was not defined in Response.js");
             return false;
         }
-        return this.callbackTranslator[onReturn];
+        return callbackTranslator[onReturn];
 
     }
 
-    logErrorsToConsole(jqXHR, textStatus, errorThrown) {
+    static logErrorsToConsole(jqXHR, textStatus, errorThrown) {
         console.group('Errors');
         console.log(textStatus);
         console.log(errorThrown);
