@@ -148,11 +148,9 @@ class BaseController
      */
     protected function standardRender(array $options = []): HTML
     {
-        $js_key = $options['js'] ?? 'index';
-        $css_key = $options['css'] ?? 'index';
         $template = $options['template'] ?? 'index';
 
-        $this->H->addDefaultJs($js_key)->addDefaultCss($css_key)
+        $this->H->addDefaultJs()->addDefaultCss()
             ->setTemplate($template)->setBase();
 
         if (!empty($options['DATA'])) {
@@ -347,38 +345,6 @@ class BaseController
         }
 
         return (null !== $this->getParameter($key));
-    }
-
-    /**
-     * @return string
-     */
-    public function getDefaultJs(): string
-    {
-        return $this->defaultJs;
-    }
-
-    /**
-     * @param string $defaultJs
-     */
-    public function setDefaultJs(string $defaultJs): void
-    {
-        $this->defaultJs = $defaultJs;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDefaultCss(): string
-    {
-        return $this->defaultCss;
-    }
-
-    /**
-     * @param string $defaultCss
-     */
-    public function setDefaultCss(string $defaultCss): void
-    {
-        $this->defaultCss = $defaultCss;
     }
 
     /**
