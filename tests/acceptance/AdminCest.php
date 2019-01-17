@@ -46,14 +46,15 @@ class AdminCest
         $text = $I->get('strings', 'group_count_text');
         $I->fillField($textarea, $text);
 
+        $I->pauseExecution();
         $I->click('//button[@id="update"]');
         $I->pause(1.5);
+        $I->pauseExecution();
 
         $group_numbers = $I->getGroupCountsForSchool('pers');
         $I->assertEquals($group_numbers['2018']['2'] ?? 0, 3);
         $I->assertEquals($group_numbers['2017']['2'] ?? 0, 0);
         $I->assertEquals($group_numbers['2017']['5'] ?? 0, 3);
-        $I->pauseExecution();
         $I->assertEquals($group_numbers['2019']['2'] ?? 0, 8);
         $I->assertEquals($group_numbers['2019']['5'] ?? 0, 0);
         $I->assertEquals($group_numbers['2019']['fri'] ?? 0, 5);

@@ -17,6 +17,7 @@ use Fridde\Entities\User;
 use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
+use Fridde\HTML;
 use Fridde\Messenger\Mail;
 use Fridde\Task;
 use Fridde\Utility;
