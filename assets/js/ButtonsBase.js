@@ -69,7 +69,7 @@ class Buttons {
             html: true,
             trigger: 'hover click',
             placement: 'bottom',
-            content: () => {
+            content: function() {
                 let content_id = "content-id-" + $.now();
 
                 $.ajax({

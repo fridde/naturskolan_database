@@ -73,7 +73,7 @@ class APIController extends BaseController
         }
     }
 
-    protected function updateVisitUsingCode(string $code)
+    protected function updateVisitUsingCode(string $code): void
     {
         /* @var Visit $visit */
         $visit = $this->N->Auth->getVisitFromCode($code);
@@ -84,7 +84,7 @@ class APIController extends BaseController
         $this->updateVisitStatus($visit, $visit->getGroup()->getSchoolId());
     }
 
-    protected function updateVisitStatus(Visit $visit, string $school_id)
+    protected function updateVisitStatus(Visit $visit, string $school_id): void
     {
 
         $update = new Update();
