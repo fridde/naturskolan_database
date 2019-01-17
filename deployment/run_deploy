@@ -91,7 +91,7 @@ if [[ $SKIP -lt 4 ]]; then
 		git status
 		read -p 'Proceed if your .gitignore file is configured correctly!'
 		git add -A
-		##
+		git commit -m "More work"
 		git push
 	fi
 fi
