@@ -215,6 +215,6 @@ module.exports = class Update {
     }
 
 
-}
+};
 
 //module.exports = Update;

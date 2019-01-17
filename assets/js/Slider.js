@@ -1,12 +1,16 @@
 const Update = require('./Update');
 
-class Slider {
+module.exports = class Slider {
 
 	constructor(){
-		this.saveDelay = 0;
 	}
 
-    set(jqueryObj, optionParam){
+	static getSaveDelay(){
+	    return 3000;
+    }
+
+
+    static set(jqueryObj, optionParam){
         let data = {};
         let container, entity_id;
 
@@ -33,7 +37,7 @@ class Slider {
                 data.property = jqueryObj.attr("name");
                 data.value = ui.value;
                 data.onReturn = 'sliderChanged';
-                setTimeout(Update.send(data), saveDelay);
+                setTimeout(Update.send(data), this.getSaveDelay());
             },
             slide: function(event, ui){
                 data.direct = true;
@@ -43,6 +47,5 @@ class Slider {
         });
     }
 
-}
+};
 
-module.exports = new Slider();

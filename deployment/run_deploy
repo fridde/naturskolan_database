@@ -16,7 +16,7 @@ PROJECT_NAME=naturskolan_database
 DEV_PROJECT_PATH=~/$PROJECT_NAME
 TESTING_PATH=~/testing
 TESTDB_PATH=$TESTING_PATH/$PROJECT_NAME/tests/_data/test_db.sql
-STAGING_PATH=/cygdrive/c/staging
+STAGING_PATH=/cygdrive/d/staging
 STAGING_PROJECT_PATH=$STAGING_PATH/$PROJECT_NAME
 GITHUB_PROJECT=https://github.com/fridde/naturskolan_database.git
 
@@ -79,8 +79,12 @@ if [[ $SKIP -lt 4 ]]; then
 		composer update fridde/*
         composer install
 	fi
-	read -p 'Packing js and css files using webpack...'
-	./node_modules/.bin/encore prod
+
+	echo "Do you need to run webpack to pack js and css? [y/n]"
+	read -e REPLY
+	if [[ $REPLY == y ]]; then
+		./node_modules/.bin/encore prod
+	fi
 
 	read -p 'Checking git status of dev repo...'
     if [[ -n "$(git status -s)" ]]; then

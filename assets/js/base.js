@@ -12,7 +12,6 @@ const Slider = require('./Slider');
 const Tooltip = require('./Tooltip');
 const ButtonsBase = require('./ButtonsBase');
 
-//require('@fortawesome/fontawesome-free/css/all.css');
 require('bootstrap/dist/css/bootstrap.css');
 require('jquery-ui/themes/base/all.css');
 require('../css/base.css');
