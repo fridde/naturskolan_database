@@ -1,3 +1,5 @@
+let Update = require('./Update');
+
 class Edit {
 
     constructor(){
