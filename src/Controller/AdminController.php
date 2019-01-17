@@ -12,6 +12,7 @@ use Fridde\Entities\User;
 use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
+use Fridde\HTML;
 use Fridde\Naturskolan;
 
 class AdminController extends BaseController
@@ -48,6 +49,7 @@ class AdminController extends BaseController
         }
 
         $this->setParameter('school', Naturskolan::ADMIN_SCHOOL);
+        $this->addJs('admin', HTML::INC_ADDRESS);
         parent::handleRequest();
     }
 

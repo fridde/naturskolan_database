@@ -34,10 +34,11 @@ class BatchController extends BaseController
     {
         $this->addToDATA('school_id', 'natu');
         $this->setParameter('school', 'natu');
+        $this->addJs('admin', HTML::INC_ADDRESS);
         parent::handleRequest();
     }
 
-    public function addDates()
+    public function addDates(): void
     {
         /* @var \Fridde\Entities\TopicRepository $topic_repo */
         $topic_repo = $this->N->getRepo('Topic');
@@ -56,6 +57,8 @@ class BatchController extends BaseController
 
     /**
      * @example distributeVisitsExample.php
+     * @param string|null $segment_id
+     * @param int|null $start_year
      * @return void
      */
     public function distributeVisits(string $segment_id = null, int $start_year = null): void
@@ -195,7 +198,7 @@ class BatchController extends BaseController
         $this->setTemplate('admin/distribute_visits');
     }
 
-    public function setColleagues()
+    public function setColleagues(): void
     {
         /* @var VisitRepository $visit_repo */
         /* @var UserRepository $user_repo */
@@ -234,7 +237,7 @@ class BatchController extends BaseController
     }
 
 
-    public function setGroupCount()
+    public function setGroupCount(): void
     {
         $y = (int) Carbon::today()->year;
         $data = ['years' => [$y -1, $y, $y + 1], 'this_year' => $y];
@@ -242,7 +245,7 @@ class BatchController extends BaseController
         $this->setTemplate('admin/set_group_count');
     }
 
-    public function setBookings()
+    public function setBookings(): void
     {
         /* @var VisitRepository $visit_repo */
         $visit_repo = $this->N->ORM->getRepository('Visit');
@@ -283,7 +286,7 @@ class BatchController extends BaseController
         );
     }
 
-    public function setBusSettings()
+    public function setBusSettings(): void
     {
         /* @var SchoolRepository $school_repo */
         /* @var LocationRepository $location_repo */
@@ -325,7 +328,7 @@ class BatchController extends BaseController
         $this->setTemplate('admin/bus_settings');
     }
 
-    public function setVisitOrderForTopics()
+    public function setVisitOrderForTopics(): void
     {
         /* @var TopicRepository $topic_repo */
         $topic_repo = $this->N->ORM->getRepository('Topic');
@@ -349,7 +352,7 @@ class BatchController extends BaseController
         $this->setTemplate('admin/topic_visit_order');
     }
 
-    public function sendManagerMobilizationMail()
+    public function sendManagerMobilizationMail(): void
     {
         /* @var User $manager */
         /* @var UserRepository $user_repo */
@@ -389,8 +392,7 @@ class BatchController extends BaseController
             function ($m) {
                 /* @var Mail $response */
                 /* @var User $user */
-                $response = $m[0];
-                $user = $m[2];
+                [$response,,$user] = $m;
                 $text = 'Mejlet till ';
                 $text .= $user->getMail().' ';
                 if ($response->getStatus() === 'success') {
