@@ -53,6 +53,7 @@ class AdminCest
         $I->assertEquals($group_numbers['2018']['2'] ?? 0, 3);
         $I->assertEquals($group_numbers['2017']['2'] ?? 0, 0);
         $I->assertEquals($group_numbers['2017']['5'] ?? 0, 3);
+        $I->pauseExecution();
         $I->assertEquals($group_numbers['2019']['2'] ?? 0, 8);
         $I->assertEquals($group_numbers['2019']['5'] ?? 0, 0);
         $I->assertEquals($group_numbers['2019']['fri'] ?? 0, 5);
