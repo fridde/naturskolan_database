@@ -34,6 +34,7 @@ class SchoolPageCest
         $I->fillField($heinz_field, 'Albus');
         $I->click($krumbichel_field);
         $I->pause();
+        $I->pauseExecution();
         $I->seeInDatabase('users', ['FirstName' => 'Albus']);
 
         $last_change_after = $I->grabFromDatabase('users', 'LastChange', ['id' => 102]);
