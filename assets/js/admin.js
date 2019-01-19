@@ -3,6 +3,8 @@
 const ButtonsAdmin = require('./ButtonsAdmin');
 const Batch = require('./Batch');
 const Edit = require('./Edit');
+const $ = require('jquery');
+require('jqueryui');
 
 require( 'datatables.net');
 require('../css/datatables.css');
