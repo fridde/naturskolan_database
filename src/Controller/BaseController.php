@@ -31,6 +31,7 @@ class BaseController
     protected $title;
     protected $js = [];
     protected $css = [];
+    protected $fonts = [];
     protected $template;
 
     /* @var Authorizer $Authorizer */
@@ -116,10 +117,11 @@ class BaseController
         }
 
         $this->H->setTitle($this->getTitle());
-        $this->H->addDefaultJs()
-            ->addDefaultCss()
-            ->addDefaultFonts()
-            ->addJS($this->getJs())->addCss($this->getCss())
+        $this->addDefaultJsAndCss();
+        $this->addDefaultFonts();
+        $this->H->addJS($this->getJs())
+            ->addCss($this->getCss())
+            ->addFonts($this->getFonts())
             ->setTemplate($this->getTemplate())->setBase();
 
         $this->addAllVariablesToTemplate();
@@ -275,14 +277,6 @@ class BaseController
         return $this->js;
     }
 
-    /**
-     * @param array $js
-     */
-    public function setJs(array $js): void
-    {
-        $this->js = $js;
-    }
-
     public function addJs($js, int $type = HTML::INC_ABBREVIATION): void
     {
         $this->js[] = [$js, $type];
@@ -296,17 +290,21 @@ class BaseController
         return $this->css;
     }
 
-    /**
-     * @param array $css
-     */
-    public function setCss(array $css): void
-    {
-        $this->css = $css;
-    }
 
-    public function addCss($css, $type = HTML::INC_ABBREVIATION): void
+    public function addCss($css, int $type = HTML::INC_ABBREVIATION): void
     {
         $this->css[] = [$css, $type];
+    }
+
+    public function getFonts(): array
+    {
+        return $this->fonts;
+    }
+
+
+    public function addFonts(array $fonts): void
+    {
+        $this->fonts[] = $fonts;
     }
 
     /**
@@ -450,5 +448,30 @@ class BaseController
 
         return $this->REQ[$key] ?? null;
     }
+    private function addDefaultJsAndCss(): void
+    {
+        $a = SETTINGS['defaults'] ?? [];
+
+        $this->addJs($a['js']['remote'] ?? [], HTML::INC_ABBREVIATION);
+        $this->addJs($a['js']['local'] ?? [], HTML::INC_ASSET);
+
+        $this->addCss($a['css']['remote'] ?? [], HTML::INC_ABBREVIATION);
+        $this->addCss($a['css']['local'] ?? [], HTML::INC_ASSET);
+    }
+
+    private function addDefaultFonts(): void
+    {
+        $array = SETTINGS['defaults']['fonts'] ?? [];
+
+        array_walk(
+            $array,
+            function (&$v, $k) {
+                array_unshift($v, $k);
+            }
+        );
+
+        $this->addFonts([$array, HTML::FONT_GOOGLE]);
+    }
+
 
 }

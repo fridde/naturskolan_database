@@ -4,26 +4,23 @@
     {%- if base -%}
         <base href="{{ base }}" target="_self">
     {%- endif -%}
-    {% for css in CssFiles %}
+    {% for css in css.sources %}
         <link rel="stylesheet" href="{{ css }}">
     {% endfor %}
-    {% if LiteralCss %}
-        <style>
-            {% for style in LiteralCss %}
-            {{ style }}
-            {% endfor %}
-        </style>
-    {% endif %}
-    {% for js in JsFiles %}
+
+    {% for style in css.literal %}
+        <style>{{ style }}</style>
+    {% endfor %}
+
+
+    {% for js in js.sources %}
         <script type="text/javascript" src="{{ js }}"></script>
     {% endfor %}
 
-    {% if LiteralJs %}
-        <script>
-            {% for script in LiteralJs %}
-            {{ style }}
-            {% endfor %}
-        </script>
-    {% endif %}
+
+    {% for script in js.literal %}
+        <script>{{ script }}</script>
+    {% endfor %}
+
     <title>{{ TITLE }}</title>
 {% endblock %}
