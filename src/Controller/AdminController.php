@@ -49,7 +49,7 @@ class AdminController extends BaseController
         }
 
         $this->setParameter('school', Naturskolan::ADMIN_SCHOOL);
-        $this->addJs('admin', HTML::INC_ADDRESS);
+        $this->addJs('admin', HTML::INC_ASSET);
         parent::handleRequest();
     }
 
