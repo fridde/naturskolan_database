@@ -5,6 +5,7 @@ const Batch = require('./Batch');
 const Edit = require('./Edit');
 
 require( 'datatables.net');
+require('../css/datatables.css');
 const DataTableConfigurator = require('./DT_config');
 
 $(document).ready(() => {

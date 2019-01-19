@@ -9,6 +9,9 @@
       ]
     },
     "admin": {
+      "css": [
+        "/assets/compiled/admin.css"
+      ],
       "js": [
         "/assets/compiled/admin.js"
       ]
