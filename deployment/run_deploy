@@ -80,10 +80,14 @@ if [[ $SKIP -lt 4 ]]; then
         composer install
 	fi
 
-	echo "Do you need to run webpack to pack js and css? [y/n]"
+	echo "Do you need to run webpack to pack js and css?"
+	echo "p=prod, d=dev, *=skip"
 	read -e REPLY
-	if [[ $REPLY == y ]]; then
+	if [[ $REPLY == p ]]; then
 		./node_modules/.bin/encore prod
+	fi
+	if [[ $REPLY == d ]]; then
+		./node_modules/.bin/encore dev
 	fi
 
 	read -p 'Checking git status of dev repo...'
