@@ -150,7 +150,10 @@ class BaseController
     {
         $template = $options['template'] ?? 'index';
 
-        $this->H->addDefaultJs()->addDefaultCss()
+        $this->addDefaultJsAndCss();
+        $this->addDefaultFonts();
+
+        $this->H->addJS($this->getJs())->addCss($this->getCss())
             ->setTemplate($template)->setBase();
 
         if (!empty($options['DATA'])) {
@@ -450,13 +453,22 @@ class BaseController
     }
     private function addDefaultJsAndCss(): void
     {
-        $a = SETTINGS['defaults'] ?? [];
+        $outer = ['js', 'css'];
+        $inner = ['remote' => HTML::INC_ABBREVIATION, 'local' => HTML::INC_ASSET];
 
-        $this->addJs($a['js']['remote'] ?? [], HTML::INC_ABBREVIATION);
-        $this->addJs($a['js']['local'] ?? [], HTML::INC_ASSET);
-
-        $this->addCss($a['css']['remote'] ?? [], HTML::INC_ABBREVIATION);
-        $this->addCss($a['css']['local'] ?? [], HTML::INC_ASSET);
+        foreach($outer as $ext){
+            foreach($inner as $place => $resource_type){
+                $resources = SETTINGS['defaults'][$ext][$place] ?? [];
+                foreach($resources as $resource){
+                    if($ext === 'js'){
+                        $this->addJs($resource, $resource_type);
+                    }
+                    if($ext === 'css'){
+                        $this->addCss($resource, $resource_type);
+                    }
+                }
+            }
+        }
     }
 
     private function addDefaultFonts(): void
