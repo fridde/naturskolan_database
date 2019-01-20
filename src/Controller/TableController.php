@@ -32,7 +32,7 @@ class TableController extends BaseController
 
         $this->setTemplate('table');
 
-        $this->addJs('admin', HTML::INC_ASSET);
+        $this->addJsToEnd('admin', HTML::INC_ASSET);
         $this->addCss('admin', HTML::INC_ASSET);
     }
 

@@ -35,7 +35,7 @@ class BatchController extends BaseController
     {
         $this->addToDATA('school_id', 'natu');
         $this->setParameter('school', 'natu');
-        $this->addJs('admin', HTML::INC_ASSET);
+        $this->addJsToEnd('admin', HTML::INC_ASSET);
         $this->addCss('admin', HTML::INC_ASSET);
         parent::handleRequest();
     }

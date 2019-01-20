@@ -29,7 +29,7 @@ class BaseController
     protected $DATA = [];
     protected $TWIG_Variables = [];
     protected $title;
-    protected $js = [];
+    protected $js = ['start' => [], 'end' => []];
     protected $css = [];
     protected $fonts = [];
     protected $template;
@@ -277,13 +277,19 @@ class BaseController
      */
     public function getJs(): array
     {
-        return $this->js;
+        return array_merge($this->js['start'], $this->js['end']);
     }
 
-    public function addJs($js, int $type = HTML::INC_ABBREVIATION): void
+    public function addJs($js, int $type = HTML::INC_ABBREVIATION, string $position = 'start'): void
     {
-        $this->js[] = [$js, $type];
+        $this->js[$position][] = [$js, $type];
     }
+
+    public function addJsToEnd($js, int $type = HTML::INC_ABBREVIATION): void
+    {
+        $this->addJs($js, $type, 'end');
+    }
+
 
     /**
      * @return array
