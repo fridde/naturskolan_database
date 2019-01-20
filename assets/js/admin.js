@@ -1,6 +1,7 @@
 'use strict';
 
-
+const $ = require('jquery');
+require('jqueryui');
 const ButtonsAdmin = require('./ButtonsAdmin');
 const Batch = require('./Batch');
 const Edit = require('./Edit');
