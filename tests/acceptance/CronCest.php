@@ -43,6 +43,7 @@ class CronCest
         $cb_path = $I->get('paths', 'rebuild_calendar_cb');
         $I->checkOption($cb_path);
         $I->pause(1.5);
+        $I->pauseExecution();
         $new_status = json_decode($I->grabFromDatabase(...$status_path), true);
         $I->assertEquals(1, $new_status['rebuild_calendar']);
         $I->uncheckOption($cb_path);
@@ -95,6 +96,7 @@ class CronCest
     public function visitConfirmationMessage(A $I)
     {
         $I->runCronTask('send_visit_confirmation_message');
+        $I->pauseExecution();
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
         $mails = [

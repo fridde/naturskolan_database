@@ -496,9 +496,12 @@ class Task
             function ($u) use ($annoyance_start, $msg_props, $subject_int) {
                 /* @var User $u */
                 // We don't need to remind users without relevant groups or users that have recently gotten a message.
-                return $u->hasMessageSetting($subject_int)
-                    && $u->hasActiveGroupsVisitingInTheFuture()
-                    && !$u->lastMessageWasAfter($annoyance_start, $msg_props);
+                $a = [];
+                $a[] = $u->hasMessageSetting($subject_int);
+                $a[] = $u->hasActiveGroupsVisitingInTheFuture();
+                $a[] = !$u->lastMessageWasAfter($annoyance_start, $msg_props);
+
+                return (bool) array_product($a); //i.e. all are true
             }
         );
         $messages = [];
