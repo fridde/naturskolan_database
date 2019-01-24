@@ -1,4 +1,5 @@
 let Update = require('./Update');
+const Tooltip = require('./Tooltip');
 
 class Edit {
 

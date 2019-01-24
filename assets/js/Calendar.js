@@ -1,8 +1,9 @@
-
+const $ = require('jquery');
+require('jqueryui');
 
 class Calendar {
 
-    initialize() {
+    static initialize() {
         if(typeof $.fullCalendar === 'function'){
             $('#fullpage-calendar').fullCalendar({
                     events: $('#calendar-events').data('events'),
@@ -19,4 +20,4 @@ class Calendar {
     }
 }
 
-module.exports = new Calendar();
+module.exports = Calendar;

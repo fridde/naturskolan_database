@@ -2,7 +2,7 @@ class Tooltip {
 
     constructor(){}
 
-    check(element, data){
+    static check(element, data){
 
         if(this.tooltipNeeded(data.property, data.value)){
             $(element).tooltip('show');
@@ -11,7 +11,7 @@ class Tooltip {
         }
     }
 
-    getContent(name){
+    static getContent(name){
         let text = '';
         switch(name){
             case 'Food':
@@ -29,7 +29,7 @@ class Tooltip {
         return text;
     }
 
-    tooltipNeeded(property, text){
+    static tooltipNeeded(property, text){
         let regex;
         switch(property){
             case "Food":
@@ -45,4 +45,4 @@ class Tooltip {
 
 }
 
-module.exports = new Tooltip();
+module.exports = Tooltip;

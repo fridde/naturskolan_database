@@ -44,7 +44,8 @@ $(document).ready(() => {
 
     $('.group-container .editable').not('[name="TimeProposal"]').change('group', Edit.change);
     $('.group-container .editable[name="TimeProposal"]').change('timeproposal', Edit.change);
-    $('table.editable :input').not('.datepicker').change("tableInput", Edit.change);
+    //$('table.editable :input').not('.datepicker').change("tableInput", Edit.change);
+    $('table.editable :input').change("tableInput", Edit.change);
 
     $("#group-change-modal input").change("groupModal", Edit.change);
 

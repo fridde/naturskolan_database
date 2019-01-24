@@ -1,3 +1,19 @@
+const $ = require('jquery');
+require('jqueryui');
+
+require('datatables.net');
+require('datatables.net-buttons');
+require('datatables.net-buttons/js/buttons.colVis');
+require('datatables.net-bs4');
+require('datatables.net-responsive-bs4');
+require('datatables.net-fixedheader');
+require('datatables.net-colreorder');
+require('datatables.net-rowreorder');
+
+require('../css/datatables.css');
+
+const Edit = require('./Edit');
+
 class DataTableConfigurator {
 
     constructor() {
@@ -9,36 +25,27 @@ class DataTableConfigurator {
             fixedHeader: {
                 header: true
             },
-            buttons: {
-                buttons: [
-                    'colvis'
-                ]
-            }
+            buttons: ['colvis']
         };
-
 
         this.specialOptions = {
             School: {
-                buttons: {
-                    buttons: [
-                        {
-                            text: "Spara besöksordningen",
-                            action: function (e, dt, node, config) {
-                                e.data = ["tableReorder", ["School"]];
-                                return Edit.change(e);
-                            }
+                buttons: this.defaultOptions.buttons.concat([
+                    {
+                        text: "Spara besöksordningen",
+                        action: function (e, dt, node, config) {
+                            e.data = ["tableReorder", ["School"]];
+                            return Edit.change(e);
                         }
-                    ]
-                }
+                    }
+                ])
             },
             Visit: {
-                buttons: {
-                    buttons: [
-                        'colvis',
-                        this.getReusableButton('hideOld'),
-                        this.getReusableButton('hideArchived')
-                    ]
-                }
+                buttons: this.defaultOptions.buttons.concat([
+                    'colvis',
+                    this.getReusableButton('hideOld'),
+                    this.getReusableButton('hideArchived')
+                ])
             }
         };
 
@@ -53,10 +60,15 @@ class DataTableConfigurator {
         }
     }
 
+    create(jqueryObj){
+        jqueryObj.DataTable(this.options(jqueryObj));
+    }
+
     options(JQ) {
         let entity = JQ.closest("table[data-entity]").data("entity");
         if (typeof entity !== 'undefined' && typeof this.specialOptions[entity] !== 'undefined') {
-            return $.extend({}, this.defaultOptions, this.specialOptions[entity]);
+            let combined = $.extend(true, {}, this.defaultOptions, this.specialOptions[entity]);
+            return combined;
         } else {
             return this.defaultOptions;
         }

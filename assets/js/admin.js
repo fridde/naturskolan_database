@@ -6,8 +6,7 @@ const ButtonsAdmin = require('./ButtonsAdmin');
 const Batch = require('./Batch');
 const Edit = require('./Edit');
 
-require( 'datatables.net');
-require('../css/datatables.css');
+
 const DataTableConfigurator = require('./DT_config');
 
 $(document).ready(() => {
@@ -36,7 +35,10 @@ $(document).ready(() => {
     $('.set-bookings td.toggle-label:not(.not-needed-td)').click('food_bus_bookings', Edit.change);
     $('.bus-settings td.toggle-label').click('bus_settings', Edit.change);
 
-    let $table = $("table");
-    $table.DataTable(DataTableConfigurator.options($table));
+    //let $table = $("table");
+    //let options = DataTableConfigurator.options($table);
+    DataTableConfigurator.create($('table'));
+
+    //$table.DataTable(options);
 
 });

@@ -1,12 +1,11 @@
 const Batch = require('./Batch');
-
+const Update = require('./Update');
 
 class Buttons {
-    constructor(){
 
-    }
+    static initialize(){
 
-    initialize(){
+        let self = this;
 
         /**
          * This button is used on /batch/distribute_visits/{segment}
@@ -34,14 +33,14 @@ class Buttons {
          * and "cleans" the textarea after inserting date rows using a method written in
          * google spreadsheets. It removes empty rows and trims and sorts the rows.
          */
-        $(".add-dates button#clean").click(() => {
+        $(".add-dates button#clean").click(function() {
             let $textElement = $("textarea.date-lines");
-            $textElement.val(this.cleanLines($textElement.val()));
+            $textElement.val(self.cleanLines($textElement.val()));
         });
 
-        $('.set-group-count button#clean').click(() => {
+        $('.set-group-count button#clean').click(function() {
             let $textElement = $("#group-count-lines");
-            $textElement.val(this.cleanLines($textElement.val()));
+            $textElement.val(self.cleanLines($textElement.val()));
         });
 
 
@@ -50,9 +49,9 @@ class Buttons {
          * and sends the date array in the textarea as "value"
          * and the topic_id as "entity_id"
          */
-        $(".add-dates button#add").click(() => {
+        $(".add-dates button#add").click(function() {
             let textarea = $("textarea.date-lines");
-            textarea.val(this.cleanLines(textarea.val()));
+            textarea.val(self.cleanLines(textarea.val()));
             let lines = textarea.val().split(/\r|\n/);
             let topic_id = $('select.date-lines').val();
             let update_method = (topic_id === 'multiple'
@@ -69,9 +68,9 @@ class Buttons {
             Update.send(data);
         });
 
-        $('.set-group-count button#update').click(() => {
+        $('.set-group-count button#update').click(function() {
             let $textElement = $("#group-count-lines");
-            $textElement.val(this.cleanLines($textElement.val()));
+            $textElement.val(self.cleanLines($textElement.val()));
 
             let lines = $textElement.val().split(/\n/).map(function (line) {
                 return line.split(',').map(function (item) {
@@ -108,7 +107,7 @@ class Buttons {
             $.ajax(options);
         });
 
-        $('#cron-task-activation :checkbox').click(() => {
+        $('#cron-task-activation :checkbox').click(function() {
             let data = {
                 updateMethod: "changeTaskActivation",
                 task_name: $(this).attr('name'),
@@ -121,19 +120,6 @@ class Buttons {
         /**
          * MODALS
          */
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         $('.add-note-to-visit button').click(function(){
             $('.add-note-to-visit :button').removeClass('active');
@@ -170,7 +156,7 @@ class Buttons {
 
     }
 
-    cleanLines(text) {
+    static cleanLines(text) {
         let lines = text.split(/\r|\n|;/).map((i) => {
             return i.trim();
         }).filter((i) => {
@@ -180,7 +166,7 @@ class Buttons {
         return lines.join("\n");
     }
 
-    toggleGroupNameField(event) {
+    static toggleGroupNameField(event) {
         let h1 = $(event.target).closest('h1');
         let dataId = h1.closest(".group-container").attr("data-entity-id");
         let inputField = h1.children('input');
@@ -204,7 +190,7 @@ class Buttons {
         }
     }
 
-    addRow() {
+    static addRow() {
         let oldRow = $(".editable tbody tr:last");
         let newRow = oldRow.clone(true);
         newRow.hide();
@@ -224,4 +210,4 @@ class Buttons {
 
 }
 
-module.exports = new Buttons();
+module.exports = Buttons;

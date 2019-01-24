@@ -61,7 +61,7 @@ class Buttons {
             });
         });
 
-        $('button.go-to-groups').click(() => {
+        $('button.go-to-groups').click(function() {
             window.location.replace($(this).data('url'));
         });
 
