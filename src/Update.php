@@ -82,7 +82,7 @@ class Update extends DefaultUpdate
      */
     public function createNewEntity(string $entity_class, array $properties = [], bool $flush = true)
     {
-        $old_id = $this->getReturn('old_id');
+        $old_id = $this->getReturn('old_id') ?? '';
         $new_id = $this->getAlternativeIdFromCache($old_id);
 
         if (null !== $new_id) {   // i.e. it's not actually new, the DOM just hasn't been updated
@@ -94,7 +94,9 @@ class Update extends DefaultUpdate
         }
         parent::createNewEntity($entity_class, $properties, $flush);
         $new_id = $this->getReturn('new_id');
-        $this->addAlternativeIdToCache($old_id, $new_id);
+        if (null !== $new_id) {    // i.e. not all required fields where given
+            $this->addAlternativeIdToCache($old_id, $new_id);
+        }
 
         return $this;
     }
@@ -102,6 +104,10 @@ class Update extends DefaultUpdate
 
     private function getAlternativeIdFromCache(string $key = null)
     {
+        if($key === ''){
+            return null;
+        }
+
         if (!$this->N->cache->contains(self::NEW_ENTITY_ID_KEY)) {
             return null;
         }
