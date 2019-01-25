@@ -1,0 +1,25 @@
+{
+  "entrypoints": {
+    "base": {
+      "css": [
+        "/assets/compiled/base.css"
+      ],
+      "js": [
+        "/assets/compiled/base.js"
+      ]
+    },
+    "admin": {
+      "css": [
+        "/assets/compiled/admin.css"
+      ],
+      "js": [
+        "/assets/compiled/admin.js"
+      ]
+    },
+    "captcha": {
+      "js": [
+        "/assets/compiled/captcha.js"
+      ]
+    }
+  }
+}
