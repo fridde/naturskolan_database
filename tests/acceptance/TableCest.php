@@ -262,6 +262,7 @@ class TableCest
 
         $date_picker = '//tr[@data-id="10"]//input[@name="Date"]';
         $I->seeElement($date_picker);
+        $I->pauseExecution();
         $I->fillField($date_picker, '2019-05-06');
         $I->clickAway(0, 70);
         $I->pause();
@@ -269,13 +270,16 @@ class TableCest
 
         $topic_selector = '//tr[@data-id="10"]//select[@name="Topic"]';
         $I->seeElement($topic_selector);
+        $I->pauseExecution();
         $I->selectOption($topic_selector, '14');
         $I->pause();
+        $I->pauseExecution();
         $I->seeInDatabase('visits', ['id' => 10, 'Topic_id' => 14]);
 
         $confirmed_selector = '//tr[@data-id="10"]//input[@name="Confirmed#10"]';
         $I->seeElement($confirmed_selector);
         $I->scrollTo($confirmed_selector);
+
         $I->selectOption($confirmed_selector, '1');
         $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Confirmed' => 1]);
