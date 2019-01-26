@@ -2,7 +2,7 @@ const $ = require('jquery');
 const moment = require('moment');
 //let Response = require('./Response');
 
-module.exports = class Update {
+class Update {
 
     constructor() {
     }
@@ -215,6 +215,6 @@ module.exports = class Update {
     }
 
 
-};
+}
 
-//module.exports = Update;
+module.exports = Update;

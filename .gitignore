@@ -30,3 +30,5 @@ config/.flush_needed
 /tests/sandboxer.html
 
 /node_modules/
+
+assets/compiled/

@@ -5,11 +5,6 @@ module.exports = class Slider {
 	constructor(){
 	}
 
-	static getSaveDelay(){
-	    return 3000;
-    }
-
-
     static set(jqueryObj, optionParam){
         let data = {};
         let container, entity_id;
@@ -37,7 +32,7 @@ module.exports = class Slider {
                 data.property = jqueryObj.attr("name");
                 data.value = ui.value;
                 data.onReturn = 'sliderChanged';
-                setTimeout(Update.send(data), this.getSaveDelay());
+                setTimeout(Update.send(data), window.saveDelay);
             },
             slide: function(event, ui){
                 data.direct = true;

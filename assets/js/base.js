@@ -2,7 +2,7 @@
 
 const $ = require('jquery');
 require('jqueryui');
-const moment = require('moment');
+const moment = require('moment/moment.js');
 require('moment/locale/sv.js');
 require('bootstrap');
 
@@ -19,6 +19,8 @@ require('../css/base.css');
 
 let baseUrl;
 let updateUrl = "update";
+window.saveDelay = 3000;
+window.recentChange = false;
 Edit.saveDelay = Slider.saveDelay = 3000; //milliseconds between ajax savings
 moment.locale('sv');
 
@@ -42,10 +44,15 @@ $(document).ready(() => {
     $('#password-modal').modal('hide');
     $('#visit-confirmation-modal').modal({backdrop: "static"});
 
-    $('.group-container .editable').not('[name="TimeProposal"]').change('group', Edit.change);
-    $('.group-container .editable[name="TimeProposal"]').change('timeproposal', Edit.change);
-    //$('table.editable :input').not('.datepicker').change("tableInput", Edit.change);
-    $('table.editable :input').change("tableInput", Edit.change);
+    let $editableGroupContainer = $('.group-container .editable');
+    let $timeProp = '[name="TimeProposal"]';
+    $editableGroupContainer.not($timeProp).change('group', Edit.change);
+    $editableGroupContainer.filter($timeProp).change('timeproposal', Edit.change);
+
+    let $editableTableInput = $('table.editable :input');
+    let $dp = '.datepicker';
+    $editableTableInput.not($dp).change("tableInput", Edit.change);
+    $editableTableInput.filter($dp).change("datepicker", Edit.change);
 
     $("#group-change-modal input").change("groupModal", Edit.change);
 

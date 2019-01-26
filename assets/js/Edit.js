@@ -4,18 +4,16 @@ const Tooltip = require('./Tooltip');
 class Edit {
 
     constructor(){
-        this.recentChange = false;
-        this.saveDelay = 0;
     }
 
-    change(event) {
+    static change(event) {
 
         let $this = event.this ? $(event.this) : $(this);
 
         let data = {};
         let option, specialInfo, $tr, $td, $tarea, $icon, list;
-        if (this.recentChange !== false) {
-            clearTimeout(this.recentChange);
+        if (window.recentChange !== false) {
+            clearTimeout(window.recentChange);
         }
         if (event.data instanceof Object) {
             option = event.data[0];
@@ -65,6 +63,15 @@ class Edit {
                 $this.data("search", data.value).data("order", data.value)
                     .attr("data-search", data.value).attr("data-order", data.value);
                 break;
+
+            case 'datepicker':
+                if($this.val().length === 0){
+                    return;
+                }
+                event.this = $this;
+                event.data = 'tableInput';
+                this.change(event);
+                return;
 
             case "groupModal":
                 data.updateMethod = "updateGroupName";
@@ -175,8 +182,8 @@ class Edit {
         }
 
         data.onReturn = data.onReturn || 'lastChange';
-        this.recentChange = setTimeout(Update.send(data), this.saveDelay);
+        window.recentChange = setTimeout(Update.send(data), window.saveDelay);
     }
 }
 
-module.exports = new Edit();
+module.exports = Edit;
