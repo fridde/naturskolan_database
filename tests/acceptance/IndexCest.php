@@ -29,7 +29,7 @@ class IndexCest
         $I->pause(0.7);
         $I->makeScreenshot('frontpage_visitor');
         $schools_on_fp = $I->get('schools','frontpage') ?? [];
-        $I->pauseExecution();
+
         foreach ($schools_on_fp as $index => $school_name) {
             $I->see($school_name, '.flexbox');
             $I->canSeeInSource($index, '.flexbox');
@@ -52,7 +52,7 @@ class IndexCest
 
         $I->setCookie('AuthKey', $I->get('natu','AuthKey'));
         $I->reloadPage();
-        $I->pauseExecution();
+
         foreach ($admin_nav_items as $item) {
             $I->see($item, '.nav');
         }
@@ -66,7 +66,7 @@ class IndexCest
         $I->amOnPage('/');
         $I->resetCookie('AuthKey');
         $link = Locator::find('a', ['href' => $I->get('BASE') . '/skola/pers']);
-        $I->pauseExecution();
+
         $I->seeElement($link);
         $I->click($link);
         $I->pause();
@@ -122,7 +122,7 @@ class IndexCest
         $I->click($login_button);
         $I->pause(1.5);
         $user_nav_items = $I->get('nav_items', 'user');
-        $I->pauseExecution();
+
         $I->checkMultiple('canSee', $user_nav_items, '.nav');
         $AuthKey = $I->grabCookie('AuthKey');
         $I->assertNotEmpty($AuthKey);
@@ -136,7 +136,7 @@ class IndexCest
         $I->wantTo('Logout and not be able to enter');
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('st_per', 'AuthKey'));
-        $I->pauseExecution();
+
         $I->amOnPage('/skola/pers');
         $logout_link = '//a[@href="logout"]';
 //        $I->scrollTo($logout_link);

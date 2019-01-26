@@ -44,11 +44,11 @@ class TableCest
         // as we have only entered the title and not a start date yet
         $I->assertEquals($initial_event_count, $I->grabNumRecords('events'));
 
-        $I->pauseExecution();
+
         $I->fillField($I->getFieldFromLastRow('Event', 'StartDate'), '2018-08-05');
         $I->clickAway();
         $I->pause(1);
-        $I->pauseExecution();
+
         $I->assertEquals($initial_event_count + 1, $I->grabNumRecords('events'));
 
         $I->runCronTask('rebuild_calendar');
@@ -129,7 +129,7 @@ class TableCest
 
         $I->seeInField($first_school_row_field, 'Josefinaskolan');
 
-        $I->pauseExecution();
+
         $button_path = '//div[@class="dt-buttons"]//button[last()]'; // Button for "Spara besöksordningen"
         $I->click($button_path);
         $I->pause(0.7);
@@ -193,7 +193,7 @@ class TableCest
         $I->fillField($short_name_field, $short_name_value);
         $I->clickAway();
         $I->pause();
-        $I->pauseExecution();
+
         $I->seeInDatabase('topics', ['Food' => $food_value, 'ShortName' => $short_name_value]);
         $I->assertEquals($initial_topic_count + 1, $I->grabNumRecords('topics'));
     }
@@ -277,7 +277,7 @@ class TableCest
         $I->seeElement($confirmed_selector);
         //$I->scrollTo($confirmed_selector);
         $I->pause(2);
-        //$I->pauseExecution();
+        //
         $I->selectOption($confirmed_selector, '1');
         $I->pause();
         $I->seeInDatabase('visits', ['id' => 10, 'Confirmed' => 1]);

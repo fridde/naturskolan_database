@@ -46,10 +46,10 @@ class AdminCest
         $text = $I->get('strings', 'group_count_text');
         $I->fillField($textarea, $text);
 
-        $I->pauseExecution();
+
         $I->click('//button[@id="update"]');
         $I->pause(1.5);
-        $I->pauseExecution();
+
 
         $group_numbers = $I->getGroupCountsForSchool('pers');
         $I->assertEquals($group_numbers['2018']['2'] ?? 0, 3);
@@ -168,7 +168,7 @@ class AdminCest
         $I->assertEquals(2, $I->grabNumRecords('colleagues_visits'));
 
         $I->runCronTask('rebuild_calendar');
-        //$I->pauseExecution();
+
         $I->seeFileFound('kalender.ics', codecept_root_dir());
 
         $strings = [

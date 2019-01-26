@@ -34,7 +34,7 @@ class SchoolPageCest
         $I->fillField($heinz_field, 'Albus');
         $I->click($krumbichel_field);
         $I->pause();
-        $I->pauseExecution();
+
         $I->seeInDatabase('users', ['FirstName' => 'Albus']);
 
         $last_change_after = $I->grabFromDatabase('users', 'LastChange', ['id' => 102]);
@@ -81,7 +81,7 @@ class SchoolPageCest
         $I->canSeeElement($segment_header);
         $I->scrollTo($segment_header);
         $I->click($segment_header);
-        //$I->pauseExecution();
+        //
         $I->checkMultiple('see', $I->get('st_per', 'items_visible_on_group_page'));
 
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 53]);
@@ -111,7 +111,7 @@ class SchoolPageCest
         $I->checkMultiple('see', $visits_for_2a, $visit_locator_for_2a);
 
         $I->cantSee('5A');
-        //$I->pauseExecution();
+        //
         $segment5_btn = '//button[@data-target="#segment_5"]';
         $I->scrollTo($segment5_btn);
         $I->click($segment5_btn);
