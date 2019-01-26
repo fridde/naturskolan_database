@@ -24,7 +24,7 @@ $(document).ready(() => {
         $(this).on("sortstop", function(event){
             let segment = $(this).data('segment') ;
             event.data = ["tableReorder", ["Topic", segment]];
-            return Edit.change(event);
+            Edit.change(event);
         });
     });
 
@@ -35,10 +35,7 @@ $(document).ready(() => {
     $('.set-bookings td.toggle-label:not(.not-needed-td)').click('food_bus_bookings', Edit.change);
     $('.bus-settings td.toggle-label').click('bus_settings', Edit.change);
 
-    //let $table = $("table");
-    //let options = DataTableConfigurator.options($table);
     DataTableConfigurator.create($('table'));
 
-    //$table.DataTable(options);
 
 });

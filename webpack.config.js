@@ -14,7 +14,8 @@ Encore
     .addExternals({
         grecaptcha: 'grecaptcha',
         jquery: 'jQuery',
-        jqueryui: 'jQuery'
+        jqueryui: 'jQuery',
+        bootstrap: 'bootstrap'
     })
 
     // fixes modules that expect jQuery to be global
