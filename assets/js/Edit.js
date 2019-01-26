@@ -70,7 +70,7 @@ class Edit {
                 }
                 event.this = $this;
                 event.data = 'tableInput';
-                this.change(event);
+                Edit.change(event);
                 return;
 
             case "groupModal":
