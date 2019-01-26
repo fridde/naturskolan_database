@@ -31,4 +31,4 @@ config/.flush_needed
 
 /node_modules/
 
-assets/compiled/
+#assets/compiled/
