@@ -10,6 +10,10 @@ use Fridde\Security\Authenticator;
 
 class HashRepository extends CustomRepository
 {
+    public const ASC = 'asc';
+    public const DESC = 'desc';
+
+
     public function findByPassword(string $password, array $criteria = []): ?Hash
     {
         $c = [];
@@ -28,8 +32,26 @@ class HashRepository extends CustomRepository
             $c[] = ['eq', 'Owner_id', $owner_id];
         }
         $hashes = $this->selectAnd($c);
+        $hashes = $this->sortByExpiration($hashes);
+
 
         return $this->matchPassword($hashes, $password);
+    }
+
+    private function sortByExpiration($hashes, $direction = self::DESC)
+    {
+        usort($hashes, function(Hash $h1, Hash $h2) use ($direction) {
+            $t1 = $h1->getExpiresAt();
+            $t2 = $h2->getExpiresAt();
+            if(empty($t1) || empty($t2)){
+                return 0;
+            }
+            $first_earlier = $t1->lt($t2);
+            $is_lower = $direction === self::ASC ? $first_earlier : !$first_earlier;
+            return $is_lower ? -1 : 1;
+        });
+
+        return $hashes;
     }
 
     public function findHashesThatExpireAfter($date, int $category = null, string $owner_id = null): array
@@ -59,18 +81,14 @@ class HashRepository extends CustomRepository
 
     private function matchPassword(array $hashes, string $pw): ?Hash
     {
-        $hashes = array_filter(
-            $hashes,
-            function (Hash $h) use ($pw) {
-                return password_verify($pw, $h->getValue());
+        foreach ($hashes as $h){
+            /* @var Hash $h  */
+            if(password_verify($pw, $h->getValue())){
+                return $h;
             }
-        );
-
-        if (count($hashes) > 1) {
-            throw new NException(Error::DATABASE_INCONSISTENT, ['Hashes', $pw]);
         }
 
-        return array_shift($hashes);
+        return null;
     }
 
     public function havingCategory(int $category): self
