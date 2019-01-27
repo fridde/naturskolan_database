@@ -116,16 +116,20 @@ class Buttons {
     }
 
     toggleGroupNameField(event) {
-        let h1 = $(event.target).closest('h1');
-        let dataId = h1.closest(".group-container").attr("data-entity-id");
-        let inputField = h1.children('input');
+        let $h1 = $(event.target).closest('h1');
+        let dataId = $h1.closest(".group-container").attr("data-entity-id");
+        let inputField = $h1.children('input');
+
         if (event.type === 'click' || event.type === 'dblclick') {
-            h1.children("span, i, svg").hide();
-            inputField.val(h1.children('span').text());
+            $h1.children("span, i, svg").hide();
+            inputField.val($h1.children('span').text());
             inputField.show().focus();
 
         } else if (event.type === 'focusout') {
-            let newName = h1.children('input').hide().val();
+            let newName = $h1.children('input').hide().val();
+            $("#group_name_" + dataId).text(newName);
+            $h1.children("span, i, svg").show();
+
             let data = {
                 updateMethod: "changeGroupName",
                 entity_id: dataId,
@@ -133,7 +137,7 @@ class Buttons {
                 onReturn: "groupNameChanged"
             };
             Update.send(data);
-            h1.children("span, i, svg").show();
+
         } else {
             console.log('The event.type ' + event.type + ' has no implementation');
         }

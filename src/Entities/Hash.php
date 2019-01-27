@@ -52,10 +52,7 @@ class Hash
         return $this->id;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getVersion()
+    public function getVersion(): ?string
     {
         return $this->Version;
     }

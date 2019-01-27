@@ -116,8 +116,31 @@ class APIController extends BaseController
             throw new NException(Error::LOGIC, [$school_id.' not a valid school id']);
         }
         if ($visitor->isFromSchool($request_school) || $visitor->isFromAdminSchool()) {
-            $this->addToDATA('password', $this->N->Auth->calculatePasswordForSchool($request_school));
+            $pw = $this->getPWFromCacheOrAuth($request_school);
+            $this->addToDATA('password', $pw);
         }
+    }
+
+    private function getPWFromCacheOrAuth(School $school): string
+    {
+        $school_id = $school->getId();
+
+        $pw_key = 'passwords';
+        $cache = $this->N->cache;
+
+        $passwords = $cache->contains($pw_key) ? $cache->fetch($pw_key) : [];
+        $school_pw = $passwords[$school_id] ?? null;
+
+        if(!empty($school_pw)){
+            return $school_pw;
+        }
+
+        $passwords[$school_id] = $this->N->Auth->calculatePasswordForSchool($school);
+
+        $cache->save($pw_key, $passwords);
+
+        return $passwords[$school_id];
+
     }
 
     /**

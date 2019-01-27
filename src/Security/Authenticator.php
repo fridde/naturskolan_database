@@ -144,7 +144,7 @@ class Authenticator
     }
 
 
-    public function getPWH()
+    public function getPWH(): PasswordHandler
     {
         return $this->PWH;
     }
@@ -152,7 +152,7 @@ class Authenticator
     /*
      * ['function to create the code', 'key in SETTINGS['values']['validity'] ']
      * */
-    private function getCategorySettings()
+    private function getCategorySettings(): array
     {
         return [
             Hash::CATEGORY_USER_URL_CODE => ['createUrlCode', 'url_key'],
@@ -200,46 +200,46 @@ class Authenticator
         return $code;
     }
 
-    public function setCookieKeyInBrowser($value, Carbon $exp_date)
+    public function setCookieKeyInBrowser($value, Carbon $exp_date): void
     {
         $key = self::COOKIE_KEY_NAME;
         setcookie($key, $value, $exp_date->timestamp, '/');
     }
 
-    public function removeCookieKeyFromBrowser()
+    public function removeCookieKeyFromBrowser(): void
     {
         $key = self::COOKIE_KEY_NAME;
         setcookie($key, null, -1, '/');
     }
 
-    public function setSessionKey(string $value)
+    public function setSessionKey(string $value): void
     {
         $_SESSION[self::COOKIE_KEY_NAME] = $value;
     }
 
-    public function emptySession()
+    public function emptySession(): void
     {
-        return session_unset();
+        session_unset();
     }
 
-    public static function isUser($object)
+    public static function isUser($object): bool
     {
         return ($object instanceof User);
     }
 
-    public static function isSchool($object)
+    public static function isSchool($object): bool
     {
         return ($object instanceof School);
     }
 
-    public static function isVisit($object)
+    public static function isVisit($object): bool
     {
         return ($object instanceof Visit);
     }
 
     private function getLatestValidVersion($owner_id, int $category): ?string
     {
-        return $this->getHashRepo()->findOldestValidVersion($owner_id, $category);
+        return $this->getHashRepo()->findYoungestValidVersion($owner_id, $category);
     }
 
 

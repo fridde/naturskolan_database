@@ -39,7 +39,7 @@ class HashRepository extends CustomRepository
         return array_shift($valid_hashes);
     }
 
-    public function findHashesThatExpireAfter($date, int $category = null, string $owner_id = null)
+    public function findHashesThatExpireAfter($date, int $category = null, string $owner_id = null): array
     {
         if ($date instanceof Carbon) {
             $date = $date->toIso8601String();
@@ -52,7 +52,7 @@ class HashRepository extends CustomRepository
         return $this->select($crit);
     }
 
-    public function matchingPassword(string $pw)
+    public function matchingPassword(string $pw): self
     {
         $this->selection = array_filter(
             $this->selection,
@@ -64,7 +64,7 @@ class HashRepository extends CustomRepository
         return $this;
     }
 
-    public function havingCategory(int $category)
+    public function havingCategory(int $category): self
     {
         $this->selection = array_filter(
             $this->selection,
@@ -76,7 +76,7 @@ class HashRepository extends CustomRepository
         return $this;
     }
 
-    public function havingOwnerId(string $owner_id)
+    public function havingOwnerId(string $owner_id): self
     {
         $this->selection = array_filter(
             $this->selection,
@@ -89,7 +89,7 @@ class HashRepository extends CustomRepository
 
     }
 
-    public function selectAllHashes()
+    public function selectAllHashes(): self
     {
         $this->selection = $this->findAll();
 
@@ -101,12 +101,12 @@ class HashRepository extends CustomRepository
         return $this->expiredBefore(Carbon::today());
     }
 
-    public function expiredAfterToday()
+    public function expiredAfterToday(): self
     {
         return $this->expiredAfter(Carbon::today());
     }
 
-    public function expiredBefore(Carbon $date)
+    public function expiredBefore(Carbon $date): self
     {
         $this->selection = array_filter(
             $this->selection,
@@ -118,7 +118,7 @@ class HashRepository extends CustomRepository
         return $this;
     }
 
-    public function expiredAfter(Carbon $date)
+    public function expiredAfter(Carbon $date): self
     {
         $this->selection = array_filter(
             $this->selection,
@@ -132,17 +132,17 @@ class HashRepository extends CustomRepository
         return $this;
     }
 
-    public function findOldestValidVersion($owner_id, int $category)
+    public function findYoungestValidVersion($owner_id, int $category): ?string
     {
         $potential_hashes = $this->findHashesThatExpireAfter(Carbon::now(), $category, $owner_id);
         usort($potential_hashes, [$this, 'compareHashByVersion']);
-        /* @var Hash $oldest_hash */
-        $oldest_hash = array_pop($potential_hashes);
-        if (empty($oldest_hash) || empty($oldest_hash->getVersion())) {
+        /* @var Hash $youngest_hash */
+        $youngest_hash = array_pop($potential_hashes);
+        if (empty($youngest_hash) || empty($youngest_hash->getVersion())) {
             return null;
         }
 
-        return $oldest_hash->getVersion();
+        return $youngest_hash->getVersion();
     }
 
 
