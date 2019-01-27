@@ -12,31 +12,24 @@ class HashRepository extends CustomRepository
 {
     public function findByPassword(string $password, array $criteria = []): ?Hash
     {
-        $this->selectAllHashes();
+        $c = [];
+
         if(isset($criteria['category'])){
-            $this->havingCategory($criteria['category']);
+            $c[] = ['eq', 'Category', $criteria['category']];
         }
         if(empty($criteria['accept_expired'])){
-            $this->expiredAfterToday();
+            $c[] = ['gte', 'ExpiresAt', Carbon::today()];
         }
 
         $dot_pos = strpos($password, Authenticator::OWNER_SEPARATOR);
-        if(isset($criteria['owner_id'])){
-            $this->havingOwnerId($criteria['owner_id']);
-        } elseif($dot_pos !== false){
-            $this->havingOwnerId(substr($password,0, $dot_pos));
-        }
-        $this->matchingPassword($password);
+        $owner_id = $criteria['owner_id'] ?? substr($password,0, $dot_pos);
 
-        $valid_hashes = $this->getSelection();
-        if (count($valid_hashes) > 1) {
-            throw new NException(Error::DATABASE_INCONSISTENT, ['Hashes', $password]);
+        if($owner_id !== '' || isset($criteria['owner_id'])){
+            $c[] = ['eq', 'Owner_id', $owner_id];
         }
-        if (count($valid_hashes) === 0) {
-            return null;
-        }
+        $hashes = $this->selectAnd($c);
 
-        return array_shift($valid_hashes);
+        return $this->matchPassword($hashes, $password);
     }
 
     public function findHashesThatExpireAfter($date, int $category = null, string $owner_id = null): array
@@ -62,6 +55,22 @@ class HashRepository extends CustomRepository
         );
 
         return $this;
+    }
+
+    private function matchPassword(array $hashes, string $pw): ?Hash
+    {
+        $hashes = array_filter(
+            $hashes,
+            function (Hash $h) use ($pw) {
+                return password_verify($pw, $h->getValue());
+            }
+        );
+
+        if (count($hashes) > 1) {
+            throw new NException(Error::DATABASE_INCONSISTENT, ['Hashes', $pw]);
+        }
+
+        return array_shift($hashes);
     }
 
     public function havingCategory(int $category): self

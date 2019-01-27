@@ -113,9 +113,11 @@ class Authenticator
     public function getSchoolFromPassword($password): ?School
     {
 
+        $criteria = ['category' => Hash::CATEGORY_SCHOOL_PW];
+        $criteria['accept_expired'] = false;
 
         /* @var Hash $hash */
-        $hash = $this->getHashRepo()->findByPassword($password, Hash::CATEGORY_SCHOOL_PW);
+        $hash = $this->getHashRepo()->findByPassword($password, $criteria);
         if (empty($hash)) {
             return null;
         }
