@@ -86,11 +86,12 @@ class Authenticator
         $hash = $this->getHashRepo()->findByPassword($code, $criteria);
 
         if (empty($hash)) {
+            /*
             if($criteria['accept_expired']){
                 return null;
             }
             // extra check to see if there are expired passwords available
-            /*
+
              * we don't do that for now
             $criteria['accept_expired'] = true;
             if(!empty($this->getHashRepo()->findByPassword($code, $criteria))){
