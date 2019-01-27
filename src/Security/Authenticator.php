@@ -115,7 +115,6 @@ class Authenticator
 
     public function getSchoolFromPassword($password): ?School
     {
-
         $criteria = ['category' => Hash::CATEGORY_SCHOOL_PW];
         $criteria['accept_expired'] = false;
 
