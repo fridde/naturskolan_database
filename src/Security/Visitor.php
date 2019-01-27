@@ -87,6 +87,7 @@ class Visitor
             return;
         }
         $criteria['category'] = Hash::CATEGORY_SCHOOL_COOKIE_KEY;
+        $criteria['accept_expired'] = false;
         /* @var School $school */
         $school = $this->Auth->getObjectFromCode($key, $criteria, School::class) ?? null;
         $this->setSchool($school);

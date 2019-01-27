@@ -86,11 +86,14 @@ class Authenticator
         $hash = $this->getHashRepo()->findByPassword($code, $criteria);
 
         if (empty($hash)) {
-            return null;
-        }
-
-        if($hash->isExpired()){
-            throw new NException(Error::EXPIRED_CODE,[$code]);
+            if($criteria['accept_expired']){
+                return null;
+            }
+            // extra check to see if there are expired passwords available
+            $criteria['accept_expired'] = true;
+            if(!empty($this->getHashRepo()->findByPassword($code, $criteria))){
+                throw new NException(Error::EXPIRED_CODE,[$code]);
+            }
         }
 
         return $this->ORM->find($object_class, $hash->getOwnerId());
