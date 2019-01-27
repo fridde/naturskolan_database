@@ -90,10 +90,14 @@ class Authenticator
                 return null;
             }
             // extra check to see if there are expired passwords available
+            /*
+             * we don't do that for now
             $criteria['accept_expired'] = true;
             if(!empty($this->getHashRepo()->findByPassword($code, $criteria))){
                 throw new NException(Error::EXPIRED_CODE,[$code]);
             }
+            */
+            return null;
         }
 
         return $this->ORM->find($object_class, $hash->getOwnerId());

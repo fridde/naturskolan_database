@@ -73,6 +73,7 @@ class Visitor
     public function setUserFromKey(string $key = null)
     {
         $criteria['category'] = Hash::CATEGORY_USER_COOKIE_KEY;
+        $criteria['accept_expired'] = false;
 
         /* @var User $user */
         $user = $this->Auth->getObjectFromCode($key, $criteria, User::class);
