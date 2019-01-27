@@ -14,7 +14,7 @@ class CacheFactory
     private $base_dir;
     private $environment;
     private $settings;
-    /* @var CacheProvider $cache  */
+    /* @var CacheProvider $cache */
     private $cache;
 
     // second parameter describes the key in the ini file
@@ -59,7 +59,7 @@ class CacheFactory
         $args = [];
 
         if ($class === FilesystemCache::class) {
-            $args[] = $this->base_dir . $args_from_settings[0];
+            $args[] = $this->base_dir.$args_from_settings[0];
         }
         $cache = new $class(...$args);
 
@@ -82,11 +82,12 @@ class CacheFactory
         }
     }
 
-    public function flushIfNeeded()
+    public function flushIfNeeded(): void
     {
-        $file = $this->base_dir . self::$flush_needed_filename;
+        $file = $this->base_dir.self::$flush_needed_filename;
 
-        if(file_exists($file)){
+        if (file_exists($file)) {
+            $this->cache->save(Settings::FLUSH_NOW_KEY, true);
             $this->cache->flushAll();
             unlink($file);
         }
