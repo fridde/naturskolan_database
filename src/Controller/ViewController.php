@@ -138,9 +138,9 @@ class ViewController extends BaseController
             /* @var User $u */
             $u_data = [];
             $u_data['id'] = $u->getId();
-            $u_data['mail'] = $u->getMail();
+            $u_data['mail'] = $u->getMail() ?? 'XXX_XXX_XXX';
             $u_data['mobil'] = $u->getMobil();
-            $u_data['fname'] = $u->getFirstName();
+            $u_data['fname'] = $u->getFirstName() ?? '???';
             $u_data['next_visit'] = null;
             $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['fname'], $u_data['mail']);
 
