@@ -7,6 +7,7 @@ use Fridde\Annotations\SecurityLevel;
 class FileController extends BaseController
 {
     private const CALENDAR_FILE = 'kalender.ics';
+    private const MAIL_ZIP_FILE = 'mails.zip';
 
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
@@ -25,5 +26,12 @@ class FileController extends BaseController
         echo file_get_contents($file);
 
         exit;
+    }
+
+    public function getAllMails()
+    {
+        (new ViewController())->viewMailTemplates();
+
+        $this->getDATA();
     }
 }

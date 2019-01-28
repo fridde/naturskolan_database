@@ -400,10 +400,14 @@ class BaseController
         if (method_exists($this, $method)) {
             return $method;
         }
-        $method = $this->ActionTranslator[$action] ?? null; // has to be implemented in the child class
-        if (!empty($method)) {
-            return $method;
+
+        if(property_exists($this, 'ActionTranslator')){
+            $method = self::$ActionTranslator[$action] ?? null; // has to be implemented in the child class
+            if (!empty($method)) {
+                return $method;
+            }
         }
+
         $method = Utility::toCamelCase($action);
         if (method_exists($this, $method)) {
             return $method;

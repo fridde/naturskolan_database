@@ -7,7 +7,7 @@ use Fridde\Entities\Visit;
 
 class PageController extends BaseController
 {
-    protected $ActionTranslator = ['visit_confirmed' => 'VisitConfirmed'];
+    protected static $ActionTranslator = ['visit_confirmed' => 'VisitConfirmed'];
 
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)

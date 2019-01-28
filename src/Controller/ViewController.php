@@ -3,6 +3,10 @@
 namespace Fridde\Controller;
 
 use Fridde\Annotations\SecurityLevel;
+use Fridde\Entities\Group;
+use Fridde\Entities\Topic;
+use Fridde\Entities\User;
+use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Carbon\Carbon;
@@ -14,9 +18,14 @@ use Carbon\Carbon;
  *
  * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
  */
-class ViewController extends BaseController {
+class ViewController extends BaseController
+{
 
-    protected $ActionTranslator = ['food_order' => 'viewFoodOrder', 'bus_order' => 'viewBus'];
+    protected static $ActionTranslator = [
+        'food_order' => 'viewFoodOrder',
+        'bus_order' => 'viewBus',
+        'mail' => 'viewMailTemplates'
+    ];
 
     public function handleRequest()
     {
@@ -28,19 +37,22 @@ class ViewController extends BaseController {
     {
         $visits = $this->getVisitsWithFood();
         $collection = $this->indexIntoWeekAndDays($visits);
-        array_walk_recursive($collection['calendar'], function(Visit &$visit){
-            $topic = $visit->getTopic();
-            $group = $visit->getGroup();            
-            $v = ['segment_label' => $visit->getGroup()->getSegmentLabel()];
-            $v['school_name'] = $group->getSchool()->getName();
-            $v['group_name'] = $group->getName();
-            $v['topic_name'] = $topic->getShortName();
-            $v['location'] = $topic->getLocation()->getName();
-            $v['students_nr'] = $group->getNumberStudents();
-            $v['diet'] = $group->getFood();
-            $v['food_type'] = $topic->getFood();
-            $visit = $v;
-        });
+        array_walk_recursive(
+            $collection['calendar'],
+            function (Visit &$visit) {
+                $topic = $visit->getTopic();
+                $group = $visit->getGroup();
+                $v = ['segment_label' => $visit->getGroup()->getSegmentLabel()];
+                $v['school_name'] = $group->getSchool()->getName();
+                $v['group_name'] = $group->getName();
+                $v['topic_name'] = $topic->getShortName();
+                $v['location'] = $topic->getLocation()->getName();
+                $v['students_nr'] = $group->getNumberStudents();
+                $v['diet'] = $group->getFood();
+                $v['food_type'] = $topic->getFood();
+                $visit = $v;
+            }
+        );
 
         $collection['food_order_mail'] = SETTINGS['admin']['food_address'];
 
@@ -52,27 +64,30 @@ class ViewController extends BaseController {
     {
         $visits = $this->getVisitsWithBus();
         $locations = [];
-        foreach($visits as $visit){
-            /* @var Visit $visit  */
+        foreach ($visits as $visit) {
+            /* @var Visit $visit */
             $loc = $visit->getTopic()->getLocation();
-            $string = $loc->getName() . ' = ';
+            $string = $loc->getName().' = ';
             $string .= $loc->getDescription() ?? '';
             $string .= empty($loc->getDescription()) ? '' : ', ';
             $string .= 'https://www.google.com/maps/?q='.urlencode($loc->getCoordinates());
             $locations[$loc->getId()] = $string;
         }
         $collection = $this->indexIntoWeekAndDays($visits);
-        array_walk_recursive($collection['calendar'], function(Visit &$visit){
-            $v = [];
-            $g = $visit->getGroup();
-            $v['school'] = $g->getSchool()->getName();
-            $v['location'] = $visit->getTopic()->getLocation()->getName();
-            // $v['departure'] = // TODO: Add method for departure
-            // $v['return'] = // TODO: Add method for return
-            $nr_students = $g->getNumberStudents();
-            $v['nr_passengers'] = null === $nr_students ? '???' : $nr_students + 2;
-            $visit = $v;
-        });
+        array_walk_recursive(
+            $collection['calendar'],
+            function (Visit &$visit) {
+                $v = [];
+                $g = $visit->getGroup();
+                $v['school'] = $g->getSchool()->getName();
+                $v['location'] = $visit->getTopic()->getLocation()->getName();
+                // $v['departure'] = // TODO: Add method for departure
+                // $v['return'] = // TODO: Add method for return
+                $nr_students = $g->getNumberStudents();
+                $v['nr_passengers'] = null === $nr_students ? '???' : $nr_students + 2;
+                $visit = $v;
+            }
+        );
 
         $collection['bus_order_mail'] = SETTINGS['admin']['bus_address'];
 
@@ -81,21 +96,106 @@ class ViewController extends BaseController {
         $this->setTemplate('admin/bus_order');
     }
 
+    public function viewMailTemplates()
+    {
+        /* @var UserRepository $u_repo */
+        $u_repo = $this->N->getRepo('User');
+
+        $users = $u_repo->findActiveUsersWithVisitingGroups();
+
+        $users_by_segments = [];
+        $groups_by_users = [];
+        $topics = array_map(
+            function (Topic $t) {
+                $r = [];
+                $r['id'] = $t->getId();
+                $r[0]['url'] = $t->getUrl();
+                $r[0]['name'] = $t->getLongestName();
+                return $r;
+            },
+            $this->N->getRepo('Topic')->findAll()
+        );
+        $topics = array_column($topics, 0, 'id');
+
+        foreach ($users as $u) {
+            /* @var User $u */
+            $u_data = [];
+            $u_data['id'] = $u->getId();
+            $u_data['mail'] = $u->getMail();
+            $u_data['mobil'] = $u->getMobil();
+            $u_data['fname'] = $u->getFirstName();
+            $u_data['next_visit'] = null;
+
+            $groups = $u->getGroups();
+            foreach ($groups as $g) {
+                /* @var Group $g */
+                if ($g->isActive()) {
+                    $g_data = [];
+                    $g_data['name'] = $g->getName();
+                    $g_data['number_students'] = $g->getNumberStudents();
+                    $g_data['food'] = $g->getFood();
+                    $g_data['info'] = $g->getInfo();
+
+                    $u_data['group_names'][] = $g->getName();
+
+                    $visits = $g->getFutureVisits();
+                    foreach($visits as $v){
+                        /* @var Visit $v  */
+                        $v_data = [];
+                        $v_id = $v->getId();
+                        $v_data['id'] = $v_id;
+                        $v_data['topic_id'] = $v->getTopicId();
+                        $v_data['date'] = $v->getDateString();
+
+                        /* @var Carbon $next_visit  */
+                        $next_visit_date = $u_data['next_visit']['carbon_date'];
+                        if(empty($next_visit_date) || $next_visit_date->gt($v->getDate())){
+                            $nv = $v_data;
+                            $nv['carbon_date'] = $v->getDate();
+                            $u_data['next_visit'] = $nv;
+                        }
+
+                        $g_data['visits'][$v_id] = $v_data;
+                    }
+                    $g_data['first_visit_id'] = reset($g_data['visits'])['id'];
+
+                    $users_by_segments[$g->getSegment()][$u->getId()] = $u_data;
+                    $groups_by_users[$u->getId()][] = $g_data;
+                }
+            }
+        }
+
+        $this->addToDATA('users_by_segments', $users_by_segments);
+        $this->addToDATA('groups_by_users', $groups_by_users);
+        $this->addToDATA('current_year', Carbon::today()->year);
+        $this->addToDATA('topics', $topics);
+
+        $this->setTemplate('admin/mail_template');
+    }
+
 
     private function getVisitsWithBus()
     {
         $visits = $this->getVisitRepo()->findFutureVisits();
-        return array_filter($visits, function(Visit $v){
+
+        return array_filter(
+            $visits,
+            function (Visit $v) {
                 return $v->needsBus();
-        });
+            }
+        );
     }
 
     private function getVisitsWithFood()
     {
         $visits = $this->getVisitRepo()->findFutureVisits();
-        return array_filter($visits, function(Visit $v){
+
+        return array_filter(
+            $visits,
+            function (Visit $v) {
                 return $v->needsFoodOrder();
-        });
+            }
+        );
     }
 
     /**
@@ -107,8 +207,8 @@ class ViewController extends BaseController {
         $calendar = [];
         $date_strings = [];
         $index_day = Carbon::today()->subYears(2);
-        foreach($visits as $visit){
-            /* @var Visit $visit  */
+        foreach ($visits as $visit) {
+            /* @var Visit $visit */
             $date = $visit->getDate();
             $index = $index_day->diffInDays($date);
             $date_str = $date->formatLocalized('%a, %e %b');
@@ -116,14 +216,16 @@ class ViewController extends BaseController {
             $w_nr = $date->weekOfYear;
             $calendar[$w_nr][$index][] = $visit;
         }
+
         return ['date_strings' => $date_strings, 'calendar' => $calendar];
 
     }
 
     private function getVisitRepo()
     {
-        /* @var VisitRepository $repo  */
+        /* @var VisitRepository $repo */
         $repo = $this->N->ORM->getRepository('Visit');
+
         return $repo;
     }
 }

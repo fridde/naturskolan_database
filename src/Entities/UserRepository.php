@@ -11,7 +11,7 @@ class UserRepository extends CustomRepository
         return $this->findBy(['Status' => User::ACTIVE]);
     }
 
-    public function findAllUsersWithSchools()
+    public function findAllUsersWithSchools(): array
     {
         $users_id_name_school = array_map(
             function (User $u) {
@@ -23,7 +23,7 @@ class UserRepository extends CustomRepository
         return array_column($users_id_name_school, 1, 0);
     }
 
-    public function findIncompleteUsers($created_before = null)
+    public function findIncompleteUsers($created_before = null): array
     {
         $users = array_filter(
             $this->findActiveUsers(),
@@ -36,7 +36,20 @@ class UserRepository extends CustomRepository
         return $users;
     }
 
-    public function findIncompleteUsersWithVisitingGroups($created_before = null)
+    public function findActiveUsersWithVisitingGroups(): array
+    {
+        $users = array_filter(
+            $this->findActiveUsers(),
+            function(User $u){
+                return $u->hasActiveGroupsVisitingInTheFuture();
+            }
+        );
+
+        return $users;
+        
+    }
+
+    public function findIncompleteUsersWithVisitingGroups($created_before = null): array
     {
         return array_filter(
             $this->findIncompleteUsers($created_before),
@@ -47,7 +60,7 @@ class UserRepository extends CustomRepository
 
     }
 
-    public function findUsersWithBadMobil($created_before = null)
+    public function findUsersWithBadMobil($created_before = null): array
     {
         $users = array_filter(
             $this->findActiveUsers(),
@@ -60,7 +73,7 @@ class UserRepository extends CustomRepository
         return $users;
     }
 
-    private function removeImmune($users, $created_before = null)
+    private function removeImmune($users, $created_before = null): array
     {
         if (empty($created_before)) {
             return $users;

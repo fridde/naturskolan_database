@@ -5,7 +5,7 @@ namespace Fridde\Controller;
 
 class ErrorController extends BaseController {
 
-    protected $ActionTranslator = ['page_not_found' => 'prepareFourOFour'];
+    protected static $ActionTranslator = ['page_not_found' => 'prepareFourOFour'];
 
     private function prepareFourOFour()
     {
