@@ -39,6 +39,7 @@ class BaseController
 
     public const RETURN_HTML = 0;
     public const RETURN_JSON = 1;
+    public const RETURN_TEXT = 2;
 
 
     public function __construct(array $params = [], bool $slim = false)
@@ -96,6 +97,9 @@ class BaseController
         if ($return_type === self::RETURN_JSON) {
             return $this->returnAsJson();
         }
+        if ($return_type === self::RETURN_TEXT) {
+            return $this->returnAsText();
+        }
         throw new NException(Error::INVALID_OPTION, ['Return type ' . $return_type]);
     }
 
@@ -111,9 +115,7 @@ class BaseController
     public function renderAsHtml(): string
     {
         if (empty($this->getTemplate())) {
-            $this->setTemplate('error');
-            $this->addToDATA('url', implode('/', $this->getParameter()));
-            $this->N->log('A request for ' . $_SERVER['REQUEST_URI'] . ' resulted in a template error.', __METHOD__);
+            $this->renderErrorPage();
         }
 
         $this->H->setTitle($this->getTitle());
@@ -127,6 +129,25 @@ class BaseController
         $this->addAllVariablesToTemplate();
 
         return $this->H->render();
+    }
+
+    public function returnAsText(): string
+    {
+        if (empty($this->getTemplate())) {
+            $this->renderErrorPage();
+        }
+
+        $this->H->setTemplate($this->getTemplate());
+        $this->addAllVariablesToTemplate();
+
+        return $this->H->render(false);
+    }
+
+    private function renderErrorPage()
+    {
+        $this->setTemplate('error');
+        $this->addToDATA('url', implode('/', $this->getParameter()));
+        $this->N->log('A request for ' . $_SERVER['REQUEST_URI'] . ' resulted in a template error.', __METHOD__);
     }
 
     public function addAllVariablesToTemplate(): void
@@ -380,6 +401,15 @@ class BaseController
         $this->setActions($actions);
     }
 
+    public function removeAction(string $action = null): void
+    {
+        if(empty($action)){
+            $this->setActions([]);
+            return;
+        }
+        $this->setActions(array_diff($this->getActions(), [$action]));
+    }
+
     public function prependAction(string $action = null): void
     {
         $this->addAction($action, true);
@@ -401,8 +431,12 @@ class BaseController
             return $method;
         }
 
-        if(property_exists($this, 'ActionTranslator')){
-            $method = self::$ActionTranslator[$action] ?? null; // has to be implemented in the child class
+        $class_name = get_class($this);
+        $at = 'ActionTranslator';
+        if(property_exists($class_name, $at)){
+            $class = new \ReflectionClass($class_name);
+            $at_values = $class->getStaticPropertyValue($at, []);
+            $method = $at_values[$action] ?? null; // has to be implemented in the child class
             if (!empty($method)) {
                 return $method;
             }

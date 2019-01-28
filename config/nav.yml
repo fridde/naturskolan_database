@@ -65,6 +65,10 @@ NAV_SETTINGS:
            url: 'view/food_order'
            icon: 'utensils'
          -
+           label: 'Skicka mejl'
+           url: 'view/mail'
+           icon: 'envelope'
+         -
            label: 'Anteckningar översikt'
            url: 'admin/show_note_calendar'
            icon: 'comments'

@@ -10,6 +10,7 @@ use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Carbon\Carbon;
+use Fridde\HTML;
 
 
 /**
@@ -21,7 +22,7 @@ use Carbon\Carbon;
 class ViewController extends BaseController
 {
 
-    protected static $ActionTranslator = [
+    public static $ActionTranslator = [
         'food_order' => 'viewFoodOrder',
         'bus_order' => 'viewBus',
         'mail' => 'viewMailTemplates'
@@ -30,6 +31,10 @@ class ViewController extends BaseController
     public function handleRequest()
     {
         $this->addAction($this->getParameter('page'));
+
+        $this->addJsToEnd('admin', HTML::INC_ASSET);
+        $this->addCss('admin', HTML::INC_ASSET);
+
         parent::handleRequest();
     }
 
@@ -67,6 +72,9 @@ class ViewController extends BaseController
         foreach ($visits as $visit) {
             /* @var Visit $visit */
             $loc = $visit->getTopic()->getLocation();
+            if(empty($loc)){
+                throw new \Exception('Topic with id ' . $visit->getTopic()->getId() . ' has no location.');
+            }
             $string = $loc->getName().' = ';
             $string .= $loc->getDescription() ?? '';
             $string .= empty($loc->getDescription()) ? '' : ', ';
@@ -98,6 +106,15 @@ class ViewController extends BaseController
 
     public function viewMailTemplates()
     {
+        $data = $this->compileMailData();
+
+        $this->addToDATA($data);
+
+        $this->setTemplate('admin/mail_templates');
+    }
+
+    public function compileMailData(): array
+    {
         /* @var UserRepository $u_repo */
         $u_repo = $this->N->getRepo('User');
 
@@ -125,6 +142,7 @@ class ViewController extends BaseController
             $u_data['mobil'] = $u->getMobil();
             $u_data['fname'] = $u->getFirstName();
             $u_data['next_visit'] = null;
+            $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['fname'], $u_data['mail']);
 
             $groups = $u->getGroups();
             foreach ($groups as $g) {
@@ -145,9 +163,11 @@ class ViewController extends BaseController
                         $v_id = $v->getId();
                         $v_data['id'] = $v_id;
                         $v_data['topic_id'] = $v->getTopicId();
-                        $v_data['date'] = $v->getDateString();
+                        $d = $v->getDate();
+                        $dstring = $d->day . ' ' . $d->locale('sv')->shortMonthName . ' ' . $d->year;
+                        $v_data['date'] = $dstring;
 
-                        /* @var Carbon $next_visit  */
+                        /* @var Carbon $next_visit_date  */
                         $next_visit_date = $u_data['next_visit']['carbon_date'];
                         if(empty($next_visit_date) || $next_visit_date->gt($v->getDate())){
                             $nv = $v_data;
@@ -164,15 +184,21 @@ class ViewController extends BaseController
                 }
             }
         }
+        $current_year = Carbon::today()->year;
 
-        $this->addToDATA('users_by_segments', $users_by_segments);
-        $this->addToDATA('groups_by_users', $groups_by_users);
-        $this->addToDATA('current_year', Carbon::today()->year);
-        $this->addToDATA('topics', $topics);
-
-        $this->setTemplate('admin/mail_template');
+        return compact('users_by_segments', 'groups_by_users', 'topics', 'current_year');
     }
 
+    private static function createFileNameForHtmlMail(string $fname, string $mail): string
+    {
+        $regex = '/[^a-zA-Z0-9]/';
+
+        $file = $fname . '_';
+        $file .= preg_replace($regex, '_', $mail);
+        $file .= '.html';
+
+        return $file;
+    }
 
     private function getVisitsWithBus()
     {

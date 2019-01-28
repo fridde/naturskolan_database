@@ -132,11 +132,14 @@ class Visit
         return Carbon::parse($this->Date);
     }
 
-    public function getDateString(): ?string
+    public function getDateString(string $format = 'Y-m-d', bool $localized = false): ?string
     {
         $date = $this->getDate();
+        if(empty($date)){
+            return null;
+        }
 
-        return empty($date) ? null : $date->toDateString();
+        return $localized ? $date->formatLocalized($format) : $date->format($format);
     }
 
     /**

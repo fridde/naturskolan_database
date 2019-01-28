@@ -3,11 +3,16 @@
 namespace Fridde\Controller;
 
 use Fridde\Annotations\SecurityLevel;
+use ZipStream\ZipStream;
 
 class FileController extends BaseController
 {
     private const CALENDAR_FILE = 'kalender.ics';
     private const MAIL_ZIP_FILE = 'mails.zip';
+
+    public static $ActionTranslator = [
+        'mail' => 'getAllMails'
+    ];
 
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
@@ -30,8 +35,25 @@ class FileController extends BaseController
 
     public function getAllMails()
     {
-        (new ViewController())->viewMailTemplates();
+        $this->removeAction('mail');
+        $vc = new ViewController();
+        $data = $vc->compileMailData();
 
-        $this->getDATA();
+        $this->setDATA($data);
+
+        $this->setTemplate('admin/single_mail_template');
+        $this->setReturnType(self::RETURN_TEXT);
+
+        $zip = new ZipStream(self::MAIL_ZIP_FILE);
+
+        foreach($data['users_by_segments'] as $segment => $users){
+            foreach($users as $user_id => $user){
+                $this->addToDATA('user', $user);
+                $text = $this->handleRequest();
+
+                $zip->addFile($user['file_name'], $text);
+            }
+        }
+        $zip->finish();
     }
 }
