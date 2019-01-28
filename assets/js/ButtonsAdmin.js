@@ -129,8 +129,9 @@ class Buttons {
             $('.add-note-to-visit .editable').val(prewritten[$(this).data('user-id')]);
         });
 
-        $('button.copy-to-clipboard').click(() => {
-            $('textarea.area-to-copy').select();
+        $('button.copy-to-clipboard').click((e) => {
+            let $id = $(e.target).data('target');
+            $('#' + $id).select();
             document.execCommand('copy');
         });
 
