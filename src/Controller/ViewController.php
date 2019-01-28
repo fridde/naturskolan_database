@@ -189,7 +189,7 @@ class ViewController extends BaseController
         return compact('users_by_segments', 'groups_by_users', 'topics', 'current_year');
     }
 
-    private static function createFileNameForHtmlMail(string $fname, string $mail): string
+    private static function createFileNameForHtmlMail(string $fname = '???', string $mail = 'unknown'): string
     {
         $regex = '/[^a-zA-Z0-9]/';
 
