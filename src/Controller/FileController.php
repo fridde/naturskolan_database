@@ -9,7 +9,6 @@ use ZipStream\ZipStream;
 class FileController extends BaseController
 {
     private const CALENDAR_FILE = 'kalender.ics';
-    private const MAIL_ZIP_FILE = 'mails.zip';
 
     public static $ActionTranslator = [
         'mail' => 'getAllMails'
@@ -45,13 +44,13 @@ class FileController extends BaseController
         $this->setTemplate('admin/single_mail_template');
         $this->setReturnType(self::RETURN_TEXT);
 
-        $file_name = 'mails_' . Carbon::today()->toDateString() . '.html';
+        $file_name = 'mails_' . Carbon::today()->toDateString() . '.zip';
 
         $zip = new ZipStream($file_name);
 
         foreach($data['users_by_segments'] as $segment => $users){
             foreach($users as $user_id => $user){
-                $this->addToDATA('user', $user);
+                $this->addToDATA('user', $user, true);
                 $text = $this->handleRequest();
 
                 $zip->addFile($user['file_name'], $text);

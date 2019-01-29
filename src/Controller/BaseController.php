@@ -33,6 +33,7 @@ class BaseController
     protected $css = [];
     protected $fonts = [];
     protected $template;
+    protected $reset_doc_for_each_request = true;
 
     /* @var Authorizer $Authorizer */
     protected $Authorizer;
@@ -62,7 +63,7 @@ class BaseController
         $args[] = $this->N->ORM;
         $extensions[] = new NavigationExtension(...$args);
         $extensions[] = new HtmlCompressTwigExtension();
-        $this->H = new HTML(null, $extensions, BASE_DIR . '/temp/cache');
+        $this->H = new HTML(null, $extensions, BASE_DIR.'/temp/cache');
         $this->setTitle(SETTINGS['defaults']['title'] ?? null);
     }
 
@@ -100,7 +101,7 @@ class BaseController
         if ($return_type === self::RETURN_TEXT) {
             return $this->returnAsText();
         }
-        throw new NException(Error::INVALID_OPTION, ['Return type ' . $return_type]);
+        throw new NException(Error::INVALID_OPTION, ['Return type '.$return_type]);
     }
 
     public function returnAsJson(): string
@@ -127,6 +128,7 @@ class BaseController
             ->setTemplate($this->getTemplate())->setBase();
 
         $this->addAllVariablesToTemplate();
+        $this->resetDocumentIfNeeded();
 
         return $this->H->render();
     }
@@ -139,6 +141,7 @@ class BaseController
 
         $this->H->setTemplate($this->getTemplate());
         $this->addAllVariablesToTemplate();
+        $this->resetDocumentIfNeeded();
 
         return $this->H->render(false);
     }
@@ -147,7 +150,7 @@ class BaseController
     {
         $this->setTemplate('error');
         $this->addToDATA('url', implode('/', $this->getParameter()));
-        $this->N->log('A request for ' . $_SERVER['REQUEST_URI'] . ' resulted in a template error.', __METHOD__);
+        $this->N->log('A request for '.$_SERVER['REQUEST_URI'].' resulted in a template error.', __METHOD__);
     }
 
     public function addAllVariablesToTemplate(): void
@@ -180,6 +183,7 @@ class BaseController
         if (!empty($options['DATA'])) {
             $this->H->addVariable('DATA', $options['DATA']);
         }
+        $this->resetDocumentIfNeeded();
         $this->H->render();
 
         return $this->H;
@@ -189,9 +193,10 @@ class BaseController
     public function getDATA(string $key = null)
     {
         $DATA = $this->DATA;
-        if(!empty($key)){
+        if (!empty($key)) {
             return $DATA[$key] ?? null;
         }
+
         return $DATA;
     }
 
@@ -403,8 +408,9 @@ class BaseController
 
     public function removeAction(string $action = null): void
     {
-        if(empty($action)){
+        if (empty($action)) {
             $this->setActions([]);
+
             return;
         }
         $this->setActions(array_diff($this->getActions(), [$action]));
@@ -417,8 +423,8 @@ class BaseController
 
     public function hasAction(string $action = null): bool
     {
-        if(empty($action)){
-            return ! empty($this->getActions());
+        if (empty($action)) {
+            return !empty($this->getActions());
         }
 
         return in_array($action, $this->getActions(), true);
@@ -433,7 +439,7 @@ class BaseController
 
         $class_name = get_class($this);
         $at = 'ActionTranslator';
-        if(property_exists($class_name, $at)){
+        if (property_exists($class_name, $at)) {
             $class = new \ReflectionClass($class_name);
             $at_values = $class->getStaticPropertyValue($at, []);
             $method = $at_values[$action] ?? null; // has to be implemented in the child class
@@ -495,19 +501,20 @@ class BaseController
 
         return $this->REQ[$key] ?? null;
     }
+
     private function addDefaultJsAndCss(): void
     {
         $outer = ['js', 'css'];
         $inner = ['remote' => HTML::INC_ABBREVIATION, 'local' => HTML::INC_ASSET];
 
-        foreach($outer as $ext){
-            foreach($inner as $place => $resource_type){
+        foreach ($outer as $ext) {
+            foreach ($inner as $place => $resource_type) {
                 $resources = SETTINGS['defaults'][$ext][$place] ?? [];
-                foreach($resources as $resource){
-                    if($ext === 'js'){
+                foreach ($resources as $resource) {
+                    if ($ext === 'js') {
                         $this->addJs($resource, $resource_type);
                     }
-                    if($ext === 'css'){
+                    if ($ext === 'css') {
                         $this->addCss($resource, $resource_type);
                     }
                 }
@@ -527,6 +534,18 @@ class BaseController
         );
 
         $this->addFonts([$array, HTML::FONT_GOOGLE]);
+    }
+
+    private function setDocReset(bool $new_status): void
+    {
+        $this->reset_doc_for_each_request = $new_status;
+    }
+
+    private function resetDocumentIfNeeded()
+    {
+        if ($this->reset_doc_for_each_request) {
+            $this->H->resetDocument();
+        }
     }
 
 
