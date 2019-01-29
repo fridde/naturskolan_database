@@ -203,10 +203,8 @@ class ViewController extends BaseController
         $name = $name ?? 'XXX';
         $id = $id ?? 'XXX';
 
-        $regex = '/[^a-zA-Z0-9]/';
-
-        $file = Utility::convertToAscii(strtolower($name) . '_' . $id);
-        $file = preg_replace($regex, '_', $file);
+        $file = Utility::convertToAscii(mb_strtolower($name) . '_' . $id);
+        $file =  Utility::replaceNonAlphaNumeric($file);
         $file .= '.html';
 
         return $file;

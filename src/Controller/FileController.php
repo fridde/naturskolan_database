@@ -4,6 +4,7 @@ namespace Fridde\Controller;
 
 use Carbon\Carbon;
 use Fridde\Annotations\SecurityLevel;
+use Fridde\Utility;
 use ZipStream\ZipStream;
 
 class FileController extends BaseController
@@ -46,7 +47,8 @@ class FileController extends BaseController
         $this->setTemplate('admin/single_mail_template');
         $this->setReturnType(self::RETURN_TEXT);
 
-        $file_name = 'mails_' . Carbon::today()->toDateString() . '.zip';
+        $date_string = Utility::replaceNonAlphaNumeric(Carbon::today()->toDateTimeLocalString());
+        $file_name = 'mails_'. $dispatch . '_' . $date_string . '.zip';
 
         $zip = new ZipStream($file_name);
 

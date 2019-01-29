@@ -1,11 +1,11 @@
 {# DATA.current_year #}
 
-{% if DATA.user %}
-    {% set user = DATA.user %}
-{% endif %}
+{%- if DATA.user -%}
+    {%- set user = DATA.user -%}
+{%- endif -%}
 
 {%- set topics, groups_by_users, disp = DATA.topics, DATA.groups_by_users, DATA.dispatch -%}
-{% set missing_text = {
+{%- set missing_text = {
     group: {
     'number_students': 'Antal elever',
     'food': 'Specialkost',
@@ -14,9 +14,9 @@
     user: {
         'mobil': 'Ditt mobilnummer'
     }
-} %}
+} -%}
 
-{% set snippets = {
+{%- set snippets = {
     '2': {
        'new': {
             'start': 'Vår- och höstterminen %year% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
@@ -47,40 +47,40 @@
             'need_to_know': 'Vi vill att du kontrollerar snarast:'
         }
     },
-} %}
+} -%}
 
 {%- set groups = groups_by_users[user.id] -%}
 {%- set next_visit = user.next_visit -%}
 {%- set next_topic = topics[next_visit.topic_id] -%}
 {%- set missing = [] -%}
-{% if user.segments|length == 1 %}
-    {% set seg = user.segments|first %}
-{% else %}
-    {% set seg = 'default' %}
-{% endif %}
+{%- if user.segments|length == 1 -%}
+    {%- set seg = user.segments|first -%}
+{%- else -%}
+    {%- set seg = 'default' -%}
+{%- endif -%}
 
-{% if groups|length == 1 %}
-    {% set multi_group = false %}
-    {% set group_salutation = 'din klass ' ~  user.group_names|first %}
-{% else %}
-    {% set multi_group = true %}
-    {% set group_salutation = 'dina klasser ' ~ user.group_names|join(', ', ' och ') %}
-{% endif %}
+{%- if groups|length > 1 -%}
+    {%- set multi_group = true -%}
+    {%- set group_salutation = 'din klass ' ~  user.group_names|first -%}
+{%- else -%}
+    {%- set multi_group = false -%}
+    {%- set group_salutation = 'dina klasser ' ~ user.group_names|join(', ', ' och ') -%}
+{%- endif -%}
 
-{% set replacements = {
+{%- set replacements = {
     '%group_salutation%' : group_salutation,
     '%first_topic_name%' : next_topic.name,
     '%first_topic_date%' : next_visit.date,
     '%year%': 'now'|date('Y'),
     '%year_plus_one%' : '+ 365 days'|date('Y'),
     '%year_minus_one%' : '- 365 days'|date('Y')
-} %}
+} -%}
 
 
-{% set start_text = snippets[seg][disp]['start']|replace(replacements) %}
-{% set next_visit_text = snippets['default'][disp]['next_visit']|replace(replacements) %}
-{% set theme_text = snippets[seg][disp]['theme']|replace(replacements) %}
-{% set need_to_know_text = snippets['default'][disp]['need_to_know']|replace(replacements) %}
+{%- set start_text = snippets[seg][disp]['start']|replace(replacements) -%}
+{%- set next_visit_text = snippets['default'][disp]['next_visit']|replace(replacements) -%}
+{%- set theme_text = snippets[seg][disp]['theme']|replace(replacements) -%}
+{%- set need_to_know_text = snippets['default'][disp]['need_to_know']|replace(replacements) -%}
 
 <html>
 <h1>Hej {{ user.fname }}!</h1>
@@ -94,17 +94,17 @@ Där ser du också om du och klassen blir hämtade av en buss (som vi beställer
 
 <h2>Här är dina dagar:</h2>
 
-{% for group in groups %}
-    {% if multi_group %}<h5>{{ group.name }}</h5>{% endif %}
+{% for group in groups -%}
+    {%- if multi_group %}<h5>{{ group.name }}</h5>{% endif -%}
     <ul>
-        {% for visit in group.visits %}
+        {% for visit in group.visits -%}
             {%- set visit_topic = topics[visit.topic_id] -%}
             <li><a href="{{ visit_topic.url }}">{{ visit_topic.name }}</a>: {{ visit.date }}</li>
-        {% endfor %}
+        {%- endfor %}
     </ul>
     {% for attribute, text in missing_text['group'] %}
         {% set extra = missing_text['group'][attribute] %}
-        {% if groups|length > 1 %}
+        {% if multi_group %}
             {% set extra = extra ~ ' (för grupp ' ~ group.name ~ ')'  %}
         {% endif %}
         {% if group[attribute] %}
