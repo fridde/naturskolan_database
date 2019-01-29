@@ -20,7 +20,7 @@ routes:
    calendar: ['GET','/calendar','File','getCalendar']
    contact: ['GET', '/contact', 'Page','showContact']
    cron : ['GET','/cron/{code}','Cron', ~, 'code']
-   file : ['GET','/file/{action}','File', ~, 'action']
+   file : ['GET','/file/{action}/{parameters}','File', ~, {parameters: '.+'}]
    login : ['GET', '/login/{code}/{destination}', 'Login','login_with_code', 'destination']
    logout: ['GET', '/logout', 'Login','logout']
    note: ['GET|POST', '/notes/{visit_id}', 'Admin','editNote']

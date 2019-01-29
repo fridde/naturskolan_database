@@ -33,13 +33,15 @@ class FileController extends BaseController
         exit;
     }
 
-    public function getAllMails()
+    public function getAllMails(string $dispatch = 'new')
     {
         $this->removeAction('mail');
         $vc = new ViewController();
         $data = $vc->compileMailData();
+        $data['dispatch'] = $dispatch;
 
         $this->setDATA($data);
+        // set DATA
 
         $this->setTemplate('admin/single_mail_template');
         $this->setReturnType(self::RETURN_TEXT);

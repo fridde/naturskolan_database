@@ -145,6 +145,7 @@ class ViewController extends BaseController
             $u_data['full_name'] = $u->getFullName();
             $u_data['next_visit'] = null;
             $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['full_name'], $u_data['id']);
+            $u_data['segments'] = [];
 
             $groups = $u->getGroups();
             foreach ($groups as $g) {
@@ -157,6 +158,7 @@ class ViewController extends BaseController
                     $g_data['info'] = $g->getInfo();
 
                     $u_data['group_names'][] = $g->getName();
+                    $u_data['segments'][] = $g->getSegment();
 
                     $visits = $g->getFutureVisits();
                     foreach($visits as $v){
@@ -180,6 +182,7 @@ class ViewController extends BaseController
                         $g_data['visits'][$v_id] = $v_data;
                     }
                     $g_data['first_visit_id'] = reset($g_data['visits'])['id'];
+                    $u_data['segments'] = array_unique($u_data['segments']);
 
                     $users_by_segments[$g->getSegment()][$u->getId()] = $u_data;
                     $groups_by_users[$u->getId()][] = $g_data;
@@ -197,8 +200,8 @@ class ViewController extends BaseController
 
     private static function createFileNameForHtmlMail(string $name = null, string $id = null): string
     {
-        $name = $name ?? '???';
-        $id = $id ?? '???';
+        $name = $name ?? 'XXX';
+        $id = $id ?? 'XXX';
 
         $regex = '/[^a-zA-Z0-9]/';
 

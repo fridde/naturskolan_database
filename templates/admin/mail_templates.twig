@@ -1,8 +1,11 @@
 {%- extends "admin/admin_area.twig" -%}
 
 {%- block content -%}
-<button><a href="file/mail" target="_blank">Ladda ner alla mejl</a></button>
-
+<button><a data-base="file/mail/" href="file/mail/new" target="_blank" id="download_all_mails">Ladda ner alla mejl</a></button>
+    <select id="mail_type_selector">
+        <option value="new">new</option>
+        <option value="continued">continued</option>
+    </select>
     {% for segment, users in DATA.users_by_segments %}
     <h1>Årskurs {{ segment }}</h1>
     <table>
