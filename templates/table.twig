@@ -6,7 +6,7 @@
     <h1>{{ entity_class }}</h1>
     <span hidden id="today_date" data-date="{{ DATA.today }}"></span>
     <button type="button" class="add-row-btn btn btn-primary">Lägg till rad</button>
-    <table class="table table-responsive table-striped editable" data-entity="{{ entity_class }}">
+    <table class="table table-responsive table-striped editable datatable" data-entity="{{ entity_class }}">
         <thead>
         <tr>
             {% for header in headers %}

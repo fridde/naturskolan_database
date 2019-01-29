@@ -35,7 +35,7 @@ $(document).ready(() => {
     $('.set-bookings td.toggle-label:not(.not-needed-td)').click('food_bus_bookings', Edit.change);
     $('.bus-settings td.toggle-label').click('bus_settings', Edit.change);
 
-    DataTableConfigurator.create($('table'));
+    DataTableConfigurator.create($('table.datatable'));
 
 
 });
