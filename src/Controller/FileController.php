@@ -47,7 +47,7 @@ class FileController extends BaseController
         $this->setTemplate('admin/single_mail_template');
         $this->setReturnType(self::RETURN_TEXT);
 
-        $date_string = Utility::replaceNonAlphaNumeric(Carbon::today()->toDateTimeString());
+        $date_string = Utility::replaceNonAlphaNumeric(Carbon::now()->toDateTimeString());
         $file_name = 'mails_'. $dispatch . '_' . $date_string . '.zip';
 
         $zip = new ZipStream($file_name);

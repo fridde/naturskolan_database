@@ -193,9 +193,9 @@ class ViewController extends BaseController
         array_walk($users_by_segments, function(&$users){
             usort($users, function($u1, $u2){return strcmp($u1['full_name'], $u2['full_name']);});
         });
-        $current_year = Carbon::today()->year;
+        ksort($users_by_segments);
 
-        return compact('users_by_segments', 'groups_by_users', 'topics', 'current_year');
+        return compact('users_by_segments', 'groups_by_users', 'topics');
     }
 
     private static function createFileNameForHtmlMail(string $name = null, string $id = null): string
