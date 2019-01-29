@@ -143,7 +143,7 @@ class ViewController extends BaseController
             $u_data['fname'] = $u->getFirstName();
             $u_data['full_name'] = $u->getFullName();
             $u_data['next_visit'] = null;
-            $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['fname'], $u_data['mail']);
+            $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['full_name'], $u_data['id']);
 
             $groups = $u->getGroups();
             foreach ($groups as $g) {
@@ -199,10 +199,15 @@ class ViewController extends BaseController
         $name = $name ?? '???';
         $id = $id ?? '???';
 
-        $regex = '/[^a-zA-Z0-9]/';
+        $regex1 = ['/ä/' => 'a', '/å/' => 'a', '/ö/' => 'o', '/ß/' => 'ss'];
+        $regex2 = '/[^a-zA-Z0-9]/';
 
         $file = $name . '_' . $id;
-        $file = preg_replace($regex, '_', $file);
+
+        $file = preg_replace(array_keys($regex1), array_values($regex1), $file);
+        $file = preg_replace($regex2, '_', $file);
+
+
         $file .= '.html';
 
         return $file;

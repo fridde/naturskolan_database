@@ -13,7 +13,7 @@
         <tr>
             <td>{{ user.id }}</td>
             <td>
-                <a href="mailto: {{- user.mail -}} ?subject=Dina%20besök%20på%20Naturskolan">Skicka mejl till {{ user.fname }}</a>
+                <a href="mailto: {{- user.mail -}} ?subject=Dina%20besök%20på%20Naturskolan">Skicka mejl till {{ user.full_name }}</a>
             </td>
             <td><button class="copy-to-clipboard" data-target="{{ file_name_id }}">Kopiera</button></td>
             <td><input type="text" id="{{ file_name_id }}" value="{{ user.file_name }}"></td>
