@@ -155,6 +155,12 @@ class Buttons {
             });
         });
 
+        $('#mail_type_selector').change((e) => {
+            let type = $(e.target).val();
+            let $a = $('#download_all_mails');
+            $a.href($a.data('base') + type);
+        });
+
     }
 
     static cleanLines(text) {
