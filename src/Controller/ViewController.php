@@ -11,6 +11,7 @@ use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Carbon\Carbon;
 use Fridde\HTML;
+use Fridde\Utility;
 
 
 /**
@@ -199,18 +200,10 @@ class ViewController extends BaseController
         $name = $name ?? '???';
         $id = $id ?? '???';
 
-        $regex1 = ['é' => 'e', 'ä' => 'a', 'å' => 'a', 'ö' => 'o', 'ß' => 'ss'];
-        $search = array_keys($regex1);
-        $replace = array_values($regex1);
+        $regex = '/[^a-zA-Z0-9]/';
 
-        $regex2 = '/[^a-zA-Z0-9]/';
-
-        $file = strtolower($name) . '_' . $id;
-
-        $file = str_replace($search, $replace, $file);
-        $file = preg_replace($regex2, '_', $file);
-
-
+        $file = Utility::convertToAscii(strtolower($name) . '_' . $id);
+        $file = preg_replace($regex, '_', $file);
         $file .= '.html';
 
         return $file;
