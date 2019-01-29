@@ -6,6 +6,8 @@
     {% for segment, users in DATA.users_by_segments %}
     <h1>Årskurs {{ segment }}</h1>
     <table>
+        <thead></thead>
+        <tbody>
     {% for user in users %}
         {% set file_name_id = "file_name_" ~ user.id %}
         <tr>
@@ -17,7 +19,7 @@
             <td><input type="text" id="{{ file_name_id }}" value="{{ user.file_name }}"></td>
         </tr>
     {% endfor %}
-    </table>
+        </tbody></table>
 {% endfor %}
 {%- endblock -%}
 

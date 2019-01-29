@@ -138,9 +138,10 @@ class ViewController extends BaseController
             /* @var User $u */
             $u_data = [];
             $u_data['id'] = $u->getId();
-            $u_data['mail'] = $u->getMail() ?? 'XXX_XXX_XXX';
+            $u_data['mail'] = $u->getMail();
             $u_data['mobil'] = $u->getMobil();
-            $u_data['fname'] = $u->getFirstName() ?? '???';
+            $u_data['fname'] = $u->getFirstName();
+            $u_data['full_name'] = $u->getFullName();
             $u_data['next_visit'] = null;
             $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['fname'], $u_data['mail']);
 
@@ -184,17 +185,24 @@ class ViewController extends BaseController
                 }
             }
         }
+
+        array_walk($users_by_segments, function(&$users){
+            usort($users, function($u1, $u2){return strcmp($u1['full_name'], $u2['full_name']);});
+        });
         $current_year = Carbon::today()->year;
 
         return compact('users_by_segments', 'groups_by_users', 'topics', 'current_year');
     }
 
-    private static function createFileNameForHtmlMail(string $fname = '???', string $mail = 'unknown'): string
+    private static function createFileNameForHtmlMail(string $name = null, string $id = null): string
     {
+        $name = $name ?? '???';
+        $id = $id ?? '???';
+
         $regex = '/[^a-zA-Z0-9]/';
 
-        $file = $fname . '_';
-        $file .= preg_replace($regex, '_', $mail);
+        $file = $name . '_' . $id;
+        $file = preg_replace($regex, '_', $file);
         $file .= '.html';
 
         return $file;

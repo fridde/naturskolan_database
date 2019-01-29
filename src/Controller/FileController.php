@@ -2,6 +2,7 @@
 
 namespace Fridde\Controller;
 
+use Carbon\Carbon;
 use Fridde\Annotations\SecurityLevel;
 use ZipStream\ZipStream;
 
@@ -44,7 +45,9 @@ class FileController extends BaseController
         $this->setTemplate('admin/single_mail_template');
         $this->setReturnType(self::RETURN_TEXT);
 
-        $zip = new ZipStream(self::MAIL_ZIP_FILE);
+        $file_name = 'mails_' . Carbon::today()->toDateString() . '.html';
+
+        $zip = new ZipStream($file_name);
 
         foreach($data['users_by_segments'] as $segment => $users){
             foreach($users as $user_id => $user){
