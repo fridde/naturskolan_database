@@ -199,12 +199,15 @@ class ViewController extends BaseController
         $name = $name ?? '???';
         $id = $id ?? '???';
 
-        $regex1 = ['/ä/' => 'a', '/å/' => 'a', '/ö/' => 'o', '/ß/' => 'ss'];
+        $regex1 = ['é' => 'e', 'ä' => 'a', 'å' => 'a', 'ö' => 'o', 'ß' => 'ss'];
+        $search = array_keys($regex1);
+        $replace = array_values($regex1);
+
         $regex2 = '/[^a-zA-Z0-9]/';
 
-        $file = $name . '_' . $id;
+        $file = strtolower($name) . '_' . $id;
 
-        $file = preg_replace(array_keys($regex1), array_values($regex1), $file);
+        $file = str_replace($search, $replace, $file);
         $file = preg_replace($regex2, '_', $file);
 
 
