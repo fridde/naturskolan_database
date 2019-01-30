@@ -34,6 +34,13 @@ class FileController extends BaseController
         exit;
     }
 
+    /**
+     * @param string $dispatch
+     * @throws \Fridde\Error\NException
+     *
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
+
     public function getAllMails(string $dispatch = 'new')
     {
         $this->removeAction('mail');

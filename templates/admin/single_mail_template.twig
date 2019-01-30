@@ -61,10 +61,10 @@
 
 {%- if groups|length > 1 -%}
     {%- set multi_group = true -%}
-    {%- set group_salutation = 'din klass ' ~  user.group_names|first -%}
+    {%- set group_salutation = 'dina klasser ' ~ user.group_names|join(', ', ' och ') -%}
 {%- else -%}
     {%- set multi_group = false -%}
-    {%- set group_salutation = 'dina klasser ' ~ user.group_names|join(', ', ' och ') -%}
+    {%- set group_salutation = 'din klass ' ~  user.group_names|first -%}
 {%- endif -%}
 
 {%- set replacements = {
