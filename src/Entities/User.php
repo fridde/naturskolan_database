@@ -520,12 +520,6 @@ class User
     }
 
 
-    /**
-     * [getLastMessage description]
-     * @param  string $type [description]
-     * @param  string $carrier [description]
-     * @return [type]          [description]
-     */
     public function getLastMessage($properties = null)
     {
         $this->sortMessagesByDate();
