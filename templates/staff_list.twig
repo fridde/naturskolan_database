@@ -12,48 +12,49 @@
     </div>
     <div id="staff-card" class="collapse show" data-parent="#school-accordion">
         <div class="card-body">
-
-            <table class="table table-responsive table-striped editable" data-entity="{{ entity_class }}">
-                <thead>
-                <tr>
-                    {% for header in headers %}
-                        {% if header not in DATA.invisible_headers %}
-                            <th>
-                                {{- header -}}
-                            </th>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for user in staff -%}
-                    <tr data-id="{{ user.id }}"{% if user.id is empty %} hidden {%- endif -%} >
-                        <td>
-                            <input type="text" name="FirstName" placeholder="Förnamn" value="{{ user.FirstName }}">
-                        </td>
-                        <td>
-                            <input type="text" name="LastName" placeholder="Efternamn" value="{{ user.LastName }}">
-                        </td>
-                        <td>
-                            <input class="has-tooltip" type="text" name="Mobil" placeholder="Mobilnummer"
-                                   value="{{ user.Mobil }}"
-                                   size="15">
-                        </td>
-                        <td>
-                            <input type="text" name="Mail" placeholder="Mejladdress" value="{{ user.Mail }}">
-                        </td>
-                        {% if 'Acronym' not in DATA.invisible_headers %}
-                            <td>
-                                <input type="text" name="Acronym" placeholder="Acronym" value="{{ user.Acronym }}"
-                                       size="4">
-                            </td>
-                        {% endif %}
+            <div class="table-responsive">
+                <table class="table-sm table-responsive table-striped editable" data-entity="{{ entity_class }}">
+                    <thead>
+                    <tr>
+                        {% for header in headers %}
+                            {% if header not in DATA.invisible_headers %}
+                                <th>
+                                    {{- header -}}
+                                </th>
+                            {% endif %}
+                        {% endfor %}
                     </tr>
-                {%- endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for user in staff -%}
+                        <tr data-id="{{ user.id }}"{% if user.id is empty %} hidden {%- endif -%} >
+                            <td>
+                                <input type="text" name="FirstName" placeholder="Förnamn" value="{{ user.FirstName }}">
+                            </td>
+                            <td>
+                                <input type="text" name="LastName" placeholder="Efternamn" value="{{ user.LastName }}">
+                            </td>
+                            <td>
+                                <input class="has-tooltip" type="text" name="Mobil" placeholder="Mobilnummer"
+                                       value="{{ user.Mobil }}"
+                                       size="15">
+                            </td>
+                            <td>
+                                <input type="text" name="Mail" placeholder="Mejladdress" value="{{ user.Mail }}">
+                            </td>
+                            {% if 'Acronym' not in DATA.invisible_headers %}
+                                <td>
+                                    <input type="text" name="Acronym" placeholder="Acronym" value="{{ user.Acronym }}"
+                                           size="4">
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {%- endfor %}
+                    </tbody>
+                </table>
+            </div>
             <div class="container">
-            <button type="button" class="add-row-btn btn btn-primary float-left">Lägg till person</button>
+                <button type="button" class="add-row-btn btn btn-primary float-left">Lägg till person</button>
                 <span class="float-right"> <a href="remove/{{ DATA.school_id }}">Ta bort en person</a> </span>
             </div>
         </div>
