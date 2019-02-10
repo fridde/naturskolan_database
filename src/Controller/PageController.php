@@ -4,6 +4,7 @@ namespace Fridde\Controller;
 
 use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\Visit;
+use Fridde\HTML;
 
 class PageController extends BaseController
 {
@@ -22,7 +23,7 @@ class PageController extends BaseController
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function showSupport()
+    public function showSupport(): void
     {
         $section = $this->getParameter('section') ?? 'summary';
 
@@ -37,21 +38,21 @@ class PageController extends BaseController
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function showContact()
+    public function showContact(): void
     {
         $visitor = $this->Authorizer->getVisitor();
         if($visitor->hasSchool()){
             $this->addToDATA('school_id', $visitor->getSchool()->getId());
         }
 
-        $this->addJs('captcha');
+        $this->addJsToEnd('captcha', HTML::INC_ASSET);
         $this->setTemplate('contact');
     }
 
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function showError()
+    public function showError(): void
     {
         http_response_code(404);
         echo 'The url '.implode('/', $this->getParameter()).' could not be resolved';
@@ -61,7 +62,7 @@ class PageController extends BaseController
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function showConfirmedVisit(Visit $visit, string $school_id)
+    public function showConfirmedVisit(Visit $visit, string $school_id): void
     {
         $this->addToDATA('school_id', $school_id);
         $this->setTemplate('visit_confirmation');
