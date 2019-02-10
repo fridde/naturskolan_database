@@ -60,7 +60,14 @@ class ExceptionHandler
 
     protected function createMessage(): string
     {
-        $msg = $this->Exception->getMessage();
+        $msg = '';
+
+        $url = $_SERVER['REQUEST_URI'] ?? ($_SERVER['SCRIPT_NAME'] ?? null);
+        if(!empty($url)){
+            $msg .= 'Request for ' . $url . PHP_EOL;
+        }
+
+        $msg .= $this->Exception->getMessage();
 
         if($this->Exception instanceof NException){
             $code = $this->Exception->getCode();
