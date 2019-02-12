@@ -3,7 +3,7 @@ const grecaptcha = require('grecaptcha');
 
 $(document).ready(()=>{
 
-    $('div#send-question button[type="submit"]').click(() => {
+    $('#send-question-submit').click(() => {
         let $form = $('div#send-question');
         $.ajax({
             url: 'api/send_contact_mail',
