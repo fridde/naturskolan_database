@@ -45,6 +45,7 @@ class PageController extends BaseController
             $this->addToDATA('school_id', $visitor->getSchool()->getId());
         }
 
+        $this->addJsToStart('captcha', HTML::INC_ABBREVIATION);
         $this->addJsToEnd('captcha', HTML::INC_ASSET);
         $this->setTemplate('contact');
     }

@@ -311,6 +311,11 @@ class BaseController
         $this->js[$position][] = [$js, $type];
     }
 
+    public function addJsToStart($js, int $type = HTML::INC_ABBREVIATION): void
+    {
+        $this->addJs($js, $type, 'start');
+    }
+
     public function addJsToEnd($js, int $type = HTML::INC_ABBREVIATION): void
     {
         $this->addJs($js, $type, 'end');
