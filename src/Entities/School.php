@@ -31,10 +31,14 @@ class School
     /** @ORM\Column(type="integer", options={"default" : 0}) */
     protected $BusRule = 0;
 
-    /** @ORM\OneToMany(targetEntity="Group", mappedBy="School") */
+    /** @ORM\OneToMany(targetEntity="Group", mappedBy="School")
+     * @ORM\OrderBy({"Name" = "ASC"})
+     **/
     protected $Groups;
 
-    /** @ORM\OneToMany(targetEntity="User", mappedBy="School") */
+    /** @ORM\OneToMany(targetEntity="User", mappedBy="School")
+     * * @ORM\OrderBy({"FirstName" = "ASC"})
+     */
     protected $Users;
 
     /** @ORM\OneToMany(targetEntity="GroupCount", mappedBy="School", cascade={"persist"}) */
@@ -231,10 +235,11 @@ class School
     public function getGroupsByName(): array
     {
         $groups = $this->getGroups();
+        /*
         usort($groups, function(Group $g1, Group $g2){
             return strcasecmp($g1->getName(), $g2->getName());
         });
-
+        */
         return $groups;
     }
 

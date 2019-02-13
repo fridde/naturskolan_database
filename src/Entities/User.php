@@ -59,7 +59,9 @@ class User
      */
     protected $Visits;
 
-    /** @ORM\OneToMany(targetEntity="Message", mappedBy="User") */
+    /** @ORM\OneToMany(targetEntity="Message", mappedBy="User")
+     * @ORM\OrderBy({"Timestamp" = "ASC"})
+     */
     protected $Messages;
 
     /** @ORM\OneToMany(targetEntity="Group", mappedBy="User") */
@@ -495,10 +497,11 @@ class User
 
     public function sortMessagesByDate()
     {
+        /*
         $messages = $this->getMessages();
 
         uasort(
-            $messages,
+            $this->Messages,
             function (Message $a, Message $b) {
                 $a_ts = $a->getTimestamp();
                 $b_ts = $b->getTimestamp();
@@ -515,6 +518,7 @@ class User
             }
         );
         $this->Messages = new ArrayCollection($messages);
+        */
 
         return $this->Messages;
     }

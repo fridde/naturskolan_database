@@ -62,7 +62,9 @@ class Group
     /** @ORM\Column(type="string", nullable=true) */
     protected $CreatedAt;
 
-    /** @ORM\OneToMany(targetEntity="Visit", mappedBy="Group")     * */
+    /** @ORM\OneToMany(targetEntity="Visit", mappedBy="Group")
+     *  @ORM\OrderBy({"Date"="ASC"})
+     **/
     protected $Visits;
 
     public const ARCHIVED = 0;
@@ -285,6 +287,7 @@ class Group
     public function getSortedVisits(): array
     {
         $visits = $this->getVisits();
+        /*
         if (empty($visits)) {
             return [];
         }
@@ -295,14 +298,16 @@ class Group
                 return $v1->getDate()->lt($v2->getDate()) ? -1 : 1;
             }
         );
-
+        */
         return $visits;
     }
 
+    /*
     public function sortVisits(): void
     {
         $this->Visits = $this->getSortedVisits();
     }
+    */
 
     public function getNextVisit(): ?Visit
     {
