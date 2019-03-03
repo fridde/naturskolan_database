@@ -338,8 +338,12 @@ class AdminSummary
             $row .= $visit->getTopic()->getShortName().' med ';
             $row .= ($g->getName() ?? '???').' från ';
             $row .= $g->getSchool()->getName().'. Lärare: ';
-            $row .= $u->getFullName().', ';
-            $row .= $u->getMobil().', '.$u->getMail();
+            if (!empty($u)) {
+                $row .= $u->getFullName().', ';
+                $row .= $u->getMobil().', '.$u->getMail();
+            } else {
+                $row .= '???';
+            }
             $rows[] = $row;
         }
 
