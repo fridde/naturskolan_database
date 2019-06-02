@@ -62,6 +62,9 @@ class ExceptionHandler
     {
         $msg = '';
 
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown address';
+        $msg .= 'Request from ' . $ip . PHP_EOL;
+
         $url = $_SERVER['REQUEST_URI'] ?? ($_SERVER['SCRIPT_NAME'] ?? null);
         if(!empty($url)){
             $msg .= 'Request for ' . $url . PHP_EOL;
