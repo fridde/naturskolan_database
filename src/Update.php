@@ -16,6 +16,7 @@ use Fridde\Entities\Note;
 use Fridde\Entities\NoteRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
+use Fridde\Entities\Visit;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
 
@@ -249,8 +250,8 @@ class Update extends DefaultUpdate
             $group_id = $row_to_group_translator[$row_index] ?? null;
             foreach ($visits as $visit_id) {
                 if (isset($group_id, $visit_id)) {
-                    $visit = $this->findById('Visit', $visit_id);
-                    $group = $this->findById('Group', $group_id);
+                    $visit = $this->ORM->EM->find(Visit::class, $visit_id);
+                    $group = $this->ORM->EM->find(Group::class, $group_id);
                     /** @noinspection NullPointerExceptionInspection */
                     $visit->setGroup($group);
                     $this->ORM->EM->persist($visit);

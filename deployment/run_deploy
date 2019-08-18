@@ -12,9 +12,10 @@ done
 SKIP=$((SKIP -1))
 
 #Variable names
+SCRIPTS=/mnt/d/Dropbox/scripts
 PROJECT_NAME=naturskolan_database
-DEV_PROJECT_PATH=~/$PROJECT_NAME
-TESTING_PATH=~/testing
+DEV_PROJECT_PATH=$SCRIPTS/$PROJECT_NAME
+TESTING_PATH=$SCRIPTS/testing
 TESTDB_PATH=$TESTING_PATH/$PROJECT_NAME/tests/_data/test_db.sql
 STAGING_PATH=/cygdrive/d/staging
 STAGING_PROJECT_PATH=$STAGING_PATH/$PROJECT_NAME
@@ -24,10 +25,9 @@ if [[ $SKIP -lt 1 ]]; then
     read -p "[1] Backup DB and export to test-DB..."
     cd $DEV_PROJECT_PATH/misc/scripts
 	set -x
-    php -e export_database.php default > $TESTDB_PATH
-	php -e export_database.php test_db > $TESTDB_PATH
+    php -e export_database.php default > /dev/null
     php -e export_database.php just_data > /dev/null
-    php -e export_database.php structure > /dev/null
+    php -e export_database.php structure > $TESTDB_PATH
     php -e "$DEV_PROJECT_PATH/tests/ods_to_sql.php" >> $TESTDB_PATH
 	set +x
     read -p "Delete old files..."
@@ -59,10 +59,10 @@ fi
 
 if [[ $SKIP -lt 3 ]]; then
     read -p '[3] Synchronizing the work in vendor with the toolbox...'
-    cd ~
+    cd $SCRIPTS
 	filecomparer
 
-    cd ~/toolbox
+    cd $SCRIPTS/toolbox
 	read -p "Checking git status of each directory in toolbox..."
     gitstatus_dir.py -author fridde --save
     compare_package_date.py --before
@@ -122,7 +122,7 @@ if [[ $SKIP -lt 6 ]]; then
 	if [[ $REPLY == y ]]; then
 	    cd /cygdrive/c/wamp/bin/memcached
 	    cmd /C start /min memcached.exe start &
-		cd ~/bin_win
+		cd $SCRIPTS/java_jars
 		cmd /C start /min java -jar selenium-server.jar &
 		cmd /C start /min MailHog.exe &
 	fi

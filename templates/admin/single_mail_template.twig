@@ -7,9 +7,9 @@
 {%- set topics, groups_by_users, disp = DATA.topics, DATA.groups_by_users, DATA.dispatch -%}
 {%- set missing_text = {
     group: {
-    'number_students': 'Antal elever',
-    'food': 'Specialkost',
-    'info': 'Övrig information om klassen som kan vara bra för oss att veta'
+        'number_students': 'Antal elever',
+        'food': 'Specialkost',
+        'info': 'Övrig information om klassen som kan vara bra för oss att veta'
     },
     user: {
         'mobil': 'Ditt mobilnummer'
@@ -18,7 +18,7 @@
 
 {%- set snippets = {
     '2': {
-       'new': {
+        'new': {
             'start': 'Vår- och höstterminen %year% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
             'theme': 'Temat för de sex dagarna är ”Din omgivning”. Vad finns i den omgivande naturen? Vad ser du när du tittar dig omkring?'
         },
@@ -29,7 +29,7 @@
     },
     '5': {
         'new': {
-            'start': 'Under hösttermin %year% och %year_plus_one% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
+            'start': 'Under hösttermin %year% och vårtermin %year_plus_one% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
             'theme': 'Temat för de sex dagarna är ”Processer i naturen”. Vilka processer styr naturen? Vad gör att din omgivning förändras med tiden?'
         },
         'continued': {
@@ -87,10 +87,11 @@
 <p>{{ start_text }}</p>
 
 <p>{{ next_visit_text }} All information om dagen finns på <a href="{{ next_topic.url }}">temadagens informationssida</a>.<br>
-Där ser du också om du och klassen blir hämtade av en buss (som vi beställer) och om du behöver ta med mat eller inte.
+    Där ser du också om du och klassen blir hämtade av en buss (som vi beställer) och om du behöver ta med mat eller inte.
 </p>
 <p>{{  theme_text }} Du hittar all information på <a href="http://www.sigtunanaturskola.se/">www.sigtunanaturskola.se</a> . Kolla gärna igenom innehållet i dagarna, så du vet hur de kan passa in i din undervisning. Det slutliga målet med all vår undervisning är att eleven ska bli en miljömedveten ”planetskötare”.
 </p>
+<p>Ett första steg kan vara att titta på vår <a href="https://www.youtube.com/watch?v=R6CZifxXnMQ">introduktionsfilm för dig som pedagog</a>!</p>
 
 <h2>Här är dina dagar:</h2>
 
