@@ -4,18 +4,13 @@
 namespace Fridde\Security;
 
 use Carbon\Carbon;
-use Fridde\Entities\Hash;
-use Fridde\Entities\HashRepository;
+use Doctrine\Common\Cache\CacheProvider;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
-use Fridde\Error\Error;
-use Fridde\Error\NException;
-use Fridde\Naturskolan;
 use Fridde\ORM;
 use Fridde\Timing;
-use Fridde\Utility;
-use MongoDB\BSON\Timestamp;
+
 
 class Authenticator
 {
@@ -23,10 +18,12 @@ class Authenticator
     private $ORM;
     /* @var PasswordHandler $PWH */
     private $PWH;
+    /* @var CacheProvider $cache  */
+    public $cache;
 
     public const COOKIE_KEY_NAME = 'AuthKey';
 
-    private const COOKIE_KEY_LENGTH = 32; //can't be longer, created by md5()
+    private const COOKIE_KEY_LENGTH = 32;
     private const URL_CODE_LENGTH = 10;
     private const VISIT_CONFIRMATION_CODE_LENGTH = 5;
 
@@ -41,177 +38,186 @@ class Authenticator
      * Authenticator constructor.
      * @param ORM $ORM
      * @param PasswordHandler $PWH
+     * @param CacheProvider|null $cache
      */
-    public function __construct(ORM $ORM, PasswordHandler $PWH)
+    public function __construct(ORM $ORM, PasswordHandler $PWH, CacheProvider $cache = null)
     {
         $this->ORM = $ORM;
         $this->PWH = $PWH;
+        $this->cache = $cache;
     }
 
-    public function calculatePasswordForSchool(School $school, $version = null): string
+    public function calculatePasswordForSchool(School $school, int $year = null): string
     {
-        if (empty($version)) {
-            $version = $this->getLatestValidVersion($school->getId(), Hash::CATEGORY_SCHOOL_PW);
-        }
-        if (empty($version)) {
-            throw new NException(Error::DATABASE_INCONSISTENT,  ['valid password', $school->getName()]);
-        }
+        $year = $year ?? $this->getCurrentYear();
 
-        return $this->PWH->calculatePasswordForId($school->getId(), $version);
+        $id = [$school->getId(), $year, $this->PWH->getSalt()];
+        $id = implode('.', $id);
 
-
+        return $this->PWH->calculatePasswordForId($id);
     }
 
-    public function createCookieKey(): string
+    public function checkPasswordForSchool(School $school, string $given_password): bool
     {
-        return $this->PWH::createRandomKey(self::COOKIE_KEY_LENGTH);
-    }
+        $years = $this->getYears();
 
-    public function createUrlCode(): string
-    {
-        return $this->PWH::createRandomKey(self::URL_CODE_LENGTH);
-    }
-
-    public function createVisitConfirmationCode(): string
-    {
-        return $this->PWH::createRandomKey(self::VISIT_CONFIRMATION_CODE_LENGTH);
-    }
-
-    public function getObjectFromCode(string $code = null, array $criteria = [], string $object_class)
-    {
-        if (empty($code)) {
-            return null;
-        }
-        $criteria['accept_expired'] = $criteria['accept_expired'] ?? true;
-        $hash = $this->getHashRepo()->findByPassword($code, $criteria);
-
-        if (empty($hash)) {
-            /*
-            if($criteria['accept_expired']){
-                return null;
+        $hash = false;
+        foreach($years as $year){
+            $index = $school->getId().'.'.$year;
+            if($this->cache->contains($index)){
+                $hash = $this->cache->fetch($index);
+                if(password_verify($given_password, $hash)){
+                    return true;
+                }
             }
-            // extra check to see if there are expired passwords available
+        }
+        if($hash === false){
+            $hash = password_hash($this->calculatePasswordForSchool($school), PASSWORD_DEFAULT);
+            $index = $school->getId().'.'.$this->getCurrentYear();
+            $this->cache->save($index, $hash);
+        }
+        return password_verify($given_password, $hash);
+    }
 
-             * we don't do that for now
-            $criteria['accept_expired'] = true;
-            if(!empty($this->getHashRepo()->findByPassword($code, $criteria))){
-                throw new NException(Error::EXPIRED_CODE,[$code]);
+    public static function createHashFromString(string $string, int $length = -1): string
+    {
+        $hash = hash('sha256', $string);
+        if($length >= 0){
+            $hash = substr($hash, 0, $length);
+        }
+
+        return $hash;
+    }
+
+    public function createCookieKeyForUser(User $user, int $year = null): string
+    {
+        return $this->createCookieKeyFor($user, $year);
+    }
+
+    public function createCookieKeyForSchool(School $school, int $year = null): string
+    {
+        return $this->createCookieKeyFor($school, $year);
+    }
+
+    private function createCookieKeyFor($object, int $year = null): string
+    {
+        if(!($object instanceof School || $object instanceof User)){
+            // throw error
+        }
+
+        $year = $year ?? Carbon::today()->year;
+
+        $id = [$object->getId(), $year, $this->PWH->getSalt()];
+        $id = implode('.', $id);
+
+        $key = $object->getId() . self::OWNER_SEPARATOR;
+        $key .= self::createHashFromString($id, self::COOKIE_KEY_LENGTH);
+
+        return $key;
+    }
+
+    private function getObjectFromCode(string $code = null)
+    {
+        if(empty($code)){
+            return null;
+        }
+        $id = explode(self::OWNER_SEPARATOR, $code)[0];
+        if(is_numeric($id)){
+            /* @var User $obj  */
+            $obj = $this->ORM->find(User::class, $id);
+            return $obj;
+        }
+        /* @var School $obj  */
+        $obj = $this->ORM->find(School::class, $id) ?? null;
+        return $obj;
+    }
+
+    public function getUserFromCode(string $code = null): ?User
+    {
+        $user = $this->getObjectFromCode($code);
+
+        return ($user instanceof User ? $user : null);
+    }
+
+    public function getSchoolFromCode(string $code = null): ?School
+    {
+        $school = $this->getObjectFromCode($code);
+
+        return ($school instanceof School ? $school : null);
+    }
+
+    public function checkCookieKeyForUser(User $user = null, string $cookie_key = null): bool
+    {
+        if(empty($user) || empty($cookie_key)){
+            return false;
+        }
+        foreach($this->getYears() as $year){
+            if($this->createCookieKeyForUser($user, $year) === $cookie_key){
+                return true;
             }
-            */
-            return null;
         }
 
-        return $this->ORM->find($object_class, $hash->getOwnerId());
+        return false;
     }
 
-    public function getVisitFromCode(string $code)
+    public function checkCookieKeyForSchool(School $school = null, string $cookie_key = null): bool
     {
-        $criteria['category'] = Hash::CATEGORY_VISIT_CONFIRMATION_CODE;
-
-        return $this->getObjectFromCode($code, $criteria, Visit::class);
-    }
-
-    public function getUserFromUrlCode(string $code)
-    {
-        $criteria['category'] = Hash::CATEGORY_USER_URL_CODE;
-
-        return $this->getObjectFromCode($code, $criteria, User::class);
-    }
-
-    public function getSchoolFromPassword($password): ?School
-    {
-        $criteria = ['category' => Hash::CATEGORY_SCHOOL_PW];
-        $criteria['accept_expired'] = false;
-
-        /* @var Hash $hash */
-        $hash = $this->getHashRepo()->findByPassword($password, $criteria);
-        if (empty($hash)) {
-            return null;
+        if(empty($school) || empty($cookie_key)){
+            return false;
         }
-        $school_id = $hash->getOwnerId();
-        /* @var School $school */
-        $school = $this->ORM->find('School', $school_id);
+        foreach($this->getYears() as $year){
+            if($this->createCookieKeyForSchool($school, $year) === $cookie_key){
+                return true;
+            }
+        }
 
-        return $school ?? null;
+        return false;
     }
 
-    public function schoolHasPassword(string $school_id, string $password): bool
+    public function createUserUrlCode(User $user): string
     {
-        $criteria['category'] = Hash::CATEGORY_SCHOOL_PW;
-        $criteria['owner_id'] = $school_id;
+        $id = ['u', $user->getId(), Carbon::today()->year, $this->PWH->getSalt()];
+        $id = implode('.', $id);
 
-        return !empty($this->getHashRepo()->findByPassword($password, $criteria));
+        return $user->getId() . self::OWNER_SEPARATOR . self::createHashFromString($id, self::URL_CODE_LENGTH);
     }
 
-
-    private function getHashRepo(): HashRepository
+    public function createVisitConfirmationCode(Visit $visit): string
     {
-        /* @var HashRepository $hash_repo */
-        $hash_repo = $this->ORM->getRepository('Hash');
+        $id = ['v', $visit->getId(), $this->PWH->getSalt()];
+        $id = implode('.', $id);
 
-        return $hash_repo;
+        $code = $visit->getId() . '-';
+        $code .= self::createHashFromString($id, self::VISIT_CONFIRMATION_CODE_LENGTH);
+        
+        return $code; 
     }
 
+    public function getVisitFromCode(string $code): Visit
+    {
+        $parts = explode('-', $code);
+        /* @var Visit $visit  */
+        $visit = $this->ORM->find(Visit::class, $parts[0]);
+        
+        return $visit;
+    }
+
+    public function checkCodeForVisit(Visit $visit, string $code): bool
+    {
+        return $this->createVisitConfirmationCode($visit) === $code;
+    }
 
     public function getPWH(): PasswordHandler
     {
         return $this->PWH;
     }
 
-    /*
-     * ['function to create the code', 'key in SETTINGS['values']['validity'] ']
-     * */
-    private function getCategorySettings(): array
-    {
-        return [
-            Hash::CATEGORY_USER_URL_CODE => ['createUrlCode', 'url_key'],
-            Hash::CATEGORY_USER_COOKIE_KEY => ['createCookieKey', 'cookie_key'],
-            Hash::CATEGORY_SCHOOL_COOKIE_KEY => ['createCookieKey', 'cookie_key'],
-            Hash::CATEGORY_VISIT_CONFIRMATION_CODE => ['createVisitConfirmationCode', 'visit_confirmation_code'],
-            Hash::CATEGORY_USER_REMOVAL_CODE => ['createUrlCode', 'url_key']
-        ];
-    }
 
-    public function getExpirationDate(int $category): Carbon
-    {
-        $cat_settings = $this->getCategorySettings();
-        $path = ['values', 'validity', $cat_settings[$category][1]];
-        $expiration = Utility::resolve(SETTINGS, $path);
-
-        if(defined('DEBUG') && !empty(DEBUG)){
-            $now = Carbon::createFromTimestampUTC(time());
-            return Timing::addDuration($expiration, $now);
-        }
-
-        return Timing::addDurationToNow($expiration);
-    }
-
-    private function getFunctionForCategory(int $category): string
-    {
-        $cat_settings = $this->getCategorySettings();
-
-        return $cat_settings[$category][0];
-    }
-
-    public function createAndSaveCode($owner_id, int $category): string
-    {
-        $code = $owner_id . self::OWNER_SEPARATOR;
-        $code .= call_user_func([$this, $this->getFunctionForCategory($category)]);
-        $hash = new Hash();
-        $hash->setCategory($category);
-        $hash->setValue(password_hash($code, PASSWORD_DEFAULT));
-        $hash->setOwnerId($owner_id);
-        $hash->setExpiresAt($this->getExpirationDate($category));
-
-        $this->ORM->EM->persist($hash);
-        $this->ORM->EM->flush();
-
-        return $code;
-    }
-
-    public function setCookieKeyInBrowser($value, Carbon $exp_date): void
+    public function setCookieKeyInBrowser(string $value, Carbon $exp_date = null): void
     {
         $key = self::COOKIE_KEY_NAME;
+        $exp_date = $exp_date ?? Timing::addDurationToNow([1, 'y']);
+
         setcookie($key, $value, $exp_date->timestamp, '/');
     }
 
@@ -231,24 +237,20 @@ class Authenticator
         session_unset();
     }
 
-    public static function isUser($object): bool
+    public function getYears(int $number = 2): array
     {
-        return ($object instanceof User);
+        $current_year = Carbon::today()->year;
+        $years = [];
+        foreach(range(0, $number -1) as $distance){
+            $years[] = $current_year - $distance;
+        }
+
+        return $years;
     }
 
-    public static function isSchool($object): bool
+    public function getCurrentYear(): int
     {
-        return ($object instanceof School);
-    }
-
-    public static function isVisit($object): bool
-    {
-        return ($object instanceof Visit);
-    }
-
-    private function getLatestValidVersion($owner_id, int $category): ?string
-    {
-        return $this->getHashRepo()->findYoungestValidVersion($owner_id, $category);
+        return $this->getYears(1)[0];
     }
 
 

@@ -16,6 +16,7 @@ use Fridde\Entities\Note;
 use Fridde\Entities\NoteRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
+use Fridde\Entities\Topic;
 use Fridde\Entities\Visit;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
@@ -140,12 +141,22 @@ class Update extends DefaultUpdate
      * @PostArgs("password, school_id")
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function checkPassword(string $password, $school_id = null): void
+    public function checkPassword(string $password, string $school_id = null): void
     {
-        if (empty($school_id) || !$this->N->Auth->schoolHasPassword($school_id, $password)) {
-            $this->addError('Wrong password!');
-            usleep(1000 * 2000); // to avoid brute force methods
+        if(empty($school_id)){
+            $this->addError('No school id given');
+            return;
+        }
 
+        $school = $this->ORM->find(School::class, $school_id);
+        if(!($school instanceof School)){
+            $this->addError('No school found for school id "'. $school_id .'"');
+            usleep(1000 * 2000); // to avoid brute force methods
+            return;
+        }
+        if(!$this->N->Auth->checkPasswordForSchool($school, $password)){
+            $this->addError('Wrong password "'.$password.'" for school id "'.$school_id.'"');
+            usleep(1000 * 2000); // to avoid brute force methods
             return;
         }
         $hash_string = $this->setCookie($school_id);
@@ -164,7 +175,7 @@ class Update extends DefaultUpdate
     public function addDates(int $topic_id, array $dates = [], $flush = true)
     {
         $pattern = '/^\d{4}-\d{2}-\d{2}$/';
-        $topic = $this->findById('Topic', $topic_id);
+        $topic = $this->ORM->find(Topic::class, $topic_id);
         $properties = ['Topic' => $topic];
         foreach ($dates as $date_string) {
             $date_string = trim($date_string);
@@ -269,10 +280,11 @@ class Update extends DefaultUpdate
      */
     protected function setCookie(string $school_id)
     {
-        $category = Hash::CATEGORY_SCHOOL_COOKIE_KEY;
-        $hash_string = $this->N->Auth->createAndSaveCode($school_id, $category);
-        $exp_date = $this->N->Auth->getExpirationDate($category);
-        $this->N->Auth->setCookieKeyInBrowser($hash_string, $exp_date);
+        /* @var School $school  */
+        $school = $this->ORM->find(School::class, $school_id);
+        $hash_string = $this->N->Auth->createCookieKeyForSchool($school);
+        
+        $this->N->Auth->setCookieKeyInBrowser($hash_string);
 
         return $hash_string;
     }

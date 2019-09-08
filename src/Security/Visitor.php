@@ -4,11 +4,9 @@
 namespace Fridde\Security;
 
 
-use Fridde\Entities\Hash;
 use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Naturskolan;
-use Fridde\ORM;
 
 class Visitor
 {
@@ -45,11 +43,12 @@ class Visitor
         return !empty($this->session_key);
     }
 
-    public function isFromAdminSchool()
+    public function isFromAdminSchool(): bool
     {
         if ($this->hasSchool()) {
             return $this->getSchool()->getId() === Naturskolan::ADMIN_SCHOOL;
         }
+        return false;
     }
 
     public function isAdminUser(): bool
@@ -70,14 +69,12 @@ class Visitor
         $this->setSchoolFromKey($key); // order is important!
     }
 
-    public function setUserFromKey(string $key = null)
+    public function setUserFromKey(string $key = null): void
     {
-        $criteria['category'] = Hash::CATEGORY_USER_COOKIE_KEY;
-        $criteria['accept_expired'] = false;
-
-        /* @var User $user */
-        $user = $this->Auth->getObjectFromCode($key, $criteria, User::class);
-        $this->setUser($user ?? null);
+        $user = $this->Auth->getUserFromCode($key);
+        if($this->Auth->checkCookieKeyForUser($user, $key)){
+            $this->setUser($user);
+        }
     }
 
     public function setSchoolFromKey(string $key = null): void
@@ -87,11 +84,11 @@ class Visitor
 
             return;
         }
-        $criteria['category'] = Hash::CATEGORY_SCHOOL_COOKIE_KEY;
-        $criteria['accept_expired'] = false;
-        /* @var School $school */
-        $school = $this->Auth->getObjectFromCode($key, $criteria, School::class) ?? null;
-        $this->setSchool($school);
+        $school = $this->Auth->getSchoolFromCode($key);
+        if($this->Auth->checkCookieKeyForSchool($school, $key)){
+            $this->setSchool($school);
+        }
+
 
     }
 

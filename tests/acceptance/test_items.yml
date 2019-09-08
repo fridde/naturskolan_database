@@ -3,15 +3,15 @@ BASE: 'https://localhost/testing/naturskolan_database'
 test_date: '2018-06-01'
 
 natu:
-    AuthKey: '14e485179c8a97b9659d68a6db4e9a3e' # matches hash with id 48 in table 'hashes'
-    pw: 'grönhet.flikar.sadel'
+    AuthKey: 'natu_fd967752790c5665c8aa859c3fde6fe2'
+    pw: 'snodd.tupp.sams'
     
 gala:
-    pw: 'stövlar.jänta.korg'
+    pw: 'gumma.kummin.korkskruvar'
 
 st_per:
-    pw: 'kaktus.tjusig.stan' # matches hash with id 37 in table 'hashes'
-    AuthKey: '30469d4e8ce44841310f368951d11561' # matches hash with id 51 in table 'hashes'
+    pw: 'havsabborre.förmögen.prydlig'
+    AuthKey: 'pers_a0530c8e4236c91a896ff1fa5b4204d7'
     teachers:
           - 'Tomas Samuelsson'
           - 'Anna Svensson'

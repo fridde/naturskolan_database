@@ -59,7 +59,7 @@ class Task
      * defined in TASK_TO_METHOD_MAP, but only if its corresponding entry in
      * $task_activation is not set to a falsy value
      *
-     * @uses createNewPasswords()
+     * @uses writeCurrentPasswords()
      * @uses cleanSQLDatabase()
      * @uses rebuildCalendar()
      * @uses backupDatabase()
@@ -88,7 +88,7 @@ class Task
             return false;
         }
 
-        if(! in_array($this->type, self::$unlogged_tasks, true)){
+        if (!in_array($this->type, self::$unlogged_tasks, true)) {
             $this->N->log('Executed task: '.$this->type, __METHOD__);
         }
 
@@ -158,7 +158,7 @@ class Task
      * Gets the time value for either immunity time or annoyance interval from the settings
      * and subtracts this value from today.
      *
-     * @param  string $type Defines whether the method should use SETTINGS.user_message.immunity_time
+     * @param string $type Defines whether the method should use SETTINGS.user_message.immunity_time
      *                      or SETTINGS.user_message.annoyance_interval
      *
      * @return \Carbon\Carbon The date calculated by the subtraction.
@@ -194,7 +194,7 @@ class Task
         foreach ($unconfirmed_visits as $v) {
             if ($v->hasGroup()) {
                 $user = $v->getGroup()->getUser();
-                if(empty($user) || ! $user->hasMessageSetting($subject_int)){
+                if (empty($user) || !$user->hasMessageSetting($subject_int)) {
                     continue;
                 }
                 $last_msg = $user->getLastMessage($search_props);
@@ -224,9 +224,9 @@ class Task
     /**
      * Logs a sent mail or sms to the database for later retrieval.
      *
-     * @param  AbstractMessageController $response The response array returned by the Messenger
-     * @param  int $msg_carrier How was the message sent?
-     * @param  \Fridde\Entities\User $user The user (as object) the message was sent to
+     * @param AbstractMessageController $response The response array returned by the Messenger
+     * @param int $msg_carrier How was the message sent?
+     * @param \Fridde\Entities\User $user The user (as object) the message was sent to
      * @return \Fridde\Update The result of the Update-operation as defined in Fridde\Update
      */
     private function logMessage($response, int $msg_carrier, User $user, int $subject)
@@ -273,7 +273,7 @@ class Task
      * Will send an **email** about a certain visit to the leader of the group that visits.
      * Notice that no check about the validity of the visit is performed here.
      *
-     * @param  \Fridde\Entities\Visit $visit The visit that the mail is about
+     * @param \Fridde\Entities\Visit $visit The visit that the mail is about
      * @return Mail The response object returned by the request
      */
     private function sendVisitConfirmationMail(Visit $visit)
@@ -307,7 +307,7 @@ class Task
      * Will send a **sms message** about a certain visit to the leader of the group that visits.
      * Notice that no check about the validity of the visit is performed here.
      *
-     * @param  \Fridde\Entities\Visit $visit The visit that the sms message is about
+     * @param \Fridde\Entities\Visit $visit The visit that the sms message is about
      * @return array The response object returned by the request
      */
     private function sendVisitConfirmationSMS(Visit $visit)
@@ -415,9 +415,9 @@ class Task
 
     private function sendNewUserMail()
     {
-        /* @var UserRepository $user_repo  */
+        /* @var UserRepository $user_repo */
         $user_repo = $this->N->getRepo('User');
-        /* @var MessageRepository $message_repo  */
+        /* @var MessageRepository $message_repo */
         $message_repo = $this->N->getRepo('Message');
 
         $subject_int = Message::SUBJECT_WELCOME_NEW_USER;
@@ -439,7 +439,7 @@ class Task
         foreach ($users_without_welcome as $user) {
             /* @var User $user */
             $params = ['subject_int' => $subject_int];
-            if(!$user->hasMessageSetting($subject_int)){
+            if (!$user->hasMessageSetting($subject_int)) {
                 continue;
             }
             if ($user->hasMail()) {
@@ -457,7 +457,7 @@ class Task
 
                 $messages[] = [$response, Message::CARRIER_MAIL, $user, $subject_int];
             } else {
-                $msg = 'Tried to send new User ' . $user->getId() . ' a welcome mail, but no mail address available.';
+                $msg = 'Tried to send new User '.$user->getId().' a welcome mail, but no mail address available.';
                 $this->N->log($msg, __METHOD__);
 
             }
@@ -501,13 +501,13 @@ class Task
                 $a[] = $u->hasActiveGroupsVisitingInTheFuture();
                 $a[] = !$u->lastMessageWasAfter($annoyance_start, $msg_props);
 
-                return (bool) array_product($a); //i.e. all are true
+                return (bool)array_product($a); //i.e. all are true
             }
         );
         $messages = [];
         /* @var User $user */
         foreach ($incomplete_users as $user) {
-            if(!$user->hasMessageSetting($subject_int)){
+            if (!$user->hasMessageSetting($subject_int)) {
                 continue;
             }
 
@@ -565,42 +565,17 @@ class Task
     /**
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    private function createNewPasswords()
+    private function writeCurrentPasswords()
     {
-        /* @var HashRepository $hash_repo */
         /* @var SchoolRepository $school_repo */
         /* @var School[] $schools */
-        $hash_repo = $this->N->ORM->getRepository('Hash');
         $school_repo = $this->N->ORM->getRepository('School');
         $schools = $school_repo->findAll();
-        $pw_validity = SETTINGS['values']['validity']['school_pw'];
 
-        $max_distance = Timing::multiplyDurationBy($pw_validity, 0.5);
-        $max_expiry_date = Timing::addDurationToNow($max_distance);
-        $new_expiration_date = Timing::addDurationToNow($pw_validity);
-
-        $version = $this->N->Auth->getPWH()->getLatestWordFileVersion();
-        $version .= '_'.random_int(0, 999);
         $school_passwords = [];
         foreach ($schools as $school) {
-            if (empty($hash_repo->findHashesThatExpireAfter($max_expiry_date))) {
-                $pw = $this->N->Auth->calculatePasswordForSchool($school, $version);
-                $school_passwords[$school->getId()] = $pw;
-
-                $hash = new Hash();
-                $hash->setValue(password_hash($pw, PASSWORD_DEFAULT));
-                $hash->setCategory(Hash::CATEGORY_SCHOOL_PW);
-                $hash->setVersion($version);
-                $hash->setOwnerId($school->getId());
-                $hash->setExpiresAt($new_expiration_date);
-                $this->N->ORM->EM->persist($hash);
-            }
-        }
-
-        if (empty($school_passwords)) {
-            $this->N->log('Passwords checked, no new passwords had to be created.', __METHOD__);
-
-            return;
+            $pw = $this->N->Auth->calculatePasswordForSchool($school);
+            $school_passwords[$school->getId()] = $pw;
         }
 
         $pw_string = implode(
@@ -619,8 +594,6 @@ class Task
         if (false === file_put_contents($file_name, $pw_string)) {
             throw new NException(Error::FILE_SYSTEM, ['password_file']);
         }
-        $this->N->ORM->EM->flush();
-
     }
 
     private function createNewAuthKey()
@@ -648,7 +621,7 @@ class Task
     /**
      * A quick function to mark a certain Change as processed
      *
-     * @param  \Fridde\Entities\Change $change The Change object
+     * @param \Fridde\Entities\Change $change The Change object
      * @return mixed The result of the Update
      */
     public static function processChange(Change $change)

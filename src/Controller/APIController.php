@@ -252,7 +252,7 @@ class APIController extends BaseController
             $school_name = $school_name ?? $user->getSchool()->getName();
 
             $params = ['action' => 'remove_user'];
-            $params['parameters'] = $this->N->Auth->createAndSaveCode($user_id, Hash::CATEGORY_USER_REMOVAL_CODE);
+            $params['parameters'] = $this->N->Auth->createUserUrlCode($user);
             $u['removal_link'] = $this->N->generateUrl('api', $params);
 
             $u['groups'] = array_map(
@@ -284,8 +284,7 @@ class APIController extends BaseController
     {
         $status = 'success';
         try {
-            /* @var User $user */
-            $user = $this->N->Auth->getObjectFromCode($user_code, [], User::class);
+            $user = $this->N->Auth->getUserFromCode($user_code);
             if (empty($user)) {
                 $status = 'failure';
             } else {

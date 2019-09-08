@@ -4,6 +4,7 @@ use Fridde\Controller\BaseController;
 use Fridde\Error\ExceptionHandler;
 use Fridde\Essentials;
 
+
 try {
     require __DIR__ .'/bootstrap.php';
 

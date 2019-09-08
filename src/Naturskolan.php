@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file contains the Naturskolan class that acts as a basic helper class for the Naturskolan-Database app
  */
@@ -31,7 +32,7 @@ class Naturskolan
 {
     /** @var \Fridde\ORM A doctrine ORM wrapped in own class */
     public $ORM;
-    /* @var \Doctrine\Common\Cache\Cache $cache  */
+    /* @var \Doctrine\Common\Cache\CacheProvider $cache  */
     public $cache;
     /** @var \GuzzleHttp\Client Contains an instance of GuzzleHttp\Client for HTTP requests */
     private $Client;
@@ -39,9 +40,9 @@ class Naturskolan
     private $Googl;
     /* @var \Fridde\Security\Authenticator $Auth */
     public $Auth;
-    /** @var array A text array containing labels and other text bits */
+    /** @var array $text_array A text array containing labels and other text bits */
     private $text_array;
-    /** @var string the path for the text pieces */
+    /** @var string $text_path the path for the text pieces */
     private $text_path = 'config/labels.yml';
 
 
@@ -57,7 +58,7 @@ class Naturskolan
         $db_settings = self::getSetting('Connection_Details');
         $this->cache = $GLOBALS['CONTAINER']->get('Cache');
         $this->ORM = new ORM($db_settings, $this->cache, BASE_DIR . '/temp/cache/proxy');
-        $this->Auth = new Authenticator($this->ORM, new PWH());
+        $this->Auth = new Authenticator($this->ORM, new PWH(self::getSetting('security')), $this->cache);
         $this->ORM->EM->getEventManager()->addEventSubscriber(new EntitySubscriber($this->ORM));
     }
 
@@ -200,7 +201,7 @@ class Naturskolan
      */
     public function createLoginUrl(User $user, bool $absolute = true)
     {
-        $params['code'] = $this->Auth->createAndSaveCode($user->getId(), Hash::CATEGORY_USER_URL_CODE);
+        $params['code'] = $this->Auth->createUserUrlCode($user);
 
         return $this->generateUrl('login', $params, $absolute);
     }
@@ -225,12 +226,12 @@ class Naturskolan
     }
 
 
-    public function createConfirmationUrl($visit_id, string $security = 'check_hash', $absolute = false)
+    public function createConfirmationUrl(Visit $visit, string $security = 'check_hash', $absolute = false)
     {
         if ($security === 'simple') {
-            $code = $visit_id.'/simple';
+            $code = $visit->getId().'/simple';
         } elseif ($security === 'check_hash') {
-            $code = $this->Auth->createAndSaveCode($visit_id, Hash::CATEGORY_VISIT_CONFIRMATION_CODE);
+            $code = $this->Auth->createVisitConfirmationCode($visit);
         } else {
             throw new NException(Error::INVALID_OPTION, ['security']);
         }
@@ -255,7 +256,7 @@ class Naturskolan
         return $school->getId() === $school_id;
     }
 
-    public function generateUrl(string $route_name, array $params = [], bool $absolute = true)
+    public function generateUrl(string $route_name, array $params = [], bool $absolute = true): string
     {
         /* @var Router $router */
         $router = $GLOBALS['CONTAINER']->get('Router');

@@ -2,11 +2,13 @@
 
 namespace Fridde\Controller;
 
+use Carbon\Carbon;
 use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\Hash;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
 use Fridde\Security\Authorizer;
+use Fridde\Timing;
 use Fridde\Update;
 use Fridde\Utility;
 
@@ -28,17 +30,16 @@ class LoginController extends BaseController
      *
      * @SecurityLevel(SecurityLevel::ACCESS_ALL)
      */
-    public function loginWithCode()
+    public function loginWithCode(): void
     {
         $code = $this->getParameter('code');
-        $user = $this->N->Auth->getUserFromUrlCode($code);
+        $user = $this->N->Auth->getUserFromCode($code);
         if (empty($user)) {
             throw new NException(Error::UNAUTHORIZED_ACTION, ['login with code ' . $code]);
         }
 
-        $auth_key = $this->N->Auth->createAndSaveCode($user->getId(), Hash::CATEGORY_USER_COOKIE_KEY);
-        $exp_date = $this->N->Auth->getExpirationDate(Hash::CATEGORY_USER_COOKIE_KEY);
-        $this->N->Auth->setCookieKeyInBrowser($auth_key, $exp_date);
+        $auth_key = $this->N->Auth->createCookieKeyForUser($user);
+        $this->N->Auth->setCookieKeyInBrowser($auth_key);
 
         $params['school'] = $user->getSchoolId();
         $url = $this->N->generateUrl('school', $params);

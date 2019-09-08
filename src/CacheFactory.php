@@ -11,8 +11,11 @@ use Doctrine\Common\Cache\MemcachedCache;
 
 class CacheFactory
 {
+    /* @var string  */
     private $base_dir;
+    /* @var string  */
     private $environment;
+    /* @var array  */
     private $settings;
     /* @var CacheProvider $cache */
     private $cache;
@@ -22,7 +25,7 @@ class CacheFactory
         Essentials::ENV_DEV => [FilesystemCache::class, 'FilesystemCache'],
         Essentials::ENV_TEST => [\Memcache::class, 'Memcache'],
         Essentials::ENV_PROD => [\Memcached::class, 'Memcached'],
-        //Essentials::ENV_PROD => [FilesystemCache::class, 'FilesystemCache']  //just for now
+        //Essentials::ENV_PROD => [FilesystemCache::class, 'FilesystemCache']  //as a backup
     ];
 
     public static $options_file = '/config/cache_options.ini';
