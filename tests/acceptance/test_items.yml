@@ -3,14 +3,14 @@ BASE: 'https://localhost/testing/naturskolan_database'
 test_date: '2018-06-01'
 
 natu:
-    AuthKey: 'natu_fd967752790c5665c8aa859c3fde6fe2'
+    AuthKey: 'natu_afb4269acdfacb062b6099ff39cbda07'
     pw: 'distrikt.bonde.nysa'
     
 gala:
-    pw: 'gumma.kummin.korkskruvar'
+    pw: 'något.anpassa.klart'
 
 st_per:
-    pw: 'havsabborre.förmögen.prydlig'
+    pw: 'hästar.ryka.blåsippa'
     AuthKey: 'pers_a0530c8e4236c91a896ff1fa5b4204d7'
     teachers:
           - 'Tomas Samuelsson'
