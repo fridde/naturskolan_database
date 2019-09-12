@@ -226,7 +226,7 @@ class Naturskolan
     }
 
 
-    public function createConfirmationUrl(Visit $visit, string $security = 'check_hash', $absolute = false)
+    public function createConfirmationUrl(Visit $visit, string $security = 'check_hash', bool $absolute = false)
     {
         if ($security === 'simple') {
             $code = $visit->getId().'/simple';

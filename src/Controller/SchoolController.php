@@ -144,7 +144,7 @@ class SchoolController extends BaseController
                             $dur1 = T::addDurationToNow(SETTINGS['values']['show_confirm_link']);
                             $in_future = $v->isInFuture();
                             if ($in_future && $v->isBefore($dur1)) {
-                                $r['confirmation_url'] = $this->N->createConfirmationUrl($v->getId(), 'simple');
+                                $r['confirmation_url'] = $this->N->createConfirmationUrl($v, 'simple');
                             }
                             $dur2 = T::addDurationToNow(SETTINGS['values']['show_time_proposal']);
                             if ($in_future && $topic->isLektion() && $v->isBefore($dur2)) {
