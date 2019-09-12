@@ -15,6 +15,7 @@ class PasswordHandler
     /* @var array $words */
     private $words;
     private $nr_words;
+    private $settings;
     /* @var string $salt  */
     private $salt;
 
@@ -27,6 +28,7 @@ class PasswordHandler
 
     public function __construct(array $settings = [])
     {
+        $this->settings = $settings;
         $this->salt = $settings['salt'] ?? '';
     }
 
@@ -114,7 +116,13 @@ class PasswordHandler
 
     public function getSalt(): string
     {
-        return $this->salt;
+        return $this->settings['salt'];
+
+    }
+
+    public function getCookieValidity(): array
+    {
+        return $this->settings['cookie_validity'];
 
     }
 

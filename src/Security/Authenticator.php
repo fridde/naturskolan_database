@@ -216,7 +216,7 @@ class Authenticator
     public function setCookieKeyInBrowser(string $value, Carbon $exp_date = null): void
     {
         $key = self::COOKIE_KEY_NAME;
-        $exp_date = $exp_date ?? Timing::addDurationToNow([1, 'y']);
+        $exp_date = $exp_date ?? Timing::addDurationToNow($this->PWH->getCookieValidity());
 
         setcookie($key, $value, $exp_date->timestamp, '/');
     }
