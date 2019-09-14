@@ -51,7 +51,7 @@ cron_items:
     send_changed_groupleader_mail: 'Send Changed Groupleader Mail'
     send_new_user_mail: 'Send New User Mail'
     send_update_profile_reminder: 'Send Update Profile Reminder'
-    create_new_passwords: 'Create New Passwords'
+    write_current_passwords: 'Write Current Passwords'
     clean_sql_database: 'Clean Sql Database'
     backup_database: 'Backup Database'
 
