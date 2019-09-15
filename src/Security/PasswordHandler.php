@@ -14,6 +14,7 @@ class PasswordHandler
     private $key;
     /* @var array $words */
     private $words;
+    /* @var integer $nr_words  */
     private $nr_words;
     private $settings;
     /* @var string $salt  */
