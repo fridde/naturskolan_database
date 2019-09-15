@@ -271,9 +271,11 @@ class CronCest
         $I->haveNumberOfUnreadEmails($expected_mail_nr + 1);
     }
 
-    // codecept run acceptance CronCest:createNewPasswords --steps -f
-    public function createNewPasswords(A $I)
+    // codecept run acceptance CronCest:writeCurrentPasswords --steps -f
+    public function writeCurrentPasswords(A $I)
     {
+        /*
+         * TODO: recreate this function
         $I->emptyFilesInFolder('temp');
 
         $initial_pw_count = 23;
@@ -294,7 +296,9 @@ class CronCest
         $I->seeNumRecords($initial_pw_count * 2, 'hashes', ['Category' => 3]);
 
         $I->assertNotEmpty($I->getFileNamesFromFolder('temp'));
+    */
      }
+
 
     public function cleanSqlDatabase(A $I)
     {
