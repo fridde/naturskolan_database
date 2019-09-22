@@ -65,31 +65,37 @@ class PasswordHandler
         return dirname($this->getWordFilePath()).'/';
     }
 
-    private function setWordArrayFromFile()
+    private function getWordArray(): array
+    {
+        if(empty($this->words)){
+            $this->setWordArrayFromFile();
+        }
+
+        return $this->words;
+    }
+
+    private function setWordArrayFromFile(): void
     {
         $encrypted_word_string = file_get_contents($this->getWordFilePath());
         $encrypted_words = Crypto::decrypt($encrypted_word_string, $this->getEncryptionKey());
         $this->words = explode(self::PW_DELIMITER, $encrypted_words);
 
-        return $this->words;
+        $this->nr_words = count($this->words);
+
+        return;
     }
 
     public function getWordsForId(string $id_string): array
     {
-        $this->words = $this->words ?? $this->setWordArrayFromFile();
+        $words = [];
+        $possible_words = $this->getWordArray();
 
         $hash = md5($id_string);
-        $this->nr_words = $this->nr_words ?? count($this->words);
-        $exponent = ceil(log($this->nr_words, self::MD5_BASE));
-        $indices = array_slice(str_split($hash, $exponent), 0, self::NR_OF_WORDS_IN_PW);
+        mt_srand(hexdec(substr($hash,0,8))); // seeding the random generator
 
-        $max_val = self::MD5_BASE ** $exponent;
-        $words = [];
-
-        foreach ($indices as $i) {
-            $dx = hexdec($i);
-            $word_index = (int)floor(($dx / $max_val) * $this->nr_words);
-            $words[] = $this->words[$word_index];
+        foreach(range(1, self::NR_OF_WORDS_IN_PW) as $i){
+            $word_index = mt_rand(0, $this->nr_words - 1);
+            $words[] = $possible_words[$word_index];
         }
 
         return $words;
