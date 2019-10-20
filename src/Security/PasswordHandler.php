@@ -22,8 +22,6 @@ class PasswordHandler
 
     private $word_file = 'config/words.txt';
 
-    public const MD5_BASE = 16;
-
     public const NR_OF_WORDS_IN_PW = 3;
     public const PW_DELIMITER = '.';
 
