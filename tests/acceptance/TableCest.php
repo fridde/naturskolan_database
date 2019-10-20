@@ -130,7 +130,7 @@ class TableCest
         $I->seeInField($first_school_row_field, 'Josefinaskolan');
 
         $I->pauseExecution();
-        $button_path = '//div[@class="dt-buttons btn-group"]//button[last()]'; // Button for "Spara besöksordningen"
+        $button_path = '//span[contains(text(), "besöksordning")]'; // Button for "Spara besöksordningen"
         $I->click($button_path);
         $I->pause(0.7);
 

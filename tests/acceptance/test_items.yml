@@ -4,13 +4,13 @@ test_date: '2018-06-01'
 
 natu:
     AuthKey: 'natu_afb4269acdfacb062b6099ff39cbda07'
-    pw: 'distrikt.bonde.nysa'
+    pw: 'bark.fartyg.vävar'
     
 gala:
-    pw: 'något.anpassa.klart'
+    pw: 'trogen.pneumatisk.lotusar'
 
 st_per:
-    pw: 'hästar.ryka.blåsippa'
+    pw: 'prägel.trender.upplysa'
     AuthKey: 'pers_7615775972d550a089f5cec9cb4a1a44'
     teachers:
           - 'Tomas Samuelsson'
