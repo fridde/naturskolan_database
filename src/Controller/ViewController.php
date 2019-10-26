@@ -29,7 +29,7 @@ class ViewController extends BaseController
         'mail' => 'viewMailTemplates'
     ];
 
-    public function handleRequest()
+    public function handleRequest(): void
     {
         $this->addAction($this->getParameter('page'));
 
@@ -39,7 +39,7 @@ class ViewController extends BaseController
         parent::handleRequest();
     }
 
-    public function viewFoodOrder()
+    public function viewFoodOrder(): void
     {
         $visits = $this->getVisitsWithFood();
         $collection = $this->indexIntoWeekAndDays($visits);
@@ -66,7 +66,7 @@ class ViewController extends BaseController
         $this->setTemplate('admin/food_order');
     }
 
-    public function viewBus()
+    public function viewBus(): void
     {
         $visits = $this->getVisitsWithBus();
         $locations = [];
@@ -254,7 +254,6 @@ class ViewController extends BaseController
         }
 
         return ['date_strings' => $date_strings, 'calendar' => $calendar];
-
     }
 
     private function getVisitRepo()
