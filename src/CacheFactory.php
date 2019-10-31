@@ -87,7 +87,7 @@ class CacheFactory
 
     public function flushIfNeeded(): void
     {
-        $file = $this->base_dir.self::$flush_needed_filename;
+        $file = $this->base_dir . self::$flush_needed_filename;
 
         if (file_exists($file)) {
             $this->cache->save(Settings::FLUSH_NOW_KEY, true);
