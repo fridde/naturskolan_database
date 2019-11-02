@@ -32,4 +32,4 @@ routes:
    table : ['GET','/table/{entity}','Table','view']
    task : ['GET','/task/{type}/{AuthKey}','Cron','executeTaskNow', 'AuthKey']
    update : ['POST','/update','Update']
-   view : ['GET','/view/{page}','View']
+   view : ['GET','/view/{page}/{parameters}','View', ~, {parameters: '.+'}]

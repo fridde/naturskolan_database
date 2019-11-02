@@ -8,15 +8,14 @@ use Fridde\Essentials;
 try {
     require __DIR__ .'/bootstrap.php';
 
-    //$request_url = rtrim(rawurldecode($_SERVER['REQUEST_URI']), '/\\');
-
     $match = $container->get('Router')->match();
 
-    $controller_class = $match[0];
-    $controller = new $controller_class($match[2]);
+    [$controller_class, $action, $params] = $match;
+
+    $controller = new $controller_class($params);
 
     if ($controller instanceof BaseController) {
-       $controller->addAction($match[1]);
+       $controller->addAction($action);
        $controller->handleRequest();
     }
     exit();

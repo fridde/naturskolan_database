@@ -49,7 +49,6 @@ class FileController extends BaseController
         $data['dispatch'] = $dispatch;
 
         $this->setDATA($data);
-        // set DATA
 
         $this->setTemplate('admin/single_mail_template');
         $this->setReturnType(self::RETURN_TEXT);

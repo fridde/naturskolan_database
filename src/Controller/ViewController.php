@@ -2,9 +2,9 @@
 
 namespace Fridde\Controller;
 
-use Fridde\Annotations\SecurityLevel;
 use Fridde\Entities\Group;
 use Fridde\Entities\Topic;
+use Fridde\Entities\TopicRepository;
 use Fridde\Entities\User;
 use Fridde\Entities\UserRepository;
 use Fridde\Entities\Visit;
@@ -12,6 +12,7 @@ use Fridde\Entities\VisitRepository;
 use Carbon\Carbon;
 use Fridde\HTML;
 use Fridde\Utility;
+use Fridde\Annotations\SecurityLevel; // don't remove! used in annotations
 
 
 /**
@@ -105,7 +106,7 @@ class ViewController extends BaseController
         $this->setTemplate('admin/bus_order');
     }
 
-    public function viewMailTemplates()
+    public function viewMailTemplates(string $subject = null, string $segment = null)
     {
         $data = $this->compileMailData();
 
@@ -118,6 +119,8 @@ class ViewController extends BaseController
     {
         /* @var UserRepository $u_repo */
         $u_repo = $this->N->getRepo('User');
+        /* @var TopicRepository $u_repo */
+        $t_repo = $this->N->getRepo('Topic');
 
         $users = $u_repo->findActiveUsersWithVisitingGroups();
 
@@ -131,7 +134,7 @@ class ViewController extends BaseController
                 $r[0]['name'] = $t->getLongestName();
                 return $r;
             },
-            $this->N->getRepo('Topic')->findAll()
+            $t_repo->findAll()
         );
         $topics = array_column($topics, 0, 'id');
 
@@ -181,7 +184,10 @@ class ViewController extends BaseController
 
                         $g_data['visits'][$v_id] = $v_data;
                     }
-                    $g_data['first_visit_id'] = reset($g_data['visits'])['id'];
+                    $g_data['first_visit_id'] = null;
+                    if(! empty($g_data['visits'])){
+                        $g_data['first_visit_id'] = array_values($g_data['visits'])[0]['id'];
+                    }
                     $u_data['segments'] = array_unique($u_data['segments']);
 
                     $users_by_segments[$g->getSegment()][$u->getId()] = $u_data;
