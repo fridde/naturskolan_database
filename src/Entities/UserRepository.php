@@ -36,17 +36,19 @@ class UserRepository extends CustomRepository
         return $users;
     }
 
-    public function findActiveUsersWithVisitingGroups(): array
+    public function findActiveUsersWithVisitingGroups(array $users = null): array
     {
+        $users = $users ?? $this->findActiveUsers();
+
         $users = array_filter(
-            $this->findActiveUsers(),
-            function(User $u){
+            $users,
+            function (User $u) {
                 return $u->hasActiveGroupsVisitingInTheFuture();
             }
         );
 
         return $users;
-        
+
     }
 
     public function findIncompleteUsersWithVisitingGroups($created_before = null): array
@@ -110,23 +112,90 @@ class UserRepository extends CustomRepository
 
     public function findActiveUsersHavingGroupInSegment(string $segment = null)
     {
-        return array_filter(
-            $this->findActiveUsers(),
-            function (User $u) use ($segment) {
-                if ($segment === null) {
-                    return true;
-                }
-                $groups = $u->getGroups();
-                foreach ($groups as $group) {
-                    /* @var Group $group */
-                    if ($group->getSegment() === $segment) {
-                        return true;
-                    }
-                }
+        return $this->all()->active()->hasGroupInSegment($segment)->fetch();
+    }
 
-                return false;
+
+    public function active(): self
+    {
+        return $this->filterByFunction('active');
+    }
+
+    public function incomplete(): self
+    {
+        return $this->filterByFunction('incomplete');
+    }
+
+    public function createdBefore($created_before = null): self
+    {
+        return $this->filterByFunction('createdbefore', $created_before);
+    }
+
+    public function hasGroupInSegment(string $segment = null): self
+    {
+        return $this->filterByFunction('hasgroupinsegment', $segment);
+    }
+
+    public function isColleague(): self
+    {
+        return $this->filterByFunction('iscolleague');
+    }
+
+    public function hasVisitingGroup(): self
+    {
+        return $this->filterByFunction('hasvisitinggroup');
+    }
+
+    public function hasBadMobileNumber(): self
+    {
+        return $this->filterByFunction('hasbadmobilenumber');
+    }
+
+    public function isManager(): self
+    {
+        return $this->filterByFunction('isManager');
+    }
+
+    private function filterByFunction(string $function_name, ...$args): self
+    {
+        $this->selection = array_filter(
+            $this->selection,
+            function (User $u) use ($function_name, $args){
+                switch(strtolower($function_name)){
+                    case 'active':
+                        return $u->isActive();
+                        break;
+                    case 'incomplete':
+                        return !($u->hasMobil() && $u->hasMail());
+                        break;
+                    case 'createdbefore':
+                        return !$u->wasCreatedAfter($args[0]);
+                        break;
+                    case 'hasgroupinsegment':
+                        return $u->hasGroupsWithCriteria(['in_segment' => $args[0]]);
+                        break;
+                    case 'iscolleague':
+                        return $u->isFromSchool('natu');
+                        break;
+                    case 'hasvisitinggroup':
+                        return $u->hasActiveGroupsVisitingInTheFuture();
+                        break;
+                    case 'hasbadmobilenumber':
+                        return $u->hasMobil() && !$u->hasStandardizedMob();
+                        break;
+                    case 'ismanager':
+                        return $u->hasRole(User::ROLE_SCHOOL_MANAGER);
+                        break;
+                    default:
+                        throw new \Exception('The function "'. $function_name .'"  has no defined behaviour.');
+                }
             }
         );
+
+        return $this;
+
     }
+
+
 
 }

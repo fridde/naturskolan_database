@@ -155,10 +155,14 @@ class Buttons {
             });
         });
 
-        $('#mail_type_selector').change((e) => {
-            let type = $(e.target).val();
-            let $a = $('#download_all_mails');
-            $a.attr('href', $a.data('base') + type);
+        $('.mail_selector').change((e) => {
+            let $subject = $('input[name="subject"]:checked').val();
+            let $segment = $('input[name="segment"]:checked').val();
+            let $links = $('#download_all_mails, #refresh_mail_view');
+            $links.each(function(i, e){
+                $(e).attr('href', $(e).data('base') + $subject + '/'+ $segment);
+                }
+            );
         });
 
     }

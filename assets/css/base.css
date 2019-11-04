@@ -254,6 +254,10 @@ div#fullpage-calendar {
     margin: 3px;
 }
 
+input[type='text'].copy-field {
+    font-size: 0.5em;
+}
+
 .card {
     background-color: var(--egg-yellow);
 }

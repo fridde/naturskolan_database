@@ -4,7 +4,7 @@
     {%- set user = DATA.user -%}
 {%- endif -%}
 
-{%- set topics, groups_by_users, disp = DATA.topics, DATA.groups_by_users, DATA.dispatch -%}
+{%- set topics, groups_by_users, subject = DATA.topics, DATA.groups_by_users, DATA.subject -%}
 {%- set missing_text = {
     group: {
         'number_students': 'Antal elever',
@@ -77,10 +77,10 @@
 } -%}
 
 
-{%- set start_text = snippets[seg][disp]['start']|replace(replacements) -%}
-{%- set next_visit_text = snippets['default'][disp]['next_visit']|replace(replacements) -%}
-{%- set theme_text = snippets[seg][disp]['theme']|replace(replacements) -%}
-{%- set need_to_know_text = snippets['default'][disp]['need_to_know']|replace(replacements) -%}
+{%- set start_text = snippets[seg][subject]['start']|replace(replacements) -%}
+{%- set next_visit_text = snippets['default'][subject]['next_visit']|replace(replacements) -%}
+{%- set theme_text = snippets[seg][subject]['theme']|replace(replacements) -%}
+{%- set need_to_know_text = snippets['default'][subject]['need_to_know']|replace(replacements) -%}
 
 <html>
 <h1>Hej {{ user.fname }}!</h1>

@@ -164,9 +164,9 @@ class Group
         $this->Segment = $Segment;
     }
 
-    public function isSegment($Segment)
+    public function isSegment(string $Segment)
     {
-        return $this->getSegment() === (string)$Segment;
+        return $this->getSegment() === $Segment;
     }
 
     public function getStartYear()

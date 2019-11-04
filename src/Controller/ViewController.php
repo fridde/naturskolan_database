@@ -108,21 +108,23 @@ class ViewController extends BaseController
 
     public function viewMailTemplates(string $subject = null, string $segment = null)
     {
-        $data = $this->compileMailData();
+        $data = $this->compileMailData($subject, $segment);
 
         $this->addToDATA($data);
 
         $this->setTemplate('admin/mail_templates');
     }
 
-    public function compileMailData(): array
+    public function compileMailData(string $subject = null, string $segment = null): array
     {
         /* @var UserRepository $u_repo */
         $u_repo = $this->N->getRepo('User');
         /* @var TopicRepository $u_repo */
         $t_repo = $this->N->getRepo('Topic');
 
-        $users = $u_repo->findActiveUsersWithVisitingGroups();
+        $users = $u_repo->findActiveUsersHavingGroupInSegment($segment);
+
+        $users = $u_repo->findActiveUsersWithVisitingGroups($users);
 
         $users_by_segments = [];
         $groups_by_users = [];

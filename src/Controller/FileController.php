@@ -35,18 +35,18 @@ class FileController extends BaseController
     }
 
     /**
-     * @param string $dispatch
+     * @param string $subject
      * @throws \Fridde\Error\NException
      *
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
 
-    public function getAllMails(string $dispatch = 'new')
+    public function getAllMails(string $subject = 'new', string $segment = null)
     {
         $this->removeAction('mail');
         $vc = new ViewController();
-        $data = $vc->compileMailData();
-        $data['dispatch'] = $dispatch;
+        $data = $vc->compileMailData($subject, $segment);
+        $data['subject'] = $subject;
 
         $this->setDATA($data);
 
@@ -54,7 +54,7 @@ class FileController extends BaseController
         $this->setReturnType(self::RETURN_TEXT);
 
         $date_string = Utility::replaceNonAlphaNumeric(Carbon::now()->toDateTimeString());
-        $file_name = 'mails_'. $dispatch . '_' . $date_string . '.zip';
+        $file_name = 'mails_'. $subject . '_' . $date_string . '.zip';
 
         $zip = new ZipStream($file_name);
 

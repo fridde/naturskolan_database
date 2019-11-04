@@ -10,24 +10,25 @@
 
 {%- block content -%}
 
-    <button><a data-base="file/mail/" href="file/mail/new" target="_blank" id="download_all_mails">Ladda ner mejl</a></button>
-    <button><a href="" id="refresh_mail_view">Uppdatera sidan</a></button>
 
-    <form>
+
+    <form class="mail_selector">
+        <button><a data-base="file/mail/" href="" id="download_all_mails" target="_blank">Ladda ner mejl</a></button>
+        <button><a data-base="view/mail/" href="" id="refresh_mail_view">Uppdatera sidan</a></button>
         <div class="row">
-            <div class="col">
-                {% for segment, segment_label in segments %}
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="segment" id="radio_{{ segment }}" value="{{ segment }}">
-                        <label class="form-check-label" for="radio_{{ segment }}">{{- segment_label -}}</label>
-                    </div>
-                {% endfor %}
-            </div>
             <div class="col">
                 {% for subject, subject_label in subjects %}
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="subject" id="radio_{{ subject }}" value="{{ subject }}">
                         <label class="form-check-label" for="radio_{{ subject }}">{{- subject_label -}}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col">
+                {% for segment, segment_label in segments %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="segment" id="radio_{{ segment }}" value="{{ segment }}">
+                        <label class="form-check-label" for="radio_{{ segment }}">{{- segment_label -}}</label>
                     </div>
                 {% endfor %}
             </div>
@@ -49,7 +50,12 @@
     <tr>
         <td>{{ user.id }}</td>
         <td>
-            <a href="mailto: {{- user.mail -}} ?subject={{ DATA.mail_subject_text|e('url') }}Dina%20besök%20på%20Naturskolan"><i class="fas fa-envelope"></i></a>{{ user.full_name }}
+            {{ user.full_name }}
+        </td>
+        <td>
+            <a href="mailto: {{- user.mail -}} ?subject={{ DATA.mail_subject_text|e('url') }}Dina%20besök%20på%20Naturskolan">
+                <button><i class="fas fa-envelope"></i></button>
+            </a>
         </td>
         <td><button class="copy-to-clipboard" data-target="{{ file_name_id }}"><i class="fas fa-copy"></i></button></td>
         <td><input class="copy-field" type="text" id="{{ file_name_id }}" value="{{ user.file_name }}"></td>

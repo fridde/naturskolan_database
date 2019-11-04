@@ -267,7 +267,8 @@ class User
 
     public function isActive(): bool
     {
-        return $this->getStatusString() === 'active';
+        return $this->getStatus() === User::ACTIVE;
+        // return $this->getStatusString() === 'active';
     }
 
     public function getLastChange()
@@ -409,7 +410,8 @@ class User
             'min' => 1,
             'active' => true,
             'visiting' => false,
-            'in_future' => false
+            'in_future' => false,
+            'in_segment' => null
         ];
 
         $criteria += $defaults;
@@ -430,6 +432,9 @@ class User
                 }
                 if ($criteria['in_future'] && !$g->hasNextVisit()) {
                     return false;
+                }
+                if(!empty($criteria['in_segment']) && !$g->isSegment($criteria['in_segment'])){
+                   return false;
                 }
 
                 return true;
