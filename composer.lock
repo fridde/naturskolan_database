@@ -1324,12 +1324,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fridde/orm.git",
-                "reference": "c79a9fcdf45b6c3d9aeed45db062762d58a0c695"
+                "reference": "f1449545c70f3c08de6d50dd91b233ce07dac455"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fridde/orm/zipball/c79a9fcdf45b6c3d9aeed45db062762d58a0c695",
-                "reference": "c79a9fcdf45b6c3d9aeed45db062762d58a0c695",
+                "url": "https://api.github.com/repos/fridde/orm/zipball/f1449545c70f3c08de6d50dd91b233ce07dac455",
+                "reference": "f1449545c70f3c08de6d50dd91b233ce07dac455",
                 "shasum": ""
             },
             "require": {
@@ -1356,7 +1356,7 @@
                 }
             ],
             "description": "A simple wrapper for Doctrine's data wrapper. A wrapper wrapper!",
-            "time": "2019-11-04T09:30:39+00:00"
+            "time": "2019-11-04T09:41:30+00:00"
         },
         {
             "name": "fridde/router",

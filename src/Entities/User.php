@@ -286,6 +286,10 @@ class User
 
     public function getCreatedAt()
     {
+        if(empty($this->CreatedAt)){
+            return null;
+        }
+
         if (is_string($this->CreatedAt)) {
             $this->CreatedAt = new Carbon($this->CreatedAt);
         }
@@ -490,12 +494,18 @@ class User
         $this->Notes = $Notes;
     }
 
-    public function wasCreatedAfter($date)
+    public function wasCreatedAfter($date): bool
     {
+        $created_at = $this->getCreatedAt();
+        if(empty($date) || empty($created_at)){
+            // we assume the user was created at the beginning of time
+            return false;
+        }
+
         if (is_string($date)) {
             $date = new Carbon($date);
         }
-        $created_at = $this->getCreatedAt() ?? Carbon::now();
+
 
         return $date->lte($created_at);
     }

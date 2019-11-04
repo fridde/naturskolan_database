@@ -287,7 +287,7 @@ class Group
     public function getSortedVisits(): array
     {
         $visits = $this->getVisits();
-        /*
+
         if (empty($visits)) {
             return [];
         }
@@ -298,7 +298,7 @@ class Group
                 return $v1->getDate()->lt($v2->getDate()) ? -1 : 1;
             }
         );
-        */
+
         return $visits;
     }
 

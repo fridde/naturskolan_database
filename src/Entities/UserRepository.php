@@ -25,89 +25,32 @@ class UserRepository extends CustomRepository
 
     public function findIncompleteUsers($created_before = null): array
     {
-        $users = array_filter(
-            $this->findActiveUsers(),
-            function (User $u) {
-                return !($u->hasMobil() && $u->hasMail());
-            }
-        );
-        $users = $this->removeImmune($users, $created_before);
-
-        return $users;
-    }
-
-    public function findActiveUsersWithVisitingGroups(array $users = null): array
-    {
-        $users = $users ?? $this->findActiveUsers();
-
-        $users = array_filter(
-            $users,
-            function (User $u) {
-                return $u->hasActiveGroupsVisitingInTheFuture();
-            }
-        );
-
-        return $users;
-
+        return $this->all()->active()->incomplete()->createdBefore($created_before)->fetch();
     }
 
     public function findIncompleteUsersWithVisitingGroups($created_before = null): array
     {
-        return array_filter(
-            $this->findIncompleteUsers($created_before),
-            function (User $u) {
-                return $u->hasActiveGroupsVisitingInTheFuture();
-            }
-        );
+        $criteria = ['in_future' => true];
+        $criteria['visiting'] = true;
 
+        return $this->all()->incomplete()->createdBefore($created_before)
+            ->hasGroupsWithCriteria($criteria)
+            ->fetch();
     }
 
     public function findUsersWithBadMobil($created_before = null): array
     {
-        $users = array_filter(
-            $this->findActiveUsers(),
-            function (User $u) {
-                return $u->hasMobil() && !$u->hasStandardizedMob();
-            }
-        );
-        $this->removeImmune($users, $created_before);
-
-        return $users;
-    }
-
-    private function removeImmune($users, $created_before = null): array
-    {
-        if (empty($created_before)) {
-            return $users;
-        }
-
-        return array_filter(
-            $users,
-            function (User $u) use ($created_before) {
-                return !$u->wasCreatedAfter($created_before);
-            }
-        );
+        return $this->all()->active()->hasBadMobileNumber()->createdBefore($created_before)->fetch();
     }
 
     public function getActiveColleagues(): array
     {
-        return array_filter(
-            $this->findAll(),
-            function (User $u) {
-                return $u->isActive() && $u->isFromSchool('natu');
-            }
-        );
-
+        return $this->all()->active()->isColleague()->fetch();
     }
 
     public function getActiveManagers(): array
     {
-        return array_filter(
-            $this->findActiveUsers(),
-            function (User $u) {
-                return $u->hasRole(User::ROLE_SCHOOL_MANAGER);
-            }
-        );
+        return $this->all()->active()->isManager()->fetch();
     }
 
     public function findActiveUsersHavingGroupInSegment(string $segment = null)
@@ -156,6 +99,11 @@ class UserRepository extends CustomRepository
         return $this->filterByFunction('isManager');
     }
 
+    public function hasGroupsWithCriteria(array $criteria = []): self
+    {
+        return $this->filterByFunction('hasGroupsWithCriteria');
+    }
+
     private function filterByFunction(string $function_name, ...$args): self
     {
         $this->selection = array_filter(
@@ -185,6 +133,9 @@ class UserRepository extends CustomRepository
                         break;
                     case 'ismanager':
                         return $u->hasRole(User::ROLE_SCHOOL_MANAGER);
+                        break;
+                    case 'hasgroupswithcriteria':
+                        return $u->hasGroupsWithCriteria($args[0]);
                         break;
                     default:
                         throw new \Exception('The function "'. $function_name .'"  has no defined behaviour.');

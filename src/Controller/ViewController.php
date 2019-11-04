@@ -122,9 +122,8 @@ class ViewController extends BaseController
         /* @var TopicRepository $u_repo */
         $t_repo = $this->N->getRepo('Topic');
 
-        $users = $u_repo->findActiveUsersHavingGroupInSegment($segment);
-
-        $users = $u_repo->findActiveUsersWithVisitingGroups($users);
+        $criteria = ['visiting' => true, 'in_future' => true, 'in_segment' => $segment];
+        $users = $u_repo->all()->active()->hasGroupsWithCriteria($criteria)->fetch();
 
         $users_by_segments = [];
         $groups_by_users = [];
@@ -152,6 +151,8 @@ class ViewController extends BaseController
             $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['full_name'], $u_data['id']);
             $u_data['segments'] = [];
 
+            $u_data['login_link'] = $this->N->createLoginUrl($u);
+
             $groups = $u->getGroups();
             foreach ($groups as $g) {
                 /* @var Group $g */
@@ -165,7 +166,7 @@ class ViewController extends BaseController
                     $u_data['group_names'][] = $g->getName();
                     $u_data['segments'][] = $g->getSegment();
 
-                    $visits = $g->getFutureVisits();
+                    $visits = $g->getFutureVisits(); // is already sorted, but can be empty
                     foreach($visits as $v){
                         /* @var Visit $v  */
                         $v_data = [];
