@@ -18,34 +18,19 @@
 
 {%- set snippets = {
     '2': {
-        'new': {
-            'start': 'Vår- och höstterminen %year% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
-            'theme': 'Temat för de sex dagarna är ”Din omgivning”. Vad finns i den omgivande naturen? Vad ser du när du tittar dig omkring?'
-        },
-        'continued': {
-            'start': 'Äventyret med Naturskolan och %group_salutation% under vår- och höstterminen %year% fortsätter.',
-            'theme': 'Vi fortsätter med temat "Din omgivning".'
-        }
+        'start': 'Äventyret med Naturskolan och %group_salutation% under vår- och höstterminen %year% fortsätter.',
+        'theme': 'Vi fortsätter med temat "Din omgivning".'
+
     },
     '5': {
-        'new': {
-            'start': 'Under hösttermin %year% och vårtermin %year_plus_one% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
-            'theme': 'Temat för de sex dagarna är ”Processer i naturen”. Vilka processer styr naturen? Vad gör att din omgivning förändras med tiden?'
-        },
-        'continued': {
-            'start': 'Äventyret med Naturskolan och %group_salutation% under hösttermin %year_minus_one% och vårtermin %year% fortsätter.',
-            'theme': 'Vi fortsätter med temat "Processer i naturen".'
-        }
+        'start': 'Äventyret med Naturskolan och %group_salutation% under hösttermin %year_minus_one% och vårtermin %year% fortsätter.',
+        'theme': 'Vi fortsätter med temat "Processer i naturen".'
+
     },
     'default': {
-        'new': {
-            'next_visit': 'Nästa dag (och kanske första dag för dig) heter %first_topic_name% och är på %first_topic_date%. ',
-            'need_to_know': 'Vi behöver snarast veta:'
-        },
-        'continued': {
-            'next_visit': 'Nästkommande besök heter %first_topic_name% och är på %first_topic_date%.',
-            'need_to_know': 'Vi vill att du kontrollerar snarast:'
-        }
+        'next_visit': 'Nästkommande besök heter %first_topic_name% och är på %first_topic_date%.',
+        'need_to_know': 'Vi vill att du kontrollerar snarast:'
+
     },
 } -%}
 
@@ -77,21 +62,26 @@
 } -%}
 
 
-{%- set start_text = snippets[seg][subject]['start']|replace(replacements) -%}
-{%- set next_visit_text = snippets['default'][subject]['next_visit']|replace(replacements) -%}
-{%- set theme_text = snippets[seg][subject]['theme']|replace(replacements) -%}
-{%- set need_to_know_text = snippets['default'][subject]['need_to_know']|replace(replacements) -%}
+{%- set start_text = snippets[seg]['start']|replace(replacements) -%}
+{%- set next_visit_text = snippets['default']['next_visit']|replace(replacements) -%}
+{%- set theme_text = snippets[seg]['theme']|replace(replacements) -%}
+{%- set need_to_know_text = snippets['default']['need_to_know']|replace(replacements) -%}
 
 <html>
 <h1>Hej {{ user.fname }}!</h1>
 <p>{{ start_text }}</p>
 
-<p>{{ next_visit_text }} All information om dagen finns på <a href="{{ next_topic.url }}">temadagens informationssida</a>.<br>
-    Där ser du också om du och klassen blir hämtade av en buss (som vi beställer) och om du behöver ta med mat eller inte.
+<p>{{ next_visit_text }} All information om dagen finns på <a href="{{ next_topic.url }}">temadagens
+        informationssida</a>.<br>
+    Där ser du också om du och klassen blir hämtade av en buss (som vi beställer) och om du behöver ta med mat eller
+    inte.
 </p>
-<p>{{  theme_text }} Du hittar all information på <a href="http://www.sigtunanaturskola.se/">www.sigtunanaturskola.se</a> . Kolla gärna igenom innehållet i dagarna, så du vet hur de kan passa in i din undervisning. Det slutliga målet med all vår undervisning är att eleven ska bli en miljömedveten ”planetskötare”.
+<p>{{ theme_text }} Du hittar all information på <a href="http://www.sigtunanaturskola.se/">www.sigtunanaturskola.se</a>
+    . Kolla gärna igenom innehållet i dagarna, så du vet hur de kan passa in i din undervisning. Det slutliga målet med
+    all vår undervisning är att eleven ska bli en miljömedveten ”planetskötare”.
 </p>
-<p>Ett första steg kan vara att titta på vår <a href="https://www.youtube.com/watch?v=R6CZifxXnMQ">introduktionsfilm för dig som pedagog</a>!</p>
+<p>Ett första steg kan vara att titta på vår <a href="https://www.youtube.com/watch?v=R6CZifxXnMQ">introduktionsfilm för
+        dig som pedagog</a>!</p>
 
 <h2>Här är dina dagar:</h2>
 
@@ -106,7 +96,7 @@
     {% for attribute, text in missing_text['group'] %}
         {% set extra = missing_text['group'][attribute] %}
         {% if multi_group %}
-            {% set extra = extra ~ ' (för grupp ' ~ group.name ~ ')'  %}
+            {% set extra = extra ~ ' (för grupp ' ~ group.name ~ ')' %}
         {% endif %}
         {% if group[attribute] %}
             {% set extra = extra ~ '. Vi har antecknat: ' ~ group[attribute] ~ ' --> Stämmer det?' %}
@@ -120,7 +110,7 @@
 
 {% set extra = missing_text['user']['mobil'] %}
 {% if user.mobil %}
-    {% set extra = extra ~ '. Vi har antecknat: ' ~ user.mobil ~ ' --> Stämmer det?'  %}
+    {% set extra = extra ~ '. Vi har antecknat: ' ~ user.mobil ~ ' --> Stämmer det?' %}
 {% else %}
     {% set extra = extra ~ '.' %}
 {% endif %}
@@ -141,5 +131,6 @@
     Friedrich från Naturskolan
 <p>073-6665275</p>
 <hr>
-<p>Sigtuna Naturskola är Sigtuna kommuns satsning på naturvetenskap, friluftsliv och hållbar utveckling. På uppdrag av BUN möter vi alla kommunens elever med temadagar för åk 2/3, åk 5 och åk 9.</p>
+<p>Sigtuna Naturskola är Sigtuna kommuns satsning på naturvetenskap, friluftsliv och hållbar utveckling. På uppdrag av
+    BUN möter vi alla kommunens elever med temadagar för åk 2/3, åk 5 och åk 9.</p>
 </html>
