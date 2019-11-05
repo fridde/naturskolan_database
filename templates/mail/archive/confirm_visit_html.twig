@@ -1,0 +1,59 @@
+{% extends "mail/common/base_mail.twig" %}
+
+{% block title %}Bekräfta ditt besök!{% endblock %}
+
+{% block preheader_text %}
+    Snart ska du och din grupp möta oss från Naturskolan! Vi ber dig att bekräfta att ni kommer!
+{% endblock %}
+
+{% block image_text_box %}
+    <div>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+
+                <td valign="middle"
+                    style="text-align: center; padding: 40px; font-size: 20px; font-weight: 900; line-height: 140%; color: #000000;">
+                    <p style="margin: 0;"> Ses vi snart? </p>
+                    <p style="margin: 0;"><a
+                            href="{{ visit.topic_url }}">{{ visit.topic_label }}</a><br>är planerad för</p>
+                    <p style="margin: 0;">{{ visit.date_string }}</p>
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <!-- Button : BEGIN -->
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center"
+                           style="margin: auto;">
+                        <tr>
+                            <td style="border-radius: 10px; background: #222222; text-align: center;"
+                                class="button-td">
+                                <a href="{{ visit.confirmation_url }}"
+                                   style="background: #222222; border: 15px solid #222222; font-size: 13px; line-height: 110%; text-align: center; text-decoration: none; display: block; border-radius: 10px; font-weight: bold;"
+                                   class="button-a" target="_blank">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;<span
+                                        style="color:#ffffff;">Bekräfta besöket!</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                    <!-- Button : END -->
+                </td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}
+
+{% block body_text %}
+    <p style="margin: 0;">
+        Snart är det dags för att du, {{ visit.group_name }} och vi från Naturskolan ska
+        ses. Vi vill gärna veta att du vet om det. Klicka på länken ovan så vet vi!
+    </p>
+{% endblock %}
+
+{% block why_this_mail %}
+    {{ parent() }}
+    <p style="margin: 0;">
+        Vi behöver din bekräftelse för att se att du har nåtts av inbjudan och för att veta att du inte blir överraskad av ditt möte med Naturskolan. Hoppas på din förståelse!
+    </p>
+{% endblock %}

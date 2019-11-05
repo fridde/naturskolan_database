@@ -12,7 +12,7 @@ class FileController extends BaseController
     private const CALENDAR_FILE = 'kalender.ics';
 
     public static $ActionTranslator = [
-        'mail' => 'getAllMails'
+        'mail' => 'downloadAllMails'
     ];
 
     /**
@@ -41,7 +41,7 @@ class FileController extends BaseController
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
 
-    public function getAllMails(string $subject = 'new', string $segment = null)
+    public function downloadAllMails(string $subject = 'new', string $segment = null)
     {
         $this->removeAction('mail');
         $vc = new ViewController();
@@ -50,7 +50,7 @@ class FileController extends BaseController
 
         $this->setDATA($data);
 
-        $this->setTemplate('admin/single_mail_template');
+        $this->setTemplate('mail/single_mail_template');
         $this->setReturnType(self::RETURN_TEXT);
 
         $date_string = Utility::replaceNonAlphaNumeric(Carbon::now()->toDateTimeString());

@@ -1,0 +1,145 @@
+{# DATA.current_year #}
+
+{%- if DATA.user -%}
+    {%- set user = DATA.user -%}
+{%- endif -%}
+
+{%- set topics, groups_by_users, subject = DATA.topics, DATA.groups_by_users, DATA.subject -%}
+{%- set missing_text = {
+    group: {
+        'number_students': 'Antal elever',
+        'food': 'Specialkost',
+        'info': 'Övrig information om klassen som kan vara bra för oss att veta'
+    },
+    user: {
+        'mobil': 'Ditt mobilnummer'
+    }
+} -%}
+
+{%- set snippets = {
+    '2': {
+        'new': {
+            'start': 'Vår- och höstterminen %year% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
+            'theme': 'Temat för de sex dagarna är ”Din omgivning”. Vad finns i den omgivande naturen? Vad ser du när du tittar dig omkring?'
+        },
+        'continued': {
+            'start': 'Äventyret med Naturskolan och %group_salutation% under vår- och höstterminen %year% fortsätter.',
+            'theme': 'Vi fortsätter med temat "Din omgivning".'
+        }
+    },
+    '5': {
+        'new': {
+            'start': 'Under hösttermin %year% och vårtermin %year_plus_one% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
+            'theme': 'Temat för de sex dagarna är ”Processer i naturen”. Vilka processer styr naturen? Vad gör att din omgivning förändras med tiden?'
+        },
+        'continued': {
+            'start': 'Äventyret med Naturskolan och %group_salutation% under hösttermin %year_minus_one% och vårtermin %year% fortsätter.',
+            'theme': 'Vi fortsätter med temat "Processer i naturen".'
+        }
+    },
+    'default': {
+        'new': {
+            'next_visit': 'Nästa dag (och kanske första dag för dig) heter %first_topic_name% och är på %first_topic_date%. ',
+            'need_to_know': 'Vi behöver snarast veta:'
+        },
+        'continued': {
+            'next_visit': 'Nästkommande besök heter %first_topic_name% och är på %first_topic_date%.',
+            'need_to_know': 'Vi vill att du kontrollerar snarast:'
+        }
+    },
+} -%}
+
+{%- set groups = groups_by_users[user.id] -%}
+{%- set next_visit = user.next_visit -%}
+{%- set next_topic = topics[next_visit.topic_id] -%}
+{%- set missing = [] -%}
+{%- if user.segments|length == 1 -%}
+    {%- set seg = user.segments|first -%}
+{%- else -%}
+    {%- set seg = 'default' -%}
+{%- endif -%}
+
+{%- if groups|length > 1 -%}
+    {%- set multi_group = true -%}
+    {%- set group_salutation = 'dina klasser ' ~ user.group_names|join(', ', ' och ') -%}
+{%- else -%}
+    {%- set multi_group = false -%}
+    {%- set group_salutation = 'din klass ' ~  user.group_names|first -%}
+{%- endif -%}
+
+{%- set replacements = {
+    '%group_salutation%' : group_salutation,
+    '%first_topic_name%' : next_topic.name,
+    '%first_topic_date%' : next_visit.date,
+    '%year%': 'now'|date('Y'),
+    '%year_plus_one%' : '+ 365 days'|date('Y'),
+    '%year_minus_one%' : '- 365 days'|date('Y')
+} -%}
+
+
+{%- set start_text = snippets[seg][subject]['start']|replace(replacements) -%}
+{%- set next_visit_text = snippets['default'][subject]['next_visit']|replace(replacements) -%}
+{%- set theme_text = snippets[seg][subject]['theme']|replace(replacements) -%}
+{%- set need_to_know_text = snippets['default'][subject]['need_to_know']|replace(replacements) -%}
+
+<html>
+<h1>Hej {{ user.fname }}!</h1>
+<p>{{ start_text }}</p>
+
+<p>{{ next_visit_text }} All information om dagen finns på <a href="{{ next_topic.url }}">temadagens informationssida</a>.<br>
+    Där ser du också om du och klassen blir hämtade av en buss (som vi beställer) och om du behöver ta med mat eller inte.
+</p>
+<p>{{  theme_text }} Du hittar all information på <a href="http://www.sigtunanaturskola.se/">www.sigtunanaturskola.se</a> . Kolla gärna igenom innehållet i dagarna, så du vet hur de kan passa in i din undervisning. Det slutliga målet med all vår undervisning är att eleven ska bli en miljömedveten ”planetskötare”.
+</p>
+<p>Ett första steg kan vara att titta på vår <a href="https://www.youtube.com/watch?v=R6CZifxXnMQ">introduktionsfilm för dig som pedagog</a>!</p>
+
+<h2>Här är dina dagar:</h2>
+
+{% for group in groups -%}
+    {%- if multi_group %}<h5>{{ group.name }}</h5>{% endif -%}
+    <ul>
+        {% for visit in group.visits -%}
+            {%- set visit_topic = topics[visit.topic_id] -%}
+            <li><a href="{{ visit_topic.url }}">{{ visit_topic.name }}</a>: {{ visit.date }}</li>
+        {%- endfor %}
+    </ul>
+    {% for attribute, text in missing_text['group'] %}
+        {% set extra = missing_text['group'][attribute] %}
+        {% if multi_group %}
+            {% set extra = extra ~ ' (för grupp ' ~ group.name ~ ')'  %}
+        {% endif %}
+        {% if group[attribute] %}
+            {% set extra = extra ~ '. Vi har antecknat: ' ~ group[attribute] ~ ' --> Stämmer det?' %}
+        {% else %}
+            {% set extra = extra ~ '.' %}
+        {% endif %}
+
+        {% set missing = missing|merge([extra]) %}
+    {% endfor %}
+{% endfor %}
+
+{% set extra = missing_text['user']['mobil'] %}
+{% if user.mobil %}
+    {% set extra = extra ~ '. Vi har antecknat: ' ~ user.mobil ~ ' --> Stämmer det?'  %}
+{% else %}
+    {% set extra = extra ~ '.' %}
+{% endif %}
+{% set missing = missing|merge([extra]) %}
+
+{% if missing|length > 0 %}
+    <h2>{{ need_to_know_text }}</h2>
+    <ul>
+        {% for missing_row in missing %}
+            <li>{{ missing_row }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<p>Vänligen svara med ett mejl. Det går även bra att ringa oss.</p>
+<p>Ses snart!</p>
+<p>Hälsningar,<br>
+    Friedrich från Naturskolan
+<p>073-6665275</p>
+<hr>
+<p>Sigtuna Naturskola är Sigtuna kommuns satsning på naturvetenskap, friluftsliv och hållbar utveckling. På uppdrag av BUN möter vi alla kommunens elever med temadagar för åk 2/3, åk 5 och åk 9.</p>
+</html>
