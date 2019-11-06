@@ -1,12 +1,8 @@
 {%- extends "admin/admin_area.twig" -%}
 
 {%- set segments = {"2": "åk 2","5": "åk 5","9": "åk 9"} -%}
-{%- set subjects = {
-    "confirmation": "Bekräfta besök",
-    "incomplete_profile": "Mera information krävs",
-    "new": "Välkomstmejl",
-    "continued": "Mejl efter lovet"
-} -%}
+{% set chosen_subject_label = DATA.subjects[DATA.chosen_subject_id]|e('url')%}
+{% set chosen_segment_label = segments[DATA.chosen_segment_id]|capitalize %}
 
 {%- block content -%}
 
@@ -17,35 +13,35 @@
         <button><a data-base="view/mail/" href="" id="refresh_mail_view">Uppdatera sidan</a></button>
         <div class="row">
             <div class="col">
-                {% for subject, subject_label in subjects %}
+                {% for subject_id, subject_label in DATA.subjects %}
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="subject" id="radio_{{ subject }}" value="{{ subject }}">
-                        <label class="form-check-label" for="radio_{{ subject }}">{{- subject_label -}}</label>
+                        <input class="form-check-input" type="radio" name="subject"
+                               id="radio_{{ subject_id }}" value="{{ subject_id }}"
+                                {%- if subject_id == DATA.chosen_subject_id %} checked{% endif -%}
+                        >
+                        <label class="form-check-label" for="radio_{{ subject_id }}">{{- subject_label -}}</label>
                     </div>
                 {% endfor %}
             </div>
             <div class="col">
-                {% for segment, segment_label in segments %}
+                {% for segment_id, segment_label in segments %}
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="segment" id="radio_{{ segment }}" value="{{ segment }}">
-                        <label class="form-check-label" for="radio_{{ segment }}">{{- segment_label -}}</label>
+                        <input class="form-check-input" type="radio" name="segment"
+                               id="radio_{{ segment_id }}" value="{{ segment_id }}"
+                            {%- if segment_id == DATA.chosen_segment_id %} checked{% endif -%}
+                        >
+                        <label class="form-check-label" for="radio_{{ segment_id }}">{{- segment_label -}}</label>
                     </div>
                 {% endfor %}
             </div>
         </div>
     </form>
-{#
-<select id="mail_type_selector">
-    <option value="new">new</option>
-    <option value="continued">continued</option>
-</select>
-#}
-{% for segment, users in DATA.users_by_segments %}
-<h1>Årskurs {{ segment }}</h1>
+
+<h1>{{ chosen_segment_label }}</h1>
 <table>
     <thead></thead>
     <tbody>
-{% for user in users %}
+{% for user in DATA.users %}
     {% set file_name_id = "file_name_" ~ user.id %}
     <tr>
         <td>{{ user.id }}</td>
@@ -53,7 +49,7 @@
             {{ user.full_name }}
         </td>
         <td>
-            <a href="mailto: {{- user.mail -}} ?subject={{ DATA.mail_subject_text|e('url') }}Dina%20besök%20på%20Naturskolan">
+            <a href="mailto: {{- user.mail -}} ?subject={{ chosen_subject_label}}">
                 <button><i class="fas fa-envelope"></i></button>
             </a>
         </td>
@@ -62,6 +58,5 @@
     </tr>
 {% endfor %}
     </tbody></table>
-{% endfor %}
 {%- endblock -%}
 

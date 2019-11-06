@@ -101,7 +101,7 @@ class UserRepository extends CustomRepository
 
     public function hasGroupsWithCriteria(array $criteria = []): self
     {
-        return $this->filterByFunction('hasGroupsWithCriteria');
+        return $this->filterByFunction('hasGroupsWithCriteria', $criteria);
     }
 
     private function filterByFunction(string $function_name, ...$args): self

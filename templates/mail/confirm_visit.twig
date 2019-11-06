@@ -1,13 +1,15 @@
 {% extends "mail/common/base_mail.twig" %}
 
-{% block body_text %}
-<p>Snart är det dags för att du, {{ visit.group_name }} och vi från Naturskolan ska ses. Vi vill gärna veta att du vet om det. Klicka på länken längre ner så vet vi att du vet!</p>
+{% set next_visit = DATA.user.next_visit %}
 
-<p>{{ visit.topic_label }} är planerad för <b>{{ visit.date_string }}</b>.<br>
-    All information om dagen hittar du i <a href="{{ visit.topic_url }}" target="_blank">pedagogiska planeringen</a>.
+{% block body_text %}
+<p>Snart är det dags för att du, {{ next_visit.group_name }} och vi från Naturskolan ska ses. Vi vill gärna veta att du vet om det. Klicka på länken längre ner så vet vi att du vet!</p>
+
+<p>{{ next_visit.topic_label }} är planerad för <b>{{ next_visit.date_string }}</b>.<br>
+    All information om dagen hittar du i <a href="{{ next_visit.topic_url }}" target="_blank">pedagogiska planeringen</a>.
 </p>
-<p>Bekräfta besöket genom att <a href="{{ visit.confirmation_url }}">klicka här!</a>
+<p>Bekräfta besöket genom att <a href="{{ next_visit.confirmation_url }}" target="_blank">klicka här!</a>
 </p>
 <hr>
-<p>Du kan även se de andra tillfällen samt redigera information om dig och din klass med denna personliga <a href="{{ user.login_url }}" target="_blank">inloggningslänk</a>.</p>
+<p>Du kan även se de andra tillfällen samt redigera information om dig och din klass med denna personliga <a href="{{ DATA.user.login_url }}" target="_blank">inloggningslänk</a>.</p>
 {% endblock %}

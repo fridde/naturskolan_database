@@ -23,11 +23,23 @@ use Fridde\Annotations\SecurityLevel; // don't remove! used in annotations
  */
 class ViewController extends BaseController
 {
+    public const CONFIRMATION = "confirmation";
+    public const INCOMPLETE_PROFILE = "incomplete_profile";
+    public const NEW = "new";
+    public const CONTINUED = "continued";
+
+    private const MAIL_SUBJECT_LABELS = [
+        self::CONFIRMATION => 'Bekräfta ditt besök!',
+        self::INCOMPLETE_PROFILE => 'Vi behöver mer information från dig!',
+        self::NEW => 'Året med Naturskolan börjar!',
+        self::CONTINUED => 'Snart fortsätter året med Naturskolan'
+    ];
+
 
     public static $ActionTranslator = [
         'food_order' => 'viewFoodOrder',
         'bus_order' => 'viewBus',
-        'mail' => 'viewMailTemplates'
+        'mail' => 'viewMailTemplates',
     ];
 
     public function handleRequest(): void
@@ -74,8 +86,8 @@ class ViewController extends BaseController
         foreach ($visits as $visit) {
             /* @var Visit $visit */
             $loc = $visit->getTopic()->getLocation();
-            if(empty($loc)){
-                throw new \Exception('Topic with id ' . $visit->getTopic()->getId() . ' has no location.');
+            if (empty($loc)) {
+                throw new \Exception('Topic with id '.$visit->getTopic()->getId().' has no location.');
             }
             $string = $loc->getName().' = ';
             $string .= $loc->getDescription() ?? '';
@@ -108,38 +120,44 @@ class ViewController extends BaseController
 
     public function viewMailTemplates(string $subject = null, string $segment = null)
     {
-        $data = $this->compileMailData($subject, $segment);
-
+        $data = $this->compileMailData($segment);
+        $data['subjects'] = self::MAIL_SUBJECT_LABELS;
+        $data['chosen_subject_id'] = $subject;
+        $data['chosen_segment_id'] = $segment;
         $this->addToDATA($data);
 
         $this->setTemplate('admin/mail_templates');
     }
 
-    public function compileMailData(string $subject = null, string $segment = null): array
+    public function compileMailData(string $segment = null): array
     {
         /* @var UserRepository $u_repo */
         $u_repo = $this->N->getRepo('User');
         /* @var TopicRepository $u_repo */
         $t_repo = $this->N->getRepo('Topic');
 
-        $criteria = ['visiting' => true, 'in_future' => true, 'in_segment' => $segment];
-        $users = $u_repo->all()->active()->hasGroupsWithCriteria($criteria)->fetch();
-
-        $users_by_segments = [];
-        $groups_by_users = [];
         $topics = array_map(
             function (Topic $t) {
                 $r = [];
                 $r['id'] = $t->getId();
                 $r[0]['url'] = $t->getUrl();
                 $r[0]['name'] = $t->getLongestName();
+
                 return $r;
             },
             $t_repo->findAll()
         );
         $topics = array_column($topics, 0, 'id');
 
-        foreach ($users as $u) {
+        $criteria = ['visiting' => true, 'in_future' => true, 'in_segment' => $segment];
+        $selected_users = $u_repo->all()->active()->hasGroupsWithCriteria($criteria)->fetch();
+
+        if(empty($selected_users)){
+            return [];
+        }
+
+        $groups_by_users = [];
+        foreach ($selected_users as $u) {
             /* @var User $u */
             $u_data = [];
             $u_data['id'] = $u->getId();
@@ -147,11 +165,14 @@ class ViewController extends BaseController
             $u_data['mobil'] = $u->getMobil();
             $u_data['fname'] = $u->getFirstName();
             $u_data['full_name'] = $u->getFullName();
-            $u_data['next_visit'] = null;
+            $u_data['school_url'] = $this->N->generateUrl('school', ['school' => $u->getSchoolId()]);
+
             $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['full_name'], $u_data['id']);
             $u_data['segments'] = [];
 
-            $u_data['login_link'] = $this->N->createLoginUrl($u);
+            $u_data['login_url'] = $this->N->createLoginUrl($u);
+
+            $u_data['groups'] = [];
 
             $groups = $u->getGroups();
             foreach ($groups as $g) {
@@ -167,44 +188,54 @@ class ViewController extends BaseController
                     $u_data['segments'][] = $g->getSegment();
 
                     $visits = $g->getFutureVisits(); // is already sorted, but can be empty
-                    foreach($visits as $v){
-                        /* @var Visit $v  */
+                    /* @var Visit $next_visit */
+                    $next_visit = null;
+                    $nv_data = null;
+                    foreach ($visits as $v) {
+                        /* @var Visit $v */
                         $v_data = [];
                         $v_id = $v->getId();
                         $v_data['id'] = $v_id;
                         $v_data['topic_id'] = $v->getTopicId();
+                        $v_data['topic_label'] = $v->getTopic()->getLongestName();
+                        $v_data['topic_url'] = $v->getTopic()->getUrl();
                         $d = $v->getDate();
-                        $dstring = $d->day . ' ' . $d->locale('sv')->shortMonthName . ' ' . $d->year;
-                        $v_data['date'] = $dstring;
+                        $dstring = $d->day.' '.$d->locale('sv')->shortMonthName.' '.$d->year;
+                        $v_data['date_string'] = $dstring;
 
-                        /* @var Carbon $next_visit_date  */
-                        $next_visit_date = $u_data['next_visit']['carbon_date'];
-                        if(empty($next_visit_date) || $next_visit_date->gt($v->getDate())){
-                            $nv = $v_data;
-                            $nv['carbon_date'] = $v->getDate();
-                            $u_data['next_visit'] = $nv;
+                        if (empty($next_visit) || $next_visit->getDate()->gt($d)) {
+                            $next_visit = $v;
+                            $nv_data = $v_data;
                         }
 
                         $g_data['visits'][$v_id] = $v_data;
                     }
                     $g_data['first_visit_id'] = null;
-                    if(! empty($g_data['visits'])){
+                    if (!empty($g_data['visits'])) {
                         $g_data['first_visit_id'] = array_values($g_data['visits'])[0]['id'];
                     }
-                    $u_data['segments'] = array_unique($u_data['segments']);
-
-                    $users_by_segments[$g->getSegment()][$u->getId()] = $u_data;
-                    $groups_by_users[$u->getId()][] = $g_data;
+                    $u_data['groups'][] = $g_data;
                 }
             }
+
+            if(!empty($next_visit)){
+                $nv_data['confirmation_url'] = $this->N->createConfirmationUrl($next_visit);
+                $nv_data['group_name'] = $next_visit->getGroup()->getName();
+                $u_data['next_visit'] = $nv_data;
+            }
+            $u_data['segments'] = array_unique($u_data['segments']);
+            $users[$u->getId()] = $u_data;
         }
 
-        array_walk($users_by_segments, function(&$users){
-            usort($users, function($u1, $u2){return strcmp($u1['full_name'], $u2['full_name']);});
-        });
-        ksort($users_by_segments);
+        usort(
+            $users,
+            function ($u1, $u2) {
+                return strcmp($u1['full_name'], $u2['full_name']);
+            }
+        );
 
-        return compact('users_by_segments', 'groups_by_users', 'topics');
+
+        return compact('users', 'groups_by_users', 'topics');
     }
 
     private static function createFileNameForHtmlMail(string $name = null, string $id = null): string
@@ -212,8 +243,8 @@ class ViewController extends BaseController
         $name = $name ?? 'XXX';
         $id = $id ?? 'XXX';
 
-        $file = Utility::convertToAscii(mb_strtolower($name) . '_' . $id);
-        $file =  Utility::replaceNonAlphaNumeric($file);
+        $file = Utility::convertToAscii(mb_strtolower($name).'_'.$id);
+        $file = Utility::replaceNonAlphaNumeric($file);
         $file .= '.html';
 
         return $file;
