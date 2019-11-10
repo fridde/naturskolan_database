@@ -11,13 +11,16 @@ use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Carbon\Carbon;
 use Fridde\HTML;
+use Fridde\Timing;
 use Fridde\Utility;
-use Fridde\Annotations\SecurityLevel; // don't remove! used in annotations
+use Fridde\Annotations\SecurityLevel;
 
 
 /**
  * Class ViewController
  * @package Fridde\Controller
+ *
+ * @uses SecurityLevel
  *
  * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
  */
@@ -32,7 +35,7 @@ class ViewController extends BaseController
         self::CONFIRMATION => 'Bekräfta ditt besök!',
         self::INCOMPLETE_PROFILE => 'Vi behöver mer information från dig!',
         self::NEW => 'Året med Naturskolan börjar!',
-        self::CONTINUED => 'Snart fortsätter året med Naturskolan'
+        self::CONTINUED => 'Snart fortsätter året med Naturskolan',
     ];
 
 
@@ -120,7 +123,7 @@ class ViewController extends BaseController
 
     public function viewMailTemplates(string $subject = null, string $segment = null)
     {
-        $data = $this->compileMailData($segment);
+        $data = $this->compileMailData($segment, $subject);
         $data['subjects'] = self::MAIL_SUBJECT_LABELS;
         $data['chosen_subject_id'] = $subject;
         $data['chosen_segment_id'] = $segment;
@@ -129,7 +132,7 @@ class ViewController extends BaseController
         $this->setTemplate('admin/mail_templates');
     }
 
-    public function compileMailData(string $segment = null): array
+    public function compileMailData(string $segment = null, string $subject = null): array
     {
         /* @var UserRepository $u_repo */
         $u_repo = $this->N->getRepo('User');
@@ -150,9 +153,14 @@ class ViewController extends BaseController
         $topics = array_column($topics, 0, 'id');
 
         $criteria = ['visiting' => true, 'in_future' => true, 'in_segment' => $segment];
+        if($subject === self::CONFIRMATION){
+            $criteria['next_visit_before'] = Timing::addDurationToNow([10, 'd']);
+            $criteria['next_visit_not_confirmed'] = true;
+        }
+
         $selected_users = $u_repo->all()->active()->hasGroupsWithCriteria($criteria)->fetch();
 
-        if(empty($selected_users)){
+        if (empty($selected_users)) {
             return [];
         }
 
@@ -218,7 +226,7 @@ class ViewController extends BaseController
                 }
             }
 
-            if(!empty($next_visit)){
+            if (!empty($next_visit)) {
                 $nv_data['confirmation_url'] = $this->N->createConfirmationUrl($next_visit);
                 $nv_data['group_name'] = $next_visit->getGroup()->getName();
                 $u_data['next_visit'] = $nv_data;

@@ -380,16 +380,21 @@ class AdminSummary
 
     private function getWrongGroupLeaders()
     {
+        /* @var GroupRepository $g_repo  */
+        $g_repo = $this->N->getRepo('Group');
+        /* @var UserRepository $u_repo  */
+        $u_repo = $this->N->getRepo('User');
+
         $rows = [];
 
         $forbidden_roles = [User::ROLE_SCHOOL_MANAGER, User::ROLE_ADMIN, User::ROLE_SUPERUSER];
 
-        $groups = $this->N->getRepo('Group')->findActiveGroups();
+        $groups = $g_repo->findActiveGroups();
         /* @var Group $group */
         foreach ($groups as $group) {
             $u = $group->getUser();
             $reasons = [];
-            if (empty($u)) {
+            if (empty($u) || empty($u_repo->find($u->getId()))) {
                 $reasons['nonexistent'] = true;
             } else {
                 $reasons['inactive'] = !$u->isActive();

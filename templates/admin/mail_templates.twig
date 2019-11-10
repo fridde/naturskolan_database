@@ -3,13 +3,14 @@
 {%- set segments = {"2": "åk 2","5": "åk 5","9": "åk 9"} -%}
 {% set chosen_subject_label = DATA.subjects[DATA.chosen_subject_id]|e('url')%}
 {% set chosen_segment_label = segments[DATA.chosen_segment_id]|capitalize %}
+{% set download_link = ["file", "mail", DATA.chosen_subject_id, DATA.chosen_segment_id]|join('/')  %}
 
 {%- block content -%}
 
 
 
     <form class="mail_selector">
-        <button><a data-base="file/mail/" href="" id="download_all_mails" target="_blank">Ladda ner mejl</a></button>
+        <button><a data-base="file/mail/" href="{{ download_link }}" id="download_all_mails" target="_blank">Ladda ner mejl</a></button>
         <button><a data-base="view/mail/" href="" id="refresh_mail_view">Uppdatera sidan</a></button>
         <div class="row">
             <div class="col">

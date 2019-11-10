@@ -415,7 +415,9 @@ class User
             'active' => true,
             'visiting' => false,
             'in_future' => false,
-            'in_segment' => null
+            'in_segment' => null,
+            'next_visit_before' => null,
+            'next_visit_not_confirmed' => false
         ];
 
         $criteria += $defaults;
@@ -439,6 +441,12 @@ class User
                 }
                 if(!empty($criteria['in_segment']) && !$g->isSegment($criteria['in_segment'])){
                    return false;
+                }
+                if(!empty($criteria['next_visit_before']) && $g->hasNextVisit()){
+                    return $g->getNextVisit()->getDate()->lte($criteria['next_visit_before']);
+                }
+                if(!empty($criteria['next_visit_not_confirmed']) && $g->hasNextVisit()){
+                    return ! $g->getNextVisit()->isConfirmed();
                 }
 
                 return true;

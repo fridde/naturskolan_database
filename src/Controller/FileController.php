@@ -53,7 +53,7 @@ class FileController extends BaseController
     {
         $this->removeAction('mail');
         $vc = new ViewController();
-        $data = $vc->compileMailData($segment);
+        $data = $vc->compileMailData($segment, $subject);
         $data['subject'] = $subject;
 
         $this->setDATA($data);
