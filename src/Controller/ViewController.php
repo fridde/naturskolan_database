@@ -11,6 +11,8 @@ use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
 use Carbon\Carbon;
 use Fridde\HTML;
+use Fridde\Naturskolan;
+use Fridde\Settings;
 use Fridde\Timing;
 use Fridde\Utility;
 use Fridde\Annotations\SecurityLevel;
@@ -153,8 +155,9 @@ class ViewController extends BaseController
         $topics = array_column($topics, 0, 'id');
 
         $criteria = ['visiting' => true, 'in_future' => true, 'in_segment' => $segment];
-        if($subject === self::CONFIRMATION){
-            $criteria['next_visit_before'] = Timing::addDurationToNow([10, 'd']);
+        if ($subject === self::CONFIRMATION) {
+            $dur = Naturskolan::getSetting('values', 'confirm_visit_countdown');
+            $criteria['next_visit_before'] = Timing::addDurationToNow($dur);
             $criteria['next_visit_not_confirmed'] = true;
         }
 
@@ -164,7 +167,6 @@ class ViewController extends BaseController
             return [];
         }
 
-        $groups_by_users = [];
         foreach ($selected_users as $u) {
             /* @var User $u */
             $u_data = [];
@@ -176,7 +178,6 @@ class ViewController extends BaseController
             $u_data['school_url'] = $this->N->generateUrl('school', ['school' => $u->getSchoolId()]);
 
             $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['full_name'], $u_data['id']);
-            $u_data['segments'] = [];
 
             $u_data['login_url'] = $this->N->createLoginUrl($u);
 
@@ -185,53 +186,53 @@ class ViewController extends BaseController
             $groups = $u->getGroups();
             foreach ($groups as $g) {
                 /* @var Group $g */
-                if ($g->isActive()) {
-                    $g_data = [];
-                    $g_data['name'] = $g->getName();
-                    $g_data['number_students'] = $g->getNumberStudents();
-                    $g_data['food'] = $g->getFood();
-                    $g_data['info'] = $g->getInfo();
+                $g_data = [];
+                $g_data['name'] = $g->getName();
+                $g_data['number_students'] = $g->getNumberStudents();
+                $g_data['food'] = $g->getFood();
+                $g_data['info'] = $g->getInfo();
 
-                    $u_data['group_names'][] = $g->getName();
-                    $u_data['segments'][] = $g->getSegment();
+                $u_data['group_names'][] = $g->getName();
 
-                    $visits = $g->getFutureVisits(); // is already sorted, but can be empty
-                    /* @var Visit $next_visit */
-                    $next_visit = null;
-                    $nv_data = null;
-                    foreach ($visits as $v) {
-                        /* @var Visit $v */
-                        $v_data = [];
-                        $v_id = $v->getId();
-                        $v_data['id'] = $v_id;
-                        $v_data['topic_id'] = $v->getTopicId();
-                        $v_data['topic_label'] = $v->getTopic()->getLongestName();
-                        $v_data['topic_url'] = $v->getTopic()->getUrl();
-                        $d = $v->getDate();
-                        $dstring = $d->day.' '.$d->locale('sv')->shortMonthName.' '.$d->year;
-                        $v_data['date_string'] = $dstring;
+                $visits = $g->getFutureVisits(); // is already sorted, but can be empty
+                /* @var Visit $next_visit */
+                $next_visit = null;
+                $nv_data = null;
+                foreach ($visits as $v) {
+                    /* @var Visit $v */
+                    $v_data = [];
+                    $v_id = $v->getId();
+                    $v_data['id'] = $v_id;
+                    $v_data['topic_id'] = $v->getTopicId();
+                    $v_data['topic_label'] = $v->getTopic()->getLongestName();
+                    $v_data['topic_url'] = $v->getTopic()->getUrl();
+                    $d = $v->getDate();
+                    $dstring = $d->day.' '.$d->locale('sv')->shortMonthName.' '.$d->year;
+                    $v_data['date_string'] = $dstring;
 
-                        if (empty($next_visit) || $next_visit->getDate()->gt($d)) {
-                            $next_visit = $v;
-                            $nv_data = $v_data;
-                        }
-
-                        $g_data['visits'][$v_id] = $v_data;
+                    if (empty($next_visit) || $next_visit->getDate()->gt($d)) {
+                        $next_visit = $v;
+                        $nv_data = $v_data;
                     }
-                    $g_data['first_visit_id'] = null;
-                    if (!empty($g_data['visits'])) {
-                        $g_data['first_visit_id'] = array_values($g_data['visits'])[0]['id'];
-                    }
-                    $u_data['groups'][] = $g_data;
+
+                    $g_data['visits'][$v_id] = $v_data;
                 }
+                $g_data['next_visit'] = null;
+                if (!empty($next_visit)) {
+                    $nv_data['confirmed'] = $next_visit->isConfirmed();
+                    $nv_data['confirmation_url'] = $this->N->createConfirmationUrl($next_visit);
+                    $nv_data['group_name'] = $next_visit->getGroup()->getName();
+                    $g_data['next_visit'] = $nv_data;
+                }
+
+                $g_data['first_visit_id'] = null;
+                if (!empty($g_data['visits'])) {
+                    $g_data['first_visit_id'] = array_values($g_data['visits'])[0]['id'];
+                }
+                $u_data['groups'][] = $g_data;
+
             }
 
-            if (!empty($next_visit)) {
-                $nv_data['confirmation_url'] = $this->N->createConfirmationUrl($next_visit);
-                $nv_data['group_name'] = $next_visit->getGroup()->getName();
-                $u_data['next_visit'] = $nv_data;
-            }
-            $u_data['segments'] = array_unique($u_data['segments']);
             $users[$u->getId()] = $u_data;
         }
 
@@ -243,7 +244,7 @@ class ViewController extends BaseController
         );
 
 
-        return compact('users', 'groups_by_users', 'topics');
+        return compact('users', 'topics');
     }
 
     private static function createFileNameForHtmlMail(string $name = null, string $id = null): string

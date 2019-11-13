@@ -1,10 +1,6 @@
 {# DATA.current_year #}
 
-{%- if DATA.user -%}
-    {%- set user = DATA.user -%}
-{%- endif -%}
-
-{%- set topics, groups_by_users, subject = DATA.topics, DATA.groups_by_users, DATA.subject -%}
+{%- set topics, subject = DATA.topics, DATA.subject -%}
 {%- set missing_text = {
     group: {
         'number_students': 'Antal elever',
@@ -49,15 +45,10 @@
     },
 } -%}
 
-{%- set groups = groups_by_users[user.id] -%}
+{%- set groups = user.groups -%}
 {%- set next_visit = user.next_visit -%}
 {%- set next_topic = topics[next_visit.topic_id] -%}
 {%- set missing = [] -%}
-{%- if user.segments|length == 1 -%}
-    {%- set seg = user.segments|first -%}
-{%- else -%}
-    {%- set seg = 'default' -%}
-{%- endif -%}
 
 {%- if groups|length > 1 -%}
     {%- set multi_group = true -%}

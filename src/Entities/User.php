@@ -518,31 +518,10 @@ class User
         return $date->lte($created_at);
     }
 
+    /* @deprecated
+    */
     public function sortMessagesByDate()
     {
-        /*
-        $messages = $this->getMessages();
-
-        uasort(
-            $this->Messages,
-            function (Message $a, Message $b) {
-                $a_ts = $a->getTimestamp();
-                $b_ts = $b->getTimestamp();
-                if (empty($a_ts) && empty($b_ts)) {
-                    return 0;
-                } elseif (empty($a_ts)) {
-                    return 1;
-                } elseif (empty($b_ts)) {
-                    return -1;
-                } else {
-                    return $a_ts->lt($b_ts) ? -1 : 1;
-                }
-
-            }
-        );
-        $this->Messages = new ArrayCollection($messages);
-        */
-
         return $this->Messages;
     }
 

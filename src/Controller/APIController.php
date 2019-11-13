@@ -162,7 +162,8 @@ class APIController extends BaseController
             return;
         }
 
-        $data = ['fname' => $user->getFirstName()];
+        $data = ['user' => ['fname' => $user->getFirstName()]];
+        $data['user']['groups'] = []; // to satisfy base_mail template
         $data['password_link'] = $this->N->createLoginUrl($user);
         $data['school_url'] = $this->N->generateUrl('school', ['school' => $user->getSchoolId()], true);
         $params = ['subject_int' => Message::SUBJECT_PASSWORD_RECOVERY];

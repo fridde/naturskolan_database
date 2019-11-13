@@ -86,7 +86,7 @@ class Mail extends AbstractMessageController
 
     protected function preparePasswordRecovery()
     {
-        $template = 'mail/password_recover' . ($this->isHtml() ? '' : '_raw');
+        $template = 'mail/password_recover' . ($this->isHtml() ? '_html' : '');
 
         $this->addToDATA($this->getParameter('data'));
         $this->moveFromDataToVar('school_url', 'fname');
