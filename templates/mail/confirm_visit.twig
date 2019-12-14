@@ -10,8 +10,8 @@
 
     {% for group in user.groups %}
         {% if group.next_visit and not group.next_visit.confirmed %}
-            <p>{{ group.next_visit.topic_label }} med {{ group.name }} är planerad för <b>{{ group.next_visit.date_string }}
-                </b>.
+            <p>{{ group.next_visit.topic_label }} med {{ group.name }} är planerad för
+                <b>{{ group.next_visit.date_string }}</b>.
                 <br>All information om dagen hittar du i <a href="{{ group.next_visit.topic_url }}" target="_blank">dagens pedagogiska planering</a>.
             </p>
             <p>Bekräfta besöket genom att <a href="{{ group.next_visit.confirmation_url }}" target="_blank">klicka här!</a>

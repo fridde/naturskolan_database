@@ -17,7 +17,7 @@ class Mail extends AbstractMessageController
 
     public static $methods = [
         Message::SUBJECT_ADMIN_SUMMARY =>
-            [self::SEND | self::PREPARE, 'AdminSummary', 'Dagliga sammanfattningen av databasen'],
+            [self::SEND | self::PREPARE, 'AdminSummary', 'Sammanfattning av databasen'],
         Message::SUBJECT_PASSWORD_RECOVERY =>
             [self::SEND | self::PREPARE, 'PasswordRecovery', 'Naturskolan: Återställning av lösenord'],
         Message::SUBJECT_VISIT_CONFIRMATION =>

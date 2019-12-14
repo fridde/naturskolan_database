@@ -440,6 +440,7 @@ class AdminSummary
         /* @var Change $change */
         foreach ($visit_changes as $change) {
             /* @var Visit $visit */
+            $this->N->log('Visit ' . $change->getEntityId() . ' doesn\'t exist.');
             $visit = $visit_repo->find($change->getEntityId());
             if (empty($visit)) {
                 throw new NException(Error::DATABASE_INCONSISTENT, ['visit', $change->getEntityId()]);
