@@ -186,6 +186,8 @@ class AcceptanceTester extends \Codeception\Actor
         }
 
         $this->amOnPage('/admin');
+        //$this->pauseExecution();
+        $this->pause(3);
         foreach ($cron_tasks as $cron_task) {
             $path = '//input[@name="'.$cron_task.'"]';
             if ($cron_task === $task) {
@@ -194,13 +196,14 @@ class AcceptanceTester extends \Codeception\Actor
                 $this->uncheckOption($path);
             }
         }
+        //$this->pauseExecution();
         $this->runActivatedCronTasks();
     }
 
     public function runActivatedCronTasks()
     {
         $this->amOnPage('/cron');
-        $this->pause(0.7);
+        $this->pause(2);
     }
 
     public function seeStringsInThisFile(array $strings)
