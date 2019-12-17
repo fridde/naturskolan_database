@@ -239,14 +239,6 @@ class BatchController extends BaseController
     }
 
 
-    public function setGroupCount(): void
-    {
-        $y = (int) Carbon::today()->year;
-        $data = ['years' => [$y -1, $y, $y + 1], 'this_year' => $y];
-        $this->addToDATA($data);
-        $this->setTemplate('admin/set_group_count');
-    }
-
     public function setBookings(): void
     {
         /* @var VisitRepository $visit_repo */

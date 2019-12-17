@@ -52,7 +52,6 @@ class AdminSummary
         'too_many_students' => 'getWrongStudentNumbers',
         'user_profile_incomplete' => 'getIncompleteUserProfiles',
         'visit_not_confirmed' => 'getUnconfirmedVisits',
-        'wrong_group_count' => 'getWrongGroupCounts',
         'wrong_group_leader' => 'getWrongGroupLeaders',
         'wrong_visit_order' => 'getWrongVisitOrder',
     ];
@@ -345,34 +344,6 @@ class AdminSummary
                 $row .= '???';
             }
             $rows[] = $row;
-        }
-
-        return $rows;
-    }
-
-    private function getWrongGroupCounts()
-    {
-        $years_to_check = [Carbon::today()->year];
-        $years_to_check[] = Carbon::today()->copy()->subMonths(6)->year;
-        $years_to_check[] = Carbon::today()->copy()->addMonths(6)->year;
-        $years_to_check = array_unique($years_to_check);
-
-        $rows = [];
-        $schools = $this->N->getRepo('School')->findAll();
-        /* @var School $school */
-        foreach ($schools as $school) {
-            foreach (Group::getSegmentLabels() as $segment_id => $label) {
-                foreach ($years_to_check as $start_year) {
-                    $active = $school->getNrActiveGroupsBySegmentAndYear($segment_id, $start_year);
-                    $expected = $school->getGroupCountNumber($segment_id, $start_year);
-                    if ($expected !== $active) {
-                        $row = $school->getName().' har fel antal grupper i segment ';
-                        $row .= $label.' och år '.$start_year.'. Det finns ';
-                        $row .= $active.' grupper, men det borde vara '.$expected.'. ';
-                        $rows[] = $row;
-                    }
-                }
-            }
         }
 
         return $rows;

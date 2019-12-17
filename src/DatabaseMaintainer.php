@@ -44,27 +44,6 @@ class DatabaseMaintainer
         }
     }
 
-    public function cleanOldGroupCounts()
-    {
-        /* @var SchoolRepository $school_repo */
-        /* @var School $school */
-        $school_repo = $this->ORM->getRepository('School');
-
-        $oldest_allowed_year = Carbon::today()->year - 2;
-
-        foreach ($school_repo->findAll() as $school) {
-            $group_counts = $school->getGroupCounts();
-            foreach ($group_counts as $i => $gc) {
-
-                if ($gc->getStartYear() < $oldest_allowed_year) {
-                    unset($group_counts[$i]);
-                }
-            }
-            $school->setGroupCounts($group_counts);
-        }
-        $this->ORM->EM->flush();
-    }
-
     private function isWorthSaving(Carbon $date): bool
     {
         $today = Carbon::today();

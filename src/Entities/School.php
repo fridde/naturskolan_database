@@ -31,6 +31,9 @@ class School
     /** @ORM\Column(type="integer", options={"default" : 0}) */
     protected $BusRule = 0;
 
+    /** @ORM\Column(type="smallint", options={"default" : 1}) */
+    protected $FoodRule = 1;
+
     /** @ORM\OneToMany(targetEntity="Group", mappedBy="School")
      * @ORM\OrderBy({"Name" = "ASC"})
      **/
@@ -41,14 +44,14 @@ class School
      */
     protected $Users;
 
-    /** @ORM\OneToMany(targetEntity="GroupCount", mappedBy="School", cascade={"persist"}) */
-    protected $GroupCounts;
+    const FOOD_NONE = 0;
+    const FOOD_AUTO = 1;
+    const FOOD_ORDER = 2;
 
     public function __construct()
     {
         $this->Groups = new ArrayCollection();
         $this->Users = new ArrayCollection();
-        $this->GroupCounts = new ArrayCollection();
     }
 
     public function getId(): string
@@ -69,93 +72,6 @@ class School
     public function setName($Name)
     {
         $this->Name = $Name;
-    }
-
-    public function getGroupCountsAsString(): string
-    {
-        $group_counts = $this->getGroupCounts();
-        if(empty($group_counts)){
-            return '';
-        }
-
-        return  json_encode($this->spliceGroupCounts($group_counts));
-    }
-
-    private function spliceGroupCounts(array $groupCounts)
-    {
-        $spliced = [];
-        foreach($groupCounts as $gc){
-            /* @var GroupCount $gc  */
-            $spliced[$gc->getStartYear()][$gc->getSegment()] = $gc->getNumber();
-        }
-
-        return $spliced;
-    }
-
-    /**
-     * @return GroupCount[]|null
-     */
-    public function getGroupCounts(): ?array
-    {
-        return $this->GroupCounts->toArray();
-    }
-
-    public function getGroupCount(string $segment, int $start_year = null): ?GroupCount
-    {
-        $start_year = $start_year ?? Carbon::today()->year;
-        $groupCounts = $this->getGroupCounts() ?? [];
-
-        $group_count = array_filter(
-            $groupCounts,
-            function (GroupCount $gc) use ($start_year, $segment) {
-                return $gc->matches($start_year, $segment);
-            }
-        );
-        $group_count = array_shift($group_count);
-
-        return $group_count;
-
-    }
-
-    public function getGroupCountNumber(string $segment, int $start_year = null): int
-    {
-        $group_count = $this->getGroupCount($segment, $start_year);
-
-        return empty($group_count) ? 0 : $group_count->getNumber();
-    }
-
-    public function setGroupCounts(array $GroupCounts): void
-    {
-        $this->GroupCounts = new ArrayCollection($GroupCounts);
-    }
-
-    /**
-     * @param string $segment
-     * @param int $number
-     * @param int|null $start_year
-     */
-    public function setGroupCount(string $segment, int $number = 0, int $start_year)
-    {
-        $current_values = $this->getGroupCounts() ?? [];
-
-        $args = [$start_year, $segment, $number];
-        $updated = false;
-
-        array_walk(
-            $current_values,
-            function (GroupCount &$gc) use ($args, &$updated) {
-                if ($gc->matches($args[0], $args[1])) {
-                    $gc->setNumber($args[2]);
-                    $updated = true;
-                }
-            }
-        );
-
-        if (!$updated) {
-            $current_values[] = new GroupCount($this, $start_year, $segment, $number);
-        }
-
-        $this->setGroupCounts($current_values);
     }
 
     public function getCoordinates()
@@ -186,6 +102,16 @@ class School
     public function setBusRule(int $BusRule): void
     {
         $this->BusRule = $BusRule;
+    }
+
+    public function getFoodRule(): int
+    {
+        return $this->FoodRule;
+    }
+
+    public function setFoodRule(int $FoodRule): void
+    {
+        $this->FoodRule = $FoodRule;
     }
 
     public function addLocationToBusRule(Location $location): void

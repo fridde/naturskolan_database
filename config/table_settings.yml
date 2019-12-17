@@ -63,9 +63,8 @@ School:
   - id: *id
   - Name
   - Coordinates
-  - GroupCounts:
-      value: getGroupCountsAsString
-      type: readonly
+  - FoodRule:
+      type: integer
 
 Topic:
   - id:

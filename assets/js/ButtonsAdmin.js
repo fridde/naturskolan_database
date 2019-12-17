@@ -68,33 +68,6 @@ class Buttons {
             Update.send(data);
         });
 
-        $('.set-group-count button#update').click(function() {
-            let $textElement = $("#group-count-lines");
-            $textElement.val(self.cleanLines($textElement.val()));
-
-            let lines = $textElement.val().split(/\n/).map(function (line) {
-                return line.split(',').map(function (item) {
-                    return item.trim()
-                });
-            });
-            let data = {
-                updateMethod: "batchSetGroupCount",
-                group_numbers: lines,
-                start_year: $('#start-year-selector').val(),
-                onReturn: "showStatus"
-            };
-            Update.send(data);
-        });
-
-        $('#missingGroups button').click(() => {
-            let data = {
-                updateMethod: "createMissingGroups",
-                segment: $('#missingGroups select[name="Segment"]').val(),
-                onReturn: 'showAddedGroups'
-            };
-            Update.send(data);
-        });
-
         $('#manager-mobilization button').click(() => {
             let options = {
                 'url': 'admin/batch/send_manager_mobilization_mail',

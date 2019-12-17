@@ -392,57 +392,6 @@ class Update extends DefaultUpdate
         return $this->flush();
     }
 
-    /**
-     * @param string $segment_id
-     *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     *
-     * @PostArgs("segment")
-     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
-     */
-    public function createMissingGroups(string $segment_id): void
-    {
-        $all_schools = $this->N->getRepo('School')->findAll();
-        $letters = range('a', 'z');
-
-        $this_year = Carbon::today()->year;
-        $start_years = [$this_year, $this_year + 1];
-
-        $added_groups = [];
-        foreach ($start_years as $year) {
-            /* @var \Fridde\Entities\School $school */
-            foreach ($all_schools as $school) {
-                $actual_count = $school->getNrActiveGroupsBySegmentAndYear($segment_id, $year);
-                $expected_count = $school->getGroupCountNumber($segment_id, $year);
-                $diff = $expected_count - $actual_count;
-
-                for ($i = 0; $i < $diff; $i++) {
-                    $group = new Group();
-                    $group->setSchool($school);
-                    $group->setSegment($segment_id);
-                    $group->setStartYear($year);
-
-                    $name = ucfirst($segment_id);
-                    if ($expected_count > 1) {
-                        $name .= ' '.$letters[$actual_count + $i];
-                    }
-                    $group->setName($name);
-
-                    $group->setStatus(Group::ACTIVE);
-                    $this->ORM->EM->persist($group);
-
-                    $label = $group->getName().', ';
-                    $label .= $group->getSegmentLabel().', ';
-                    $label .= $group->getSchool()->getName();
-                    $added_groups[] = $label;
-                }
-            }
-        }
-        $this->ORM->EM->flush();
-
-        $this->setReturn('added_groups', $added_groups);
-    }
 
     /**
      * @param string $segment_id
@@ -475,27 +424,6 @@ class Update extends DefaultUpdate
             }
         );
         $this->N->ORM->EM->flush();
-    }
-
-    /**
-     * @param array $group_numbers An array of strings where each string contains 3
-     *        comma-separated values: The school_id, the segment and the new number of groups
-     * @param int|null $start_year
-     *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @PostArgs("group_numbers, start_year")
-     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
-     */
-    public function batchSetGroupCount(array $group_numbers, int $start_year = null)
-    {
-        $start_year = $start_year ?? Carbon::today()->year;
-        foreach ($group_numbers as [$school_id, $segment_id, $count]) {
-            /* @var School $school */
-            $school = $this->N->ORM->find('School', $school_id);
-            $school->setGroupCount($segment_id, $count, $start_year);
-        }
-        $this->ORM->EM->flush();
     }
 
     /**
