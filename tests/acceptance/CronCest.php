@@ -93,8 +93,9 @@ class CronCest
     }
 
     // codecept run acceptance CronCest:visitConfirmationMessage --steps -f
-    public function visitConfirmationMessage(A $I)
+    public function visitConfirmationMessage(A $I, $scenario)
     {
+        $scenario->skip('Deprecated method of sending mail');
         $I->runCronTask('send_visit_confirmation_message');
 
         $I->fetchEmails();
@@ -125,7 +126,7 @@ class CronCest
         $I->haveNumberOfUnreadEmails(1);
 
         $mail = [
-            'sub' => 'Dagliga sammanfattningen av databasen',
+            'sub' => 'Sammanfattning av databasen',
             'from' => 'info@sigtunanaturskola.se',
             'to' => 'info@sigtunanaturskola.se',
             'body' => [
@@ -145,8 +146,9 @@ class CronCest
     }
 
     // codecept run acceptance CronCest:sendChangedGroupleaderMail --steps -f
-    public function sendChangedGroupleaderMail(A $I)
+    public function sendChangedGroupleaderMail(A $I, $scenario)
     {
+        $scenario->skip('Deprecated method of sending mail');
         $I->runCronTask('send_changed_groupleader_mail');
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
@@ -191,8 +193,9 @@ class CronCest
     }
 
     // codecept run acceptance CronCest:sendNewUserMail --steps -f
-    public function sendNewUserMail(A $I)
+    public function sendNewUserMail(A $I, $scenario)
     {
+        $scenario->skip('Deprecated method of sending mail');
         $expected_mail_nr = 1;
 
         $heinz_welcome_mail = ['User_id' => 102, 'Subject' => 2, 'Carrier' => 0, 'Status' => 1];
@@ -240,8 +243,9 @@ class CronCest
     }
 
     // codecept run acceptance CronCest:sendUpdateProfileReminder --steps -f
-    public function sendUpdateProfileReminder(A $I)
+    public function sendUpdateProfileReminder(A $I, $scenario)
     {
+        $scenario->skip('Deprecated method of sending mail');
         $expected_mail_nr = 1 ;
 
         $I->runCronTask('send_update_profile_reminder');
