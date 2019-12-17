@@ -103,7 +103,7 @@ class Buttons {
         });
 
         $('button.copy-to-clipboard').click((e) => {
-            let $id = $(e.target).data('target');
+            let $id = $(e.currentTarget).data('target');
             $('#' + $id).select();
             document.execCommand('copy');
         });
