@@ -239,9 +239,9 @@ class TableCest
         $I->fillField($first_name_field, 'Horst-Kevin');
         $I->clickAway();
         $I->pause();
-        $I->seeInDatabase('users', ['id' => 215, 'FirstName' => 'Horst-Kevin']);
+        $I->seeInDatabase('users', ['FirstName' => 'Horst-Kevin']);
 
-        $horst_row = '//tr[@data-id="215"]';
+        $horst_row = '//tr[@data-id="244"]';
 
         $I->reloadPage();
         $I->pause();

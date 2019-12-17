@@ -187,7 +187,7 @@ class AcceptanceTester extends \Codeception\Actor
 
         $this->amOnPage('/admin');
         //$this->pauseExecution();
-        $this->pause(3);
+        $this->pause(1);
         foreach ($cron_tasks as $cron_task) {
             $path = '//input[@name="'.$cron_task.'"]';
             if ($cron_task === $task) {

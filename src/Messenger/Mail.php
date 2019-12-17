@@ -111,7 +111,7 @@ class Mail extends AbstractMessageController
     protected function prepareVisitConfirmation()
     {
 
-        $template = 'mail/confirm_visit' . ($this->isHtml() ? '' : '_raw');
+        $template = 'mail/confirm_visit';
 
         $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
