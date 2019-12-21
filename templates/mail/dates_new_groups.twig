@@ -1,11 +1,14 @@
-{# DATA.current_year #}
+{%- if DATA.user -%}
+    {%- set user = DATA.user -%}
+{%- endif -%}
 
-{%- set topics, subject = DATA.topics, DATA.subject -%}
+{%- set topics, groups_by_users, subject = DATA.topics, DATA.groups_by_users, DATA.subject -%}
+
+{%- set topics, subject, seg = DATA.topics, DATA.subject, DATA.segment -%}
 {%- set missing_text = {
     group: {
         'number_students': 'Antal elever',
-        'food': 'Specialkost',
-        'info': 'Övrig information om klassen som kan vara bra för oss att veta'
+        'info': 'Information om klassen Naturskolan bör känna till'
     },
     user: {
         'mobil': 'Ditt mobilnummer'
@@ -15,7 +18,7 @@
 {%- set snippets = {
     '2': {
         'new': {
-            'start': 'Vår- och höstterminen %year% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
+            'start': 'Vår- och höstterminen %year_plus_one% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
             'theme': 'Temat för de sex dagarna är ”Din omgivning”. Vad finns i den omgivande naturen? Vad ser du när du tittar dig omkring?'
         },
         'continued': {
@@ -61,7 +64,7 @@
 {%- set replacements = {
     '%group_salutation%' : group_salutation,
     '%first_topic_name%' : next_topic.name,
-    '%first_topic_date%' : next_visit.date,
+    '%first_topic_date%' : next_visit.date_string,
     '%year%': 'now'|date('Y'),
     '%year_plus_one%' : '+ 365 days'|date('Y'),
     '%year_minus_one%' : '- 365 days'|date('Y')
@@ -80,7 +83,7 @@
 <p>{{ next_visit_text }} All information om dagen finns på <a href="{{ next_topic.url }}">temadagens informationssida</a>.<br>
     Där ser du också om du och klassen blir hämtade av en buss (som vi beställer) och om du behöver ta med mat eller inte.
 </p>
-<p>{{  theme_text }} Du hittar all information på <a href="http://www.sigtunanaturskola.se/">www.sigtunanaturskola.se</a> . Kolla gärna igenom innehållet i dagarna, så du vet hur de kan passa in i din undervisning. Det slutliga målet med all vår undervisning är att eleven ska bli en miljömedveten ”planetskötare”.
+<p>{{  theme_text }} Du hittar all information på <a href="http://www.sigtunanaturskola.se/">sigtunanaturskola.se</a> . Kolla gärna igenom innehållet i dagarna, så du vet hur de kan passa in i din undervisning. Det slutliga målet med all vår undervisning är att eleven ska bli en miljömedveten ”planetskötare”.
 </p>
 <p>Ett första steg kan vara att titta på vår <a href="https://www.youtube.com/watch?v=R6CZifxXnMQ">introduktionsfilm för dig som pedagog</a>!</p>
 
@@ -91,7 +94,7 @@
     <ul>
         {% for visit in group.visits -%}
             {%- set visit_topic = topics[visit.topic_id] -%}
-            <li><a href="{{ visit_topic.url }}">{{ visit_topic.name }}</a>: {{ visit.date }}</li>
+            <li><a href="{{ visit_topic.url }}">{{ visit_topic.name }}</a>: {{ visit.date_string }}</li>
         {%- endfor %}
     </ul>
     {% for attribute, text in missing_text['group'] %}

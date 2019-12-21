@@ -182,6 +182,7 @@ class ViewController extends BaseController
             $u_data['login_url'] = $this->N->createLoginUrl($u);
 
             $u_data['groups'] = [];
+            $u_data['next_visit'] = null;
 
             $groups = $u->getGroups();
             foreach ($groups as $g) {
@@ -213,6 +214,7 @@ class ViewController extends BaseController
                     if (empty($next_visit) || $next_visit->getDate()->gt($d)) {
                         $next_visit = $v;
                         $nv_data = $v_data;
+                        $u_data['next_visit'] = $v_data;
                     }
 
                     $g_data['visits'][$v_id] = $v_data;
@@ -244,7 +246,7 @@ class ViewController extends BaseController
         );
 
 
-        return compact('users', 'topics');
+        return compact('users', 'topics', 'segment');
     }
 
     private static function createFileNameForHtmlMail(string $name = null, string $id = null): string
