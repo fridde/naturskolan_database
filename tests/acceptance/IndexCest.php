@@ -127,7 +127,6 @@ class IndexCest
         $AuthKey = $I->grabCookie('AuthKey');
         $I->assertNotEmpty($AuthKey);
         $I->pause();
-        $I->seeInDatabase('hashes', ['Category' => 2, 'Owner_id' => 'pers']);
     }
 
     // codecept run acceptance IndexCest:userCanLogout --steps -f
