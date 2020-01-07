@@ -23,7 +23,7 @@ class CacheFactory
     // second parameter describes the key in the ini file
     public static $cache_classes = [
         Essentials::ENV_DEV => FilesystemCache::class,
-        Essentials::ENV_TEST => \Memcached::class,
+        Essentials::ENV_TEST => \Memcache::class,
         Essentials::ENV_PROD => \Memcached::class,
         //Essentials::ENV_PROD => [FilesystemCache::class, 'FilesystemCache']  //as a backup
     ];
