@@ -22,9 +22,9 @@ class CacheFactory
 
     // second parameter describes the key in the ini file
     public static $cache_classes = [
-        Essentials::ENV_DEV => [FilesystemCache::class, 'FilesystemCache'],
-        Essentials::ENV_TEST => [\Memcache::class, 'Memcache'],
-        Essentials::ENV_PROD => [\Memcached::class, 'Memcached'],
+        Essentials::ENV_DEV => FilesystemCache::class,
+        Essentials::ENV_TEST => \Memcached::class,
+        Essentials::ENV_PROD => \Memcached::class,
         //Essentials::ENV_PROD => [FilesystemCache::class, 'FilesystemCache']  //as a backup
     ];
 
@@ -52,7 +52,7 @@ class CacheFactory
     {
         $settings = parse_ini_file($this->base_dir.self::$options_file, true);
 
-        return $settings[self::$cache_classes[$this->environment][1]];
+        return $settings[$this->environment];
     }
 
     private function createNewInstance(): CacheProvider

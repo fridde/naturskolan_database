@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Fridde\Entities\EventRepository;
 use Fridde\Entities\Group;
 use Fridde\Entities\Note;
+use Fridde\Entities\School;
 use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 use Fridde\Entities\VisitRepository;
@@ -114,7 +115,10 @@ class Calendar
                 $desc[] = 'Mobil: '.$teacher->getMobil();
                 $desc[] = 'Mejl: '.$teacher->getMail();
                 $desc[] = 'Klass '.$group->getName().' med '.$group->getNumberStudents().' elever';
-                $desc[] = 'Matpreferenser: '.$group->getFood();
+                $desc[] = 'Besök bekräftat: ' . ($visit->isConfirmed() ? 'ja' : 'nej');
+                if($group->getSchool()->getFoodRule() === School::FOOD_ORDER){
+                    $desc[] = 'Matpreferenser: '.$group->getFood();
+                }
 
                 if ($group->hasInfo()) {
                     $desc[] = 'Annat: '.$group->getInfo();
@@ -131,7 +135,6 @@ class Calendar
                 $notes = array_merge(...$notes);
 
                 if (!empty($notes)) {
-
                     $desc[] = 'Egna anteckningar:';
                     foreach ($notes as $note) {
                         /* @var Note $note */
