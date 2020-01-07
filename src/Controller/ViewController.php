@@ -3,6 +3,7 @@
 namespace Fridde\Controller;
 
 use Fridde\Entities\Group;
+use Fridde\Entities\School;
 use Fridde\Entities\Topic;
 use Fridde\Entities\TopicRepository;
 use Fridde\Entities\User;
@@ -66,12 +67,13 @@ class ViewController extends BaseController
             function (Visit &$visit) {
                 $topic = $visit->getTopic();
                 $group = $visit->getGroup();
-                $v = ['segment_label' => $visit->getGroup()->getSegmentLabel()];
+                $v = ['segment_label' => $group->getSegmentLabel()];
                 $v['school_name'] = $group->getSchool()->getName();
                 $v['group_name'] = $group->getName();
                 $v['topic_name'] = $topic->getShortName();
                 $v['location'] = $topic->getLocation()->getName();
                 $v['students_nr'] = $group->getNumberStudents();
+                $v['food_info_needed'] = $group->getSchool()->getFoodRule() === School::FOOD_ORDER;
                 $v['diet'] = $group->getFood();
                 $v['food_type'] = $topic->getFood();
                 $visit = $v;
