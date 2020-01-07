@@ -57,7 +57,7 @@ class CacheFactory
 
     private function createNewInstance(): CacheProvider
     {
-        $class = self::$cache_classes[$this->environment][0];
+        $class = self::$cache_classes[$this->environment];
         $args_from_settings = $this->settings['args'];
         $args = [];
 
