@@ -61,22 +61,19 @@ class Authenticator
     {
         $years = $this->getYears();
 
-        $hash = false;
         foreach($years as $year){
             $index = $school->getId().'.'.$year;
-            if($this->cache->contains($index)){
-                $hash = $this->cache->fetch($index);
-                if(password_verify($given_password, $hash)){
-                    return true;
-                }
+            if(! $this->cache->contains($index)){
+                $hash = password_hash($this->calculatePasswordForSchool($school, $year), PASSWORD_DEFAULT);
+                $this->cache->save($index, $hash);
+            }
+            $hash = $this->cache->fetch($index);
+            if(password_verify($given_password, $hash)){
+                return true;
             }
         }
-        if($hash === false){
-            $hash = password_hash($this->calculatePasswordForSchool($school), PASSWORD_DEFAULT);
-            $index = $school->getId().'.'.$this->getCurrentYear();
-            $this->cache->save($index, $hash);
-        }
-        return password_verify($given_password, $hash);
+        return false;
+
     }
 
     public static function createHashFromString(string $string, int $length = -1): string
@@ -237,12 +234,12 @@ class Authenticator
         session_unset();
     }
 
-    public function getYears(int $number = 2): array
+    public function getYears(int $number_years_ago = 1): array
     {
         $current_year = Carbon::today()->year;
         $years = [];
-        foreach(range(0, $number -1) as $distance){
-            $years[] = $current_year - $distance;
+        for($i = 0; $i <= $number_years_ago; $i++){
+            $years[] = $current_year - $i;
         }
 
         return $years;

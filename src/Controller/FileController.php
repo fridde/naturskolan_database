@@ -52,7 +52,7 @@ class FileController extends BaseController
     public function downloadAllMails(string $subject = VC::NEW, string $segment = null)
     {
         $this->removeAction('mail');
-        $vc = new ViewController();
+        $vc = new VC();
         $data = $vc->compileMailData($segment, $subject);
         $data['subject'] = $subject;
 

@@ -210,6 +210,9 @@ class ViewController extends BaseController
                     $d = $v->getDate();
                     $dstring = $d->day.' '.$d->locale('sv')->shortMonthName.' '.$d->year;
                     $v_data['date_string'] = $dstring;
+                    $v_data['confirmed'] = $v->isConfirmed();
+                    $v_data['confirmation_url'] = $this->N->createConfirmationUrl($v);
+                    $v_data['group_name'] = $v->getGroup()->getName();
 
                     if (empty($next_visit) || $next_visit->getDate()->gt($d)) {
                         $next_visit = $v;
@@ -221,9 +224,6 @@ class ViewController extends BaseController
                 }
                 $g_data['next_visit'] = null;
                 if (!empty($next_visit)) {
-                    $nv_data['confirmed'] = $next_visit->isConfirmed();
-                    $nv_data['confirmation_url'] = $this->N->createConfirmationUrl($next_visit);
-                    $nv_data['group_name'] = $next_visit->getGroup()->getName();
                     $g_data['next_visit'] = $nv_data;
                 }
 

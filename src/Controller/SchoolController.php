@@ -1,7 +1,4 @@
 <?php
-/**
- * The School Controller
- */
 
 namespace Fridde\Controller;
 
@@ -111,6 +108,7 @@ class SchoolController extends BaseController
         $DATA = [];
         $DATA['student_limits'] = SETTINGS['admin']['summary']['allowed_group_size'];
         $DATA['school_name'] = $school->getName();
+        $school_needs_food_info = $school->getFoodRule() === School::FOOD_ORDER;
 
         $segments_at_this_school = $school->getSegmentsAvailable(true);
 
@@ -123,14 +121,14 @@ class SchoolController extends BaseController
 
             $seg = ['id' => $segment_val, 'label' => $segment_label];
             $groups_current_segment_formatted = array_map(
-                function (Group $g) {
+                function (Group $g) use ($school_needs_food_info) {
                     $r['id'] = $g->getId();
                     $r['name'] = $g->getName();
                     $user = $g->getUser();
                     $r['teacher_id'] = empty($user) ? null : $user->getId();
                     $r['nr_students'] = $g->getNumberStudents() ?? 0;
                     $r['food'] = $g->getFood();
-                    $r['needs_food'] = !in_array($g->getSegment(), ['fri', '9'], false);
+                    $r['needs_food_info'] = $school_needs_food_info && !in_array($g->getSegment(), ['fri', '9'], false);
                     $r['info'] = $g->getInfo();
                     $r['visits'] = array_map(
                         function (Visit $v) {
