@@ -102,7 +102,7 @@ class Calendar
             if ($visit->hasColleagues()) {
                 $title .= '['.$visit->getColleaguesAsAcronymString().'] ';
             }
-            $title .= $visit->getLabel('TGSU');
+            $title .= $visit->getLabel('TGSu');
             //temadag med åk från skola (klass, lärare)
             $event->setSummary($title);
             $event->setLocation($location->getName());

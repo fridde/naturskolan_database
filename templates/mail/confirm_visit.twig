@@ -1,6 +1,6 @@
 {% extends "mail/common/base_mail.twig" %}
 
-
+{% block body_header %} {% endblock %}
 
 {% block body_text %}
 {% set nv = user.next_visit %}
@@ -8,7 +8,7 @@
 <p>Snart är det dags för att du, {{ nv.group_name }} och vi från Naturskolan ska ses. Vi vill gärna veta att du vet om det.</p>
 <p>Bekräfta besöket genom att <a href="{{ nv.confirmation_url }}" target="_blank">klicka här!</a></p>
 
-<p>Temadag {{ nv.topic_label }} med {{ nv.group_name }} är planerad för
+<p>Temadag {{ nv.topic_label }} med din klass {{ nv.group_name }} är planerad för
     <b>{{ nv.date_string }}</b>.
     <br>All information om dagen hittar du i <a href="{{ nv.topic_url }}" target="_blank">dagens pedagogiska planering</a>.
     <br>Om något känns oklart, tveka inte att höra av dig till oss!
@@ -22,3 +22,5 @@
 <hr>
 <p>Du kan även se de andra tillfällen samt redigera information om dig och din klass med denna personliga <a href="{{ user.login_url }}" target="_blank">inloggningslänk</a>.</p>
 {% endblock %}
+
+{% block school_link%} {% endblock %}

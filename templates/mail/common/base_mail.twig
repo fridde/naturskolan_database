@@ -20,8 +20,10 @@ Sigtuna Naturskola informerar....
 <hr><hr>
 {% block links %}
    <ul>
-    <li><a href="{{ user.school_url }}" target="_blank">Din skolas besöksportal</a><br>
-    Här kan du ange information om klassen, lägga till kollegor, se dina besöksdatum och annat.</li>
+       {% block school_link %}
+       <li><a href="{{ user.school_url }}" target="_blank">Din skolas besöksportal</a><br>
+       Här kan du ange information om klassen, lägga till kollegor, se dina besöksdatum och annat.</li>
+       {% endblock %}
        <li><a href="https://www.sigtunanaturskola.se/vanliga-fragor" target="_blank">Vanliga frågor</a><br>
      Om du undrar nåt över besöken, administration eller annat.</li>
        <li><a href="https://www.sigtunanaturskola.se/kontakta-oss" target="_blank">Kontakta oss!</a><br>

@@ -490,7 +490,8 @@ class Visit
             'topic' => 'T',
             'group' => 'G',
             'school' => 'S',
-            'user' => 'U',
+            'user_short' => 'u', // small letter
+            'user_long' => 'U'
         ];
 
         array_walk(
@@ -517,8 +518,11 @@ class Visit
         if ($has_group && $include['school']) {
             $label .= ' från '.$this->getGroup()->getSchool()->getName();
         }
-        if ($has_group && $include['user'] && $this->getGroup()->hasUser()) {
+        if ($has_group && $include['user_short'] && $this->getGroup()->hasUser()) {
             $label .= ' ('.$this->getGroup()->getUser()->getShortName().')';
+        }
+        if ($has_group && $include['user_long'] && $this->getGroup()->hasUser()) {
+            $label .= ' ('.$this->getGroup()->getUser()->getFullName().')';
         }
 
         return $label;
