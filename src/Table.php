@@ -23,7 +23,7 @@ class Table
         $this->entity_class = ucfirst($entity_class);
     }
 
-    public function build()
+    public function build(array $parameters = [])
     {
         $this->fillInDefaultSettings();
         $this->insertOptionValues();
@@ -196,6 +196,13 @@ class Table
             try {
                 switch ($this->getFullyQualifiedClassName()) {
                     case Visit::class:
+                        if(empty($e1->getGroup())){
+                            return -1;
+                        }
+                        if(empty($e2->getGroup())){
+                            return 1;
+                        }
+
                         $school_diff = strcasecmp(
                             $e1->getGroup()->getSchool()->getId(),
                             $e2->getGroup()->getSchool()->getId()

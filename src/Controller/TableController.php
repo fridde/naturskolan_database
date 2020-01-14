@@ -14,13 +14,19 @@ class TableController extends BaseController
     /* @var Table $table  */
     private $table;
 
+    public function handleRequest()
+    {
+        $this->addAction('view');
+        parent::handleRequest();
+    }
+
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function view()
+    public function view(array $parameters = [])
     {
         $this->table = new Table($this->params['entity'], $this->N->ORM);
-        $rows = $this->table->build();
+        $rows = $this->table->build($parameters);
 
         $this->addToDATA('rows', $rows);
         $this->addToDATA('headers', $this->table->getColumnHeaders());

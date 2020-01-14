@@ -443,10 +443,14 @@ class User
                    return false;
                 }
                 if(!empty($criteria['next_visit_before']) && $g->hasNextVisit()){
-                    return $g->getNextVisit()->getDate()->lte($criteria['next_visit_before']);
+                    if(! $g->getNextVisit()->getDate()->lte($criteria['next_visit_before'])){
+                        return false;
+                    }
                 }
                 if(!empty($criteria['next_visit_not_confirmed']) && $g->hasNextVisit()){
-                    return ! $g->getNextVisit()->isConfirmed();
+                    if($g->getNextVisit()->isConfirmed()){
+                        false;
+                    }
                 }
 
                 return true;

@@ -29,7 +29,7 @@ routes:
    school : ['GET','/skola/{school}','School','createSchoolPage']
    sms : ['GET|POST','/sms/{action}','API', ~, 'action']
    support: ['GET', '/support/{section}', 'Page','showSupport', 'section']
-   table : ['GET','/table/{entity}','Table','view']
+   table : ['GET','/table/{entity}/{parameters}','Table', ~, {parameters: '.+'}]
    task : ['GET','/task/{type}/{AuthKey}','Cron','executeTaskNow', 'AuthKey']
    update : ['POST','/update','Update']
    view : ['GET','/view/{page}/{parameters}','View', ~, {parameters: '.+'}]
