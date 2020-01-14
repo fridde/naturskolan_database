@@ -449,7 +449,7 @@ class User
                 }
                 if(!empty($criteria['next_visit_not_confirmed']) && $g->hasNextVisit()){
                     if($g->getNextVisit()->isConfirmed()){
-                        false;
+                        return false;
                     }
                 }
 
