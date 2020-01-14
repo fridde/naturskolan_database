@@ -23,7 +23,7 @@ class Table
         $this->entity_class = ucfirst($entity_class);
     }
 
-    public function build(array $parameters = [])
+    public function build(string $subgroup = 'all')
     {
         $this->fillInDefaultSettings();
         $this->insertOptionValues();

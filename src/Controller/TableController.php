@@ -23,10 +23,10 @@ class TableController extends BaseController
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function view(array $parameters = [])
+    public function view(string $subgroup = 'all')
     {
         $this->table = new Table($this->params['entity'], $this->N->ORM);
-        $rows = $this->table->build($parameters);
+        $rows = $this->table->build($subgroup);
 
         $this->addToDATA('rows', $rows);
         $this->addToDATA('headers', $this->table->getColumnHeaders());
