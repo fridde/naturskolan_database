@@ -63,7 +63,7 @@ class Group
     protected $CreatedAt;
 
     /** @ORM\OneToMany(targetEntity="Visit", mappedBy="Group")
-     *  @ORM\OrderBy({"Date"="ASC"})
+     * @ORM\OrderBy({"Date"="ASC"})
      **/
     protected $Visits;
 
@@ -302,6 +302,16 @@ class Group
         return $visits;
     }
 
+    public function getSortedActiveVisits(): array
+    {
+        return array_filter(
+            $this->getSortedVisits(),
+            function (Visit $v) {
+                return $v->isActive();
+            }
+        );
+    }
+
     /*
     public function sortVisits(): void
     {
@@ -323,7 +333,7 @@ class Group
 
     /**
      *
-     * @param  \Fridde\Entities\Group $other_group Another group to compare to.
+     * @param \Fridde\Entities\Group $other_group Another group to compare to.
      * @return int Returns a negative number if this group is supposed to visit before
      *             the other group, returns a positive number otherwise. Won't return 0.
      */

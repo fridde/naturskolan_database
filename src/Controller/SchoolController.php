@@ -151,7 +151,7 @@ class SchoolController extends BaseController
 
                             return $r;
                         },
-                        $g->getSortedVisits()
+                        $g->getSortedActiveVisits()
                     );
 
                     return $r;
