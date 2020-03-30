@@ -16,7 +16,10 @@
    style="background-color: rgb(255, 255, 255);"
    id="svg144"
    sodipodi:docname="entity_relations.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:export-filename="D:\Dropbox\scripts\naturskolan_database\examples\entity_relations.png"
+   inkscape:export-xdpi="1199.8778"
+   inkscape:export-ydpi="1199.8778">
   <metadata
      id="metadata148">
     <rdf:RDF>
@@ -25,6 +28,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -37,17 +41,18 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1285"
-     inkscape:window-height="650"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
      id="namedview146"
      showgrid="false"
      inkscape:zoom="1.3256351"
-     inkscape:cx="201.70198"
-     inkscape:cy="164.40889"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg144" />
+     inkscape:cx="79.119227"
+     inkscape:cy="224.75732"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg144"
+     inkscape:pagecheckerboard="false" />
   <defs
      id="defs2" />
   <g
