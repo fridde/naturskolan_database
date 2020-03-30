@@ -24,7 +24,6 @@
         "symfony/yaml": "^4.0",
         "dg/ftp-deployment": "^2.7",
         "defuse/php-encryption": "^2.1",
-        "nochso/html-compress-twig": "^2.0",
         "fridde/router": "dev-master",
         "maennchen/zipstream-php": "^0.5.2"
     },

@@ -23,32 +23,17 @@ class Message
     /** @ORM\ManyToOne(targetEntity="User", inversedBy="Messages")     * */
     protected $User;
 
-    /** @ORM\Column(type="smallint", nullable=true) */
+    /** @ORM\Column(type="string", nullable=true) */
     protected $Subject;
 
     /** @ORM\Column(type="smallint", nullable=true) */
     protected $Carrier;
 
-    /** @ORM\Column(type="smallint", nullable=true) */
-    protected $Status;
-
     /** @ORM\Column(type="string", nullable=true) */
-    protected $ExtId;
-
-    /** @ORM\Column(type="text", nullable=true) */
-    protected $Content;
-
-    /** @ORM\Column(type="string", nullable=true) */
-    protected $Timestamp;
-
-    public const STATUS_PENDING = 0;
-    public const STATUS_SENT = 1;
-    public const STATUS_RECEIVED = 2;
+    protected $Date;
 
     public const CARRIER_MAIL = 0;
     public const CARRIER_SMS = 1;
-
-    public const MAIL_HTML = 0;
 
     public const SUBJECT_PASSWORD_RECOVERY = 1;
     public const SUBJECT_WELCOME_NEW_USER = 2;
@@ -104,71 +89,21 @@ class Message
         $this->Carrier = $Carrier;
     }
 
-    public function getStatus(): ?int
+    public function getDate(): Carbon
     {
-        return $this->Status;
-    }
-
-    public function setStatus(int $Status)
-    {
-        $this->Status = $Status;
-    }
-
-    public function getExtId()
-    {
-        return $this->ExtId;
-    }
-
-    public function setExtId($ExtId)
-    {
-        $this->ExtId = $ExtId;
-    }
-
-    public function getContent($key = null)
-    {
-        $content = json_decode($this->Content, true);
-        if (!empty($key)) {
-            $content = $content[$key] ?? null;
+        if (is_string($this->Date)) {
+            $this->Date = new Carbon($this->Date);
         }
 
-        return $content;
+        return $this->Date;
     }
 
-    public function getContentAsString()
+    public function setDate($Date)
     {
-        return $this->Content;
-    }
-
-    public function setContent(...$args)
-    {
-
-        if (is_array($args[0])) {
-            $this->Content = json_encode($args[0]);
-        } elseif (count($args) === 2) {
-            $content = $this->getContent();
-            $content[$args[0]] = $args[1];
-            $this->setContent($content);
-        } else {
-            $this->Content = $args[0];
+        if ($Date instanceof Carbon) {
+            $Date = $Date->toDateString();
         }
-    }
-
-
-    public function getTimestamp()
-    {
-        if (is_string($this->Timestamp)) {
-            $this->Timestamp = new Carbon($this->Timestamp);
-        }
-
-        return $this->Timestamp;
-    }
-
-    public function setTimestamp($Timestamp)
-    {
-        if ($Timestamp instanceof Carbon) {
-            $Timestamp = $Timestamp->toIso8601String();
-        }
-        $this->Timestamp = $Timestamp;
+        $this->Date = $Date;
     }
 
     public function wasSentAfter($date)
@@ -177,7 +112,7 @@ class Message
             $date = new Carbon($date);
         }
 
-        return $this->getTimestamp()->gt($date);
+        return $this->getDate()->gt($date);
     }
 
     public function checkProperties(array $properties = [], string $return = 'all_true')
@@ -221,7 +156,6 @@ class Message
     /** @ORM\PrePersist */
     public function prePersist()
     {
-        $this->setTimestamp(Carbon::now());
     }
 
     /** @ORM\PreUpdate */

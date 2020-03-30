@@ -60,7 +60,7 @@ class User
     protected $Visits;
 
     /** @ORM\OneToMany(targetEntity="Message", mappedBy="User")
-     * @ORM\OrderBy({"Timestamp" = "ASC"})
+     * @ORM\OrderBy({"Date" = "ASC"})
      */
     protected $Messages;
 
