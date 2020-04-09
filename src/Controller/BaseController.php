@@ -6,6 +6,7 @@ namespace Fridde\Controller;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
 use Fridde\HTML;
+use Fridde\Naturskolan;
 use Fridde\Security\Authorizer;
 use Fridde\TwigExtension\NavigationExtension;
 use Fridde\Utility;
@@ -13,8 +14,7 @@ use Fridde\Utility;
 class BaseController
 {
 
-    /** @var \Fridde\Naturskolan The Naturskolan object obtained from the global container */
-    protected $N;
+    protected Naturskolan $N;
     protected array $params;
     protected array $actions;
     protected array $REQ;
