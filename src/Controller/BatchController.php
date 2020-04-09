@@ -31,7 +31,7 @@ use Fridde\Utility;
  */
 class BatchController extends BaseController
 {
-    public function handleRequest()
+    public function handleRequest(): ?string
     {
         $this->addToDATA('school_id', 'natu');
         $this->setParameter('school', 'natu');

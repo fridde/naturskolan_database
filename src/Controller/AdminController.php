@@ -42,7 +42,7 @@ class AdminController extends BaseController
     ];
 
 
-    public function handleRequest()
+    public function handleRequest(): ?string
     {
         if (!$this->hasAction()) {
             $this->addAction('assembleAdminOverview');

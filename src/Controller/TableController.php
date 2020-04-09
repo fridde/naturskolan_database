@@ -14,7 +14,7 @@ class TableController extends BaseController
     /* @var Table $table  */
     private $table;
 
-    public function handleRequest()
+    public function handleRequest(): ?string
     {
         $this->addAction('view');
         parent::handleRequest();

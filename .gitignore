@@ -8,6 +8,7 @@ docs/
 misc/
 old_files/
 vendor/
+examples/images/
 *.log
 .idea/*
 

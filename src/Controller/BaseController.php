@@ -9,34 +9,27 @@ use Fridde\HTML;
 use Fridde\Security\Authorizer;
 use Fridde\TwigExtension\NavigationExtension;
 use Fridde\Utility;
-use nochso\HtmlCompressTwig\Extension as HtmlCompressTwigExtension;
 
 class BaseController
 {
 
     /** @var \Fridde\Naturskolan The Naturskolan object obtained from the global container */
     protected $N;
-    /* @var array $params */
-    protected $params;
-    /* @var array $action */
-    protected $actions;
-    /* @var array $REQ */
-    protected $REQ;
-    /* @var string $return_type */
-    protected $return_type = self::RETURN_HTML;
-    /** @var \Fridde\HTML A Html object to build the page */
-    protected $H;
-    protected $DATA = [];
-    protected $TWIG_Variables = [];
-    protected $title;
-    protected $js = ['start' => [], 'end' => []];
-    protected $css = [];
-    protected $fonts = [];
-    protected $template;
-    protected $reset_doc_for_each_request = true;
+    protected array $params;
+    protected array $actions;
+    protected array $REQ;
+    protected int $return_type = self::RETURN_HTML;
+    protected HTML $H;
+    protected array $DATA = [];
+    protected array $TWIG_Variables = [];
+    protected ?string $title;
+    protected array $js = ['start' => [], 'end' => []];
+    protected array $css = [];
+    protected array $fonts = [];
+    protected ?string $template;
+    protected bool $reset_doc_for_each_request = true;
 
-    /* @var Authorizer $Authorizer */
-    protected $Authorizer;
+    protected Authorizer $Authorizer;
 
     public const RETURN_HTML = 0;
     public const RETURN_JSON = 1;
@@ -62,13 +55,12 @@ class BaseController
         $args[] = $GLOBALS['CONTAINER']->get('Router');
         $args[] = $this->N->ORM;
         $extensions[] = new NavigationExtension(...$args);
-        $extensions[] = new HtmlCompressTwigExtension();
         $this->H = new HTML(null, $extensions, BASE_DIR.'/temp/cache');
         $this->setTitle(SETTINGS['defaults']['title'] ?? null);
     }
 
 
-    public function handleRequest()
+    public function handleRequest(): ?string
     {
         $actions = $this->getActions();
         $param_string = $this->getParameter('parameters');
@@ -347,17 +339,11 @@ class BaseController
         $this->fonts[] = $fonts;
     }
 
-    /**
-     * @return string
-     */
     public function getTemplate(): ?string
     {
         return $this->template;
     }
 
-    /**
-     * @param string $template
-     */
     public function setTemplate(string $template): void
     {
         $this->template = $template;

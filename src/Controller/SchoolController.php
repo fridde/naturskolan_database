@@ -23,7 +23,7 @@ class SchoolController extends BaseController
         $this->setRequestSchool();
     }
 
-    public function handleRequest()
+    public function handleRequest(): ?string
     {
         $this->decreaseSecurityLevelIfFromRightSchool();
 

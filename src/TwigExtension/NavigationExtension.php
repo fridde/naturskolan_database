@@ -12,12 +12,9 @@ use Fridde\TwigBaseExtension;
 
 class NavigationExtension extends TwigBaseExtension
 {
-    /* @var Authorizer $Auth */
-    protected $Auth;
-    /* @var \AltoRouter $Router */
-    protected $Router;
-    /* @var ORM $ORM */
-    protected $ORM;
+    protected Authorizer $Auth;
+    protected Router $Router;
+    protected ORM $ORM;
 
     public const METHOD_DELIMITER = '->';
     public const ARG_DELIMITER = ',';
@@ -30,13 +27,13 @@ class NavigationExtension extends TwigBaseExtension
         $this->ORM = $orm;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return 'navigation_extension';
 
     }
 
-    public function defineFunctions()
+    public function defineFunctions(): array
     {
         $fnc_names = [
             'getNavItems',
@@ -50,12 +47,7 @@ class NavigationExtension extends TwigBaseExtension
         return $this->getDefinitionArray($fnc_names);
     }
 
-    public function defineFilters()
-    {
-       return [];
-    }
-
-    public function defineTests()
+    public function defineTests(): array
     {
         $test_names = [
             ['method', 'testIfMethod'],
@@ -64,7 +56,7 @@ class NavigationExtension extends TwigBaseExtension
         return $this->getDefinitionArray($test_names);
     }
 
-    public function testIfMethod($element_to_test)
+    public function testIfMethod($element_to_test): bool
     {
         if (!is_string($element_to_test)) {
             return false;
@@ -73,13 +65,13 @@ class NavigationExtension extends TwigBaseExtension
         return substr_count($element_to_test, self::METHOD_DELIMITER) >= 1;
     }
 
-    public function getMinSecurityLevel()
+    public function getMinSecurityLevel(): int
     {
         return $this->Auth->getVisitorSecurityLevel();
     }
 
 
-    public function getNavItems()
+    public function getNavItems(): array
     {
         $min_security_level = $this->Auth->getVisitorSecurityLevel();
 
@@ -98,7 +90,7 @@ class NavigationExtension extends TwigBaseExtension
     {
         $method_name = explode(self::METHOD_DELIMITER, $item['children'])[1];
 
-        return call_user_func([$this, $method_name]);
+        return $this->$method_name();
     }
 
     public function getUrlUsingMethod(array $item, array $data_array = null)

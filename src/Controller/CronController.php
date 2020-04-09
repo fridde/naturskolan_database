@@ -21,7 +21,7 @@ class CronController extends BaseController
         $this->intervals = SETTINGS['cronjobs']['intervals'];
     }
 
-    public function handleRequest()
+    public function handleRequest(): ?string
     {
         if($this->hasAction('executeTaskNow')){
             $this->executeTaskNow();

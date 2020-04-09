@@ -21,7 +21,7 @@ class UpdateController extends BaseController
         parent::__construct($params, true);
     }
 
-    public function handleRequest()
+    public function handleRequest(): ?string
     {
         $update = new Update($this->getFromRequest());
         $update_method = $this->getFromRequest('updateMethod') ?? $this->getFromRequest('update_method');

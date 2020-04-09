@@ -48,7 +48,7 @@ class ViewController extends BaseController
         'mail' => 'viewMailTemplates',
     ];
 
-    public function handleRequest(): void
+    public function handleRequest(): ?string
     {
         $this->addAction($this->getParameter('page'));
 
