@@ -16,10 +16,9 @@ modules:
         - WebDriver:
             url: 'http://localhost/testing/naturskolan_database'
             window_size: maximize # disabled in ChromeDriver
-            port: 4444
+            port: 9515
             browser: chrome
-            capabilities:
-                chromeOptions: # additional chrome options
+
         - Db:
             dsn: 'mysql:host=localhost:3307;dbname=ndb_test'
             user: 'root'
