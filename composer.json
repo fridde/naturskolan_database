@@ -36,7 +36,8 @@
         "ericmartel/codeception-email-mailhog": "^1.0",
         "codeception/module-phpbrowser": "^1.0",
         "codeception/module-webdriver": "^1.0",
-        "codeception/module-asserts": "^1.1"
+        "codeception/module-asserts": "^1.1",
+        "codeception/module-filesystem": "^1.0"
     },
 	"autoload": {
         "psr-4": { "Fridde\\": "src/" }
