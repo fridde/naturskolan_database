@@ -38,7 +38,10 @@ class UpdateController extends BaseController
             $return = ['success' => false, 'errors' => ['The updateMethod was not authorized']];
         }
 
-        echo json_encode($return);
+        $return = json_encode($return, JSON_THROW_ON_ERROR, 512);
+        echo $return;
+
+        return $return;
     }
 
     protected function checkIfValidUpdate(string $method): bool
