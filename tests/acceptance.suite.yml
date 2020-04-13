@@ -18,6 +18,10 @@ modules:
             window_size: maximize # disabled in ChromeDriver
             port: 9515
             browser: chrome
+            capabilities:
+                'goog:chromeOptions':
+                    args:
+                        - "--allow-insecure-localhost"
 
         - Db:
             dsn: 'mysql:host=localhost:3307;dbname=ndb_test'

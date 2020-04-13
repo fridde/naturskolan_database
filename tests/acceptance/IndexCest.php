@@ -9,7 +9,6 @@ class IndexCest
 {
     public function _before(A $I)
     {
-        $I->wait(5);
         $I->setTestDate();
         $I->setCookie('XDEBUG_SESSION', 'PHPSTORM');
     }
