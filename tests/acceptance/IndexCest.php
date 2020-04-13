@@ -26,7 +26,7 @@ class IndexCest
     public function frontpageWorksForVisitor(A $I)
     {
         $I->amOnPage('/');
-        $I->pause(0.7);
+        $I->delay(0.7);
         $I->makeScreenshot('frontpage_visitor');
         $schools_on_fp = $I->get('schools','frontpage') ?? [];
 
@@ -69,7 +69,7 @@ class IndexCest
 
         $I->seeElement($link);
         $I->click($link);
-        $I->pause();
+        $I->delay();
         $I->see('Ange skolans lösenord');
         $I->makeScreenshot('login_modal');
         $hide_pw_cb = Locator::find('input', ['name' => 'hide-password', 'type' => 'checkbox']);
@@ -82,7 +82,7 @@ class IndexCest
         $I->fillField($hidden_pw_field, $bad_pw);
         $I->makeScreenshot('password_hidden');
         $I->uncheckOption($hide_pw_cb);
-        $I->pause();
+        $I->delay();
         $I->cantSeeElement($hidden_pw_field);
         $I->seeElement($visible_pw_field);
         $I->makeScreenshot('password_visible');
@@ -115,18 +115,18 @@ class IndexCest
         $I->resetCookie('AuthKey');
         $link = Locator::find('a', ['href' => $I->get('BASE') . '/skola/pers']);
         $I->click($link);
-        $I->pause();
+        $I->delay();
         $hidden_pw_field = Locator::find('input', ['name' => 'password', 'type' => 'password']);
         $I->fillField($hidden_pw_field, $I->get('st_per', 'pw'));
         $login_button = Locator::find('button', ['id' => 'login_modal_submit']);
         $I->click($login_button);
-        $I->pause(1.5);
+        $I->delay(1.5);
         $user_nav_items = $I->get('nav_items', 'user');
 
         $I->checkMultiple('canSee', $user_nav_items, '.nav');
         $AuthKey = $I->grabCookie('AuthKey');
         $I->assertNotEmpty($AuthKey);
-        $I->pause();
+        $I->delay();
     }
 
     // codecept run acceptance IndexCest:userCanLogout --steps -f
@@ -140,7 +140,7 @@ class IndexCest
         $logout_link = '//a[@href="logout"]';
 //        $I->scrollTo($logout_link);
         $I->click($logout_link);
-        $I->pause(0.7);
+        $I->delay(0.7);
         $I->dontSeeCookie('AuthKey');
         $I->dontSeeInCurrentUrl('skola/pers');
     }

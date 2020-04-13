@@ -61,7 +61,7 @@ class AcceptanceTester extends \Codeception\Actor
         $this->wait_time = $wait_time;
     }
 
-    public function pause(float $wait_factor = 1.0)
+    public function delay(float $wait_factor = 1.0)
     {
         return $this->wait($this->wait_time * $wait_factor);
     }
@@ -125,7 +125,7 @@ class AcceptanceTester extends \Codeception\Actor
     {
         $test_date = $test_date ?? $this->get('test_date');
         $this->amOnPage('/api/updateTestDate/'.htmlentities($test_date));
-        $this->pause(0.7);
+        $this->delay(0.7);
     }
 
     public function changeTestDate(string $modifier)
@@ -187,7 +187,7 @@ class AcceptanceTester extends \Codeception\Actor
 
         $this->amOnPage('/admin');
         //$this->pauseExecution();
-        $this->pause(1);
+        $this->delay(1);
         foreach ($cron_tasks as $cron_task) {
             $path = '//input[@name="'.$cron_task.'"]';
             if ($cron_task === $task) {
@@ -203,7 +203,7 @@ class AcceptanceTester extends \Codeception\Actor
     public function runActivatedCronTasks()
     {
         $this->amOnPage('/cron');
-        $this->pause(2);
+        $this->delay(2);
     }
 
     public function seeStringsInThisFile(array $strings)

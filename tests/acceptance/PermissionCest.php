@@ -22,10 +22,10 @@ class PermissionCest
     {
         $I->runCronTask('rebuild_calendar');
         $I->resetCookie('AuthKey');
-        $I->pause();
+        $I->delay();
 
         $I->amOnPage('calendar');
-        $I->pause();
+        $I->delay();
         $I->makeScreenshot('calendar_downloaded');
 
     }

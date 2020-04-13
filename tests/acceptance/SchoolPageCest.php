@@ -15,7 +15,7 @@ class SchoolPageCest
         $I->amOnPage('/');
         $I->setCookie('AuthKey', $I->get('st_per', 'AuthKey'));
         $I->amOnPage('/skola/pers');
-        $I->pause(0.7);
+        $I->delay(0.7);
     }
 
     public function _after(A $I)
@@ -33,7 +33,7 @@ class SchoolPageCest
         $last_change_before = $I->grabFromDatabase('users', 'LastChange', ['id' => 102]);
         $I->fillField($heinz_field, 'Albus');
         $I->click($krumbichel_field);
-        $I->pause();
+        $I->delay();
 
         $I->seeInDatabase('users', ['FirstName' => 'Albus']);
 
@@ -60,13 +60,14 @@ class SchoolPageCest
         $I->canSeeElement($row_btn);
         $I->scrollTo($row_btn);
         $I->click($row_btn);
-        $I->pause();
+        $I->delay();
         $rows = $I->getTableRows('User');
         $I->assertCount(10, $rows);
         $num_users_before = $I->grabNumRecords('users');
         $I->fillField($I->getFieldFromLastRow('User', 'FirstName'), 'Ronald');
-        $I->clickAway();
         $I->pause();
+        $I->clickAway();
+        $I->delay();
         $I->seeInDatabase('users', ['FirstName' => 'Ronald']);
         $num_users_after = $I->grabNumRecords('users');
         $I->assertEquals($num_users_after, $num_users_before + 1);
@@ -92,7 +93,7 @@ class SchoolPageCest
         $I->dontSeeInPageSource('Stefan Eriksson'); // different school
         $I->selectOption($teacher_for_2a_field_path, 'Anna Svensson'); // teacher with id 24
         $I->clickAway();
-        $I->pause(0.7);
+        $I->delay(0.7);
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 24]);
         $I->seeInDatabase(
             'changes',
@@ -115,7 +116,7 @@ class SchoolPageCest
         $segment5_btn = '//button[@data-target="#segment_5"]';
         $I->scrollTo($segment5_btn);
         $I->click($segment5_btn);
-        $I->pause(0.7);
+        $I->delay(0.7);
         $I->canSee('5A');
 
         // TODO: Test group name editor

@@ -42,12 +42,12 @@ class CronCest
         $I->assertTrue(empty($status['rebuild_calendar']));
         $cb_path = $I->get('paths', 'rebuild_calendar_cb');
         $I->checkOption($cb_path);
-        $I->pause(1.5);
+        $I->delay(1.5);
 
         $new_status = json_decode($I->grabFromDatabase(...$status_path), true);
         $I->assertEquals(1, $new_status['rebuild_calendar']);
         $I->uncheckOption($cb_path);
-        $I->pause(1.5);
+        $I->delay(1.5);
         $newest_status = json_decode($I->grabFromDatabase(...$status_path), true);
         $I->assertEquals(0, $newest_status['rebuild_calendar']);
     }
@@ -154,13 +154,13 @@ class CronCest
         $I->haveNumberOfUnreadEmails(2);
         //checking that no new mails are sent
         $I->runActivatedCronTasks();
-        $I->pause(0.7);
+        $I->delay(0.7);
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
         // checking that this is due to the mails already being sent and not just because of the systemstatus
         $I->changeTestDate('+3 days');
         $I->runActivatedCronTasks();
-        $I->pause(0.7);
+        $I->delay(0.7);
         $I->fetchEmails();
         $I->haveNumberOfUnreadEmails(2);
         // checking the content

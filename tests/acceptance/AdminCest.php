@@ -25,7 +25,7 @@ class AdminCest
     public function setColleagues(A $I)
     {
         $I->amOnPage('admin/batch/set_colleagues');
-        $I->pause(0.7);
+        $I->delay(0.7);
 
         $I->seeInPageSource('2018-06-19');
         $I->dontSeeInPageSource('2018-05-08');  // test date is 2018-06-01 and no past events should be visible
@@ -36,7 +36,7 @@ class AdminCest
         $I->assertEquals(0, $I->grabNumRecords('colleagues_visits'));
 
         $I->click($first_row . '//td[@data-colleague-id="1"]');
-        $I->pause(1);
+        $I->delay(1);
 
         $criteria_1 = ['visit_id' => 102, 'user_id' => 1];
         $I->seeInDatabase('colleagues_visits', $criteria_1);
@@ -45,7 +45,7 @@ class AdminCest
         $I->seeElement($second_row);
 
         $I->click($second_row . '//td[@data-colleague-id="6"]');
-        $I->pause(1);
+        $I->delay(1);
 
         $criteria_2 = ['visit_id' => 152, 'user_id' => 6];
         $I->seeInDatabase('colleagues_visits', $criteria_2);
