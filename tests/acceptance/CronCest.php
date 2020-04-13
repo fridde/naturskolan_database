@@ -58,6 +58,7 @@ class CronCest
     {
         $cal_path = codecept_root_dir() .'/kalender.ics';
         if (file_exists($cal_path)) {
+            $I->delay();
             $I->deleteFile($cal_path);
         }
         $I->runCronTask('rebuild_calendar');
@@ -74,6 +75,7 @@ class CronCest
         $last_run = ['systemstatus', ['Value' => null], ['id' => 'last_run.rebuild_calendar']];
         $I->runCronTask('rebuild_calendar');
         if (file_exists($cal_path)) {
+            $I->delay();
             $I->deleteFile($cal_path);
         }
         $I->runActivatedCronTasks();

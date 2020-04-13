@@ -28,9 +28,9 @@ class AcceptanceTester extends \Codeception\Actor
      * Define custom actions here
      */
 
-    private $test_items;
+    private array $test_items;
 
-    private $wait_time = 4.0;
+    private float $wait_time = 2.0;
 
     public function get(...$keys)
     {
@@ -213,7 +213,12 @@ class AcceptanceTester extends \Codeception\Actor
         }
     }
 
-    public function clickAway(int $dx = 0, int $dy = -50)
+    public function clickAway()
+    {
+        $this->clickWithLeftButton('//body');
+    }
+
+    public function clickAwayOld(int $dx = 0, int $dy = -50)
     {
         return $this->clickWithLeftButton(null, $dx, $dy);
     }

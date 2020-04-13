@@ -76,13 +76,12 @@ class SchoolPageCest
     // codecept run acceptance SchoolPageCest:groupPageWorks --steps -f
     public function groupPageWorks(A $I)
     {
-
         $segment_header = '//span[text()=\'Grupper åk 2/3\']';
 
         $I->canSeeElement($segment_header);
         $I->scrollTo($segment_header);
         $I->click($segment_header);
-        //
+        $I->delay();
         $I->checkMultiple('see', $I->get('st_per', 'items_visible_on_group_page'));
 
         $I->seeInDatabase('groups', ['id' => 44, 'Name' => '2A', 'User_id' => 53]);

@@ -25,7 +25,7 @@ class CronController extends BaseController
     {
         if($this->hasAction('executeTaskNow')){
             $this->executeTaskNow();
-            return ;
+            return null;
         }
 
         $this->addAction('run');
