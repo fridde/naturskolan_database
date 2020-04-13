@@ -55,7 +55,7 @@ class ViewController extends BaseController
         $this->addJsToEnd('admin', HTML::INC_ASSET);
         $this->addCss('admin', HTML::INC_ASSET);
 
-        parent::handleRequest();
+        return parent::handleRequest();
     }
 
     public function viewFoodOrder(): void

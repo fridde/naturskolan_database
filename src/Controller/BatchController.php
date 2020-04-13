@@ -37,7 +37,7 @@ class BatchController extends BaseController
         $this->setParameter('school', 'natu');
         $this->addJsToEnd('admin', HTML::INC_ASSET);
         $this->addCss('admin', HTML::INC_ASSET);
-        parent::handleRequest();
+        return parent::handleRequest();
     }
 
     public function addDates(): void

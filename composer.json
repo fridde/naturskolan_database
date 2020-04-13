@@ -30,7 +30,7 @@
     "require-dev": {
         "fzaninotto/faker": "^1.6",
         "filp/whoops": "^2.1",
-        "tracy/tracy": "^2.4",
+        "tracy/tracy": "^2.7",
         "codeception/codeception": "^4.0",
         "phpoffice/phpspreadsheet": "^1.1",
         "ericmartel/codeception-email-mailhog": "^1.0",

@@ -11,13 +11,12 @@ use Fridde\Table;
 class TableController extends BaseController
 {
 
-    /* @var Table $table  */
-    private $table;
+    private Table $table;
 
     public function handleRequest(): ?string
     {
         $this->addAction('view');
-        parent::handleRequest();
+        return parent::handleRequest();
     }
 
     /**

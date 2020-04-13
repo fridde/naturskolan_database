@@ -51,7 +51,7 @@ class AdminController extends BaseController
         $this->setParameter('school', Naturskolan::ADMIN_SCHOOL);
         $this->addJsToEnd('admin', HTML::INC_ASSET);
         $this->addCss('admin', HTML::INC_ASSET);
-        parent::handleRequest();
+        return parent::handleRequest();
     }
 
     /**

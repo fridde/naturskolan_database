@@ -31,7 +31,7 @@ class SchoolController extends BaseController
         $this->addToDATA('school_name', $this->request_school->getName());
         $this->addToDATA($this->getAllUsers($this->request_school));
 
-        parent::handleRequest();
+        return parent::handleRequest();
     }
 
 

@@ -29,7 +29,7 @@ class CronController extends BaseController
         }
 
         $this->addAction('run');
-        parent::handleRequest();
+        return parent::handleRequest();
     }
 
     /**
