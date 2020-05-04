@@ -5,4 +5,4 @@ This is a database and frontend system to simplify the recurring booking tasks d
 
 The project has reached production stage and is under active development.
 
-Currently runs on a LAMP stack using PHP 7.2 and MariaDB.
+Currently runs on a LAMP stack using PHP 7.4 and MariaDB.
