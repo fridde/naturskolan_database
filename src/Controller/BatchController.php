@@ -76,7 +76,7 @@ class BatchController extends BaseController
         $segment_id = $segment_id ?? (string) array_keys($segment_labels)[0];
         $start_year = $start_year ?? Carbon::today()->year;
         $criteria = [['Segment', $segment_id], ['StartYear', $start_year]];
-        $criteria = [['Segment', $segment_id], ['Status', Group::ACTIVE]];
+        $criteria[] = ['Segment', $segment_id], ['Status', Group::ACTIVE];
 
         $groups = $group_repo->selectAnd($criteria);
         $groups = array_values($group_repo->sortByVisitOrder($groups));
