@@ -212,6 +212,8 @@ class TableCest
         $I->clickAway();
         $I->delay(1.5);
 
+        $I->pause();
+
         $I->seeInDatabase('users', ['id' => '11', 'LastName' => 'Isaksson']);
 
         $I->seeInDatabase('users', ['id' => '11', 'Role' => 4]);
@@ -220,6 +222,7 @@ class TableCest
         $I->selectOption($role_selector, 'stakeholder');
         $I->clickAway();
         $I->delay();
+
 
         $I->seeInDatabase('users', ['id' => '11', 'Role' => 2]);
 
