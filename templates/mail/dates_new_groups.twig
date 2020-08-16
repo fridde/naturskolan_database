@@ -2,9 +2,8 @@
     {%- set user = DATA.user -%}
 {%- endif -%}
 
-{%- set topics, groups_by_users, subject = DATA.topics, DATA.groups_by_users, DATA.subject -%}
+{%- set topics, groups_by_users, seg = DATA.topics, DATA.groups_by_users, DATA.segment -%}
 
-{%- set topics, subject, seg = DATA.topics, DATA.subject, DATA.segment -%}
 {%- set missing_text = {
     group: {
         'number_students': 'Antal elever',
@@ -17,36 +16,19 @@
 
 {%- set snippets = {
     '2': {
-        'new': {
-            'start': 'Vår- och höstterminen %year_plus_one% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
-            'theme': 'Temat för de sex dagarna är ”Din omgivning”. Vad finns i den omgivande naturen? Vad ser du när du tittar dig omkring?'
-        },
-        'continued': {
-            'start': 'Äventyret med Naturskolan och %group_salutation% under vår- och höstterminen %year% fortsätter.',
-            'theme': 'Vi fortsätter med temat "Din omgivning".'
-        }
+        'start': 'Vår- och höstterminen %year_plus_one% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
+        'theme': 'Temat för de sex dagarna är ”Din omgivning”. Vad finns i den omgivande naturen? Vad ser du när du tittar dig omkring?'
     },
     '5': {
-        'new': {
-            'start': 'Under hösttermin %year% och vårtermin %year_plus_one% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
-            'theme': 'Temat för de sex dagarna är ”Processer i naturen”. Vilka processer styr naturen? Vad gör att din omgivning förändras med tiden?'
-        },
-        'continued': {
-            'start': 'Äventyret med Naturskolan och %group_salutation% under hösttermin %year_minus_one% och vårtermin %year% fortsätter.',
-            'theme': 'Vi fortsätter med temat "Processer i naturen".'
-        }
+        'start': 'Under hösttermin %year% och vårtermin %year_plus_one% är du och %group_salutation% inbokade på sex besök hos Sigtuna Naturskola. Välkommen!',
+        'theme': 'Temat för de sex dagarna är ”Processer i naturen”. Vilka processer styr naturen? Vad gör att din omgivning förändras med tiden?'
     },
     'default': {
-        'new': {
-            'next_visit': 'Nästa dag (och kanske första dag för dig) heter %first_topic_name% och är på %first_topic_date%. ',
-            'need_to_know': 'Vi behöver snarast veta:'
-        },
-        'continued': {
-            'next_visit': 'Nästkommande besök heter %first_topic_name% och är på %first_topic_date%.',
-            'need_to_know': 'Vi vill att du kontrollerar snarast:'
-        }
-    },
-} -%}
+        'next_visit': 'Nästa dag (och kanske första dag för dig) heter %first_topic_name% och är på %first_topic_date%. ',
+        'need_to_know': 'Vi behöver snarast veta:'
+    }
+}
+-%}
 
 {%- set groups = user.groups -%}
 {%- set next_visit = user.next_visit -%}
@@ -71,10 +53,10 @@
 } -%}
 
 
-{%- set start_text = snippets[seg][subject]['start']|replace(replacements) -%}
-{%- set next_visit_text = snippets['default'][subject]['next_visit']|replace(replacements) -%}
-{%- set theme_text = snippets[seg][subject]['theme']|replace(replacements) -%}
-{%- set need_to_know_text = snippets['default'][subject]['need_to_know']|replace(replacements) -%}
+{%- set start_text = snippets[seg]['start']|replace(replacements) -%}
+{%- set next_visit_text = snippets['default']['next_visit']|replace(replacements) -%}
+{%- set theme_text = snippets[seg]['theme']|replace(replacements) -%}
+{%- set need_to_know_text = snippets['default']['need_to_know']|replace(replacements) -%}
 
 <html>
 <h1>Hej {{ user.fname }}!</h1>
