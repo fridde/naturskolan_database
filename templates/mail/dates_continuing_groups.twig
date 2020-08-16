@@ -2,7 +2,7 @@
     {%- set user = DATA.user -%}
 {%- endif -%}
 
-{%- set topics, groups_by_users, segment = DATA.topics, DATA.groups_by_users, , DATA.segment -%}
+{%- set topics, groups_by_users, seg = DATA.topics, DATA.groups_by_users, DATA.segment -%}
 
 {%- set missing_text = {
     group: {
@@ -26,8 +26,9 @@
     'default': {
         'next_visit': 'Nästkommande besök heter %first_topic_name% och är på %first_topic_date%.',
         'need_to_know': 'Vi vill att du kontrollerar snarast:'
-    },
-} -%}
+    }
+}
+-%}
 
 {%- set groups = user.groups -%}
 {%- set next_visit = user.next_visit -%}
