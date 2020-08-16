@@ -64,7 +64,7 @@ class FileController extends BaseController
         $this->setReturnType(self::RETURN_TEXT);
 
         $date_string = Utility::replaceNonAlphaNumeric(Carbon::now()->toDateTimeString());
-        $file_name = 'mails_'.$subject.'_'.$date_string.'.zip';
+        $file_name = 'mails_'.$template.'_'.$date_string.'.zip';
 
         $zip = new ZipStream($file_name);
 
