@@ -215,7 +215,7 @@ class AcceptanceTester extends \Codeception\Actor
 
     public function clickAway()
     {
-        $this->clickWithLeftButton('//body');
+        $this->clickWithLeftButton(null, 1,1);
     }
 
     public function clickAwayOld(int $dx = 0, int $dy = -50)

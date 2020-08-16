@@ -292,10 +292,13 @@ class TableCest
         $I->fillField($time_field, '1939-1945');
         $I->clickAway();
         $I->delay(4);
+        $I->pause();
         //$I->seeInDatabase('visits', ['id' => 10, 'Time' => '19:39-19:45']);
 
         $I->runCronTask('rebuild_calendar');
+        $I->delay(4);
         $I->seeFileFound('kalender.ics', codecept_root_dir());
+        $I->pause();
         $strings = [
             'DTSTART;TZID=Europe/Stockholm:20190506T193900',
             'DTEND;TZID=Europe/Stockholm:20190506T194500'

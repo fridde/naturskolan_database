@@ -36,7 +36,7 @@ class AdminSummary
     /** @var array Contains group changes younger than a certain amount of time.
      *              This is a temporary variable to avoid reproducing the table.
      */
-    private array $recent_group_changes;
+    private ?array $recent_group_changes = null;
 
     private static array $method_translator = [
         'bad_mobil' => 'getBadMobileNumbers',
