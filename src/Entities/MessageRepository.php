@@ -14,15 +14,15 @@ class MessageRepository extends CustomRepository
         });
     }
 
-    public function findMessagesOlderThan(Carbon $date)
+    public function findMessagesOlderThan(Carbon $date): array
     {
         $criteria = ['lt', 'Timestamp', $date->toDateString()];
         return $this->select($criteria);
     }
 
-    public function getSentWelcomeMessages()
+    public function getSentWelcomeMessages(): array
     {
-        $criteria = [['eq', 'Subject', Message::SUBJECT_WELCOME_NEW_USER]];
+        $criteria = [['eq', 'Subject', Message::SUBJECT_NEW_GROUP]];
 		$criteria[] = ['eq', 'Carrier', Message::CARRIER_MAIL];
         return $this->select($criteria);
     }

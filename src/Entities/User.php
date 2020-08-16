@@ -5,7 +5,7 @@ namespace Fridde\Entities;
 use Carbon\Carbon;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping AS ORM;
-
+use Fridde\Timing as T;
 
 
 /**
@@ -522,17 +522,8 @@ class User
         return $date->lte($created_at);
     }
 
-    /* @deprecated
-    */
-    public function sortMessagesByDate()
+    public function getLastMessage($properties = null): ?Message
     {
-        return $this->Messages;
-    }
-
-
-    public function getLastMessage($properties = null)
-    {
-        $this->sortMessagesByDate();
         if (!empty($properties)) {
             $msg = $this->getFilteredMessages($properties);
         } else {
@@ -543,7 +534,7 @@ class User
     }
 
 
-    public function lastMessageWasAfter($date, $properties = null)
+    public function lastMessageWasAfter($date, $properties = null): bool
     {
         $last_message = $this->getLastMessage($properties);
         if (!empty($last_message)) {
@@ -551,6 +542,25 @@ class User
         }
 
         return false;
+    }
+
+    /**
+     Will also return true if NO message with the given properties ever has been sent
+
+     * @param array|null $time_ago If set to null, the interval is assumed to be [0, 's']
+     * @param int|null $subject
+     * @return bool
+     */
+    public function lastMessageWasBefore(array $time_ago = null, int $subject = null): bool
+    {
+        if(in_array(null, [$time_ago, $subject], true)){
+            return true;
+        }
+
+        $date = T::subDurationFromNow($time_ago);
+        $prop = ['subject' => $subject];
+
+        return ! $this->lastMessageWasAfter($date, $prop);
     }
 
     public function hasStandardizedMob()
@@ -580,14 +590,14 @@ class User
         return $nr;
     }
 
-    private function setCurrentStandardMailSettings()
+    private function setCurrentStandardMailSettings(): void
     {
         $settings = [
             Message::SUBJECT_PASSWORD_RECOVERY,
-            Message::SUBJECT_WELCOME_NEW_USER,
+            Message::SUBJECT_NEW_GROUP,
+            Message::SUBJECT_CONTINUED_GROUP,
             Message::SUBJECT_VISIT_CONFIRMATION,
-            Message::SUBJECT_PROFILE_UPDATE,
-            Message::SUBJECT_CHANGED_GROUPS,
+            Message::SUBJECT_INCOMPLETE_PROFILE,
         ];
 
         foreach($settings as $setting){
@@ -596,7 +606,7 @@ class User
     }
 
     /** @ORM\PrePersist */
-    public function prePersist()
+    public function prePersist(): void
     {
         $this->setCreatedAt(Carbon::now());
         $this->setLastChange(Carbon::now()->toIso8601String());
@@ -604,13 +614,13 @@ class User
     }
 
     /** @ORM\PreUpdate */
-    public function preUpdate()
+    public function preUpdate(): void
     {
         $this->setLastChange(Carbon::now()->toIso8601String());
     }
 
     /** @ORM\PreRemove */
-    public function preRemove()
+    public function preRemove(): void
     {
     }
 

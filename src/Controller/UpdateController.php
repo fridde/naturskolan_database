@@ -14,7 +14,7 @@ use Fridde\Utility as U;
 class UpdateController extends BaseController
 {
 
-    protected static $allowed_by_user = ['User', 'Group'];
+    protected static array $allowed_by_user = ['User', 'Group'];
 
     public function __construct($params)
     {

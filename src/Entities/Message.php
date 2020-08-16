@@ -21,50 +21,52 @@ class Message
     protected $id;
 
     /** @ORM\ManyToOne(targetEntity="User", inversedBy="Messages")     * */
-    protected $User;
+    protected User $User;
 
-    /** @ORM\Column(type="string", nullable=true) */
-    protected $Subject;
+    /** @ORM\Column(type="smallint") */
+    protected int $Subject;
 
-    /** @ORM\Column(type="smallint", nullable=true) */
-    protected $Carrier;
+    /** @ORM\Column(type="smallint") */
+    protected int $Carrier;
 
-    /** @ORM\Column(type="string", nullable=true) */
+    /** @ORM\Column(type="string") */
     protected $Date;
 
     public const CARRIER_MAIL = 0;
     public const CARRIER_SMS = 1;
 
     public const SUBJECT_PASSWORD_RECOVERY = 1;
-    public const SUBJECT_WELCOME_NEW_USER = 2;
-    public const SUBJECT_VISIT_CONFIRMATION = 3 ;
-    public const SUBJECT_PROFILE_UPDATE = 4;
-    public const SUBJECT_CHANGED_GROUPS = 5;
-    public const SUBJECT_MANAGER_MOBILIZATION = 6;
-    public const SUBJECT_ADMIN_SUMMARY = 7;
-    public const SUBJECT_UPDATE_RECEIVED_SMS = 8;
-    public const SUBJECT_USER_REMOVAL_REQUEST = 9;
+    public const SUBJECT_VISIT_CONFIRMATION = 2 ;
+    public const SUBJECT_INCOMPLETE_PROFILE = 3;
+    public const SUBJECT_NEW_GROUP = 4;
+    public const SUBJECT_CONTINUED_GROUP = 5;
+    public const SUBJECT_ADMIN_SUMMARY = 6;
+    public const SUBJECT_USER_REMOVAL_REQUEST = 7;
+
+    public const SUBJECT_LABELS = [
+            self::SUBJECT_VISIT_CONFIRMATION => 'Bekräfta ditt besök!',
+            self::SUBJECT_INCOMPLETE_PROFILE => 'Vi behöver mer information från dig!',
+            self::SUBJECT_NEW_GROUP => 'Året med Naturskolan börjar!',
+            self::SUBJECT_CONTINUED_GROUP => 'Snart fortsätter året med Naturskolan',
+    ];
 
     public function getId()
     {
         return $this->id;
     }
 
-    public function setId($id)
+    public function setId($id): void
     {
         $this->id = $id;
     }
 
 
-    /**
-     * @return User
-     */
-    public function getUser()
+    public function getUser(): User
     {
         return $this->User;
     }
 
-    public function setUser(User $User)
+    public function setUser(User $User): void
     {
         $this->User = $User;
     }
@@ -74,7 +76,7 @@ class Message
         return $this->Subject;
     }
 
-    public function setSubject(int $Subject)
+    public function setSubject(int $Subject): void
     {
         $this->Subject = $Subject;
     }
@@ -84,7 +86,7 @@ class Message
         return $this->Carrier;
     }
 
-    public function setCarrier($Carrier)
+    public function setCarrier(int $Carrier): void
     {
         $this->Carrier = $Carrier;
     }
@@ -98,7 +100,7 @@ class Message
         return $this->Date;
     }
 
-    public function setDate($Date)
+    public function setDate(string $Date): void
     {
         if ($Date instanceof Carbon) {
             $Date = $Date->toDateString();
@@ -106,7 +108,7 @@ class Message
         $this->Date = $Date;
     }
 
-    public function wasSentAfter($date)
+    public function wasSentAfter($date): bool
     {
         if (is_string($date)) {
             $date = new Carbon($date);
@@ -154,17 +156,17 @@ class Message
 
 
     /** @ORM\PrePersist */
-    public function prePersist()
+    public function prePersist(): void
     {
     }
 
     /** @ORM\PreUpdate */
-    public function preUpdate()
+    public function preUpdate(): void
     {
     }
 
     /** @ORM\PreRemove */
-    public function preRemove()
+    public function preRemove(): void
     {
     }
 

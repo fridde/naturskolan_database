@@ -69,6 +69,10 @@ NAV_SETTINGS:
            url: 'view/mail'
            icon: 'envelope'
          -
+           label: 'Överför mejllogg'
+           url: 'view/mail_logg_update'
+           icon: 'paper-plane'
+         -
            label: 'Anteckningar översikt'
            url: 'admin/show_note_calendar'
            icon: 'comments'

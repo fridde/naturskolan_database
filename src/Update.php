@@ -12,11 +12,14 @@ use Fridde\Entities\GroupRepository;
 use Fridde\Entities\Hash;
 use Fridde\Entities\Location;
 use Fridde\Entities\LocationRepository;
+use Fridde\Entities\Message;
+use Fridde\Entities\MessageRepository;
 use Fridde\Entities\Note;
 use Fridde\Entities\NoteRepository;
 use Fridde\Entities\School;
 use Fridde\Entities\SchoolRepository;
 use Fridde\Entities\Topic;
+use Fridde\Entities\User;
 use Fridde\Entities\Visit;
 use Fridde\Error\Error;
 use Fridde\Error\NException;
@@ -30,7 +33,7 @@ class Update extends DefaultUpdate
     private const NEW_ENTITY_ID_KEY = 'new_entity_ids';
 
     /** @var Naturskolan $N */
-    protected $N;
+    protected Naturskolan $N;
 
     /**
      * Update constructor.
@@ -440,11 +443,10 @@ class Update extends DefaultUpdate
     }
 
     /**
-     *
      * @PostArgs("visit_id, author_id, text")
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
-    public function updateNoteToVisit(int $visit_id, int $author_id, string $text)
+    public function updateNoteToVisit(int $visit_id, int $author_id, string $text): Update
     {
         /* @var NoteRepository $note_repo */
         $note_repo = $this->N->ORM->getRepository('Note');
@@ -459,5 +461,54 @@ class Update extends DefaultUpdate
         return $this->updateProperty('Note', $note->getId(), 'Text', $text);
     }
 
+    /**
+     * @PostArgs("message_log")
+     * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
+     */
+    public function updateMessageLoggFromOutlook(string $message_log): Update
+    {
+        /* @var MessageRepository $message_repo */
+        $message_repo = $this->ORM->getRepository(Message::class);
+        $existing_messages = $message_repo->findAll();
+        $existing_messages_by_users = [];
+        foreach ($existing_messages as $existing_message){
+            /* @var Message $existing_message */
+            $user_id = $existing_message->getUser()->getId();
+            $existing_messages_by_users[$user_id] ??= [];
+            $existing_messages_by_users[$user_id][] = $existing_message;
+        }
+
+        $new_messages = json_decode($message_log, true);
+
+        foreach($new_messages as $k => $new_message){
+            $user_id =  $new_message['user_id'];
+            $messages_for_user = $existing_messages_by_users[$user_id] ?? [];
+            foreach($messages_for_user as $m){
+                /* @var Message $m */
+                if($m->getSubject() === (int) $new_message['subject'] &&
+                    $m->getDate()->toDateString() === $new_message['date']){
+                        $new_messages[$k] = null;
+                }
+            }
+        }
+        $new_messages = array_filter($new_messages);
+
+        foreach($new_messages as $nm){
+            /* @var User $user */
+            $user = $this->ORM->getRepository(User::class)->find($nm['user_id']);
+            if(empty($user)){
+                $this->N->log('Mail import error: User with id '.  $nm['user_id'] . ' doesn\'t exist in the database.');
+                continue;
+            }
+            $nm_entity = new Message();
+            $nm_entity->setCarrier(Message::CARRIER_MAIL);
+            $nm_entity->setDate($nm['date']);
+            $nm_entity->setSubject($nm['subject']);
+
+            $nm_entity->setUser($user);
+            $this->ORM->EM->persist($nm_entity);
+        }
+        return $this->flush();
+    }
 
 }

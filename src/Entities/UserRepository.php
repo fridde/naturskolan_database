@@ -99,6 +99,11 @@ class UserRepository extends CustomRepository
         return $this->filterByFunction('isManager');
     }
 
+    public function lastMessageWasBefore(array $time_ago = null, int $message_subject = null)
+    {
+        return $this->filterByFunction('lastMessageWasBefore', $time_ago, $message_subject);
+    }
+
     public function hasGroupsWithCriteria(array $criteria = []): self
     {
         return $this->filterByFunction('hasGroupsWithCriteria', $criteria);
@@ -134,11 +139,14 @@ class UserRepository extends CustomRepository
                     case 'ismanager':
                         return $u->hasRole(User::ROLE_SCHOOL_MANAGER);
                         break;
+                    case 'lastmessagewasbefore':
+                        return $u->lastMessageWasBefore(...$args);
+                        break;
                     case 'hasgroupswithcriteria':
                         return $u->hasGroupsWithCriteria($args[0]);
                         break;
                     default:
-                        throw new \Exception('The function "'. $function_name .'"  has no defined behaviour.');
+                        throw new \RuntimeException('The function "'. $function_name .'"  has no defined behaviour.');
                 }
             }
         );

@@ -231,12 +231,6 @@ class APIController extends BaseController
         $this->addToDATA('captcha_success', $captcha_success);
     }
 
-    public function updateReceivedSMS()
-    {
-        // TODO: Implement this function using SMS::updateReceivedSms
-    }
-
-
     /**
      * @SecurityLevel(SecurityLevel::ACCESS_ALL_EXCEPT_GUEST)
      */

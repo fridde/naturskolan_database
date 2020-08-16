@@ -4,6 +4,7 @@ namespace Fridde\Controller;
 
 use Carbon\Carbon;
 use Fridde\Annotations\SecurityLevel;
+use Fridde\Entities\Message;
 use Fridde\Utility;
 use ZipStream\ZipStream;
 use Fridde\Controller\ViewController as VC;
@@ -13,10 +14,10 @@ class FileController extends BaseController
     private const CALENDAR_FILE = 'kalender.ics';
 
     private const SUBJECT_TEMPLATE_TRANSLATOR = [
-        VC::CONFIRMATION => 'confirm_visit',
-        VC::INCOMPLETE_PROFILE => 'incomplete_profile',
-        VC::NEW => 'dates_new_groups',
-        VC::CONTINUED => 'dates_continuing_groups'
+        Message::SUBJECT_VISIT_CONFIRMATION => 'confirm_visit',
+        Message::SUBJECT_INCOMPLETE_PROFILE => 'incomplete_profile',
+        Message::SUBJECT_NEW_GROUP => 'dates_new_groups',
+        Message::SUBJECT_CONTINUED_GROUP => 'dates_continuing_groups'
     ];
 
     public static $ActionTranslator = [
@@ -49,7 +50,7 @@ class FileController extends BaseController
      * @SecurityLevel(SecurityLevel::ACCESS_ADMIN_ONLY)
      */
 
-    public function downloadAllMails(string $subject = VC::NEW, string $segment = null)
+    public function downloadAllMails(int $subject = Message::SUBJECT_NEW_GROUP, string $segment = null)
     {
         $this->removeAction('mail');
         $vc = new VC();

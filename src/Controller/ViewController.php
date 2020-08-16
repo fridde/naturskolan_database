@@ -3,6 +3,7 @@
 namespace Fridde\Controller;
 
 use Fridde\Entities\Group;
+use Fridde\Entities\Message;
 use Fridde\Entities\School;
 use Fridde\Entities\Topic;
 use Fridde\Entities\TopicRepository;
@@ -29,16 +30,11 @@ use Fridde\Annotations\SecurityLevel;
  */
 class ViewController extends BaseController
 {
-    public const CONFIRMATION = "confirmation";
-    public const INCOMPLETE_PROFILE = "incomplete_profile";
-    public const NEW = "new";
-    public const CONTINUED = "continued";
-
     private const MAIL_SUBJECT_LABELS = [
-        self::CONFIRMATION => 'Bekräfta ditt besök!',
-        self::INCOMPLETE_PROFILE => 'Vi behöver mer information från dig!',
-        self::NEW => 'Året med Naturskolan börjar!',
-        self::CONTINUED => 'Snart fortsätter året med Naturskolan',
+        Message::SUBJECT_VISIT_CONFIRMATION => 'Bekräfta ditt besök!',
+        Message::SUBJECT_INCOMPLETE_PROFILE => 'Vi behöver mer information från dig!',
+        Message::SUBJECT_NEW_GROUP => 'Året med Naturskolan börjar!',
+        Message::SUBJECT_CONTINUED_GROUP => 'Snart fortsätter året med Naturskolan',
     ];
 
 
@@ -46,6 +42,7 @@ class ViewController extends BaseController
         'food_order' => 'viewFoodOrder',
         'bus_order' => 'viewBus',
         'mail' => 'viewMailTemplates',
+        'mail_logg_update' => 'viewMailLoggUpdateArea'
     ];
 
     public function handleRequest(): ?string
@@ -125,7 +122,12 @@ class ViewController extends BaseController
         $this->setTemplate('admin/bus_order');
     }
 
-    public function viewMailTemplates(string $subject = null, string $segment = null)
+    public function viewMailLoggUpdateArea()
+    {
+        $this->setTemplate('admin/mail_logg_update');
+    }
+
+    public function viewMailTemplates(int $subject = null, string $segment = null)
     {
         $data = $this->compileMailData($segment, $subject);
         $data['subjects'] = self::MAIL_SUBJECT_LABELS;
@@ -136,7 +138,7 @@ class ViewController extends BaseController
         $this->setTemplate('admin/mail_templates');
     }
 
-    public function compileMailData(string $segment = null, string $subject = null): array
+    public function compileMailData(string $segment = null, int $subject = null): array
     {
         /* @var UserRepository $u_repo */
         $u_repo = $this->N->getRepo('User');
@@ -157,13 +159,30 @@ class ViewController extends BaseController
         $topics = array_column($topics, 0, 'id');
 
         $criteria = ['visiting' => true, 'in_future' => true, 'in_segment' => $segment];
-        if ($subject === self::CONFIRMATION) {
+        $last_message_interval = [0, 's'];
+        if ($subject === Message::SUBJECT_VISIT_CONFIRMATION) {
             $dur = Naturskolan::getSetting('values', 'confirm_visit_countdown');
             $criteria['next_visit_before'] = Timing::addDurationToNow($dur);
             $criteria['next_visit_not_confirmed'] = true;
+            $last_message_interval = Naturskolan::getSetting('user_message', 'annoyance_interval');
+        }
+        if($subject === Message::SUBJECT_NEW_GROUP){
+            $last_message_interval = [32, 'w'];
+        } elseif ($subject === Message::SUBJECT_CONTINUED_GROUP){
+            $last_message_interval = [20, 'w'];
+        } elseif($subject === Message::SUBJECT_INCOMPLETE_PROFILE){
+            $last_message_interval = [1, 'w'];
         }
 
-        $selected_users = $u_repo->all()->active()->hasGroupsWithCriteria($criteria)->fetch();
+        $u_repo->all()->active()
+            ->hasGroupsWithCriteria($criteria)
+            ->lastMessageWasBefore($last_message_interval, $subject);
+
+        if($subject === Message::SUBJECT_INCOMPLETE_PROFILE){
+            $u_repo->incomplete();
+        }
+
+        $selected_users = $u_repo->fetch();
 
         if (empty($selected_users)) {
             return [];
@@ -171,7 +190,7 @@ class ViewController extends BaseController
 
         foreach ($selected_users as $u) {
             /* @var User $u */
-            $u_data = [];
+            $u_data = ['groups' => [], 'group_names' => [], 'next_visit' => null];
             $u_data['id'] = $u->getId();
             $u_data['mail'] = $u->getMail();
             $u_data['mobil'] = $u->getMobil();
@@ -182,9 +201,6 @@ class ViewController extends BaseController
             $u_data['file_name'] = self::createFileNameForHtmlMail($u_data['full_name'], $u_data['id']);
 
             $u_data['login_url'] = $this->N->createLoginUrl($u);
-
-            $u_data['groups'] = [];
-            $u_data['next_visit'] = null;
 
             $groups = $u->getGroups();
             foreach ($groups as $g) {
@@ -309,10 +325,10 @@ class ViewController extends BaseController
         return ['date_strings' => $date_strings, 'calendar' => $calendar];
     }
 
-    private function getVisitRepo()
+    private function getVisitRepo(): VisitRepository
     {
         /* @var VisitRepository $repo */
-        $repo = $this->N->ORM->getRepository('Visit');
+        $repo = $this->N->ORM->getRepository(Visit::class);
 
         return $repo;
     }

@@ -60,6 +60,7 @@ class SMS extends AbstractMessageController
         $this->options['to'] = $this->getParameter('receiver');
     }
 
+    /*
     protected function updateReceivedSms()
     {
         $secret = $this->getParameter('secret');
@@ -91,8 +92,8 @@ class SMS extends AbstractMessageController
 
     protected function checkReceivedSmsForConfirmation()
     {
-        /* @var UserRepository $user_repo */
-        /* @var GroupRepository $group_repo */
+        /* @var UserRepository $user_repo
+        /* @var GroupRepository $group_repo
         $user_repo = $this->N->ORM->getRepository('User');
         $group_repo = $this->N->ORM->getRepository('Group');
 
@@ -114,11 +115,10 @@ class SMS extends AbstractMessageController
         } else {
             $user = reset($users);
         }
-        /* @var User $user */
-        $user->sortMessagesByDate();
+        /* @var User $user
         $user_messages = $user->getFilteredMessages($properties);
         $n_visit = $group_repo->getNextVisitForUser($user);
-        /* @var Visit $n_visit */
+        /* @var Visit $n_visit
         if (empty($n_visit)) {
             $log_msg = 'Received sms from '.$user->getFullName().' without a next visit. Check!';
             $this->N->log($log_msg, __METHOD__);
@@ -126,7 +126,7 @@ class SMS extends AbstractMessageController
         $message = array_filter(
             $user_messages,
             function ($m) use ($n_visit) {
-                /* @var Message $m */
+                /* @var Message $m
                 return (int)$m->getContent('visit_id') === $n_visit->getId();
             }
         );
@@ -144,6 +144,7 @@ class SMS extends AbstractMessageController
 
         return $return;
     }
+    */
 
     public function getResponse()
     {

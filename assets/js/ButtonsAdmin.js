@@ -108,6 +108,15 @@ class Buttons {
             document.execCommand('copy');
         });
 
+        $('button#send-logg-from_outlook').click(() => {
+            let data = {
+                updateMethod: 'updateMessageLoggFromOutlook',
+                message_log: $('textarea#logg-from-outlook').val(),
+                onReturn: 'showStatus'
+            };
+            Update.send(data);
+        });
+
         $('button#send-user-removal-mail').click(() => {
             let $form = $('div#remove-user-form');
             let users_ids = $('input:checkbox:checked', $form).map((i, el) => {
