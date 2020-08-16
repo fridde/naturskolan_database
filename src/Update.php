@@ -484,9 +484,10 @@ class Update extends DefaultUpdate
             $user_id =  $new_message['user_id'];
             $messages_for_user = $existing_messages_by_users[$user_id] ?? [];
             foreach($messages_for_user as $m){
+                $nm_date = new Carbon($new_message['date']);
                 /* @var Message $m */
                 if($m->getSubject() === (int) $new_message['subject'] &&
-                    $m->getDate()->toDateString() === $new_message['date']){
+                    $nm_date->isSameDay($m->getDate())){
                         $new_messages[$k] = null;
                 }
             }
