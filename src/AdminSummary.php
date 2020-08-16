@@ -29,16 +29,16 @@ use Fridde\Entities\Group;
 class AdminSummary
 {
     /** @var Naturskolan shortcut for the Naturskolan object in the global container */
-    private $N;
+    private Naturskolan $N;
 
     private $summary;
 
     /** @var array Contains group changes younger than a certain amount of time.
      *              This is a temporary variable to avoid reproducing the table.
      */
-    private $recent_group_changes;
+    private array $recent_group_changes;
 
-    private static $method_translator = [
+    private static array $method_translator = [
         'bad_mobil' => 'getBadMobileNumbers',
         'bus_or_food_order_outdated' => 'getOutdatedBusOrFoodOrders',
         'duplicate_mail_addresses' => 'getDuplicateMailAddresses',

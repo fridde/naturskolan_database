@@ -20,21 +20,11 @@ class Mail extends AbstractMessageController
             [self::SEND | self::PREPARE, 'AdminSummary', 'Sammanfattning av databasen'],
         Message::SUBJECT_PASSWORD_RECOVERY =>
             [self::SEND | self::PREPARE, 'PasswordRecovery', 'Naturskolan: Återställning av lösenord'],
-        Message::SUBJECT_VISIT_CONFIRMATION =>
-            [self::SEND | self::PREPARE, 'VisitConfirmation', 'Bekräfta ditt besök!'],
-        Message::SUBJECT_PROFILE_UPDATE =>
-            [self::SEND | self::PREPARE, 'UpdateProfileReminder', 'Vi behöver mer information från dig!'],
-        Message::SUBJECT_CHANGED_GROUPS =>
-            [self::SEND | self::PREPARE, 'ChangedGroupsForUser', null],
-        Message::SUBJECT_WELCOME_NEW_USER =>
-            [self::SEND | self::PREPARE, 'WelcomeNewUser', 'Välkommen i Naturskolans besöksportal'],
-        Message::SUBJECT_MANAGER_MOBILIZATION =>
-            [self::SEND | self::PREPARE, 'ManagerMobilization', 'Hjälp oss att planera klassernas besök'],
         Message::SUBJECT_USER_REMOVAL_REQUEST =>
             [self::SEND | self::PREPARE, 'UserRemovalRequest', 'Borttagning av användare har begärts']
     ];
 
-    protected $subject_int;
+    protected int $subject_int;
 
 
     public function __construct(array $params = [])
@@ -108,7 +98,7 @@ class Mail extends AbstractMessageController
         $this->moveFromDataToVar('school_url', 'fname');
     }
 
-    protected function prepareVisitConfirmation()
+    /*protected function prepareVisitConfirmation()
     {
 
         $template = 'mail/confirm_visit';
@@ -117,9 +107,9 @@ class Mail extends AbstractMessageController
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString());
         $this->addAsVar($this->getParameter('data'));
-    }
+    }*/
 
-    protected function prepareChangedGroupsForUser()
+    /*protected function prepareChangedGroupsForUser()
     {
         $DATA = $this->getParameter('data');
 
@@ -153,7 +143,7 @@ class Mail extends AbstractMessageController
             throw new NException(Error::LOGIC, ['no groups for user']);
         }
         $this->Mailer->setValue('subject', $subject);
-    }
+    }*/
 
     /**
      * Prepares and gathers the variables needed to send the Welcome-New-User mail
@@ -161,7 +151,7 @@ class Mail extends AbstractMessageController
      * @example welcome_mail_example.php
      * @return void
      */
-    protected function prepareWelcomeNewUser()
+    /*protected function prepareWelcomeNewUser()
     {
         $DATA = $this->getParameter('data');
 
@@ -192,7 +182,7 @@ class Mail extends AbstractMessageController
         $this->setTemplate($template);
         $this->Mailer->setValue('receiver', $this->getParameter('receiver'));
         $this->Mailer->setValue('subject', $this->getSubjectString());
-    }
+    }*/
 
     protected function prepareUserRemovalRequest()
     {
