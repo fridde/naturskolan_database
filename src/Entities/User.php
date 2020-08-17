@@ -390,6 +390,13 @@ class User
         $this->Groups = $Groups;
     }
 
+    public function getActiveGroups(): array
+    {
+        return array_filter($this->getGroups(), function (Group $g){
+            return $g->isActive();
+        });
+    }
+
     /**
      * @param int $min
      * @return bool

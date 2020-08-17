@@ -202,7 +202,7 @@ class ViewController extends BaseController
 
             $u_data['login_url'] = $this->N->createLoginUrl($u);
 
-            $groups = $u->getGroups();
+            $groups = $u->getActiveGroups();
             foreach ($groups as $g) {
                 /* @var Group $g */
                 $g_data = [];
