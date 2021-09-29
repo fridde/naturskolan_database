@@ -26,7 +26,7 @@
     "@fortawesome/fontawesome-free": "^5.10.2",
     "@symfony/webpack-encore": "^0.22",
     "bootstrap": "^4.3",
-    "datatables.net": "^1.10",
+    "datatables.net": "^1.11",
     "jquery": "^3.4.1",
     "jquery-ui": "^1.12",
     "jquery-ui-bundle": "^1.12.1-migrate",
