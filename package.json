@@ -31,7 +31,7 @@
     "jquery-ui": "^1.12",
     "jquery-ui-bundle": "^1.12.1-migrate",
     "jquery-ui-dist": "^1.12",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "popper.js": "^1.15.0",
     "webpack-notifier": "^1.8.0"
   },
