@@ -28,7 +28,7 @@
     "bootstrap": "^4.3",
     "datatables.net": "^1.10",
     "jquery": "^3.4.1",
-    "jquery-ui": "^1.12",
+    "jquery-ui": "^1.13",
     "jquery-ui-bundle": "^1.12.1-migrate",
     "jquery-ui-dist": "^1.12",
     "moment": "^2.24.0",
